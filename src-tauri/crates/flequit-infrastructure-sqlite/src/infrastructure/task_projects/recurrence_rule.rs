@@ -10,6 +10,11 @@ use crate::models::task_projects::recurrence_adjustment::{
     Column as RecurrenceAdjustmentColumn,
     Entity as RecurrenceAdjustmentEntity,
 };
+use crate::models::task_projects::recurrence_detail::{
+    ActiveModel as RecurrenceDetailActiveModel,
+    Column as RecurrenceDetailColumn,
+    Entity as RecurrenceDetailEntity,
+};
 use crate::models::task_projects::recurrence_date_condition::{
     ActiveModel as RecurrenceDateConditionActiveModel,
     Column as RecurrenceDateConditionColumn,
@@ -21,13 +26,16 @@ use crate::models::task_projects::recurrence_weekday_condition::{
     Entity as RecurrenceWeekdayConditionEntity,
 };
 use crate::models::task_projects::recurrence_days_of_week::{
+    ActiveModel as RecurrenceDaysOfWeekActiveModel,
     Column as RecurrenceDaysOfWeekColumn,
     Entity as RecurrenceDaysOfWeekEntity,
 };
 use crate::models::{DomainToSqliteConverterWithProjectId, SqliteModelConverter};
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use flequit_model::models::task_projects::recurrence_rule::RecurrenceRule;
+use flequit_model::models::task_projects::{
+    recurrence_details::RecurrenceDetails, recurrence_rule::RecurrenceRule,
+};
 use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, UserId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::task_projects::recurrence_rule_repository_trait::RecurrenceRuleRepositoryTrait;
@@ -119,7 +127,21 @@ impl RecurrenceRuleLocalSqliteRepository {
             .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
 
-        // TODO: Phase 2.2 で details と関連する date_conditions の削除を追加
+        // 4. details に紐づく date_conditions を削除
+        RecurrenceDateConditionEntity::delete_many()
+            .filter(RecurrenceDateConditionColumn::ProjectId.eq(&project_id_str))
+            .filter(RecurrenceDateConditionColumn::RecurrenceDetailId.eq(Some(rule_id_str.clone())))
+            .exec(txn)
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+
+        // 5. details を削除
+        RecurrenceDetailEntity::delete_many()
+            .filter(RecurrenceDetailColumn::ProjectId.eq(&project_id_str))
+            .filter(RecurrenceDetailColumn::RecurrenceRuleId.eq(&rule_id_str))
+            .exec(txn)
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
 
         Ok(())
     }
@@ -134,7 +156,6 @@ impl RecurrenceRuleLocalSqliteRepository {
     where
         C: sea_orm::ConnectionTrait,
     {
-        use flequit_model::types::datetime_calendar_types::DateRelation;
         use flequit_model::types::id_types::{
             DateConditionId, RecurrenceAdjustmentId, WeekdayConditionId,
         };
@@ -173,18 +194,9 @@ impl RecurrenceRuleLocalSqliteRepository {
             let date_conditions: Vec<DateCondition> = date_condition_models
                 .into_iter()
                 .map(|dc| {
-                    let relation = match dc.relation.as_str() {
-                        "before" => DateRelation::Before,
-                        "on_or_before" => DateRelation::OnOrBefore,
-                        "same" => DateRelation::Same,
-                        "on_or_after" => DateRelation::OnOrAfter,
-                        "after" => DateRelation::After,
-                        _ => DateRelation::Same,
-                    };
-
                     DateCondition {
                         id: DateConditionId::from(dc.id),
-                        relation,
+                        relation: string_to_date_relation(&dc.relation),
                         reference_date: dc.reference_date,
                         created_at: dc.created_at,
                         updated_at: dc.updated_at,
@@ -257,8 +269,6 @@ impl RecurrenceRuleLocalSqliteRepository {
     where
         C: sea_orm::ConnectionTrait,
     {
-        use flequit_model::types::datetime_calendar_types::DateRelation;
-
         // 1. adjustment レコードを作成
         let adjustment_active = RecurrenceAdjustmentActiveModel {
             project_id: Set(project_id.to_string()),
@@ -277,20 +287,12 @@ impl RecurrenceRuleLocalSqliteRepository {
 
         // 2. date_conditions を作成
         for date_condition in &adjustment.date_conditions {
-            let relation_str = match date_condition.relation {
-                DateRelation::Before => "before",
-                DateRelation::OnOrBefore => "on_or_before",
-                DateRelation::Same => "same",
-                DateRelation::OnOrAfter => "on_or_after",
-                DateRelation::After => "after",
-            };
-
             let date_condition_active = RecurrenceDateConditionActiveModel {
                 project_id: Set(project_id.to_string()),
                 id: Set(date_condition.id.to_string()),
                 recurrence_adjustment_id: Set(Some(adjustment.id.to_string())),
                 recurrence_detail_id: Set(None),
-                relation: Set(relation_str.to_string()),
+                relation: Set(date_relation_to_string(&date_condition.relation)),
                 reference_date: Set(date_condition.reference_date),
                 created_at: Set(date_condition.created_at),
                 updated_at: Set(date_condition.updated_at),
@@ -333,6 +335,201 @@ impl RecurrenceRuleLocalSqliteRepository {
                 .insert(txn)
                 .await
                 .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+        }
+
+        Ok(())
+    }
+
+    /// RecurrenceDetails を読み込むヘルパーメソッド
+    async fn load_details<C>(
+        &self,
+        txn: &C,
+        project_id: &ProjectId,
+        rule_id: &RecurrenceRuleId,
+    ) -> Result<Option<RecurrenceDetails>, RepositoryError>
+    where
+        C: sea_orm::ConnectionTrait,
+    {
+        use flequit_model::models::task_projects::date_condition::DateCondition;
+        use flequit_model::types::id_types::DateConditionId;
+
+        let rule_id_str = rule_id.to_string();
+        let project_id_str = project_id.to_string();
+
+        let details_model = RecurrenceDetailEntity::find()
+            .filter(RecurrenceDetailColumn::ProjectId.eq(&project_id_str))
+            .filter(RecurrenceDetailColumn::RecurrenceRuleId.eq(&rule_id_str))
+            .one(txn)
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+
+        if let Some(details) = details_model {
+            let date_condition_models = RecurrenceDateConditionEntity::find()
+                .filter(RecurrenceDateConditionColumn::ProjectId.eq(&project_id_str))
+                .filter(RecurrenceDateConditionColumn::RecurrenceDetailId.eq(Some(rule_id_str)))
+                .all(txn)
+                .await
+                .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+
+            let date_conditions = date_condition_models
+                .into_iter()
+                .map(|dc| DateCondition {
+                    id: DateConditionId::from(dc.id),
+                    relation: string_to_date_relation(&dc.relation),
+                    reference_date: dc.reference_date,
+                    created_at: dc.created_at,
+                    updated_at: dc.updated_at,
+                    deleted: dc.deleted,
+                    updated_by: UserId::from(dc.updated_by),
+                })
+                .collect::<Vec<_>>();
+
+            Ok(Some(RecurrenceDetails {
+                specific_date: details.specific_date,
+                week_of_period: details
+                    .week_of_period
+                    .as_ref()
+                    .map(|v| string_to_week_of_month(v)),
+                weekday_of_week: details
+                    .weekday_of_week
+                    .as_ref()
+                    .map(|v| string_to_day_of_week(v)),
+                date_conditions: if date_conditions.is_empty() {
+                    None
+                } else {
+                    Some(date_conditions)
+                },
+                created_at: details.created_at,
+                updated_at: details.updated_at,
+                deleted: details.deleted,
+                updated_by: UserId::from(details.updated_by),
+            }))
+        } else {
+            Ok(None)
+        }
+    }
+
+    /// RecurrenceDetails を保存するヘルパーメソッド
+    async fn save_details<C>(
+        &self,
+        txn: &C,
+        project_id: &ProjectId,
+        rule_id: &RecurrenceRuleId,
+        details: &RecurrenceDetails,
+    ) -> Result<(), RepositoryError>
+    where
+        C: sea_orm::ConnectionTrait,
+    {
+        // 1. details レコードを作成
+        let details_active = RecurrenceDetailActiveModel {
+            project_id: Set(project_id.to_string()),
+            recurrence_rule_id: Set(rule_id.to_string()),
+            specific_date: Set(details.specific_date),
+            week_of_period: Set(
+                details
+                    .week_of_period
+                    .as_ref()
+                    .map(week_of_month_to_string),
+            ),
+            weekday_of_week: Set(
+                details
+                    .weekday_of_week
+                    .as_ref()
+                    .map(day_of_week_to_string),
+            ),
+            created_at: Set(details.created_at),
+            updated_at: Set(details.updated_at),
+            deleted: Set(details.deleted),
+            updated_by: Set(details.updated_by.to_string()),
+        };
+
+        details_active
+            .insert(txn)
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+
+        // 2. details 配下の date_conditions を保存
+        if let Some(date_conditions) = details.date_conditions.as_ref() {
+            for date_condition in date_conditions {
+                let date_condition_active = RecurrenceDateConditionActiveModel {
+                    project_id: Set(project_id.to_string()),
+                    id: Set(date_condition.id.to_string()),
+                    recurrence_adjustment_id: Set(None),
+                    recurrence_detail_id: Set(Some(rule_id.to_string())),
+                    relation: Set(date_relation_to_string(&date_condition.relation)),
+                    reference_date: Set(date_condition.reference_date),
+                    created_at: Set(date_condition.created_at),
+                    updated_at: Set(date_condition.updated_at),
+                    updated_by: Set(date_condition.updated_by.to_string()),
+                    deleted: Set(date_condition.deleted),
+                };
+
+                date_condition_active
+                    .insert(txn)
+                    .await
+                    .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+            }
+        }
+
+        Ok(())
+    }
+
+    /// days_of_week を読み込むヘルパーメソッド
+    async fn load_days_of_week<C>(
+        &self,
+        txn: &C,
+        project_id: &ProjectId,
+        rule_id: &RecurrenceRuleId,
+    ) -> Result<Option<Vec<flequit_model::types::datetime_calendar_types::DayOfWeek>>, RepositoryError>
+    where
+        C: sea_orm::ConnectionTrait,
+    {
+        let models = RecurrenceDaysOfWeekEntity::find()
+            .filter(RecurrenceDaysOfWeekColumn::ProjectId.eq(project_id.to_string()))
+            .filter(RecurrenceDaysOfWeekColumn::RecurrenceRuleId.eq(rule_id.to_string()))
+            .all(txn)
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+
+        if models.is_empty() {
+            Ok(None)
+        } else {
+            Ok(Some(
+                models
+                    .into_iter()
+                    .map(|m| string_to_day_of_week(&m.day_of_week))
+                    .collect(),
+            ))
+        }
+    }
+
+    /// days_of_week を保存するヘルパーメソッド
+    async fn save_days_of_week<C>(
+        &self,
+        txn: &C,
+        project_id: &ProjectId,
+        rule: &RecurrenceRule,
+    ) -> Result<(), RepositoryError>
+    where
+        C: sea_orm::ConnectionTrait,
+    {
+        if let Some(days_of_week) = rule.days_of_week.as_ref() {
+            for day in days_of_week {
+                let active = RecurrenceDaysOfWeekActiveModel {
+                    project_id: Set(project_id.to_string()),
+                    recurrence_rule_id: Set(rule.id.to_string()),
+                    day_of_week: Set(day_of_week_to_string(day)),
+                    created_at: Set(rule.created_at),
+                    updated_at: Set(rule.updated_at),
+                    updated_by: Set(rule.updated_by.to_string()),
+                    deleted: Set(rule.deleted),
+                };
+
+                active
+                    .insert(txn)
+                    .await
+                    .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+            }
         }
 
         Ok(())
@@ -516,11 +713,14 @@ impl ProjectRepository<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleLocal
             );
         }
 
-        // 4. details の保存（未実装のためスキップ）
-        // TODO: Phase 2.2 で実装
+        // 4. details の保存
+        if let Some(ref details) = rule.details {
+            self.save_details(&txn, project_id, &rule.id, details)
+                .await?;
+        }
 
-        // 5. days_of_week の保存（未実装のためスキップ）
-        // TODO: Phase 2.3 で実装
+        // 5. days_of_week の保存
+        self.save_days_of_week(&txn, project_id, rule).await?;
 
         // コミット
         txn.commit()
@@ -555,8 +755,11 @@ impl ProjectRepository<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleLocal
             // 2. adjustment を読み込む
             rule.adjustment = self.load_adjustment(db, project_id, id).await?;
 
-            // TODO: Phase 2.2 で details を読み込む
-            // TODO: Phase 2.3 で days_of_week を読み込む
+            // 3. details を読み込む
+            rule.details = self.load_details(db, project_id, id).await?;
+
+            // 4. days_of_week を読み込む
+            rule.days_of_week = self.load_days_of_week(db, project_id, id).await?;
 
             Ok(Some(rule))
         } else {
@@ -590,11 +793,14 @@ impl ProjectRepository<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleLocal
                 .map_err(|e: String| RepositoryError::from(SQLiteError::ConversionError(e)))?;
 
             // 2. adjustment を読み込む
-            let rule_id = &rule.id.clone();
-            rule.adjustment = self.load_adjustment(db, project_id, rule_id).await?;
+            let rule_id = rule.id.clone();
+            rule.adjustment = self.load_adjustment(db, project_id, &rule_id).await?;
 
-            // TODO: Phase 2.2 で details を読み込む
-            // TODO: Phase 2.3 で days_of_week を読み込む
+            // 3. details を読み込む
+            rule.details = self.load_details(db, project_id, &rule_id).await?;
+
+            // 4. days_of_week を読み込む
+            rule.days_of_week = self.load_days_of_week(db, project_id, &rule_id).await?;
 
             rules.push(rule);
         }
@@ -667,6 +873,36 @@ fn day_of_week_to_string(day: &flequit_model::types::datetime_calendar_types::Da
     .to_string()
 }
 
+/// WeekOfMonth enum を文字列に変換
+fn week_of_month_to_string(
+    week: &flequit_model::types::datetime_calendar_types::WeekOfMonth,
+) -> String {
+    use flequit_model::types::datetime_calendar_types::WeekOfMonth;
+    match week {
+        WeekOfMonth::First => "first",
+        WeekOfMonth::Second => "second",
+        WeekOfMonth::Third => "third",
+        WeekOfMonth::Fourth => "fourth",
+        WeekOfMonth::Last => "last",
+    }
+    .to_string()
+}
+
+/// DateRelation enum を文字列に変換
+fn date_relation_to_string(
+    relation: &flequit_model::types::datetime_calendar_types::DateRelation,
+) -> String {
+    use flequit_model::types::datetime_calendar_types::DateRelation;
+    match relation {
+        DateRelation::Before => "before",
+        DateRelation::OnOrBefore => "on_or_before",
+        DateRelation::Same => "same",
+        DateRelation::OnOrAfter => "on_or_after",
+        DateRelation::After => "after",
+    }
+    .to_string()
+}
+
 /// AdjustmentDirection enum を文字列に変換
 fn adjustment_direction_to_string(
     direction: &flequit_model::types::datetime_calendar_types::AdjustmentDirection,
@@ -712,6 +948,36 @@ fn string_to_day_of_week(s: &str) -> flequit_model::types::datetime_calendar_typ
         "saturday" => DayOfWeek::Saturday,
         "sunday" => DayOfWeek::Sunday,
         _ => DayOfWeek::Monday, // デフォルト
+    }
+}
+
+/// 文字列を WeekOfMonth enum に変換
+fn string_to_week_of_month(
+    s: &str,
+) -> flequit_model::types::datetime_calendar_types::WeekOfMonth {
+    use flequit_model::types::datetime_calendar_types::WeekOfMonth;
+    match s {
+        "first" => WeekOfMonth::First,
+        "second" => WeekOfMonth::Second,
+        "third" => WeekOfMonth::Third,
+        "fourth" => WeekOfMonth::Fourth,
+        "last" => WeekOfMonth::Last,
+        _ => WeekOfMonth::First,
+    }
+}
+
+/// 文字列を DateRelation enum に変換
+fn string_to_date_relation(
+    s: &str,
+) -> flequit_model::types::datetime_calendar_types::DateRelation {
+    use flequit_model::types::datetime_calendar_types::DateRelation;
+    match s {
+        "before" => DateRelation::Before,
+        "on_or_before" => DateRelation::OnOrBefore,
+        "same" => DateRelation::Same,
+        "on_or_after" => DateRelation::OnOrAfter,
+        "after" => DateRelation::After,
+        _ => DateRelation::Same,
     }
 }
 

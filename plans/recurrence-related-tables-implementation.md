@@ -8,9 +8,11 @@
 
 - ✅ Phase 1: 関連テーブルモデル確認完了
 - ✅ Phase 2.1: `adjustment` + 子テーブル（`recurrence_date_conditions`, `recurrence_weekday_conditions`）保存完了
-- 🟡 Phase 3: `adjustment` の読込は完了（`find_by_id` / `find_all`）。`details` / `days_of_week` は未実装
-- 🟡 Phase 4: トランザクション + 既存関連データ削除→再作成戦略は導入済み（`adjustment`中心）
-- ⬜ Phase 2.2, 2.3, 5: 未着手
+- ✅ Phase 2.2: `details` + 子テーブル（`recurrence_date_conditions`）保存完了
+- ✅ Phase 2.3: `days_of_week` 保存完了
+- ✅ Phase 3: `adjustment` / `details` / `days_of_week` の読込完了（`find_by_id` / `find_all`）
+- ✅ Phase 4: トランザクション + 既存関連データ削除→再作成戦略を `details` / `days_of_week` まで拡張完了
+- ⬜ Phase 5: テストと検証
 
 ## 背景
 
@@ -18,8 +20,8 @@
 
 1. **設計**: `recurrence_rules`テーブルは基本フィールド（unit, interval, end_date, max_occurrences）のみ
 2. **関連テーブル**: `recurrence_adjustment`と`recurrence_detail`は別テーブルとして設計されている
-3. **実装不足**: 関連テーブルへの保存・取得処理が未実装
-4. **症状**: 「有効（高度）」モードで`adjustment`を保存しても、アプリ再起動後に取得できず「有効」モードになる
+3. **残課題**: 保存・取得処理は実装済みだが、専用テスト（ユニット/統合）が不足
+4. **残リスク**: 「有効（高度）」モードの回帰を継続的に検知する仕組みが弱い
 
 ### 現在の実装状況
 
@@ -43,12 +45,16 @@ if let Some(ref adjustment) = rule.adjustment {
     self.save_adjustment(&txn, project_id, &rule.id, adjustment).await?;
 }
 
-// details / days_of_week は未実装
-// TODO: Phase 2.2 で実装
-// TODO: Phase 2.3 で実装
+// details / days_of_week も保存済み
+if let Some(ref details) = rule.details {
+    self.save_details(&txn, project_id, &rule.id, details).await?;
+}
+self.save_days_of_week(&txn, project_id, rule).await?;
 
-// find_by_id / find_all で adjustment は読込済み
+// find_by_id / find_all で adjustment / details / days_of_week を読込
 rule.adjustment = self.load_adjustment(db, project_id, id).await?;
+rule.details = self.load_details(db, project_id, id).await?;
+rule.days_of_week = self.load_days_of_week(db, project_id, id).await?;
 ```
 
 ## 実装計画
@@ -88,7 +94,7 @@ rule.adjustment = self.load_adjustment(db, project_id, id).await?;
 
 **実装内容**:
 - `rule.details`が存在する場合、`recurrence_details`テーブルに保存
-- JSON形式で柔軟な構造を保存
+- `date_conditions` を `recurrence_date_conditions` へ分離保存
 
 #### 2.3 DaysOfWeekの保存
 
@@ -199,17 +205,13 @@ async fn save(...) {
 
 1. ✅ **Phase 1**: 関連テーブルモデルの確認（30分）
 2. ✅ **Phase 2.1**: RecurrenceAdjustment保存処理（2時間）
-3. ⬜ **Phase 2.2**: RecurrenceDetail保存処理（1時間）
-4. ⬜ **Phase 2.3**: DaysOfWeek保存処理（1時間）
-5. 🟡 **Phase 3**: 取得処理の実装（2時間）
-   - 実装済み: `adjustment` とその子データ取得
-   - 未実装: `details` / `days_of_week` 取得
-6. 🟡 **Phase 4**: 更新処理の実装（1時間）
-   - 実装済み: トランザクション + 削除再作成戦略（`adjustment`中心）
-   - 未実装: `details` / `days_of_week` を含む完全更新
+3. ✅ **Phase 2.2**: RecurrenceDetail保存処理（1時間）
+4. ✅ **Phase 2.3**: DaysOfWeek保存処理（1時間）
+5. ✅ **Phase 3**: 取得処理の実装（2時間）
+6. ✅ **Phase 4**: 更新処理の実装（1時間）
 7. ⬜ **Phase 5**: テストと検証（1時間）
 
-**残作業の推定時間**: 4.5〜6.0時間
+**残作業の推定時間**: 1.0〜2.0時間
 
 ## リスク
 
