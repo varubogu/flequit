@@ -16,6 +16,7 @@ path = "src/bin/migration_runner.rs"
 flequit-types = { path = "../flequit-types" }
 flequit-model = { path = "../flequit-model" }
 flequit-repository = { path = "../flequit-repository" }
+flequit-core = { path = "../flequit-core" }
 
 # Database and ORM
 sea-orm = { version = "1.1.14", features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros"] }

@@ -1,5 +1,5 @@
 use crate::services::account_service;
-use flequit_infrastructure::InfrastructureRepositoriesTrait;
+use crate::InfrastructureRepositoriesTrait;
 use flequit_model::models::accounts::account::{Account, PartialAccount};
 use flequit_model::types::id_types::{AccountId, UserId};
 use flequit_types::errors::service_error::ServiceError;

@@ -14,7 +14,6 @@ pub mod unified;
 
 // 公開API
 pub use config::InfrastructureConfig;
-pub use infrastructure_repositories::{
-    InfrastructureRepositories, InfrastructureRepositoriesTrait,
-};
+pub use flequit_core::InfrastructureRepositoriesTrait;
+pub use infrastructure_repositories::InfrastructureRepositories;
 pub use unified::*;

@@ -13,7 +13,6 @@ crate-type = ["rlib"]
 flequit-types = { path = "../flequit-types" }
 flequit-model = { path = "../flequit-model" }
 flequit-repository = { path = "../flequit-repository" }
-flequit-infrastructure = { path = "../flequit-infrastructure" }
 
 # Serialization
 serde = { version = "1", features = ["derive"] }

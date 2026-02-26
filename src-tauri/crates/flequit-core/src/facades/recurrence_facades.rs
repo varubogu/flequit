@@ -4,7 +4,7 @@
 //! Service層とのインターフェースを提供します。
 
 use crate::services::recurrence_service;
-use flequit_infrastructure::InfrastructureRepositoriesTrait;
+use crate::InfrastructureRepositoriesTrait;
 use flequit_model::{
     models::task_projects::{
         recurrence_adjustment::RecurrenceAdjustment, recurrence_details::RecurrenceDetails,

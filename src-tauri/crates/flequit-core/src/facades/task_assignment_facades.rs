@@ -1,5 +1,5 @@
 use crate::services::task_assignment_service as service;
-use flequit_infrastructure::InfrastructureRepositoriesTrait;
+use crate::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::task_assignment::TaskAssignment;
 use flequit_model::types::id_types::{ProjectId, TaskId, UserId};
 use flequit_types::errors::service_error::ServiceError;

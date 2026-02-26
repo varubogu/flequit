@@ -1,5 +1,5 @@
 use crate::services::{subtask_service, subtask_tag_service, tag_service};
-use flequit_infrastructure::InfrastructureRepositoriesTrait;
+use crate::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::subtask::{PartialSubTask, SubTask};
 use flequit_model::models::task_projects::subtask_tag::SubTaskTag;
 use flequit_model::models::task_projects::tag::Tag;

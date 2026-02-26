@@ -4,7 +4,7 @@
 //! ビジネスロジックを処理します。
 
 use chrono::Utc;
-use flequit_infrastructure::InfrastructureRepositoriesTrait;
+use crate::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::{
     recurrence_adjustment::RecurrenceAdjustment, recurrence_details::RecurrenceDetails,
     recurrence_rule::{PartialRecurrenceRule, RecurrenceRule},

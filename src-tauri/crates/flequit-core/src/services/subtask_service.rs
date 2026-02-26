@@ -1,7 +1,7 @@
 use chrono::Utc;
 use flequit_model::types::task_types::TaskStatus;
 
-use flequit_infrastructure::InfrastructureRepositoriesTrait;
+use crate::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::subtask::{PartialSubTask, SubTask};
 use flequit_model::types::id_types::{ProjectId, SubTaskId, UserId};
 use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;

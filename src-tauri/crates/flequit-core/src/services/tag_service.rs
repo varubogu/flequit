@@ -1,6 +1,7 @@
 use chrono::Utc;
 
-use flequit_infrastructure::InfrastructureRepositoriesTrait;
+use crate::ports::infrastructure_repositories::TagRepositoryExt;
+use crate::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::tag::{PartialTag, Tag};
 use flequit_model::types::id_types::{ProjectId, TagId, UserId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;

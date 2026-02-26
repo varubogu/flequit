@@ -1,6 +1,5 @@
-use flequit_infrastructure::{
-    InfrastructureConfig, InfrastructureRepositories, InfrastructureRepositoriesTrait,
-};
+use flequit_core::InfrastructureRepositoriesTrait;
+use flequit_infrastructure::{InfrastructureConfig, InfrastructureRepositories};
 use flequit_settings::{Settings, SettingsManager};
 use std::sync::Arc;
 use tokio::sync::RwLock;

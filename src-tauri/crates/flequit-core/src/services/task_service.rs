@@ -1,5 +1,5 @@
 use chrono::Utc;
-use flequit_infrastructure::InfrastructureRepositoriesTrait;
+use crate::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::task::{PartialTask, Task};
 use flequit_model::types::id_types::{ProjectId, TaskId, UserId};
 use flequit_model::types::task_types::TaskStatus;
