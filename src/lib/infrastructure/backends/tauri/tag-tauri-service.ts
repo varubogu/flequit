@@ -58,7 +58,6 @@ export class TagTauriService implements TagService {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async search(_projectId: string, _condition: TagSearchCondition): Promise<Tag[]> {
     try {
       // TODO: search_tags コマンドが Tauri側に実装されていないため、一時的にmock実装

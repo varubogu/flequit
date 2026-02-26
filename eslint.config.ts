@@ -16,6 +16,12 @@ export default tseslint.config(
         ...globals.browser,
         ...globals.node
       }
+    },
+    rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrors: 'all' }
+      ]
     }
   },
   {
@@ -79,10 +85,9 @@ export default tseslint.config(
       ]
     }
   },
-  // 1. Stores層からServices/Infrastructureへの参照を禁止（責務分離）
+  // Stores層からServices/Infrastructure/Componentsへの参照を禁止（責務分離）
   {
     files: ['src/lib/stores/**/*.{ts,svelte.ts}'],
-
     rules: {
       'no-restricted-imports': [
         'error',
@@ -104,13 +109,18 @@ export default tseslint.config(
               group: ['$lib/infrastructure/**', '**/infrastructure/**'],
               message:
                 '❌ Stores層からInfrastructure層への参照は禁止です。Stores層は状態管理のみを担当します。Services層を経由してください。'
+            },
+            {
+              group: ['$lib/components/**', '**/components/**'],
+              message:
+                '❌ Stores層からComponents層への参照は禁止です。Stores層は状態管理のみを担当します。'
             }
           ]
         }
       ]
     }
   },
-  // 2. Utils/Types層からStores/Services/Infrastructureへの参照を禁止
+  // Utils/Types層からStores/Services/Infrastructureへの参照を禁止
   {
     files: ['src/lib/utils/**/*.ts', 'src/lib/types/**/*.ts'],
     ignores: ['src/lib/types/bindings.ts'],
@@ -139,7 +149,7 @@ export default tseslint.config(
       ]
     }
   },
-  // 5. Infrastructure層からServices/Storesへの参照を禁止
+  // Infrastructure層からServices/Storesへの参照を禁止
   {
     files: ['src/lib/infrastructure/**/*.ts'],
     rules: {
@@ -162,7 +172,7 @@ export default tseslint.config(
       ]
     }
   },
-  // 6. Services層からComponents層への参照を禁止
+  // Services層からComponents層への参照を禁止
   {
     files: ['src/lib/services/**/*.{ts,svelte.ts}'],
     rules: {
@@ -180,25 +190,7 @@ export default tseslint.config(
       ]
     }
   },
-  // 7. Stores層からComponents層への参照を禁止
-  {
-    files: ['src/lib/stores/**/*.{ts,svelte.ts}'],
-    rules: {
-      'no-restricted-imports': [
-        'error',
-        {
-          patterns: [
-            {
-              group: ['$lib/components/**', '**/components/**'],
-              message:
-                '❌ Stores層からComponents層への参照は禁止です。Stores層は状態管理のみを担当します。'
-            }
-          ]
-        }
-      ]
-    }
-  },
-  // 8. Domain ServicesからUI/Composite Services + UI状態ストアへの参照を禁止（階層違反）
+  // Domain ServicesからUI/Composite Services + UI状態ストアへの参照を禁止（階層違反）
   {
     files: ['src/lib/services/domain/**/*.ts'],
     rules: {
@@ -231,7 +223,7 @@ export default tseslint.config(
       ]
     }
   },
-  // 9. Composite ServicesからUI Services + UI状態ストアへの参照を禁止（階層違反）
+  // Composite ServicesからUI Services + UI状態ストアへの参照を禁止（階層違反）
   {
     files: ['src/lib/services/composite/**/*.ts'],
     rules: {

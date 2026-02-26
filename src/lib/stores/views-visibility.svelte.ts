@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-imports -- TODO [計画02]: フロントエンド層方針の再定義と移行で対応予定。期限: 2026-04-30 */
 import { getTranslationService } from '$lib/stores/locale.svelte';
 import { settingsInitService } from '$lib/services/domain/settings';
 import type { Setting } from '$lib/types/settings';

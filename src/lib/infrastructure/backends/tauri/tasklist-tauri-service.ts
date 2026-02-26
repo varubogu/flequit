@@ -61,7 +61,6 @@ export class TasklistTauriService implements TaskListService {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async search(_projectId: string, _condition: TaskListSearchCondition): Promise<TaskList[]> {
     try {
       // TODO: search_task_lists コマンドが Tauri側に実装されていないため、一時的にmock実装

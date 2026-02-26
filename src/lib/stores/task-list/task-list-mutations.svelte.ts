@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-imports -- TODO [計画02]: フロントエンド層方針の再定義と移行で対応予定。期限: 2026-04-30 */
 import type { IProjectStore, ISelectionStore } from '$lib/types/store-interfaces';
 import type { TaskListWithTasks } from '$lib/types/task-list';
 import { TaskListService as TaskListCrudService } from '$lib/services/domain/task-list';

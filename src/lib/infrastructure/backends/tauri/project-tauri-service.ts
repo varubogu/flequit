@@ -53,7 +53,6 @@ export class ProjectTauriService implements ProjectService {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async search(_condition: ProjectSearchCondition): Promise<Project[]> {
     try {
       // TODO: search_projects コマンドが Tauri側に実装されていないため、一時的にmock実装

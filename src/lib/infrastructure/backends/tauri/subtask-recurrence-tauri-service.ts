@@ -52,9 +52,8 @@ export class SubtaskRecurrenceTauriService implements SubtaskRecurrenceService {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async search(
-    projectId: string,
+    _projectId: string,
     _condition: SubtaskRecurrenceSearchCondition
   ): Promise<SubtaskRecurrence[]> {
     try {
