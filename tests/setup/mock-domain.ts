@@ -688,7 +688,7 @@ const buildTaskServiceFacade = async () => {
   const { taskListStore } = await import('../../src/lib/stores/task-list-store.svelte');
   const { subTaskStore } = await import('../../src/lib/stores/sub-task-store.svelte');
   const { TaggingService } = await import('../../src/lib/services/domain/tagging');
-  const { RecurrenceService } = await import(
+  const { RecurrenceDateCalculator } = await import(
     '../../src/lib/services/composite/recurrence-composite'
   );
   const { errorHandler } = await import('../../src/lib/stores/error-handler.svelte');
@@ -770,7 +770,10 @@ const buildTaskServiceFacade = async () => {
       const task = taskStore.getTaskById?.(taskId) as TaskRecord | undefined;
 
       if (newStatus === 'completed' && task?.recurrenceRule && task.planEndDate) {
-        const nextDate = RecurrenceService.calculateNextDate(task.planEndDate, task.recurrenceRule);
+        const nextDate = RecurrenceDateCalculator.calculateNextDate(
+          task.planEndDate,
+          task.recurrenceRule
+        );
         if (nextDate) {
           let planStartDate = task.planStartDate;
           if (task.isRangeDate && task.planStartDate && task.planEndDate) {

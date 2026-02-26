@@ -27,6 +27,9 @@ export class TagStoreFacade {
   get bookmarkedTags() {
     return this.bookmarkStore.bookmarkedTagIds;
   }
+  /**
+   * @deprecated Use TagBookmarkService.loadBookmarksByProject instead. Removal target: 2026-06-30.
+   */
   set bookmarkedTags(value: string[]) {
     // bookmarkedTagIdsはreadonlyなので、setBookmarksを使用
     console.warn(

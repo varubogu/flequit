@@ -101,7 +101,7 @@ export const ProjectQueryService = {
   /**
    * 選択中のプロジェクトIDを取得
    *
-   * @deprecated UI状態管理はComponent層で行うべきです
+   * @deprecated UI状態管理はComponent層で行うべきです（削除目標: 2026-06-30）
    */
   getSelectedProjectId(): string | null {
     return taskStore.selectedProjectId;

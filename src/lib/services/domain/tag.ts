@@ -169,7 +169,7 @@ export const TagService = {
 
   /**
    * タグをブックマークに追加
-   * @deprecated TagBookmarkServiceを使用してください
+   * @deprecated TagBookmarkServiceを使用してください（削除目標: 2026-06-30）
    * @param projectId プロジェクトID（必須）
    */
   async addBookmark(projectId: string, tagId: string) {
@@ -180,7 +180,7 @@ export const TagService = {
 
   /**
    * タグをブックマークから削除
-   * @deprecated TagBookmarkServiceを使用してください
+   * @deprecated TagBookmarkServiceを使用してください（削除目標: 2026-06-30）
    * @param projectId プロジェクトID（必須）
    */
   async removeBookmark(projectId: string, tagId: string) {

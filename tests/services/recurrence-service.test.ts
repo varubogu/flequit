@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { RecurrenceService } from '$lib/services/composite/recurrence-composite';
+import { RecurrenceDateCalculator } from '$lib/services/composite/recurrence-composite';
 import type { RecurrenceRule } from '$lib/types/datetime-calendar';
 import type { WeekdayCondition } from '$lib/types/datetime-calendar';
 import type { DateCondition } from '$lib/types/datetime-calendar';
@@ -8,7 +8,7 @@ import { generateRandomId } from '$lib/utils/id-utils';
 import { setTranslationService } from '$lib/stores/locale.svelte';
 import { createUnitTestTranslationService } from '../unit-translation-mock';
 
-describe('RecurrenceService', () => {
+describe('RecurrenceDateCalculator', () => {
   beforeEach(() => {
     setTranslationService(createUnitTestTranslationService());
   });
@@ -21,7 +21,7 @@ describe('RecurrenceService', () => {
         interval: 1
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       expect(nextDate?.toISOString().split('T')[0]).toBe('2024-01-02');
     });
 
@@ -32,7 +32,7 @@ describe('RecurrenceService', () => {
         interval: 30
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       expect(nextDate?.getHours()).toBe(10);
       expect(nextDate?.getMinutes()).toBe(30);
     });
@@ -44,7 +44,7 @@ describe('RecurrenceService', () => {
         interval: 2
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       expect(nextDate?.getHours()).toBe(12);
     });
 
@@ -55,7 +55,7 @@ describe('RecurrenceService', () => {
         interval: 1
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       expect(nextDate?.toISOString().split('T')[0]).toBe('2024-01-08');
     });
 
@@ -71,7 +71,7 @@ describe('RecurrenceService', () => {
         }
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       expect(nextDate?.toISOString().split('T')[0]).toBe('2024-02-15');
     });
 
@@ -82,7 +82,7 @@ describe('RecurrenceService', () => {
         interval: 1
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       expect(nextDate?.toISOString().split('T')[0]).toBe('2024-04-01');
     });
 
@@ -93,7 +93,7 @@ describe('RecurrenceService', () => {
         interval: 1
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       expect(nextDate?.toISOString().split('T')[0]).toBe('2024-07-01');
     });
 
@@ -105,7 +105,7 @@ describe('RecurrenceService', () => {
         daysOfWeek: ['wednesday', 'friday']
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       expect(nextDate?.toISOString().split('T')[0]).toBe('2024-01-03'); // 水曜日
     });
 
@@ -117,7 +117,7 @@ describe('RecurrenceService', () => {
         daysOfWeek: ['monday', 'wednesday']
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       expect(nextDate?.toISOString().split('T')[0]).toBe('2024-01-08'); // 次週の月曜日
     });
 
@@ -134,7 +134,7 @@ describe('RecurrenceService', () => {
         }
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       // 2024年2月の第2日曜日は2月10日（実装の計算結果に合わせて修正）
       expect(nextDate?.toISOString().split('T')[0]).toBe('2024-02-10');
     });
@@ -152,7 +152,7 @@ describe('RecurrenceService', () => {
         }
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       // 2024年2月の最終金曜日は2月22日（実装の計算結果に合わせて修正）
       expect(nextDate?.toISOString().split('T')[0]).toBe('2024-02-22');
     });
@@ -164,7 +164,7 @@ describe('RecurrenceService', () => {
         interval: 1
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       expect(nextDate?.toISOString().split('T')[0]).toBe('2025-01-01');
     });
 
@@ -176,7 +176,7 @@ describe('RecurrenceService', () => {
         endDate: new Date('2024-12-01')
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       expect(nextDate).toBeNull();
     });
 
@@ -187,13 +187,13 @@ describe('RecurrenceService', () => {
         interval: 1
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       expect(nextDate).toBeNull();
     });
 
     it('nullルールの場合はnullを返す', () => {
       const baseDate = new Date('2024-01-01');
-      const nextDate = RecurrenceService.calculateNextDate(
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(
         baseDate,
         null as unknown as RecurrenceRule
       );
@@ -221,7 +221,7 @@ describe('RecurrenceService', () => {
         }
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       // 1日後の日曜日に対して補正が適用され月曜日になる
       expect(nextDate?.getDay()).toBe(1); // 月曜日
     });
@@ -243,7 +243,7 @@ describe('RecurrenceService', () => {
         }
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       // 日付補正が適用される（簡略実装では1日後）
       expect(nextDate).not.toBeNull();
     });
@@ -258,7 +258,7 @@ describe('RecurrenceService', () => {
         // detailsなし → デフォルト動作
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       // デフォルトでは setMonth(currentDate.getMonth() + rule.interval)
       // その後 JavaScriptが自動で日付を調整
       // 2024年2月31日 → 2024年3月2日
@@ -278,7 +278,7 @@ describe('RecurrenceService', () => {
         }
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       // Math.min(31, 29) = 29 (2024年2月の最終日)
       expect(nextDate?.getMonth()).toBe(1); // 2月（0ベース）
       expect(nextDate?.getDate()).toBe(29); // 2月29日
@@ -297,7 +297,7 @@ describe('RecurrenceService', () => {
         }
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       // 3月の第4土曜日
       expect(nextDate?.getMonth()).toBe(2); // 3月（0ベース）
     });
@@ -310,7 +310,7 @@ describe('RecurrenceService', () => {
         daysOfWeek: ['monday']
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       expect(nextDate?.toISOString().split('T')[0]).toBe('2024-01-15'); // 2週間後の月曜日
     });
   });
@@ -323,7 +323,7 @@ describe('RecurrenceService', () => {
         interval: 7 // 週単位
       };
 
-      const dates = RecurrenceService.generateRecurrenceDates(startDate, rule, 3);
+      const dates = RecurrenceDateCalculator.generateRecurrenceDates(startDate, rule, 3);
       expect(dates).toHaveLength(3);
       expect(dates[0].toISOString().split('T')[0]).toBe('2024-01-08');
       expect(dates[1].toISOString().split('T')[0]).toBe('2024-01-15');
@@ -338,7 +338,7 @@ describe('RecurrenceService', () => {
         endDate: new Date('2024-01-03')
       };
 
-      const dates = RecurrenceService.generateRecurrenceDates(startDate, rule, 10);
+      const dates = RecurrenceDateCalculator.generateRecurrenceDates(startDate, rule, 10);
       expect(dates).toHaveLength(2); // 1/2, 1/3で終了
     });
 
@@ -350,7 +350,7 @@ describe('RecurrenceService', () => {
         daysOfWeek: ['wednesday', 'friday']
       };
 
-      const dates = RecurrenceService.generateRecurrenceDates(startDate, rule, 4);
+      const dates = RecurrenceDateCalculator.generateRecurrenceDates(startDate, rule, 4);
       expect(dates).toHaveLength(4);
       expect(dates[0].toISOString().split('T')[0]).toBe('2024-01-03'); // 水曜日
       expect(dates[1].toISOString().split('T')[0]).toBe('2024-01-05'); // 金曜日
@@ -367,7 +367,7 @@ describe('RecurrenceService', () => {
         interval: 1
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       expect(nextDate?.toISOString().split('T')[0]).toBe('2025-03-01'); // JSの実装では3月1日になる
     });
 
@@ -393,7 +393,7 @@ describe('RecurrenceService', () => {
         }
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       expect(nextDate).not.toBeNull();
     });
 
@@ -423,7 +423,7 @@ describe('RecurrenceService', () => {
         }
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       expect(nextDate).not.toBeNull();
     });
 
@@ -439,7 +439,7 @@ describe('RecurrenceService', () => {
         }
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       expect(nextDate?.getMonth()).toBe(2); // 負の間隔では実装上3月
       expect(nextDate?.getDate()).toBe(31); // そのまま維持
     });
@@ -451,7 +451,7 @@ describe('RecurrenceService', () => {
         interval: 1
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       expect(nextDate?.getHours()).toBe(10);
       expect(nextDate?.getMinutes()).toBe(30); // 分は維持される
     });
@@ -464,7 +464,7 @@ describe('RecurrenceService', () => {
         daysOfWeek: ['tuesday', 'thursday']
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       expect(nextDate?.toISOString().split('T')[0]).toBe('2024-01-02'); // 今週の火曜日
     });
 
@@ -481,7 +481,7 @@ describe('RecurrenceService', () => {
         }
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       expect(nextDate?.getMonth()).toBe(2); // 3月
       expect(nextDate?.getDay()).toBe(4); // 木曜日
     });
@@ -493,7 +493,7 @@ describe('RecurrenceService', () => {
         interval: 1
       };
 
-      const dates = RecurrenceService.generateRecurrenceDates(startDate, rule, 100);
+      const dates = RecurrenceDateCalculator.generateRecurrenceDates(startDate, rule, 100);
       expect(dates).toHaveLength(100);
       expect(dates[99].toISOString().split('T')[0]).toBe('2024-04-10'); // 100日後
     });
@@ -505,7 +505,7 @@ describe('RecurrenceService', () => {
         interval: 1
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       // 23:59 + 1分 = 24:00 = 翌日0:00
       expect(nextDate?.getHours()).toBe(0);
       expect(nextDate?.getMinutes()).toBe(0);
@@ -518,7 +518,7 @@ describe('RecurrenceService', () => {
         interval: -1
       };
 
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
       expect(nextDate?.toISOString().split('T')[0]).toBe('2024-01-09');
     });
   });
@@ -543,7 +543,7 @@ describe('RecurrenceService', () => {
         }
       };
 
-      const dates = RecurrenceService.generateRecurrenceDates(startDate, rule, 1);
+      const dates = RecurrenceDateCalculator.generateRecurrenceDates(startDate, rule, 1);
 
       // 日曜日が次の平日に補正される
       expect(dates.length).toBeGreaterThan(0);
@@ -571,7 +571,7 @@ describe('RecurrenceService', () => {
         }
       };
 
-      const dates = RecurrenceService.generateRecurrenceDates(startDate, rule, 1);
+      const dates = RecurrenceDateCalculator.generateRecurrenceDates(startDate, rule, 1);
 
       // 土曜日（祝日扱い）が次の非祝日（月曜日）に補正される
       expect(dates.length).toBeGreaterThan(0);
@@ -598,7 +598,7 @@ describe('RecurrenceService', () => {
         }
       };
 
-      const dates = RecurrenceService.generateRecurrenceDates(startDate, rule, 1);
+      const dates = RecurrenceDateCalculator.generateRecurrenceDates(startDate, rule, 1);
 
       // 土曜日が次の平日に補正される
       expect(dates.length).toBeGreaterThan(0);
@@ -625,7 +625,7 @@ describe('RecurrenceService', () => {
         }
       };
 
-      const dates = RecurrenceService.generateRecurrenceDates(startDate, rule, 1);
+      const dates = RecurrenceDateCalculator.generateRecurrenceDates(startDate, rule, 1);
 
       // 日曜日が次の土日祝日以外（平日）に補正される
       expect(dates.length).toBeGreaterThan(0);
@@ -652,7 +652,7 @@ describe('RecurrenceService', () => {
         }
       };
 
-      const dates = RecurrenceService.generateRecurrenceDates(startDate, rule, 3);
+      const dates = RecurrenceDateCalculator.generateRecurrenceDates(startDate, rule, 3);
 
       // 土曜日が月曜日に補正されることを確認
       expect(dates.length).toBeGreaterThan(0);
@@ -670,7 +670,7 @@ describe('RecurrenceService', () => {
         interval: 7
       };
 
-      const datesWithoutAdjustment = RecurrenceService.generateRecurrenceDates(
+      const datesWithoutAdjustment = RecurrenceDateCalculator.generateRecurrenceDates(
         startDate,
         ruleWithoutAdjustment,
         1
@@ -694,7 +694,7 @@ describe('RecurrenceService', () => {
         }
       };
 
-      const datesWithAdjustment = RecurrenceService.generateRecurrenceDates(
+      const datesWithAdjustment = RecurrenceDateCalculator.generateRecurrenceDates(
         startDate,
         ruleWithAdjustment,
         1
@@ -725,7 +725,7 @@ describe('RecurrenceService', () => {
         }
       };
 
-      const dates = RecurrenceService.generateRecurrenceDates(startDate, rule, 1);
+      const dates = RecurrenceDateCalculator.generateRecurrenceDates(startDate, rule, 1);
 
       // 曜日条件が設定されていることを確認
       expect(dates.length).toBeGreaterThan(0);
@@ -760,7 +760,7 @@ describe('RecurrenceService', () => {
         }
       };
 
-      const dates = RecurrenceService.generateRecurrenceDates(startDate, rule, 1);
+      const dates = RecurrenceDateCalculator.generateRecurrenceDates(startDate, rule, 1);
 
       // 複数の補正条件が設定されていることを確認
       expect(dates.length).toBeGreaterThan(0);
@@ -792,7 +792,7 @@ describe('RecurrenceService', () => {
   });
 
   describe('週の開始日設定による影響', () => {
-    // 注意: 現在のRecurrenceServiceは週の開始日設定を考慮していません
+    // 注意: 現在のRecurrenceDateCalculatorは週の開始日設定を考慮していません
     // このテストセクションは将来の改善のためのものです
 
     describe('月の第X曜日計算での週定義の違い', () => {
@@ -809,7 +809,7 @@ describe('RecurrenceService', () => {
           }
         };
 
-        const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+        const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
 
         // 現在の実装では設定に関係なく同じ結果になります
         // 2024年2月の第1月曜日は2月4日（実装の計算結果）
@@ -834,7 +834,7 @@ describe('RecurrenceService', () => {
           }
         };
 
-        const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+        const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
 
         // 現在の実装結果（週の開始日設定に依存しない）
         expect(nextDate?.toISOString().split('T')[0]).toBe('2024-02-10');
@@ -853,7 +853,7 @@ describe('RecurrenceService', () => {
           daysOfWeek: ['monday']
         };
 
-        const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+        const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
 
         // 2024年2月1日（木）の次の月曜日は2月5日
         expect(nextDate?.toISOString().split('T')[0]).toBe('2024-02-05');
@@ -869,7 +869,7 @@ describe('RecurrenceService', () => {
           daysOfWeek: ['monday', 'wednesday', 'friday']
         };
 
-        const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
+        const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
 
         // 2024年2月1日（木）の次の対象曜日は2月2日（金）
         expect(nextDate?.toISOString().split('T')[0]).toBe('2024-02-02');
@@ -896,7 +896,7 @@ describe('RecurrenceService', () => {
           }
         };
 
-        const nextDate = RecurrenceService.calculateNextDate(saturdayDate, rule);
+        const nextDate = RecurrenceDateCalculator.calculateNextDate(saturdayDate, rule);
 
         // 土曜日 → 次の平日（月曜日：2月5日）
         expect(nextDate?.toISOString().split('T')[0]).toBe('2024-02-05');
@@ -907,7 +907,7 @@ describe('RecurrenceService', () => {
 
     describe('将来の改善事項', () => {
       it('週の開始日設定を考慮した実装が必要', () => {
-        // TODO: RecurrenceServiceで週の開始日設定を考慮する機能を実装
+        // TODO: RecurrenceDateCalculatorで週の開始日設定を考慮する機能を実装
         // 1. settingsStoreから週の開始日設定を取得
         // 2. 「第X週」の計算で週の開始日を考慮
         // 3. 週単位繰り返しで週の境界を正しく計算

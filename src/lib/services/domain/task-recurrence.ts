@@ -1,5 +1,5 @@
 import type { Task, TaskWithSubTasks } from '$lib/types/task';
-import { RecurrenceService } from '$lib/services/domain/recurrence/recurrence-service';
+import { RecurrenceDateCalculator } from '$lib/services/domain/recurrence/recurrence-service';
 import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
 
 export class TaskRecurrenceService {
@@ -7,7 +7,7 @@ export class TaskRecurrenceService {
     if (!task.recurrenceRule) return;
 
     const baseDate = task.planEndDate || new Date();
-    const nextDate = RecurrenceService.calculateNextDate(baseDate, task.recurrenceRule);
+    const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, task.recurrenceRule);
     if (!nextDate) return;
 
     const nextTaskData: Partial<Task> = {

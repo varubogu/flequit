@@ -11,7 +11,7 @@ import { shouldEndRecurrence } from './validation';
  *
  * 単位別計算ロジックを分離したモジュラー構成
  */
-export class RecurrenceService {
+export class RecurrenceDateCalculator {
   /**
    * 指定されたベース日付と繰り返しルールから次回実行日を計算
    */
@@ -125,3 +125,8 @@ export class RecurrenceService {
     return dates;
   }
 }
+
+/**
+ * @deprecated Use RecurrenceDateCalculator instead. Removal target: 2026-06-30.
+ */
+export const RecurrenceService = RecurrenceDateCalculator;

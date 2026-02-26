@@ -61,11 +61,17 @@ export class SubTaskStore implements ISubTaskStore {
   }
 
   // Backward compatibility (deprecated)
+  /**
+   * @deprecated Use TaskService.addTagToSubTaskByName instead. Removal target: 2026-06-30.
+   */
   async addTagToSubTask(_subTaskId: string, _tagName: string) {
     void _subTaskId;
     void _tagName;
     console.warn('addTagToSubTask is deprecated. Use TaskService.addTagToSubTaskByName instead.');
   }
+  /**
+   * @deprecated Use TaskService.removeTagFromSubTask instead. Removal target: 2026-06-30.
+   */
   async removeTagFromSubTask(_subTaskId: string, _tagId: string) {
     void _subTaskId;
     void _tagId;

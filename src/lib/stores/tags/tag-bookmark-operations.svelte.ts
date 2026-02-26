@@ -67,7 +67,7 @@ export class TagBookmarkOperations {
 
   /**
    * 初期化用にブックマークを設定（非推奨）
-   * @deprecated TagBookmarkService.loadBookmarksByProject を使用してください
+   * @deprecated TagBookmarkService.loadBookmarksByProject を使用してください（削除目標: 2026-06-30）
    */
   setBookmarkForInitialization(tagId: string) {
     void tagId;
@@ -112,7 +112,7 @@ export class TagBookmarkOperations {
 
   /**
    * タグの順序インデックスを初期化（非推奨）
-   * @deprecated ブックマークの順序はorder_indexで自動管理されます
+   * @deprecated ブックマークの順序はorder_indexで自動管理されます（削除目標: 2026-06-30）
    */
   async initializeTagOrderIndices() {
     console.warn(

@@ -12,7 +12,7 @@ import { getCurrentUserId } from '$lib/services/domain/current-user-id';
  * 2. 繰り返しルールCRUD操作
  * 3. タスク/サブタスク繰り返し関連操作
  */
-export const RecurrenceService = {
+export const RecurrenceRuleService = {
   // 繰り返しルール管理
   async createRecurrenceRule(projectId: string, rule: RecurrenceRule): Promise<boolean> {
     try {
@@ -174,3 +174,8 @@ export const RecurrenceService = {
     }
   }
 };
+
+/**
+ * @deprecated Use RecurrenceRuleService instead. Removal target: 2026-06-30.
+ */
+export const RecurrenceService = RecurrenceRuleService;

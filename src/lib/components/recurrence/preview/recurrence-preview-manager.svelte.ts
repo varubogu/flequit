@@ -1,5 +1,5 @@
 import type { RecurrenceRule } from '$lib/types/datetime-calendar';
-import { RecurrenceService } from '$lib/services/composite/recurrence-composite';
+import { RecurrenceDateCalculator } from '$lib/services/composite/recurrence-composite';
 import { SvelteDate } from 'svelte/reactivity';
 
 export class RecurrencePreviewManager {
@@ -11,7 +11,11 @@ export class RecurrencePreviewManager {
       if (rule) {
         const baseDate = startDateTime || endDateTime || new SvelteDate();
         const previewLimit = 20;
-        this.previewDates = RecurrenceService.generateRecurrenceDates(baseDate, rule, previewLimit);
+        this.previewDates = RecurrenceDateCalculator.generateRecurrenceDates(
+          baseDate,
+          rule,
+          previewLimit
+        );
       } else {
         this.previewDates = [];
       }
