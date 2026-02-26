@@ -1,13 +1,9 @@
 {
   "svelte.enable-ts-plugin": true,
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "prettier.prettier",
-  "eslint.validate": [
-    "javascript",
-    "typescript",
-    "svelte"
-  ],
-  "eslint.experimental.useFlatConfig": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "eslint.validate": ["javascript", "typescript", "svelte"],
+  "eslint.useFlatConfig": true,
   "cSpell.words": [
     "chrono",
     "CRDT",
