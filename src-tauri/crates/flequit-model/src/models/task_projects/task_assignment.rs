@@ -23,7 +23,7 @@ use crate::types::id_types::{TaskId, UserId};
 /// # 使用例
 ///
 /// ```rust,no_run
-/// # use flequit_model::models::assignment::TaskAssignment;
+/// # use flequit_model::models::task_projects::task_assignment::TaskAssignment;
 /// # use flequit_model::types::id_types::{TaskId, UserId};
 /// # use chrono::Utc;
 ///
@@ -31,6 +31,9 @@ use crate::types::id_types::{TaskId, UserId};
 ///     task_id: TaskId::from("task_123".to_string()),
 ///     user_id: UserId::from("user_456".to_string()),
 ///     created_at: Utc::now(),
+///     updated_at: Utc::now(),
+///     deleted: false,
+///     updated_by: UserId::new(),
 /// };
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]

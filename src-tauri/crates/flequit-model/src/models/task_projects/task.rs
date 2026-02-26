@@ -152,10 +152,8 @@ pub struct Task {
 ///
 /// ```rust,no_run
 /// # use chrono::Utc;
-/// # use flequit_model::models::task::TaskTree;
-/// # use flequit_model::models::subtask::SubTask;
-/// # use flequit_model::models::tag::Tag;
-/// # use flequit_model::types::id_types::{TaskId, TaskListId, UserId, TagId, ProjectId};
+/// # use flequit_model::models::task_projects::task::TaskTree;
+/// # use flequit_model::types::id_types::{TaskId, TaskListId, UserId, ProjectId};
 /// # use flequit_model::types::task_types::TaskStatus;
 ///
 /// // タスク詳細画面での使用例
@@ -178,8 +176,10 @@ pub struct Task {
 ///     is_archived: false,
 ///     created_at: Utc::now(),
 ///     updated_at: Utc::now(),
+///     deleted: false,
+///     updated_by: UserId::new(),
 ///     sub_tasks: vec![],
-///     tags: vec![],
+///     tag_ids: vec![],
 /// };
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]

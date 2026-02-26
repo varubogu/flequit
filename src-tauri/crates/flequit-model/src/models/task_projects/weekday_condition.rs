@@ -27,17 +27,23 @@ use crate::traits::Trackable;
 /// # 使用例
 ///
 /// ```rust,no_run
-/// # use flequit_model::models::weekday_condition::WeekdayCondition;
+/// # use chrono::Utc;
+/// # use flequit_model::models::task_projects::weekday_condition::WeekdayCondition;
 /// # use flequit_model::types::datetime_calendar_types::{DayOfWeek, AdjustmentDirection, AdjustmentTarget};
+/// # use flequit_model::types::id_types::{UserId, WeekdayConditionId};
 ///
 /// // 土曜日なら翌営業日（月曜日）に調整
 /// let weekend_adjustment = WeekdayCondition {
-///     id: "saturday_to_monday".to_string(),
+///     id: WeekdayConditionId::new(),
 ///     if_weekday: DayOfWeek::Saturday,
 ///     then_direction: AdjustmentDirection::Next,
 ///     then_target: AdjustmentTarget::Weekday,
 ///     then_weekday: Some(DayOfWeek::Monday),
 ///     then_days: None,
+///     created_at: Utc::now(),
+///     updated_at: Utc::now(),
+///     deleted: false,
+///     updated_by: UserId::new(),
 /// };
 /// ```
 ///

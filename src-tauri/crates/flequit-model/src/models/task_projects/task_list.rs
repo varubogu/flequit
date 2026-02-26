@@ -58,8 +58,8 @@ use crate::{models::ModelConverter, traits::Trackable, types::id_types::{Project
 ///
 /// ```rust,no_run
 /// # use chrono::Utc;
-/// # use flequit_model::models::task_list::TaskList;
-/// # use flequit_model::types::id_types::{TaskListId, ProjectId};
+/// # use flequit_model::models::task_projects::task_list::TaskList;
+/// # use flequit_model::types::id_types::{TaskListId, ProjectId, UserId};
 ///
 /// let task_list = TaskList {
 ///     id: TaskListId::new(),
@@ -71,6 +71,8 @@ use crate::{models::ModelConverter, traits::Trackable, types::id_types::{Project
 ///     is_archived: false,
 ///     created_at: Utc::now(),
 ///     updated_at: Utc::now(),
+///     deleted: false,
+///     updated_by: UserId::new(),
 /// };
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize, Partial)]
@@ -145,9 +147,8 @@ pub struct TaskList {
 ///
 /// ```rust,no_run
 /// # use chrono::Utc;
-/// # use flequit_model::models::task_list::TaskListTree;
-/// # use flequit_model::models::task::TaskTree;
-/// # use flequit_model::types::id_types::{TaskListId, TaskId, ProjectId};
+/// # use flequit_model::models::task_projects::task_list::TaskListTree;
+/// # use flequit_model::types::id_types::{TaskListId, ProjectId, UserId};
 ///
 /// // プロジェクトダッシュボードでの使用例
 /// let detailed_list = TaskListTree {
@@ -160,9 +161,9 @@ pub struct TaskList {
 ///     is_archived: false,
 ///     created_at: Utc::now(),
 ///     updated_at: Utc::now(),
-///     tasks: vec![
-///         // TaskTree構造体の例（完全なタスク情報を含む）
-///     ],
+///     deleted: false,
+///     updated_by: UserId::new(),
+///     tasks: vec![],
 /// };
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]

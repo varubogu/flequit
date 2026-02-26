@@ -35,10 +35,13 @@ use serde::{Deserialize, Serialize};
 ///
 /// ## 毎週火・木
 /// ```rust,no_run
-/// # use flequit_model::models::recurrence_rule::RecurrenceRule;
+/// # use chrono::Utc;
+/// # use flequit_model::models::task_projects::recurrence_rule::RecurrenceRule;
 /// # use flequit_model::types::datetime_calendar_types::{RecurrenceUnit, DayOfWeek};
+/// # use flequit_model::types::id_types::{RecurrenceRuleId, UserId};
 ///
 /// let weekly_rule = RecurrenceRule {
+///     id: RecurrenceRuleId::new(),
 ///     unit: RecurrenceUnit::Week,
 ///     interval: 1,
 ///     days_of_week: Some(vec![DayOfWeek::Tuesday, DayOfWeek::Thursday]),
@@ -46,17 +49,25 @@ use serde::{Deserialize, Serialize};
 ///     adjustment: None,
 ///     end_date: None,
 ///     max_occurrences: None,
+///     created_at: Utc::now(),
+///     updated_at: Utc::now(),
+///     deleted: false,
+///     updated_by: UserId::new(),
 /// };
 /// ```
 ///
 /// ## 毎月最終営業日
 /// ```rust,no_run
-/// # use flequit_model::models::datetime_condition::WeekdayCondition;
-/// # use flequit_model::models::recurrence_rule::RecurrenceRule;
-/// # use flequit_model::models::recurrence::{RecurrenceDetails, RecurrenceAdjustment};
+/// # use chrono::Utc;
+/// # use flequit_model::models::task_projects::weekday_condition::WeekdayCondition;
+/// # use flequit_model::models::task_projects::recurrence_rule::RecurrenceRule;
+/// # use flequit_model::models::task_projects::recurrence_details::RecurrenceDetails;
+/// # use flequit_model::models::task_projects::recurrence_adjustment::RecurrenceAdjustment;
 /// # use flequit_model::types::datetime_calendar_types::{RecurrenceUnit, WeekOfMonth, DayOfWeek, AdjustmentDirection, AdjustmentTarget};
+/// # use flequit_model::types::id_types::{RecurrenceAdjustmentId, RecurrenceRuleId, UserId, WeekdayConditionId};
 ///
 /// let last_business_day = RecurrenceRule {
+///     id: RecurrenceRuleId::new(),
 ///     unit: RecurrenceUnit::Month,
 ///     interval: 1,
 ///     days_of_week: None,
@@ -65,22 +76,40 @@ use serde::{Deserialize, Serialize};
 ///         week_of_period: Some(WeekOfMonth::Last),
 ///         weekday_of_week: Some(DayOfWeek::Friday),
 ///         date_conditions: None,
+///         created_at: Utc::now(),
+///         updated_at: Utc::now(),
+///         deleted: false,
+///         updated_by: UserId::new(),
 ///     }),
 ///     adjustment: Some(RecurrenceAdjustment {
+///         id: RecurrenceAdjustmentId::new(),
+///         recurrence_rule_id: RecurrenceRuleId::new(),
 ///         date_conditions: vec![],
 ///         weekday_conditions: vec![
 ///             WeekdayCondition {
-///                 id: "weekend_adjustment".to_string(),
+///                 id: WeekdayConditionId::new(),
 ///                 if_weekday: DayOfWeek::Saturday,
 ///                 then_direction: AdjustmentDirection::Previous,
 ///                 then_target: AdjustmentTarget::Weekday,
 ///                 then_weekday: Some(DayOfWeek::Friday),
 ///                 then_days: None,
+///                 created_at: Utc::now(),
+///                 updated_at: Utc::now(),
+///                 deleted: false,
+///                 updated_by: UserId::new(),
 ///             }
 ///         ],
+///         created_at: Utc::now(),
+///         updated_at: Utc::now(),
+///         deleted: false,
+///         updated_by: UserId::new(),
 ///     }),
 ///     end_date: None,
 ///     max_occurrences: None,
+///     created_at: Utc::now(),
+///     updated_at: Utc::now(),
+///     deleted: false,
+///     updated_by: UserId::new(),
 /// };
 /// ```
 ///
@@ -143,13 +172,14 @@ pub struct RecurrenceRule {
 ///
 /// ```rust,no_run
 /// # use chrono::Utc;
-/// # use flequit_model::models::recurrence_rule::{RecurrenceRuleTree, RecurrenceRule};
-/// # use flequit_model::models::recurrence_association::{TaskRecurrence, SubtaskRecurrence};
+/// # use flequit_model::models::task_projects::recurrence_rule::RecurrenceRuleTree;
+/// # use flequit_model::models::task_projects::task_recurrence::TaskRecurrence;
 /// # use flequit_model::types::datetime_calendar_types::RecurrenceUnit;
-/// # use flequit_model::types::id_types::{TaskId, SubTaskId};
+/// # use flequit_model::types::id_types::{RecurrenceRuleId, TaskId, UserId};
 ///
+/// let rule_id = RecurrenceRuleId::new();
 /// let recurrence_tree = RecurrenceRuleTree {
-///     id: "rule_123".to_string(),
+///     id: rule_id,
 ///     unit: RecurrenceUnit::Week,
 ///     interval: 1,
 ///     days_of_week: None,
@@ -157,11 +187,18 @@ pub struct RecurrenceRule {
 ///     adjustment: None,
 ///     end_date: None,
 ///     max_occurrences: Some(10),
+///     created_at: Utc::now(),
+///     updated_at: Utc::now(),
+///     deleted: false,
+///     updated_by: UserId::new(),
 ///     task_recurrences: vec![
 ///         TaskRecurrence {
 ///             task_id: TaskId::from("task_456".to_string()),
-///             recurrence_rule_id: "rule_123".to_string(),
+///             recurrence_rule_id: rule_id,
 ///             created_at: Utc::now(),
+///             updated_at: Utc::now(),
+///             deleted: false,
+///             updated_by: UserId::new(),
 ///         }
 ///     ],
 ///     subtask_recurrences: vec![],

@@ -18,15 +18,14 @@ use partially::Partial;
 /// # 使用例
 ///
 /// ```rust,no_run
-/// # use async_trait::async_trait;
-/// # use flequit_repository::repositories::{repository_trait::Repository, patchable_trait::Patchable};
-/// # use flequit_types::errors::repository_error::RepositoryError;
-/// # use partially::Partial;
+/// # use flequit_model::types::id_types::ProjectId;
+/// # use flequit_repository::repositories::patchable_trait::Patchable;
 /// # struct Project;
-/// # struct ProjectId;
-/// # struct ProjectPatch;
-/// # struct LocalSqliteProjectRepository;
-/// impl Patchable<Project, ProjectId> for LocalSqliteProjectRepository {}
+/// fn assert_patchable<R>()
+/// where
+///     R: Patchable<Project, ProjectId>,
+/// {
+/// }
 /// ```
 #[async_trait]
 pub trait Patchable<T, TId>: Repository<T, TId>

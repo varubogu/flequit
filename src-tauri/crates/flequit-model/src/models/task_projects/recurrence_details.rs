@@ -25,26 +25,38 @@ use crate::traits::Trackable;
 ///
 /// ## 毎月第2火曜日
 /// ```rust,no_run
-/// # use flequit_model::models::recurrence_details::RecurrenceDetails;
+/// # use chrono::Utc;
+/// # use flequit_model::models::task_projects::recurrence_details::RecurrenceDetails;
 /// # use flequit_model::types::datetime_calendar_types::{WeekOfMonth, DayOfWeek};
+/// # use flequit_model::types::id_types::UserId;
 ///
 /// let second_tuesday = RecurrenceDetails {
 ///     specific_date: None,
 ///     week_of_period: Some(WeekOfMonth::Second),
 ///     weekday_of_week: Some(DayOfWeek::Tuesday),
 ///     date_conditions: None,
+///     created_at: Utc::now(),
+///     updated_at: Utc::now(),
+///     deleted: false,
+///     updated_by: UserId::new(),
 /// };
 /// ```
 ///
 /// ## 毎月15日
 /// ```rust,no_run
-/// # use flequit_model::models::recurrence_details::RecurrenceDetails;
+/// # use chrono::Utc;
+/// # use flequit_model::models::task_projects::recurrence_details::RecurrenceDetails;
+/// # use flequit_model::types::id_types::UserId;
 ///
 /// let fifteenth_day = RecurrenceDetails {
 ///     specific_date: Some(15),
 ///     week_of_period: None,
 ///     weekday_of_week: None,
 ///     date_conditions: None,
+///     created_at: Utc::now(),
+///     updated_at: Utc::now(),
+///     deleted: false,
+///     updated_by: UserId::new(),
 /// };
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -23,14 +23,17 @@ use crate::types::id_types::{RecurrenceRuleId, SubTaskId, UserId};
 /// # 使用例
 ///
 /// ```rust,no_run
-/// # use flequit_model::models::subtask_recurrence::SubtaskRecurrence;
-/// # use flequit_model::types::id_types::SubTaskId;
+/// # use flequit_model::models::task_projects::subtask_recurrence::SubTaskRecurrence;
+/// # use flequit_model::types::id_types::{RecurrenceRuleId, SubTaskId, UserId};
 /// # use chrono::Utc;
 ///
-/// let subtask_recurrence = SubtaskRecurrence {
+/// let subtask_recurrence = SubTaskRecurrence {
 ///     subtask_id: SubTaskId::from("subtask_123".to_string()),
-///     recurrence_rule_id: "rule_456".to_string(),
+///     recurrence_rule_id: RecurrenceRuleId::from("rule_456"),
 ///     created_at: Utc::now(),
+///     updated_at: Utc::now(),
+///     deleted: false,
+///     updated_by: UserId::new(),
 /// };
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]

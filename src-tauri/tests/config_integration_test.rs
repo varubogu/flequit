@@ -2,7 +2,13 @@
 
 use flequit_settings::{Settings, SettingsManager};
 use std::env;
+use std::sync::{Mutex, OnceLock};
 use tempfile::TempDir;
+
+fn env_var_lock() -> &'static Mutex<()> {
+    static LOCK: OnceLock<Mutex<()>> = OnceLock::new();
+    LOCK.get_or_init(|| Mutex::new(()))
+}
 
 /// テスト用の一時ディレクトリ設定
 fn setup_test_env() -> TempDir {
@@ -16,6 +22,7 @@ fn setup_test_env() -> TempDir {
 
 #[tokio::test]
 async fn test_config_file_operations() {
+    let _env_guard = env_var_lock().lock().unwrap();
     let _temp_dir = setup_test_env();
 
     // 1. 設定マネージャーを作成
@@ -44,6 +51,7 @@ async fn test_config_file_operations() {
 
 #[tokio::test]
 async fn test_settings_load_and_save() {
+    let _env_guard = env_var_lock().lock().unwrap();
     let _temp_dir = setup_test_env();
 
     // 1. 設定マネージャーを作成
@@ -91,6 +99,7 @@ async fn test_settings_load_and_save() {
 
 #[tokio::test]
 async fn test_invalid_settings_validation() {
+    let _env_guard = env_var_lock().lock().unwrap();
     let _temp_dir = setup_test_env();
 
     // 設定マネージャーを作成

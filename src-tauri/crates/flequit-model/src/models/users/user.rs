@@ -62,7 +62,7 @@ use serde::{Deserialize, Serialize};
 ///
 /// ```rust,no_run
 /// # use chrono::Utc;
-/// # use flequit_model::models::user::User;
+/// # use flequit_model::models::users::user::User;
 /// # use flequit_model::types::id_types::UserId;
 ///
 /// let user = User {
@@ -143,10 +143,8 @@ pub struct User {
 ///
 /// ```rust,no_run
 /// # use chrono::Utc;
-/// # use flequit_model::models::user::UserTree;
-/// # use flequit_model::models::task_assignment::TaskAssignment;
-/// # use flequit_model::models::subtask_assignment::SubtaskAssignment;
-/// # use flequit_model::types::id_types::{UserId, TaskId, SubTaskId};
+/// # use flequit_model::models::users::user::UserTree;
+/// # use flequit_model::types::id_types::UserId;
 ///
 /// let user_tree = UserTree {
 ///     id: UserId::new(),
@@ -161,13 +159,7 @@ pub struct User {
 ///     updated_at: Utc::now(),
 ///     deleted: false,
 ///     updated_by: UserId::new(),
-///     task_assignments: vec![
-///         TaskAssignment {
-///             task_id: TaskId::from("task_123".to_string()),
-///             user_id: UserId::from("user_456".to_string()),
-///             created_at: Utc::now(),
-///         }
-///     ],
+///     task_assignments: vec![],
 ///     subtask_assignments: vec![],
 /// };
 /// ```

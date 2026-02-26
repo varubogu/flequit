@@ -43,7 +43,7 @@ use serde::{Deserialize, Serialize};
 /// # 使用例
 ///
 /// ```rust,no_run
-/// # use flequit_model::models::account::Account;
+/// # use flequit_model::models::accounts::account::Account;
 /// # use flequit_model::types::id_types::{AccountId, UserId};
 /// # use chrono::Utc;
 ///

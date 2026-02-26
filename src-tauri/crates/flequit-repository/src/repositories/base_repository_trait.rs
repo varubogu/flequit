@@ -24,6 +24,8 @@ use flequit_types::errors::repository_error::RepositoryError;
 ///
 /// ```rust,no_run
 /// # use async_trait::async_trait;
+/// # use chrono::{DateTime, Utc};
+/// # use flequit_model::types::id_types::UserId;
 /// # use flequit_repository::repositories::base_repository_trait::Repository;
 /// # use flequit_types::errors::repository_error::RepositoryError;
 /// # struct Project;
@@ -31,14 +33,19 @@ use flequit_types::errors::repository_error::RepositoryError;
 /// # struct LocalSqliteProjectRepository;
 /// #[async_trait]
 /// impl Repository<Project, ProjectId> for LocalSqliteProjectRepository {
-///     async fn save(&self, entity: &Project) -> Result<(), RepositoryError> {
+///     async fn save(
+///         &self,
+///         _entity: &Project,
+///         _user_id: &UserId,
+///         _timestamp: &DateTime<Utc>,
+///     ) -> Result<(), RepositoryError> {
 ///         // SQLite実装
 /// #       unimplemented!()
 ///     }
-/// #   async fn find_by_id(&self, id: &ProjectId) -> Result<Option<Project>, RepositoryError> { unimplemented!() }
+/// #   async fn find_by_id(&self, _id: &ProjectId) -> Result<Option<Project>, RepositoryError> { unimplemented!() }
 /// #   async fn find_all(&self) -> Result<Vec<Project>, RepositoryError> { unimplemented!() }
-/// #   async fn delete(&self, id: &ProjectId) -> Result<(), RepositoryError> { unimplemented!() }
-/// #   async fn exists(&self, id: &ProjectId) -> Result<bool, RepositoryError> { unimplemented!() }
+/// #   async fn delete(&self, _id: &ProjectId) -> Result<(), RepositoryError> { unimplemented!() }
+/// #   async fn exists(&self, _id: &ProjectId) -> Result<bool, RepositoryError> { unimplemented!() }
 /// #   async fn count(&self) -> Result<u64, RepositoryError> { unimplemented!() }
 /// }
 /// ```

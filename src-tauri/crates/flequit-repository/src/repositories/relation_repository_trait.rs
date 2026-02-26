@@ -18,23 +18,30 @@ use flequit_types::errors::repository_error::RepositoryError;
 ///
 /// ```rust,no_run
 /// # use async_trait::async_trait;
+/// # use chrono::{DateTime, Utc};
+/// # use flequit_model::types::id_types::UserId;
 /// # use flequit_repository::repositories::relation_repository_trait::RelationRepository;
 /// # use flequit_types::errors::repository_error::RepositoryError;
 /// # struct TaskAssignment;
 /// # struct TaskId;
-/// # struct UserId;
 /// # struct TaskAssignmentRepository;
 /// #[async_trait]
 /// impl RelationRepository<TaskAssignment, TaskId, UserId> for TaskAssignmentRepository {
-///     async fn add(&self, parent_id: &TaskId, child_id: &UserId) -> Result<(), RepositoryError> {
+///     async fn add(
+///         &self,
+///         _parent_id: &TaskId,
+///         _child_id: &UserId,
+///         _user_id: &UserId,
+///         _timestamp: &DateTime<Utc>,
+///     ) -> Result<(), RepositoryError> {
 ///         // タスクにユーザーを割り当て
 /// #       unimplemented!()
 ///     }
-/// #   async fn remove(&self, parent_id: &TaskId, child_id: &UserId) -> Result<(), RepositoryError> { unimplemented!() }
-/// #   async fn remove_all(&self, parent_id: &TaskId) -> Result<(), RepositoryError> { unimplemented!() }
-/// #   async fn find_relations(&self, parent_id: &TaskId) -> Result<Vec<TaskAssignment>, RepositoryError> { unimplemented!() }
-/// #   async fn exists(&self, parent_id: &TaskId) -> Result<bool, RepositoryError> { unimplemented!() }
-/// #   async fn count(&self, parent_id: &TaskId) -> Result<u64, RepositoryError> { unimplemented!() }
+/// #   async fn remove(&self, _parent_id: &TaskId, _child_id: &UserId) -> Result<(), RepositoryError> { unimplemented!() }
+/// #   async fn remove_all(&self, _parent_id: &TaskId) -> Result<(), RepositoryError> { unimplemented!() }
+/// #   async fn find_relations(&self, _parent_id: &TaskId) -> Result<Vec<TaskAssignment>, RepositoryError> { unimplemented!() }
+/// #   async fn exists(&self, _parent_id: &TaskId) -> Result<bool, RepositoryError> { unimplemented!() }
+/// #   async fn count(&self, _parent_id: &TaskId) -> Result<u64, RepositoryError> { unimplemented!() }
 /// }
 /// ```
 #[async_trait]

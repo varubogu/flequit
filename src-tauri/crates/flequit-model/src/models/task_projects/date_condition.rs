@@ -22,14 +22,19 @@ use crate::traits::Trackable;
 ///
 /// ```rust,no_run
 /// # use chrono::Utc;
-/// # use flequit_model::models::date_condition::DateCondition;
+/// # use flequit_model::models::task_projects::date_condition::DateCondition;
 /// # use flequit_model::types::datetime_calendar_types::DateRelation;
+/// # use flequit_model::types::id_types::{DateConditionId, UserId};
 ///
 /// // 特定日以降の条件
 /// let after_condition = DateCondition {
-///     id: "after_new_year".to_string(),
+///     id: DateConditionId::new(),
 ///     relation: DateRelation::After,
 ///     reference_date: "2024-01-01T00:00:00Z".parse().unwrap(),
+///     created_at: Utc::now(),
+///     updated_at: Utc::now(),
+///     deleted: false,
+///     updated_by: UserId::new(),
 /// };
 /// ```
 ///

@@ -12,21 +12,15 @@ use flequit_model::types::id_types::ProjectId;
 /// # 使用方法
 ///
 /// ```rust,no_run
-/// # use flequit_model::models::project::Project;
+/// # use flequit_model::models::task_projects::project::Project;
 /// # use flequit_model::types::id_types::ProjectId;
-/// # use flequit_storage::repositories::project_repository_trait::ProjectRepositoryTrait;
-/// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
-/// // Service層での使用例
-/// // let repository = SomeProjectRepository::new().await?;
-/// // let project = Project::default();
-/// //
-/// // // 保存（Automerge + SQLiteに自動保存）
-/// // repository.save(&project).await?;
-/// //
-/// // // 検索（SQLiteから高速検索）
-/// // let projects = repository.find_all().await?;
-/// # Ok(())
-/// # }
+/// # use flequit_repository::repositories::task_projects::project_repository_trait::ProjectRepositoryTrait;
+/// fn assert_project_repository_trait<R>()
+/// where
+///     R: ProjectRepositoryTrait,
+/// {
+///     let _ = (ProjectId::new(), std::mem::size_of::<Project>());
+/// }
 /// ```
 ///
 /// Repository内部でストレージ選択を自動実行:

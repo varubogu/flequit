@@ -23,14 +23,17 @@ use crate::types::id_types::{SubTaskId, TagId, UserId};
 /// # 使用例
 ///
 /// ```rust,no_run
-/// # use flequit_model::models::subtask_tag::SubtaskTag;
-/// # use flequit_model::types::id_types::{SubTaskId, TagId};
+/// # use flequit_model::models::task_projects::subtask_tag::SubTaskTag;
+/// # use flequit_model::types::id_types::{SubTaskId, TagId, UserId};
 /// # use chrono::Utc;
 ///
-/// let subtask_tag = SubtaskTag {
+/// let subtask_tag = SubTaskTag {
 ///     subtask_id: SubTaskId::from("subtask_123".to_string()),
 ///     tag_id: TagId::from("tag_456".to_string()),
 ///     created_at: Utc::now(),
+///     updated_at: Utc::now(),
+///     deleted: false,
+///     updated_by: UserId::new(),
 /// };
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]

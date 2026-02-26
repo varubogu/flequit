@@ -13,21 +13,15 @@ use flequit_model::types::id_types::TaskListId;
 /// # 使用方法
 ///
 /// ```rust,no_run
-/// # use flequit_model::models::task_list::TaskList;
+/// # use flequit_model::models::task_projects::task_list::TaskList;
 /// # use flequit_model::types::id_types::TaskListId;
-/// # use flequit_storage::repositories::task_list_repository_trait::TaskListRepositoryTrait;
-/// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
-/// // Service層での使用例
-/// // let repository = SomeTaskListRepository::new().await?;
-/// // let task_list = TaskList::default();
-/// //
-/// // // 保存（Automerge + SQLiteに自動保存）
-/// // repository.save(&task_list).await?;
-/// //
-/// // // 検索（SQLiteから高速検索）
-/// // let task_lists = repository.find_all().await?;
-/// # Ok(())
-/// # }
+/// # use flequit_repository::repositories::task_projects::task_list_repository_trait::TaskListRepositoryTrait;
+/// fn assert_task_list_repository_trait<R>()
+/// where
+///     R: TaskListRepositoryTrait,
+/// {
+///     let _ = (TaskListId::new(), std::mem::size_of::<TaskList>());
+/// }
 /// ```
 ///
 /// Repository内部でストレージ選択を自動実行:

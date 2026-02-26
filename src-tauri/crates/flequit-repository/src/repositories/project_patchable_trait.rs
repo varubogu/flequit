@@ -18,16 +18,16 @@ use partially::Partial;
 /// # 使用例
 ///
 /// ```rust,no_run
-/// # use async_trait::async_trait;
-/// # use flequit_repository::repositories::{project_repository_trait::ProjectRepository, project_patchable_trait::ProjectPatchable};
-/// # use flequit_types::errors::repository_error::RepositoryError;
 /// # use flequit_model::types::id_types::ProjectId;
-/// # use partially::Partial;
 /// # struct Task;
-/// # struct TaskId;
-/// # struct TaskPatch;
-/// # struct TaskLocalAutomergeRepository;
-/// impl ProjectPatchable<Task, TaskId> for TaskLocalAutomergeRepository {}
+/// # use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
+/// fn assert_project_patchable<R, TId>()
+/// where
+///     TId: Send + Sync + std::fmt::Debug,
+///     R: ProjectPatchable<Task, TId>,
+/// {
+///     let _ = ProjectId::new();
+/// }
 /// ```
 #[async_trait]
 pub trait ProjectPatchable<T, TId>: ProjectRepository<T, TId>

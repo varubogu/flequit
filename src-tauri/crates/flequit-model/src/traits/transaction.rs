@@ -19,7 +19,21 @@ use flequit_types::errors::repository_error::RepositoryError;
 ///
 /// # 使用例
 ///
-/// ```rust,ignore
+/// ```rust,no_run
+/// # use flequit_model::traits::transaction::TransactionManager;
+/// # use flequit_model::types::id_types::{ProjectId, TagId};
+/// # trait InfrastructureRepositoriesTrait {}
+/// # async fn delete_tag_service<TXN, R>(
+/// #     _txn: &TXN,
+/// #     _repositories: &R,
+/// #     _project_id: &ProjectId,
+/// #     _tag_id: &TagId,
+/// # ) -> Result<(), String>
+/// # where
+/// #     R: InfrastructureRepositoriesTrait + Send + Sync,
+/// # {
+/// #     Ok(())
+/// # }
 /// // Facade層でトランザクション制御
 /// pub async fn delete_tag<R, TM>(
 ///     repositories: &R,
@@ -32,13 +46,19 @@ use flequit_types::errors::repository_error::RepositoryError;
 ///     TM: TransactionManager + Send + Sync,
 /// {
 ///     // トランザクション開始
-///     let txn = tx_manager.begin().await?;
+///     let txn = tx_manager
+///         .begin()
+///         .await
+///         .map_err(|e| format!("Failed to begin transaction: {:?}", e))?;
 ///
 ///     // ビジネスロジック実行
-///     match tag_service::delete_tag(&txn, repositories, project_id, tag_id).await {
+///     match delete_tag_service(&txn, repositories, project_id, tag_id).await {
 ///         Ok(_) => {
 ///             // 成功時: コミット
-///             tx_manager.commit(txn).await?;
+///             tx_manager
+///                 .commit(txn)
+///                 .await
+///                 .map_err(|e| format!("Failed to commit transaction: {:?}", e))?;
 ///             Ok(true)
 ///         }
 ///         Err(e) => {

@@ -17,14 +17,17 @@ use crate::traits::Trackable;
 /// # 使用例
 ///
 /// ```rust,no_run
-/// # use flequit_model::models::subtask_assignment::SubtaskAssignment;
+/// # use flequit_model::models::task_projects::subtask_assignment::SubTaskAssignment;
 /// # use flequit_model::types::id_types::{SubTaskId, UserId};
 /// # use chrono::Utc;
 ///
-/// let assignment = SubtaskAssignment {
+/// let assignment = SubTaskAssignment {
 ///     subtask_id: SubTaskId::from("subtask_123".to_string()),
 ///     user_id: UserId::from("user_456".to_string()),
 ///     created_at: Utc::now(),
+///     updated_at: Utc::now(),
+///     deleted: false,
+///     updated_by: UserId::new(),
 /// };
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]

@@ -41,8 +41,8 @@ use serde::{Deserialize, Serialize};
 ///
 /// ```rust,no_run
 /// # use chrono::Utc;
-/// # use flequit_model::models::tag::Tag;
-/// # use flequit_model::types::id_types::TagId;
+/// # use flequit_model::models::task_projects::tag::Tag;
+/// # use flequit_model::types::id_types::{TagId, UserId};
 ///
 /// let urgent_tag = Tag {
 ///     id: TagId::new(),
@@ -51,6 +51,8 @@ use serde::{Deserialize, Serialize};
 ///     order_index: Some(1),
 ///     created_at: Utc::now(),
 ///     updated_at: Utc::now(),
+///     deleted: false,
+///     updated_by: UserId::new(),
 /// };
 ///
 /// let feature_tag = Tag {
@@ -60,6 +62,8 @@ use serde::{Deserialize, Serialize};
 ///     order_index: Some(2),
 ///     created_at: Utc::now(),
 ///     updated_at: Utc::now(),
+///     deleted: false,
+///     updated_by: UserId::new(),
 /// };
 /// ```
 ///
@@ -112,9 +116,9 @@ pub struct Tag {
 ///
 /// ```rust,no_run
 /// # use chrono::Utc;
-/// # use flequit_model::models::tag::TagTree;
-/// # use flequit_model::models::tagging::{TaskTag, SubtaskTag};
-/// # use flequit_model::types::id_types::{TagId, TaskId, SubTaskId};
+/// # use flequit_model::models::task_projects::tag::TagTree;
+/// # use flequit_model::models::task_projects::task_tag::TaskTag;
+/// # use flequit_model::types::id_types::{TagId, TaskId, UserId};
 ///
 /// let tag_tree = TagTree {
 ///     id: TagId::new(),
@@ -123,11 +127,16 @@ pub struct Tag {
 ///     order_index: Some(1),
 ///     created_at: Utc::now(),
 ///     updated_at: Utc::now(),
+///     deleted: false,
+///     updated_by: UserId::new(),
 ///     task_tags: vec![
 ///         TaskTag {
 ///             task_id: TaskId::from("task_123".to_string()),
 ///             tag_id: TagId::from("tag_456".to_string()),
 ///             created_at: Utc::now(),
+///             updated_at: Utc::now(),
+///             deleted: false,
+///             updated_by: UserId::new(),
 ///         }
 ///     ],
 ///     subtask_tags: vec![],

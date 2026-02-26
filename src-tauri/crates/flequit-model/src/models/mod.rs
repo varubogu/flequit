@@ -42,7 +42,7 @@
 //! ## 使用例
 //!
 //! ```rust,no_run
-//! # use flequit_model::models::project::Project;
+//! # use flequit_model::models::task_projects::project::Project;
 //! # use flequit_model::types::id_types::{ProjectId, UserId};
 //! # use chrono::Utc;
 //!
@@ -58,6 +58,8 @@
 //!     owner_id: Some(UserId::new()),
 //!     created_at: Utc::now(),
 //!     updated_at: Utc::now(),
+//!     deleted: false,
+//!     updated_by: UserId::new(),
 //! };
 //! ```
 //!
@@ -91,7 +93,7 @@ pub mod search;
 /// # 使用例
 ///
 /// ```rust,no_run
-/// # use flequit_model::models::project::{Project, ProjectTree};
+/// # use flequit_model::models::task_projects::project::{Project, ProjectTree};
 /// # use flequit_model::models::ModelConverter;
 /// # use flequit_model::types::id_types::{ProjectId, UserId};
 /// # use chrono::Utc;
@@ -110,6 +112,8 @@ pub mod search;
 /// #     owner_id: None,
 /// #     created_at: Utc::now(),
 /// #     updated_at: Utc::now(),
+/// #     deleted: false,
+/// #     updated_by: UserId::new(),
 /// #     task_lists: vec![],
 /// # };
 /// #

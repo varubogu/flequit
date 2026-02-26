@@ -28,7 +28,8 @@ impl TestPathGenerator {
     /// 実行されたテスト関数のファイルパスから、テストルール準拠のパスを生成
     /// `<project_root>/.tmp/tests/cargo/[クレート名]/[テストファイルの相対パス]/[テスト関数名]/[実行日時]/`
     pub fn generate_test_dir(file_path: &str, test_function_name: &str) -> PathBuf {
-        let timestamp = Utc::now().format("%Y%m%d_%H%M%S").to_string();
+        // 並列実行時のディレクトリ衝突を避けるため、マイクロ秒まで含める
+        let timestamp = Utc::now().format("%Y%m%d_%H%M%S_%6f").to_string();
 
         // クレート名を抽出
         let crate_name = Self::extract_crate_name(file_path);

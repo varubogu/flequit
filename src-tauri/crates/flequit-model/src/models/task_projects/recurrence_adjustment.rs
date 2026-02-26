@@ -29,31 +29,19 @@ use crate::types::id_types::{RecurrenceAdjustmentId, RecurrenceRuleId, UserId};
 /// # 使用例
 ///
 /// ```rust,no_run
-/// # use flequit_model::models::recurrence_adjustment::RecurrenceAdjustment;
-/// # use flequit_model::models::datetime_condition::{DateCondition, WeekdayCondition};
-/// # use flequit_model::types::datetime_calendar_types::{DateRelation, DayOfWeek, AdjustmentDirection, AdjustmentTarget};
+/// # use flequit_model::models::task_projects::recurrence_adjustment::RecurrenceAdjustment;
+/// # use flequit_model::types::id_types::{RecurrenceAdjustmentId, RecurrenceRuleId, UserId};
 /// # use chrono::Utc;
 ///
 /// let business_adjustment = RecurrenceAdjustment {
-///     date_conditions: vec![
-///         // 祝日回避条件
-///         DateCondition {
-///             id: "holiday_avoidance".to_string(),
-///             relation: DateRelation::OnOrAfter,
-///             reference_date: Utc::now(),
-///         }
-///     ],
-///     weekday_conditions: vec![
-///         // 土日は翌営業日に調整
-///         WeekdayCondition {
-///             id: "weekend_to_weekday".to_string(),
-///             if_weekday: DayOfWeek::Saturday,
-///             then_direction: AdjustmentDirection::Next,
-///             then_target: AdjustmentTarget::Weekday,
-///             then_weekday: Some(DayOfWeek::Monday),
-///             then_days: None,
-///         }
-///     ],
+///     id: RecurrenceAdjustmentId::new(),
+///     recurrence_rule_id: RecurrenceRuleId::new(),
+///     date_conditions: vec![],
+///     weekday_conditions: vec![],
+///     created_at: Utc::now(),
+///     updated_at: Utc::now(),
+///     deleted: false,
+///     updated_by: UserId::new(),
 /// };
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
