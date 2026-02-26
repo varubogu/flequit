@@ -30,7 +30,6 @@
   const translationService = useTranslation();
   const dialogFacade = createRecurrenceDialogFacade({
     onSave: (rule) => {
-      console.log('[recurrence-dialog] onSave呼び出し:', rule);
       onSave?.(rule);
     }
   });
@@ -38,10 +37,6 @@
   const recurrenceSettings = $derived(translationService.getMessage('recurrence_settings')());
 
   $effect(() => {
-    console.log(
-      '[RecurrenceDialog] recurrenceRule props を受け取りました:',
-      $state.snapshot(recurrenceRule)
-    );
     dialogFacade.setRecurrenceRule(recurrenceRule ?? null);
   });
 

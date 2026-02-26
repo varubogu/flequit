@@ -18,7 +18,6 @@ export class TaskDetailViewState {
 
   task = $derived.by(() => {
     const t = taskStore.selectedTask;
-    console.log('[TaskDetailViewState] task derived:', t?.id);
     return t;
   });
   subTask = $derived(taskStore.selectedSubTask);
@@ -26,7 +25,6 @@ export class TaskDetailViewState {
   isNewTaskMode = $derived(taskStore.isNewTaskMode);
   currentItem = $derived.by(() => {
     const ci = this.task || this.subTask || (this.isNewTaskMode ? taskStore.newTaskData : null);
-    console.log('[TaskDetailViewState] currentItem derived:', ci?.id);
     return ci;
   });
   selectedSubTaskId = $derived(taskStore.selectedSubTaskId);

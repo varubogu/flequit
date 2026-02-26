@@ -205,20 +205,3 @@ export function validateRecurrenceRule(rule: RecurrenceRule): string[] {
 
   return errors;
 }
-
-/**
- * デバッグ用の詳細ログ出力
- */
-export function logRecurrenceConversion(
-  from: string,
-  to: string,
-  input: unknown,
-  output: unknown
-): void {
-  if (process.env.NODE_ENV === 'development') {
-    console.group(`🔄 RecurrenceRule変換: ${from} → ${to}`);
-    console.debug('Input:', input);
-    console.debug('Output:', output);
-    console.groupEnd();
-  }
-}

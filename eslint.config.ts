@@ -49,7 +49,8 @@ export default tseslint.config(
           message:
             'Svelteコンポーネントを相対パスでimportすることは禁止です。エイリアス（例: $lib/components/...）を使用してください。エイリアスが存在しない場合のみコメントで理由を示した上で例外としてください。'
         }
-      ]
+      ],
+      'no-console': ['error', { allow: ['warn', 'error'] }]
     }
   },
   {

@@ -24,7 +24,6 @@ export class TaskTauriService implements TaskService {
     try {
       // patchにidを含める（Tauriコマンドの要求）
       const patchWithId = { ...patch, id };
-      console.log('[TaskTauriService.update] Sending patch:', JSON.stringify(patchWithId, null, 2));
       const result = await invoke('update_task', { projectId, patch: patchWithId, userId });
       return result as boolean;
     } catch (error) {

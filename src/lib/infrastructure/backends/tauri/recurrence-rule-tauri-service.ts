@@ -93,16 +93,11 @@ export class RecurrenceRuleTauriService implements RecurrenceRuleService {
     };
 
     try {
-      console.log(
-        '[RecurrenceRuleTauriService.create] Sending rule:',
-        JSON.stringify(ruleForTauri, null, 2)
-      );
       const result = await invoke('create_recurrence_rule', {
         projectId,
         rule: ruleForTauri,
         userId
       });
-      console.log('[RecurrenceRuleTauriService.create] Success:', result);
       return result as boolean;
     } catch (error) {
       console.error('[RecurrenceRuleTauriService.create] Failed to create recurrence rule:', error);

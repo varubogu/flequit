@@ -17,20 +17,6 @@ export function setupSyncEffects(
     }
   });
 
-  // Sync recurrence rule from options
-  // NOTE: この同期は inline-date-picker.svelte で直接行うため、ここでは無効化
-  // $effect(() => {
-  //   const nextRule = options.recurrenceRule ?? null;
-  //   if (nextRule !== state.lastSyncedRecurrenceRule) {
-  //     console.log('[InlineDatePicker.effects] recurrenceRule を同期します:', {
-  //       from: $state.snapshot(state.lastSyncedRecurrenceRule),
-  //       to: $state.snapshot(nextRule)
-  //     });
-  //     state.currentRecurrenceRule = nextRule;
-  //     state.lastSyncedRecurrenceRule = nextRule;
-  //   }
-  // });
-
   // Sync current date from options
   $effect(() => {
     if (options.show && options.currentDate) {

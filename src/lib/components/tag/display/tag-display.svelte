@@ -54,24 +54,17 @@
   }
 
   async function handleToggleBookmark() {
-    console.log('[TagDisplay] handleToggleBookmark called - tag:', tag.id, 'projectId:', projectId);
     try {
       // projectIdが渡されていればそれを使用、なければ取得
-      console.log('[TagDisplay] Resolving projectId...');
       const resolvedProjectId = projectId || (await tagStore.getProjectIdByTagId(tag.id));
-      console.log('[TagDisplay] Resolved projectId:', resolvedProjectId);
 
       if (!resolvedProjectId) {
         console.error('[TagDisplay] Project ID not found for tag:', tag.id);
         return;
       }
 
-      // TagBookmarkServiceを直接呼び出す
-      console.log('[TagDisplay] Importing TagBookmarkService...');
       const { TagBookmarkService } = await import('$lib/services/domain/tag-bookmark');
-      console.log('[TagDisplay] Calling toggleBookmark...');
       await TagBookmarkService.toggleBookmark(resolvedProjectId, tag.id);
-      console.log('[TagDisplay] toggleBookmark completed successfully');
     } catch (error) {
       console.error('[TagDisplay] Failed to toggle bookmark:', error);
     }

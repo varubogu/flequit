@@ -15,21 +15,12 @@ export const TagBookmarkBackendService = {
    * ブックマークを作成
    */
   async create(input: CreateTagBookmarkInput): Promise<TagBookmark> {
-    console.log(
-      '[TagBookmarkBackendService.create] Invoking Tauri command - userId:',
-      input.userId,
-      'projectId:',
-      input.projectId,
-      'tagId:',
-      input.tagId
-    );
     try {
       const result = await invoke<TagBookmark>('create_tag_bookmark', {
         userId: input.userId,
         projectId: input.projectId,
         tagId: input.tagId
       });
-      console.log('[TagBookmarkBackendService.create] Tauri command returned:', result);
       return result;
     } catch (error) {
       console.error('[TagBookmarkBackendService.create] Tauri command failed:', error);
@@ -50,7 +41,6 @@ export const TagBookmarkBackendService = {
    * ユーザーの全ブックマークを取得
    */
   async listByUser(userId: string): Promise<TagBookmark[]> {
-    console.log('[TagBookmarkBackendService.listByUser] Invoking Tauri command - userId:', userId);
     return await invoke('list_tag_bookmarks_by_user', { userId });
   },
 

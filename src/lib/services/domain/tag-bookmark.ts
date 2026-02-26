@@ -16,15 +16,6 @@ export const TagBookmarkService = {
    * ブックマークを作成
    */
   async create(projectId: string, tagId: string): Promise<TagBookmark | null> {
-    console.log(
-      '[TagBookmarkService.create] accountStore.currentAccount:',
-      accountStore.currentAccount
-    );
-    console.log(
-      '[TagBookmarkService.create] accountStore.currentUserId:',
-      accountStore.currentUserId
-    );
-
     const userId = accountStore.currentUserId;
     if (!userId) {
       console.error(
@@ -34,28 +25,16 @@ export const TagBookmarkService = {
       return null;
     }
 
-    console.log(
-      '[TagBookmarkService.create] Starting - userId:',
-      userId,
-      'projectId:',
-      projectId,
-      'tagId:',
-      tagId
-    );
     try {
       // 1. バックエンドに作成
-      console.log('[TagBookmarkService.create] Calling TagBookmarkBackendService.create...');
       const bookmark = await TagBookmarkBackendService.create({
         userId,
         projectId,
         tagId
       });
-      console.log('[TagBookmarkService.create] Backend returned bookmark:', bookmark);
 
       // 2. Storeに追加
-      console.log('[TagBookmarkService.create] Adding to store...');
       tagBookmarkStore.addBookmark(bookmark);
-      console.log('[TagBookmarkService.create] Successfully added to store');
 
       return bookmark;
     } catch (error) {
@@ -82,15 +61,6 @@ export const TagBookmarkService = {
    * ユーザーの全ブックマークを読み込み
    */
   async loadAllBookmarks(): Promise<void> {
-    console.log(
-      '[TagBookmarkService.loadAllBookmarks] accountStore.currentAccount:',
-      accountStore.currentAccount
-    );
-    console.log(
-      '[TagBookmarkService.loadAllBookmarks] accountStore.currentUserId:',
-      accountStore.currentUserId
-    );
-
     const userId = accountStore.currentUserId;
     if (!userId) {
       console.error(
@@ -100,10 +70,8 @@ export const TagBookmarkService = {
       return;
     }
 
-    console.log('[TagBookmarkService.loadAllBookmarks] Loading bookmarks for user:', userId);
     try {
       const bookmarks = await TagBookmarkBackendService.listByUser(userId);
-      console.log('[TagBookmarkService.loadAllBookmarks] Loaded', bookmarks.length, 'bookmarks');
       tagBookmarkStore.setBookmarks(bookmarks);
     } catch (error) {
       console.error(
@@ -174,24 +142,14 @@ export const TagBookmarkService = {
    * タグのブックマーク状態をトグル
    */
   async toggleBookmark(projectId: string, tagId: string): Promise<void> {
-    console.log(
-      '[TagBookmarkService] toggleBookmark called - projectId:',
-      projectId,
-      'tagId:',
-      tagId
-    );
     const bookmark = tagBookmarkStore.findBookmarkByTagId(tagId);
-    console.log('[TagBookmarkService] Existing bookmark:', bookmark);
 
     if (bookmark) {
       // ブックマーク済みなら削除
-      console.log('[TagBookmarkService] Deleting existing bookmark:', bookmark.id);
       await this.delete(bookmark.id, tagId);
     } else {
       // ブックマークされていなければ作成
-      console.log('[TagBookmarkService] Creating new bookmark');
       await this.create(projectId, tagId);
     }
-    console.log('[TagBookmarkService] toggleBookmark completed');
   }
 };

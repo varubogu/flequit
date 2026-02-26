@@ -61,7 +61,6 @@
       {@const isSelected = contextMenuStore.selectedIndex === menuItemIndex}
       <ContextMenu.Item
         onSelect={() => {
-          console.log('[ContextMenuItems] Item selected:', menuItem.id, menuItem.label);
           menuItem.action();
         }}
         disabled={typeof menuItem.disabled === 'function' ? menuItem.disabled() : menuItem.disabled}

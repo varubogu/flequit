@@ -29,14 +29,6 @@ export function useTaskDatePickerController(task: TaskWithSubTasks) {
     return taskCoreStore.getTaskById(taskState.taskId) || task;
   });
 
-  // currentTask の recurrenceRule 変更を監視
-  $effect(() => {
-    console.log('[TaskDatePickerController] currentTask.recurrenceRule が変更されました:', {
-      taskId: taskState.taskId,
-      recurrenceRule: $state.snapshot(currentTask.recurrenceRule)
-    });
-  });
-
   // Main task date picker state
   const mainState = $state<DatePickerState>({ show: false, position: { x: 0, y: 0 } });
 
@@ -103,7 +95,6 @@ export function useTaskDatePickerController(task: TaskWithSubTasks) {
     isRangeDate: boolean;
     recurrenceRule?: RecurrenceRule | null;
   }) {
-    console.log('[TaskDatePickerController.handleDateChange] 開始:', data);
     const { dateTime, range, isRangeDate, recurrenceRule } = data;
 
     // 更新データを準備
@@ -139,28 +130,15 @@ export function useTaskDatePickerController(task: TaskWithSubTasks) {
     }
 
     // タスクの日付を先に更新
-    console.log('[TaskDatePickerController.handleDateChange] タスク更新開始:', updates);
     await taskOperations.updateTask(task.id, updates);
-    console.log('[TaskDatePickerController.handleDateChange] タスク更新完了');
 
     // recurrenceRule の保存とストア更新
     if (recurrenceRule !== undefined) {
-      console.log(
-        '[TaskDatePickerController.handleDateChange] recurrenceRule保存開始:',
-        recurrenceRule
-      );
       const success = await saveRecurrenceRule(task.id, false, recurrenceRule);
-      console.log('[TaskDatePickerController.handleDateChange] recurrenceRule保存完了:', success);
 
       // バックエンド保存が成功した場合のみストアを更新
       if (success) {
-        console.log(
-          '[TaskDatePickerController.handleDateChange] タスクストアのrecurrenceRule更新開始'
-        );
         taskCoreStore.updateTask(task.id, { recurrenceRule: recurrenceRule ?? undefined });
-        console.log(
-          '[TaskDatePickerController.handleDateChange] タスクストアのrecurrenceRule更新完了'
-        );
       } else {
         console.error(
           '[TaskDatePickerController.handleDateChange] バックエンド保存失敗のためストア更新をスキップ'
@@ -201,7 +179,6 @@ export function useTaskDatePickerController(task: TaskWithSubTasks) {
     isRangeDate: boolean;
     recurrenceRule?: RecurrenceRule | null;
   }) {
-    console.log('[TaskDatePickerController.handleSubTaskDateChange] 開始:', data);
     if (!subTaskState.editingSubTaskId) return;
 
     const { dateTime, range, isRangeDate, recurrenceRule } = data;
@@ -239,33 +216,17 @@ export function useTaskDatePickerController(task: TaskWithSubTasks) {
     }
 
     // サブタスクの日付を先に更新
-    console.log('[TaskDatePickerController.handleSubTaskDateChange] サブタスク更新開始:', updates);
     subTaskStore.updateSubTask(subTaskState.editingSubTaskId, updates);
-    console.log('[TaskDatePickerController.handleSubTaskDateChange] サブタスク更新完了');
 
     // recurrenceRule の保存とストア更新
     if (recurrenceRule !== undefined) {
-      console.log(
-        '[TaskDatePickerController.handleSubTaskDateChange] recurrenceRule保存開始:',
-        recurrenceRule
-      );
       const success = await saveRecurrenceRule(subTaskState.editingSubTaskId, true, recurrenceRule);
-      console.log(
-        '[TaskDatePickerController.handleSubTaskDateChange] recurrenceRule保存完了:',
-        success
-      );
 
       // バックエンド保存が成功した場合のみストアを更新
       if (success) {
-        console.log(
-          '[TaskDatePickerController.handleSubTaskDateChange] サブタスクストアのrecurrenceRule更新開始'
-        );
         subTaskStore.updateSubTask(subTaskState.editingSubTaskId, {
           recurrenceRule: recurrenceRule ?? undefined
         });
-        console.log(
-          '[TaskDatePickerController.handleSubTaskDateChange] サブタスクストアのrecurrenceRule更新完了'
-        );
       } else {
         console.error(
           '[TaskDatePickerController.handleSubTaskDateChange] バックエンド保存失敗のためストア更新をスキップ'
