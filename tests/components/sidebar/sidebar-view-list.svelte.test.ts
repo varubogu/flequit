@@ -60,11 +60,11 @@ const mockTaskStore = vi.mocked(taskStore);
 
 // Initialize mock store outside hoisted to avoid initialization errors
 const mockViewsVisibilityStore = new MockViewsVisibilityStore({
-	visible: [
-		{ id: 'allTasks', label: 'All Tasks', icon: '📝', visible: true, order: 0 },
-		{ id: 'today', label: 'Today', icon: '📅', visible: true, order: 1 },
-		{ id: 'overdue', label: 'Overdue', icon: '⚠️', visible: true, order: 2 }
-	]
+  visible: [
+    { id: 'allTasks', label: 'All Tasks', icon: '📝', visible: true, order: 0 },
+    { id: 'today', label: 'Today', icon: '📅', visible: true, order: 1 },
+    { id: 'overdue', label: 'Overdue', icon: '⚠️', visible: true, order: 2 }
+  ]
 });
 
 describe('SidebarViewList Component', () => {

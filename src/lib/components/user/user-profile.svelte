@@ -65,7 +65,7 @@
 
 <div class="user-profile-container relative">
   <UserProfileButton
-    user={user}
+    {user}
     collapsed={sidebar.state === 'collapsed'}
     showMenu={controller.showMenu}
     ontoggle={controller.toggleMenu}
@@ -73,7 +73,7 @@
 
   {#if controller.showMenu}
     <UserProfileMenu
-      user={user}
+      {user}
       onlogin={controller.handleLogin}
       onlogout={controller.handleLogout}
       onsettings={controller.handleSettings}

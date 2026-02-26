@@ -7,55 +7,57 @@ import type { TaskWithSubTasks } from '$lib/types/task';
 import type { SubTaskWithTags } from '$lib/types/sub-task';
 
 const { createSubTaskMock, updateSubTaskMock, deleteSubTaskMock } = vi.hoisted(() => {
-	const createSubTask = vi.fn(async (_projectId: string, taskId: string, input: Record<string, unknown>) => ({
-		id: `subtask-${crypto.randomUUID()}`,
-		taskId,
-		title: (input.title as string) ?? '',
-		description: (input.description as string) ?? undefined,
-		status:
-			(input.status as
-				|'not_started'
-				|'in_progress'
-				|'waiting'
-				|'completed'
-				|'cancelled') ?? 'not_started',
-		priority: (input.priority as number | undefined) ?? 0,
-		orderIndex: 0,
-		completed: false,
-		assignedUserIds: [],
-		tagIds: [],
-		createdAt: new Date(),
-		updatedAt: new Date(),
-	}));
+  const createSubTask = vi.fn(
+    async (_projectId: string, taskId: string, input: Record<string, unknown>) => ({
+      id: `subtask-${crypto.randomUUID()}`,
+      taskId,
+      title: (input.title as string) ?? '',
+      description: (input.description as string) ?? undefined,
+      status:
+        (input.status as 'not_started' | 'in_progress' | 'waiting' | 'completed' | 'cancelled') ??
+        'not_started',
+      priority: (input.priority as number | undefined) ?? 0,
+      orderIndex: 0,
+      completed: false,
+      assignedUserIds: [],
+      tagIds: [],
+      createdAt: new Date(),
+      updatedAt: new Date()
+    })
+  );
 
-	const updateSubTask = vi.fn(async () => ({ success: true }));
-	const deleteSubTask = vi.fn(async () => true);
+  const updateSubTask = vi.fn(async () => ({ success: true }));
+  const deleteSubTask = vi.fn(async () => true);
 
-	return {
-		createSubTaskMock: createSubTask,
-		updateSubTaskMock: updateSubTask,
-		deleteSubTaskMock: deleteSubTask
-	};
+  return {
+    createSubTaskMock: createSubTask,
+    updateSubTaskMock: updateSubTask,
+    deleteSubTaskMock: deleteSubTask
+  };
 });
 
 vi.mock('$lib/services/domain/subtask', () => {
-	const subTaskBackend = {
-		createSubTask: createSubTaskMock,
-		updateSubTask: updateSubTaskMock,
-		deleteSubTask: deleteSubTaskMock
-	};
+  const subTaskBackend = {
+    createSubTask: createSubTaskMock,
+    updateSubTask: updateSubTaskMock,
+    deleteSubTask: deleteSubTaskMock
+  };
 
-	return {
-		SubTaskService: subTaskBackend,
-		SubTaskBackend: subTaskBackend
-	};
+  return {
+    SubTaskService: subTaskBackend,
+    SubTaskBackend: subTaskBackend
+  };
 });
 
 describe('SubTaskStore', () => {
   let store: SubTaskStore;
   let projectStore: ProjectStore;
 
-  const createMockSubTask = (id: string = 'subtask-1', title: string = 'Test SubTask', taskId: string = 'task-1'): SubTaskWithTags => ({
+  const createMockSubTask = (
+    id: string = 'subtask-1',
+    title: string = 'Test SubTask',
+    taskId: string = 'task-1'
+  ): SubTaskWithTags => ({
     id,
     taskId,
     title,
@@ -107,10 +109,7 @@ describe('SubTaskStore', () => {
         isArchived: false,
         createdAt: new Date(),
         updatedAt: new Date(),
-        tasks: [
-          createMockTask('task-1', 'list-1'),
-          createMockTask('task-2', 'list-1')
-        ]
+        tasks: [createMockTask('task-1', 'list-1'), createMockTask('task-2', 'list-1')]
       }
     ],
     allTags: []
@@ -233,7 +232,7 @@ describe('SubTaskStore', () => {
       const originalDate = project.taskLists[0].tasks[0].subTasks[0].updatedAt;
 
       // Wait a bit to ensure timestamp difference
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       await store.updateSubTask('subtask-1', { title: 'New Title' });
 

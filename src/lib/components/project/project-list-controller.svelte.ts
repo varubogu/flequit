@@ -37,9 +37,7 @@ export interface ProjectListDialogState {
   taskListDialogProject: ProjectTree | null;
 }
 
-export function useProjectListController(
-  onViewChange?: (view: ViewType) => void
-): {
+export function useProjectListController(onViewChange?: (view: ViewType) => void): {
   logic: ProjectListLogic;
   dialogState: ProjectListDialogState;
   handleProjectSave: (data: { name: string; color: string }) => Promise<void>;

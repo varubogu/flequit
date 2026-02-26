@@ -269,7 +269,10 @@ describe('DueDate', () => {
     it('should apply color classes from getDueDateClass when task has plan_end_date', () => {
       render(DueDate, { props: defaultProps });
 
-      expect(vi.mocked(getDueDateClass)).toHaveBeenCalledWith(baseTask.planEndDate, baseTask.status);
+      expect(vi.mocked(getDueDateClass)).toHaveBeenCalledWith(
+        baseTask.planEndDate,
+        baseTask.status
+      );
     });
 
     it('should apply muted color when task has no plan_end_date', () => {
@@ -560,7 +563,10 @@ describe('DueDate', () => {
       });
 
       expect(container.innerHTML).toBeTruthy();
-      expect(vi.mocked(getDueDateClass)).toHaveBeenCalledWith(completedTask.planEndDate, 'completed');
+      expect(vi.mocked(getDueDateClass)).toHaveBeenCalledWith(
+        completedTask.planEndDate,
+        'completed'
+      );
     });
   });
 });

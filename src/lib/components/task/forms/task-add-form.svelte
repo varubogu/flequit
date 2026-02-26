@@ -1,5 +1,8 @@
 <script lang="ts">
-  import { TaskListService, configureTaskListSelectionResolver } from '$lib/services/domain/task-list';
+  import {
+    TaskListService,
+    configureTaskListSelectionResolver
+  } from '$lib/services/domain/task-list';
   import { selectionStore } from '$lib/stores/selection-store.svelte';
   import { useTaskDetailUiStore } from '$lib/services/ui/task-detail-ui-store.svelte';
   import Button from '$lib/components/shared/button.svelte';

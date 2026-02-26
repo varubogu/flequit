@@ -51,7 +51,9 @@ export function createMockTask(overrides?: Partial<Task>): Task {
 /**
  * 最小限のTaskWithSubTasksモックを作成
  */
-export function createMockTaskWithSubTasks(overrides?: Partial<TaskWithSubTasks>): TaskWithSubTasks {
+export function createMockTaskWithSubTasks(
+  overrides?: Partial<TaskWithSubTasks>
+): TaskWithSubTasks {
   return {
     ...createMockTask(),
     tags: [],

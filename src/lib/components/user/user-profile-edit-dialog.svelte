@@ -84,11 +84,19 @@
         onSave?.(updatedUser);
         onClose();
       } else {
-        errorHandler.addError({ type: 'general', message: 'プロフィール保存に失敗しました', retryable: false });
+        errorHandler.addError({
+          type: 'general',
+          message: 'プロフィール保存に失敗しました',
+          retryable: false
+        });
       }
     } catch (error) {
       console.error('Failed to save user profile:', error);
-      errorHandler.addError({ type: 'general', message: 'プロフィール保存中にエラーが発生しました', retryable: false });
+      errorHandler.addError({
+        type: 'general',
+        message: 'プロフィール保存中にエラーが発生しました',
+        retryable: false
+      });
     } finally {
       isSaving = false;
     }
@@ -148,37 +156,21 @@
         <!-- Bio -->
         <div class="space-y-2">
           <Label for="bio">{bioLabel()}</Label>
-          <Textarea
-            id="bio"
-            bind:value={bio}
-            placeholder="自己紹介を入力（任意）"
-          />
+          <Textarea id="bio" bind:value={bio} placeholder="自己紹介を入力（任意）" />
         </div>
 
         <!-- Timezone -->
         <div class="space-y-2">
           <Label for="timezone">{timezoneLabel()}</Label>
-          <Input
-            id="timezone"
-            bind:value={timezone}
-            disabled={isSaving}
-            placeholder="Asia/Tokyo"
-          />
+          <Input id="timezone" bind:value={timezone} disabled={isSaving} placeholder="Asia/Tokyo" />
         </div>
       </div>
 
       <DialogFooter>
-        <Button
-          variant="outline"
-          onclick={handleClose}
-          disabled={isSaving}
-        >
+        <Button variant="outline" onclick={handleClose} disabled={isSaving}>
           {cancel()}
         </Button>
-        <Button
-          onclick={handleSave}
-          disabled={isSaving}
-        >
+        <Button onclick={handleSave} disabled={isSaving}>
           {isSaving ? '保存中...' : save()}
         </Button>
       </DialogFooter>

@@ -19,8 +19,8 @@
   <div>
     <h4 class="mb-3 text-base font-medium">{visibleInSidebar()}</h4>
     <div
-      class="bg-background relative min-h-[200px] space-y-1 rounded-lg border p-2 {logic.dragState.isDragging &&
-      logic.dragState.dropZone === 'visible'
+      class="bg-background relative min-h-[200px] space-y-1 rounded-lg border p-2 {logic.dragState
+        .isDragging && logic.dragState.dropZone === 'visible'
         ? 'border-primary bg-primary/5'
         : ''}"
       use:droppable={{
@@ -47,8 +47,8 @@
             }
           }}
           data-item-id={item.id}
-          class="bg-card hover:bg-muted flex cursor-grab items-center rounded-md border p-2 {logic.dragState.draggedItem
-            ?.id === item.id
+          class="bg-card hover:bg-muted flex cursor-grab items-center rounded-md border p-2 {logic
+            .dragState.draggedItem?.id === item.id
             ? 'opacity-50'
             : ''}"
         >
@@ -68,8 +68,8 @@
   <div>
     <h4 class="mb-3 text-base font-medium">{hiddenFromSidebar()}</h4>
     <div
-      class="bg-muted/50 relative min-h-[200px] space-y-1 rounded-lg border p-2 {logic.dragState.isDragging &&
-      logic.dragState.dropZone === 'hidden'
+      class="bg-muted/50 relative min-h-[200px] space-y-1 rounded-lg border p-2 {logic.dragState
+        .isDragging && logic.dragState.dropZone === 'hidden'
         ? 'border-primary bg-primary/5'
         : ''}"
       use:droppable={{
@@ -96,8 +96,8 @@
             }
           }}
           data-item-id={item.id}
-          class="bg-card hover:bg-muted flex cursor-grab items-center rounded-md border p-2 {logic.dragState.draggedItem
-            ?.id === item.id
+          class="bg-card hover:bg-muted flex cursor-grab items-center rounded-md border p-2 {logic
+            .dragState.draggedItem?.id === item.id
             ? 'opacity-50'
             : ''}"
         >

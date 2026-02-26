@@ -87,7 +87,12 @@ describe('TaskTauriService', () => {
         do_start_date: mockTask.doStartDate?.toISOString(),
         do_end_date: mockTask.doEndDate?.toISOString()
       } as Record<string, unknown>;
-      const result = await service.update('test-project-id', mockTask.id, patchData, 'test-user-id');
+      const result = await service.update(
+        'test-project-id',
+        mockTask.id,
+        patchData,
+        'test-user-id'
+      );
 
       expect(mockInvoke).toHaveBeenCalledWith('update_task', {
         projectId: 'test-project-id',
@@ -111,7 +116,12 @@ describe('TaskTauriService', () => {
         do_start_date: mockTask.doStartDate?.toISOString(),
         do_end_date: mockTask.doEndDate?.toISOString()
       } as Record<string, unknown>;
-      const result = await service.update('test-project-id', mockTask.id, patchData, 'test-user-id');
+      const result = await service.update(
+        'test-project-id',
+        mockTask.id,
+        patchData,
+        'test-user-id'
+      );
 
       expect(mockInvoke).toHaveBeenCalledWith('update_task', {
         projectId: 'test-project-id',
@@ -209,7 +219,9 @@ describe('TaskTauriService', () => {
       const result = await service.search();
 
       expect(result).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith('search_tasks is not implemented on Tauri side - using mock implementation');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'search_tasks is not implemented on Tauri side - using mock implementation'
+      );
 
       consoleSpy.mockRestore();
     });
@@ -220,7 +232,9 @@ describe('TaskTauriService', () => {
       const result = await service.search();
 
       expect(result).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith('search_tasks is not implemented on Tauri side - using mock implementation');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'search_tasks is not implemented on Tauri side - using mock implementation'
+      );
 
       consoleSpy.mockRestore();
     });

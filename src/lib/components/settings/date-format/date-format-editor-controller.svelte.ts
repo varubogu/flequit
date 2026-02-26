@@ -128,10 +128,10 @@ export class DateFormatEditorController {
     // editingFormatId からプリセットを取得してからリセット
     const editingId = this.editingFormatId;
     const preset = editingId ? this.allFormats().find((f) => f.id === editingId) : null;
-    
+
     this.editMode = 'manual';
     this.editingFormatId = null;
-    
+
     // 編集中だったフォーマットにリセット
     if (preset) {
       this.testFormat = preset.format;

@@ -21,10 +21,17 @@ describe('SettingsService', () => {
   let sampleSettings: Settings;
   let resolveBackendSpy: ReturnType<typeof vi.spyOn>;
   let backendClientModule: typeof import('$lib/infrastructure/backend-client');
-	type AddSyncErrorSpy = ReturnType<typeof vi.spyOn> & {
-		mockImplementation: (fn: (operation: string, resourceType: string, resourceId: string, originalError: unknown) => string) => AddSyncErrorSpy;
-	};
-	let addSyncErrorSpy: AddSyncErrorSpy;
+  type AddSyncErrorSpy = ReturnType<typeof vi.spyOn> & {
+    mockImplementation: (
+      fn: (
+        operation: string,
+        resourceType: string,
+        resourceId: string,
+        originalError: unknown
+      ) => string
+    ) => AddSyncErrorSpy;
+  };
+  let addSyncErrorSpy: AddSyncErrorSpy;
 
   beforeAll(async () => {
     backendClientModule = await import('$lib/infrastructure/backend-client');
@@ -38,8 +45,8 @@ describe('SettingsService', () => {
     resolveBackendSpy = vi
       .spyOn(backendClientModule, 'resolveBackend')
       .mockResolvedValue(mockBackend as any);
-	addSyncErrorSpy = vi.spyOn(errorHandler, 'addSyncError') as unknown as AddSyncErrorSpy;
-	addSyncErrorSpy.mockImplementation(() => '');
+    addSyncErrorSpy = vi.spyOn(errorHandler, 'addSyncError') as unknown as AddSyncErrorSpy;
+    addSyncErrorSpy.mockImplementation(() => '');
     vi.doUnmock('$lib/services/domain/settings');
     ({ SettingsService } = await import('$lib/services/domain/settings'));
   });
@@ -110,7 +117,12 @@ describe('SettingsService', () => {
       mockBackend.settingsManagement.settingsFileExists.mockRejectedValue(error);
 
       await expect(SettingsService.settingsFileExists()).rejects.toThrow('exists failed');
-      expect(errorHandler.addSyncError).toHaveBeenCalledWith('設定ファイル確認', 'settings', 'exists', error);
+      expect(errorHandler.addSyncError).toHaveBeenCalledWith(
+        '設定ファイル確認',
+        'settings',
+        'exists',
+        error
+      );
     });
   });
 
@@ -128,7 +140,12 @@ describe('SettingsService', () => {
       mockBackend.settingsManagement.initializeSettingsWithDefaults.mockRejectedValue(error);
 
       await expect(SettingsService.initializeSettingsWithDefaults()).rejects.toThrow('init failed');
-      expect(errorHandler.addSyncError).toHaveBeenCalledWith('設定初期化', 'settings', 'initialize', error);
+      expect(errorHandler.addSyncError).toHaveBeenCalledWith(
+        '設定初期化',
+        'settings',
+        'initialize',
+        error
+      );
     });
   });
 
@@ -146,7 +163,12 @@ describe('SettingsService', () => {
       mockBackend.settingsManagement.getSettingsFilePath.mockRejectedValue(error);
 
       await expect(SettingsService.getSettingsFilePath()).rejects.toThrow('path failed');
-      expect(errorHandler.addSyncError).toHaveBeenCalledWith('設定ファイル取得', 'settings', 'path', error);
+      expect(errorHandler.addSyncError).toHaveBeenCalledWith(
+        '設定ファイル取得',
+        'settings',
+        'path',
+        error
+      );
     });
   });
 
@@ -167,7 +189,12 @@ describe('SettingsService', () => {
       mockBackend.settingsManagement.updateSettingsPartially.mockRejectedValue(error);
 
       await expect(SettingsService.updateSettingsPartially({})).rejects.toThrow('partial failed');
-      expect(errorHandler.addSyncError).toHaveBeenCalledWith('設定部分更新', 'settings', 'partial', error);
+      expect(errorHandler.addSyncError).toHaveBeenCalledWith(
+        '設定部分更新',
+        'settings',
+        'partial',
+        error
+      );
     });
   });
 
@@ -195,7 +222,12 @@ describe('SettingsService', () => {
       mockBackend.settingsManagement.addCustomDueDay.mockRejectedValue(error);
 
       await expect(SettingsService.addCustomDueDay(5)).rejects.toThrow('add failed');
-      expect(errorHandler.addSyncError).toHaveBeenCalledWith('設定期日追加', 'settings', 'custom_due_day', error);
+      expect(errorHandler.addSyncError).toHaveBeenCalledWith(
+        '設定期日追加',
+        'settings',
+        'custom_due_day',
+        error
+      );
     });
   });
 });

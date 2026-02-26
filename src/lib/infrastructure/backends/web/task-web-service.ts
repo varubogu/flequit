@@ -28,7 +28,11 @@ export class TaskWebService implements TaskService {
 
   async get(projectId: string, id: string): Promise<Task | null> {
     // TODO: Web API実装を追加
-    console.warn('Web backends: getTask not implemented (called for data retrieval)', projectId, id);
+    console.warn(
+      'Web backends: getTask not implemented (called for data retrieval)',
+      projectId,
+      id
+    );
     return null; // 仮実装としてnullを返す
   }
 
@@ -37,5 +41,4 @@ export class TaskWebService implements TaskService {
     console.warn('Web backends: searchTasks not implemented', projectId, condition);
     return []; // 仮実装として空配列を返す
   }
-
 }

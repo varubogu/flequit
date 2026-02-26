@@ -65,16 +65,19 @@
           <Button
             variant={(currentView === 'project' || currentView === 'tasklist') &&
             (taskStore.selectedProjectId === project.id ||
-              (currentView === 'tasklist' && taskStore.selectedListId &&
-               (project.taskLists?.some(list => list.id === taskStore.selectedListId) ?? false)))
+              (currentView === 'tasklist' &&
+                taskStore.selectedListId &&
+                (project.taskLists?.some((list) => list.id === taskStore.selectedListId) ?? false)))
               ? 'secondary'
               : 'ghost'}
             class={`${
               (currentView === 'project' || currentView === 'tasklist') &&
               (taskStore.selectedProjectId === project.id ||
-                (currentView === 'tasklist' && taskStore.selectedListId &&
-                 (project.taskLists?.some(list => list.id === taskStore.selectedListId) ?? false)))
-                ? 'bg-primary/20 border-2 border-primary shadow-md shadow-primary/40 text-foreground'
+                (currentView === 'tasklist' &&
+                  taskStore.selectedListId &&
+                  (project.taskLists?.some((list) => list.id === taskStore.selectedListId) ??
+                    false)))
+                ? 'bg-primary/20 border-primary shadow-primary/40 text-foreground border-2 shadow-md'
                 : ''
             } ${
               isCollapsed

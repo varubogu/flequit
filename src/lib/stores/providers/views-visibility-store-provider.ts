@@ -1,18 +1,18 @@
 import {
-	viewsVisibilityStore,
-	type ViewsVisibilityStore
+  viewsVisibilityStore,
+  type ViewsVisibilityStore
 } from '$lib/stores/views-visibility.svelte';
 
 let viewsStoreOverride: ViewsVisibilityStore | null = null;
 
 export function resolveViewsVisibilityStore(): ViewsVisibilityStore {
-	return viewsStoreOverride ?? viewsVisibilityStore;
+  return viewsStoreOverride ?? viewsVisibilityStore;
 }
 
 export function provideViewsVisibilityStore(store: ViewsVisibilityStore | null) {
-	viewsStoreOverride = store;
+  viewsStoreOverride = store;
 }
 
 export function resetViewsVisibilityStoreOverride() {
-	viewsStoreOverride = null;
+  viewsStoreOverride = null;
 }

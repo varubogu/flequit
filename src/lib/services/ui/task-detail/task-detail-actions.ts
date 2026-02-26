@@ -16,7 +16,10 @@ export type TaskDetailActionsDependencies = {
   store: TaskDetailViewStore;
   domain: TaskDetailDomainActions;
   recurrence: TaskDetailRecurrenceActions;
-  interactions: Pick<TaskInteractionsService, 'cancelNewTaskMode' | 'saveNewTask' | 'updateNewTaskData'>;
+  interactions: Pick<
+    TaskInteractionsService,
+    'cancelNewTaskMode' | 'saveNewTask' | 'updateNewTaskData'
+  >;
 };
 
 export class TaskDetailActionsService {
@@ -171,11 +174,11 @@ export class TaskDetailActionsService {
     const current = this.#store.currentItem;
     if (isSubTask(current)) {
       const parentTaskId = current.taskId;
-      
+
       // Note: In the current data model, tasks cannot be nested as subtasks of other tasks.
       // If this changes in the future, we would need to check if the parent task is itself
       // a subtask and expand its parent task accordingly.
-      
+
       // Select parent task - this will automatically show it in the task detail view
       this.#domain.selectTask(parentTaskId);
     }
@@ -235,7 +238,9 @@ export class TaskDetailActionsService {
     this.#store.dialogs.openRecurrenceDialog();
   };
 
-  handleRecurrenceChange = async (rule: Parameters<TaskDetailRecurrenceActions['save']>[0]['rule']) => {
+  handleRecurrenceChange = async (
+    rule: Parameters<TaskDetailRecurrenceActions['save']>[0]['rule']
+  ) => {
     const current = this.#store.currentItem;
     if (!current || this.#store.isNewTaskMode) {
       return;

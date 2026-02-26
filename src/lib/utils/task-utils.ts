@@ -25,10 +25,7 @@ export function getStatusIcon(status: TaskStatus): string {
  * @param status タスクステータス
  * @returns ローカライズされたステータスラベル
  */
-export function getStatusLabel(
-  status: TaskStatus,
-  translate?: (key: string) => string
-): string {
+export function getStatusLabel(status: TaskStatus, translate?: (key: string) => string): string {
   if (translate) {
     switch (status) {
       case 'not_started':

@@ -19,10 +19,7 @@ export function createInlineDatePickerState(
   return state;
 }
 
-export function initializeState(
-  state: InlineDatePickerState,
-  options: UseInlineDatePickerOptions
-) {
+export function initializeState(state: InlineDatePickerState, options: UseInlineDatePickerOptions) {
   state.endDate = options.currentDate ? formatDate1(new SvelteDate(options.currentDate)) : '';
   state.endTime = options.currentDate
     ? formatTime1(new SvelteDate(options.currentDate))

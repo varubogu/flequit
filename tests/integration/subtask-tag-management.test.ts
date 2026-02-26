@@ -22,9 +22,7 @@ function generateId(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-function createBaseSubTask(
-  overrides: Partial<SubTaskWithTags> = {}
-): SubTaskWithTags {
+function createBaseSubTask(overrides: Partial<SubTaskWithTags> = {}): SubTaskWithTags {
   return {
     id: generateId('sub'),
     taskId: 'task-1',
@@ -49,9 +47,7 @@ function createBaseSubTask(
   };
 }
 
-function createBaseTask(
-  overrides: Partial<TaskWithSubTasks> = {}
-): TaskWithSubTasks {
+function createBaseTask(overrides: Partial<TaskWithSubTasks> = {}): TaskWithSubTasks {
   return {
     id: 'task-1',
     projectId: 'project-1',
@@ -108,8 +104,7 @@ function createTestEnvironment() {
   const tags: Tag[] = [];
   let subTaskCounter = 0;
 
-  const getSubTaskById = (id: string) =>
-    task.subTasks.find((subTask) => subTask.id === id);
+  const getSubTaskById = (id: string) => task.subTasks.find((subTask) => subTask.id === id);
 
   const taskStoreMock = {
     getTaskProjectAndList: vi.fn((taskId: string) => {
@@ -143,7 +138,7 @@ function createTestEnvironment() {
       const target = getSubTaskById(subTaskId);
       if (!target) return;
       Object.assign(target, updates, {
-        updatedAt: new Date(),
+        updatedAt: new Date()
       });
     }),
     deleteSubTask: vi.fn(async (subTaskId: string) => {
@@ -152,34 +147,32 @@ function createTestEnvironment() {
         task.subTasks.splice(index, 1);
       }
     }),
-	attachTagToSubTask: vi.fn((subTaskId: string, tag: Tag) => {
-		const target = getSubTaskById(subTaskId);
-		if (!target) return;
-		const tagsList = target.tags ?? (target.tags = []);
-		if (tagsList.some((existing) => existing.id === tag.id)) return;
-		tagsList.push(tag);
-		target.updatedAt = new Date();
-	}),
-	detachTagFromSubTask: vi.fn((subTaskId: string, tagId: string) => {
-		const target = getSubTaskById(subTaskId);
-		if (!target) return null;
-		const tagsList = target.tags ?? [];
-		const index = tagsList.findIndex((tag) => tag.id === tagId);
-		if (index === -1) return null;
-		const [removed] = tagsList.splice(index, 1);
-		target.updatedAt = new Date();
-		return removed ?? null;
-	})
+    attachTagToSubTask: vi.fn((subTaskId: string, tag: Tag) => {
+      const target = getSubTaskById(subTaskId);
+      if (!target) return;
+      const tagsList = target.tags ?? (target.tags = []);
+      if (tagsList.some((existing) => existing.id === tag.id)) return;
+      tagsList.push(tag);
+      target.updatedAt = new Date();
+    }),
+    detachTagFromSubTask: vi.fn((subTaskId: string, tagId: string) => {
+      const target = getSubTaskById(subTaskId);
+      if (!target) return null;
+      const tagsList = target.tags ?? [];
+      const index = tagsList.findIndex((tag) => tag.id === tagId);
+      if (index === -1) return null;
+      const [removed] = tagsList.splice(index, 1);
+      target.updatedAt = new Date();
+      return removed ?? null;
+    })
   };
 
   const taggingServiceMock = {
-    createSubtaskTag: vi.fn(
-      async (_projectId: string, _subTaskId: string, name: string) => {
-        return createBaseTag(name, {
-          id: `created-${name}-${Math.random().toString(36).slice(2, 7)}`
-        });
-      }
-    ),
+    createSubtaskTag: vi.fn(async (_projectId: string, _subTaskId: string, name: string) => {
+      return createBaseTag(name, {
+        id: `created-${name}-${Math.random().toString(36).slice(2, 7)}`
+      });
+    }),
     deleteSubtaskTag: vi.fn(async () => {})
   };
 
@@ -320,7 +313,7 @@ describe('サブタスクとタグ管理の結合テスト', () => {
 
   it('タグ追加でエラーが発生した場合はエラーハンドラーが呼び出される', async () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    
+
     const created = await env.mutations.addSubTask('task-1', { title: 'Error Case' });
     env.taggingServiceMock.createSubtaskTag.mockRejectedValueOnce(new Error('network error'));
 
@@ -328,7 +321,7 @@ describe('サブタスクとタグ管理の結合テスト', () => {
 
     const subTask = env.getSubTaskById(created!.id);
     expect(subTask?.tags).toHaveLength(0);
-    
+
     // エラーハンドラーが正しく呼ばれたことを検証
     expect(env.errorHandlerMock.addSyncError).toHaveBeenCalledWith(
       'サブタスクタグ追加',
@@ -336,13 +329,13 @@ describe('サブタスクとタグ管理の結合テスト', () => {
       created!.id,
       expect.any(Error)
     );
-    
+
     // 適切なエラーログが出力されたことを検証
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       'Failed to sync subtask tag addition to backends:',
       expect.any(Error)
     );
-    
+
     consoleErrorSpy.mockRestore();
   });
 

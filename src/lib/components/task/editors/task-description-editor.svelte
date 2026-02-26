@@ -9,7 +9,7 @@
   import { taskInteractions } from '$lib/services/ui/task';
   import { subTaskOperations } from '$lib/services/domain/subtask';
 
-const subTaskMutations = subTaskOperations;
+  const subTaskMutations = subTaskOperations;
 
   interface Props {
     currentItem: TaskWithSubTasks | SubTask;
@@ -69,7 +69,11 @@ const subTaskMutations = subTaskOperations;
     if (isNewTaskMode) {
       taskInteractions.addTagToNewTask(event.detail.tagName);
     } else if (isSubTask && 'taskId' in currentItem) {
-      void subTaskMutations.addTagToSubTaskByName(currentItem.id, currentItem.taskId, event.detail.tagName);
+      void subTaskMutations.addTagToSubTaskByName(
+        currentItem.id,
+        currentItem.taskId,
+        event.detail.tagName
+      );
     } else if ('listId' in currentItem) {
       void taskOperations.addTagToTaskByName(currentItem.id, event.detail.tagName);
     }

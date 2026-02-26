@@ -180,11 +180,10 @@ describe('useSidebarTagListController', () => {
       controller.handleEditTag(mockTag);
       await controller.onEditSave({ name: 'Updated', color: '#red' });
 
-      expect(TagService.updateTag).toHaveBeenCalledWith(
-        'project-1',
-        'tag-1',
-        { name: 'Updated', color: '#red' }
-      );
+      expect(TagService.updateTag).toHaveBeenCalledWith('project-1', 'tag-1', {
+        name: 'Updated',
+        color: '#red'
+      });
       expect(controller.showEditDialog).toBe(false);
     });
 
@@ -195,11 +194,7 @@ describe('useSidebarTagListController', () => {
       controller.handleDeleteTag(mockTag);
       await controller.onDeleteConfirm();
 
-      expect(TagService.deleteTag).toHaveBeenCalledWith(
-        'project-1',
-        'tag-1',
-        expect.any(Function)
-      );
+      expect(TagService.deleteTag).toHaveBeenCalledWith('project-1', 'tag-1', expect.any(Function));
       expect(taskStore.removeTagFromAllTasks).toHaveBeenCalledWith('tag-1');
       expect(controller.showDeleteConfirm).toBe(false);
       expect(controller.selectedTag).toBeNull();

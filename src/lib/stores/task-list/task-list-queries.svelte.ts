@@ -3,7 +3,7 @@ import type { TaskListWithTasks } from '$lib/types/task-list';
 
 /**
  * タスクリスト読み取り操作
- * 
+ *
  * 責務: タスクリストの検索、取得などの読み取り専用操作
  */
 export class TaskListQueries {

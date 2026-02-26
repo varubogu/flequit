@@ -50,46 +50,46 @@ const mockSelectionStore = vi.mocked(selectionStore);
 const originalTranslationService = getTranslationService();
 
 const createMockTranslationService = () => {
-	const translations: Record<string, () => string> = {
-		task_title: () => 'Task title',
-		add_task: () => 'Add task',
-		cancel: () => 'Cancel',
-		edit_task: () => 'Edit task',
-		save_task: () => 'Save task',
-		enter_task_title: () => 'Enter task title',
-		task_title_placeholder: () => 'Task title'
-	};
+  const translations: Record<string, () => string> = {
+    task_title: () => 'Task title',
+    add_task: () => 'Add task',
+    cancel: () => 'Cancel',
+    edit_task: () => 'Edit task',
+    save_task: () => 'Save task',
+    enter_task_title: () => 'Enter task title',
+    task_title_placeholder: () => 'Task title'
+  };
 
-	let currentLocale: 'en' | 'ja' = 'en';
+  let currentLocale: 'en' | 'ja' = 'en';
 
-	const getCurrentLocaleMock = vi.fn(() => currentLocale);
-	const setLocaleMock = vi.fn((locale: string) => {
-		if (locale === 'en' || locale === 'ja') {
-			currentLocale = locale;
-		}
-	});
-	const reactiveMessageMock = vi.fn(<T extends (...args: unknown[]) => string>(fn: T) => fn);
-	const getMessageMock = vi.fn((key: string) => translations[key] || (() => key));
-	const getAvailableLocalesMock = vi.fn(() => ['en', 'ja'] as const);
+  const getCurrentLocaleMock = vi.fn(() => currentLocale);
+  const setLocaleMock = vi.fn((locale: string) => {
+    if (locale === 'en' || locale === 'ja') {
+      currentLocale = locale;
+    }
+  });
+  const reactiveMessageMock = vi.fn(<T extends (...args: unknown[]) => string>(fn: T) => fn);
+  const getMessageMock = vi.fn((key: string) => translations[key] || (() => key));
+  const getAvailableLocalesMock = vi.fn(() => ['en', 'ja'] as const);
 
-	const service: ITranslationService = {
-		getCurrentLocale: getCurrentLocaleMock,
-		setLocale: setLocaleMock,
-		reactiveMessage: reactiveMessageMock,
-		getMessage: getMessageMock,
-		getAvailableLocales: getAvailableLocalesMock
-	};
+  const service: ITranslationService = {
+    getCurrentLocale: getCurrentLocaleMock,
+    setLocale: setLocaleMock,
+    reactiveMessage: reactiveMessageMock,
+    getMessage: getMessageMock,
+    getAvailableLocales: getAvailableLocalesMock
+  };
 
-	const reset = () => {
-		currentLocale = 'en';
-		getCurrentLocaleMock.mockClear();
-		setLocaleMock.mockClear();
-		reactiveMessageMock.mockClear();
-		getMessageMock.mockClear();
-		getAvailableLocalesMock.mockClear();
-	};
+  const reset = () => {
+    currentLocale = 'en';
+    getCurrentLocaleMock.mockClear();
+    setLocaleMock.mockClear();
+    reactiveMessageMock.mockClear();
+    getMessageMock.mockClear();
+    getAvailableLocalesMock.mockClear();
+  };
 
-	return { service, reset };
+  return { service, reset };
 };
 
 const translationService = createMockTranslationService();

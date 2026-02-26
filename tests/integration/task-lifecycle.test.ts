@@ -31,7 +31,7 @@ const mockTaskStore = {
       mockTaskStore.tasks[taskIndex] = {
         ...mockTaskStore.tasks[taskIndex],
         ...updates,
-        updatedAt: new Date(),
+        updatedAt: new Date()
       };
       return mockTaskStore.tasks[taskIndex];
     }
@@ -163,7 +163,7 @@ describe('タスクライフサイクル結合テスト', () => {
           localTaskStore.tasks[taskIndex] = {
             ...localTaskStore.tasks[taskIndex],
             ...updates,
-            updatedAt: new Date(),
+            updatedAt: new Date()
           };
           return localTaskStore.tasks[taskIndex];
         }

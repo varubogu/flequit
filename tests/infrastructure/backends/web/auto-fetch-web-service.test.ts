@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { AutoFetchWebService } from '$lib/infrastructure/backends/web/auto-fetch-web-service';
-import type { DataChangeNotification, DataType } from '$lib/infrastructure/backends/auto-fetch-service';
+import type {
+  DataChangeNotification,
+  DataType
+} from '$lib/infrastructure/backends/auto-fetch-service';
 
 describe('AutoFetchWebService', () => {
   let service: AutoFetchWebService;

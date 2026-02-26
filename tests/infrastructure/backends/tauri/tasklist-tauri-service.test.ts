@@ -43,7 +43,11 @@ describe('TasklistTauriService', () => {
 
       const result = await service.create('test-project-id', mockTaskList, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_task_list', { projectId: 'test-project-id', taskList: { ...mockTaskList, projectId: 'test-project-id' },  userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('create_task_list', {
+        projectId: 'test-project-id',
+        taskList: { ...mockTaskList, projectId: 'test-project-id' },
+        userId: 'test-user-id'
+      });
       expect(result).toBe(true);
     });
 
@@ -53,7 +57,11 @@ describe('TasklistTauriService', () => {
 
       const result = await service.create('test-project-id', mockTaskList, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_task_list', { projectId: 'test-project-id', taskList: { ...mockTaskList, projectId: 'test-project-id' },  userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('create_task_list', {
+        projectId: 'test-project-id',
+        taskList: { ...mockTaskList, projectId: 'test-project-id' },
+        userId: 'test-user-id'
+      });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to create task list:', expect.any(Error));
 
@@ -77,7 +85,11 @@ describe('TasklistTauriService', () => {
 
       const result = await service.create('test-project-id', minimalTaskList, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_task_list', { projectId: 'test-project-id', taskList: minimalTaskList, userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('create_task_list', {
+        projectId: 'test-project-id',
+        taskList: minimalTaskList,
+        userId: 'test-user-id'
+      });
       expect(result).toBe(true);
     });
 
@@ -100,7 +112,11 @@ describe('TasklistTauriService', () => {
 
       const result = await service.create('test-project-id', fullTaskList, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_task_list', { projectId: 'test-project-id', taskList: fullTaskList, userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('create_task_list', {
+        projectId: 'test-project-id',
+        taskList: fullTaskList,
+        userId: 'test-user-id'
+      });
       expect(result).toBe(true);
     });
   });
@@ -109,9 +125,19 @@ describe('TasklistTauriService', () => {
     it('should successfully update a task list', async () => {
       mockInvoke.mockResolvedValue(true);
 
-      const result = await service.update('test-project-id', mockTaskList.id, mockTaskList, 'test-user-id');
+      const result = await service.update(
+        'test-project-id',
+        mockTaskList.id,
+        mockTaskList,
+        'test-user-id'
+      );
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_task_list', { projectId: 'test-project-id', id: mockTaskList.id, patch: mockTaskList, userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('update_task_list', {
+        projectId: 'test-project-id',
+        id: mockTaskList.id,
+        patch: mockTaskList,
+        userId: 'test-user-id'
+      });
       expect(result).toBe(true);
     });
 
@@ -119,9 +145,19 @@ describe('TasklistTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Update failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.update('test-project-id', mockTaskList.id, mockTaskList, 'test-user-id');
+      const result = await service.update(
+        'test-project-id',
+        mockTaskList.id,
+        mockTaskList,
+        'test-user-id'
+      );
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_task_list', { projectId: 'test-project-id', id: mockTaskList.id, patch: mockTaskList, userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('update_task_list', {
+        projectId: 'test-project-id',
+        id: mockTaskList.id,
+        patch: mockTaskList,
+        userId: 'test-user-id'
+      });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to update task list:', expect.any(Error));
 
@@ -134,12 +170,22 @@ describe('TasklistTauriService', () => {
       const renamedTaskList = {
         ...mockTaskList,
         name: 'Updated Development Tasks',
-        updatedAt: new Date(),
+        updatedAt: new Date()
       };
 
-      const result = await service.update('test-project-id', renamedTaskList.id, renamedTaskList, 'test-user-id');
+      const result = await service.update(
+        'test-project-id',
+        renamedTaskList.id,
+        renamedTaskList,
+        'test-user-id'
+      );
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_task_list', { projectId: 'test-project-id', id: renamedTaskList.id, patch: renamedTaskList, userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('update_task_list', {
+        projectId: 'test-project-id',
+        id: renamedTaskList.id,
+        patch: renamedTaskList,
+        userId: 'test-user-id'
+      });
       expect(result).toBe(true);
     });
 
@@ -149,12 +195,22 @@ describe('TasklistTauriService', () => {
       const archivedTaskList = {
         ...mockTaskList,
         isArchived: true,
-        updatedAt: new Date(),
+        updatedAt: new Date()
       };
 
-      const result = await service.update('test-project-id', archivedTaskList.id, archivedTaskList, 'test-user-id');
+      const result = await service.update(
+        'test-project-id',
+        archivedTaskList.id,
+        archivedTaskList,
+        'test-user-id'
+      );
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_task_list', { projectId: 'test-project-id', id: archivedTaskList.id, patch: archivedTaskList, userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('update_task_list', {
+        projectId: 'test-project-id',
+        id: archivedTaskList.id,
+        patch: archivedTaskList,
+        userId: 'test-user-id'
+      });
       expect(result).toBe(true);
     });
 
@@ -167,9 +223,19 @@ describe('TasklistTauriService', () => {
         updated_at: new Date()
       };
 
-      const result = await service.update('test-project-id', reorderedTaskList.id, reorderedTaskList, 'test-user-id');
+      const result = await service.update(
+        'test-project-id',
+        reorderedTaskList.id,
+        reorderedTaskList,
+        'test-user-id'
+      );
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_task_list', { projectId: 'test-project-id', id: reorderedTaskList.id, patch: reorderedTaskList, userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('update_task_list', {
+        projectId: 'test-project-id',
+        id: reorderedTaskList.id,
+        patch: reorderedTaskList,
+        userId: 'test-user-id'
+      });
       expect(result).toBe(true);
     });
   });
@@ -180,7 +246,11 @@ describe('TasklistTauriService', () => {
 
       const result = await service.delete('test-project-id', 'tasklist-123', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('delete_task_list', { projectId: 'test-project-id', id: 'tasklist-123', userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('delete_task_list', {
+        projectId: 'test-project-id',
+        id: 'tasklist-123',
+        userId: 'test-user-id'
+      });
       expect(result).toBe(true);
     });
 
@@ -190,7 +260,11 @@ describe('TasklistTauriService', () => {
 
       const result = await service.delete('test-project-id', 'tasklist-123', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('delete_task_list', { projectId: 'test-project-id', id: 'tasklist-123', userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('delete_task_list', {
+        projectId: 'test-project-id',
+        id: 'tasklist-123',
+        userId: 'test-user-id'
+      });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to delete task list:', expect.any(Error));
 
@@ -204,7 +278,11 @@ describe('TasklistTauriService', () => {
 
       const result = await service.get('test-project-id', 'tasklist-123', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_task_list', { projectId: 'test-project-id', id: 'tasklist-123', userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_task_list', {
+        projectId: 'test-project-id',
+        id: 'tasklist-123',
+        userId: 'test-user-id'
+      });
       expect(result).toEqual(mockTaskList);
     });
 
@@ -213,7 +291,11 @@ describe('TasklistTauriService', () => {
 
       const result = await service.get('test-project-id', 'non-existent', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_task_list', { projectId: 'test-project-id', id: 'non-existent', userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_task_list', {
+        projectId: 'test-project-id',
+        id: 'non-existent',
+        userId: 'test-user-id'
+      });
       expect(result).toBeNull();
     });
 
@@ -223,7 +305,11 @@ describe('TasklistTauriService', () => {
 
       const result = await service.get('test-project-id', 'tasklist-123', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_task_list', { projectId: 'test-project-id', id: 'tasklist-123', userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_task_list', {
+        projectId: 'test-project-id',
+        id: 'tasklist-123',
+        userId: 'test-user-id'
+      });
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith('Failed to get task list:', expect.any(Error));
 
@@ -238,7 +324,9 @@ describe('TasklistTauriService', () => {
       const result = await service.search('test-project-id', mockSearchCondition);
 
       expect(result).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith('search_task_lists is not implemented on Tauri side - using mock implementation');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'search_task_lists is not implemented on Tauri side - using mock implementation'
+      );
 
       consoleSpy.mockRestore();
     });
@@ -250,7 +338,9 @@ describe('TasklistTauriService', () => {
       const result = await service.search('test-project-id', emptyCondition);
 
       expect(result).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith('search_task_lists is not implemented on Tauri side - using mock implementation');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'search_task_lists is not implemented on Tauri side - using mock implementation'
+      );
 
       consoleSpy.mockRestore();
     });
@@ -320,7 +410,9 @@ describe('TasklistTauriService', () => {
       const result = await service.search('test-project-id', orderCondition);
 
       expect(result).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith('search_task_lists is not implemented on Tauri side - using mock implementation');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'search_task_lists is not implemented on Tauri side - using mock implementation'
+      );
 
       consoleSpy.mockRestore();
     });

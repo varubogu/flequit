@@ -59,7 +59,13 @@ describe('ProjectTreeTraverser', () => {
                   }
                 ],
                 tags: [
-                  { id: 'tag-1', name: 'Important', color: '#ff0000', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') }
+                  {
+                    id: 'tag-1',
+                    name: 'Important',
+                    color: '#ff0000',
+                    createdAt: new Date('2024-01-01'),
+                    updatedAt: new Date('2024-01-01')
+                  }
                 ]
               },
               {
@@ -77,7 +83,13 @@ describe('ProjectTreeTraverser', () => {
                 updatedAt: new Date('2024-01-02'),
                 subTasks: [],
                 tags: [
-                  { id: 'tag-1', name: 'Important', color: '#ff0000', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') }
+                  {
+                    id: 'tag-1',
+                    name: 'Important',
+                    color: '#ff0000',
+                    createdAt: new Date('2024-01-01'),
+                    updatedAt: new Date('2024-01-01')
+                  }
                 ]
               }
             ]
@@ -214,7 +226,13 @@ describe('ProjectTreeTraverser', () => {
     test('should find tag in subtask', () => {
       // サブタスクにタグを追加
       projects[0].taskLists[0].tasks[0].subTasks[0].tags = [
-        { id: 'tag-2', name: 'SubTask Tag', color: '#0000ff', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') }
+        {
+          id: 'tag-2',
+          name: 'SubTask Tag',
+          color: '#0000ff',
+          createdAt: new Date('2024-01-01'),
+          updatedAt: new Date('2024-01-01')
+        }
       ];
 
       const projectId = ProjectTreeTraverser.getProjectIdByTagId(projects, 'tag-2');
@@ -278,7 +296,13 @@ describe('ProjectTreeTraverser', () => {
     test('should remove tag from subtasks', () => {
       // サブタスクにタグを追加
       projects[0].taskLists[0].tasks[0].subTasks[0].tags = [
-        { id: 'tag-1', name: 'Important', color: '#ff0000', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') }
+        {
+          id: 'tag-1',
+          name: 'Important',
+          color: '#ff0000',
+          createdAt: new Date('2024-01-01'),
+          updatedAt: new Date('2024-01-01')
+        }
       ];
 
       ProjectTreeTraverser.removeTagFromAllTasks(projects, 'tag-1');
@@ -318,7 +342,13 @@ describe('ProjectTreeTraverser', () => {
     test('should update tag in subtasks', () => {
       // サブタスクにタグを追加
       projects[0].taskLists[0].tasks[0].subTasks[0].tags = [
-        { id: 'tag-1', name: 'Important', color: '#ff0000', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') }
+        {
+          id: 'tag-1',
+          name: 'Important',
+          color: '#ff0000',
+          createdAt: new Date('2024-01-01'),
+          updatedAt: new Date('2024-01-01')
+        }
       ];
 
       const updatedTag: Tag = {

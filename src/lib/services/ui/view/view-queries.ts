@@ -88,10 +88,7 @@ function getThisMonthTasks(deps: ViewStoreDependencies): TaskWithSubTasks[] {
   });
 }
 
-function getSearchResults(
-  searchQuery: string,
-  deps: ViewStoreDependencies
-): TaskWithSubTasks[] {
+function getSearchResults(searchQuery: string, deps: ViewStoreDependencies): TaskWithSubTasks[] {
   if (!searchQuery.trim()) {
     return deps.taskStore.allTasks;
   }

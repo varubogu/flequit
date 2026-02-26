@@ -15,7 +15,12 @@ export class TaskTauriService implements TaskService {
     }
   }
 
-  async update(projectId: string, id: string, patch: Partial<Task>, userId: string): Promise<boolean> {
+  async update(
+    projectId: string,
+    id: string,
+    patch: Partial<Task>,
+    userId: string
+  ): Promise<boolean> {
     try {
       // patchにidを含める（Tauriコマンドの要求）
       const patchWithId = { ...patch, id };

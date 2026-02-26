@@ -5,7 +5,7 @@ import type { TaskListQueries } from '$lib/stores/task-list/task-list-queries.sv
 
 /**
  * タスクリストCRUD操作
- * 
+ *
  * 責務: タスクリストの作成、更新、削除
  */
 export class TaskListMutations {
@@ -59,7 +59,11 @@ export class TaskListMutations {
         throw new Error(`タスクリストID ${taskListId} に対応するプロジェクトが見つかりません。`);
       }
 
-      const updatedTaskList = await TaskListCrudService.updateTaskList(projectId, taskListId, updates);
+      const updatedTaskList = await TaskListCrudService.updateTaskList(
+        projectId,
+        taskListId,
+        updates
+      );
       if (updatedTaskList) {
         for (const project of this.projectStoreRef.projects) {
           const listIndex = project.taskLists.findIndex((l) => l.id === taskListId);

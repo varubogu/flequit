@@ -77,11 +77,7 @@ export class TaskEditFormStore {
     this.scheduleSave();
   };
 
-  updateDates(options: {
-    start?: string;
-    end?: string;
-    isRange: boolean;
-  }) {
+  updateDates(options: { start?: string; end?: string; isRange: boolean }) {
     if (options.isRange) {
       this.editForm = {
         ...this.editForm,

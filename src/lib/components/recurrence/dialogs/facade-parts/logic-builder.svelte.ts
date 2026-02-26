@@ -4,7 +4,11 @@ import type { DateConditionManager } from '$lib/components/recurrence/date-condi
 import type { WeekdayConditionManager } from '$lib/components/recurrence/weekday-conditions/weekday-condition-manager.svelte';
 import type { RecurrencePreviewManager } from '$lib/components/recurrence/preview/recurrence-preview-manager.svelte';
 import type { RecurrenceUnit, DayOfWeek, RecurrencePattern } from '$lib/types/recurrence';
-import type { DateCondition, WeekdayCondition, RecurrenceLevel } from '$lib/types/datetime-calendar';
+import type {
+  DateCondition,
+  WeekdayCondition,
+  RecurrenceLevel
+} from '$lib/types/datetime-calendar';
 
 export interface LogicBuilderContext {
   recurrenceState: RecurrenceState;
@@ -111,9 +115,7 @@ export function buildDialogLogic(context: LogicBuilderContext): RecurrenceDialog
       return recurrenceState.showAdvancedSettings;
     },
     get isComplexUnit() {
-      return ['year', 'halfyear', 'quarter', 'month', 'week'].includes(
-        recurrenceState.unit
-      );
+      return ['year', 'halfyear', 'quarter', 'month', 'week'].includes(recurrenceState.unit);
     },
     get recurrenceSettings() {
       return recurrenceSettingsMessage();

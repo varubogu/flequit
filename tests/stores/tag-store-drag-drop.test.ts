@@ -95,7 +95,10 @@ describe('TagStore - ドラッグ&ドロップ機能', () => {
       expect(tagStore.bookmarkedTagList.length).toBe(2);
 
       await tagStore.moveBookmarkedTagToPosition(tag3.id, 0);
-      expect(tagStore.bookmarkedTagList.map((t) => t.name)).toEqual(['ブックマーク1', 'ブックマーク2']);
+      expect(tagStore.bookmarkedTagList.map((t) => t.name)).toEqual([
+        'ブックマーク1',
+        'ブックマーク2'
+      ]);
     });
   });
 
@@ -104,7 +107,9 @@ describe('TagStore - ドラッグ&ドロップ機能', () => {
       const tag1 = await createTag('テストタグ');
       await tagStore.addBookmark(tag1.id);
 
-      await expect(tagStore.moveBookmarkedTagToPosition('non-existent-id', 0)).resolves.toBeUndefined();
+      await expect(
+        tagStore.moveBookmarkedTagToPosition('non-existent-id', 0)
+      ).resolves.toBeUndefined();
 
       expect(tagStore.bookmarkedTagList.length).toBe(1);
       expect(tagStore.bookmarkedTagList[0].name).toBe('テストタグ');
@@ -146,13 +151,13 @@ describe('TagStore - ドラッグ&ドロップ機能', () => {
         id: 'tag-1',
         name: 'タグ1',
         createdAt: new Date(),
-        updatedAt: new Date(),
+        updatedAt: new Date()
       };
       const tag2: Tag = {
         id: 'tag-2',
         name: 'タグ2',
         createdAt: new Date(),
-        updatedAt: new Date(),
+        updatedAt: new Date()
       };
 
       tagStore.addTagWithId(tag1);

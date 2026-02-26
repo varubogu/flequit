@@ -46,13 +46,22 @@
   }
 </script>
 
-<div class={`${isMobile ? 'fixed inset-y-0 left-0 z-50 transform transition-transform duration-300' : 'relative'} ${
-  isMobile && !sidebarOpen ? '-translate-x-full' : 'translate-x-0'
-} ${isMobile ? 'w-80 max-w-[80vw]' : 'w-80'} bg-background flex flex-shrink-0 flex-col overflow-hidden border-r`}>
+<div
+  class={`${isMobile ? 'fixed inset-y-0 left-0 z-50 transform transition-transform duration-300' : 'relative'} ${
+    isMobile && !sidebarOpen ? '-translate-x-full' : 'translate-x-0'
+  } ${isMobile ? 'w-80 max-w-[80vw]' : 'w-80'} bg-background flex flex-shrink-0 flex-col overflow-hidden border-r`}
+>
   <div class="border-b p-4">
     <div class="relative">
-      <Search class="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
-      <Input class="pl-9" placeholder={searchLabel} value={searchQuery} oninput={handleSearchInput} />
+      <Search
+        class="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform"
+      />
+      <Input
+        class="pl-9"
+        placeholder={searchLabel}
+        value={searchQuery}
+        oninput={handleSearchInput}
+      />
     </div>
   </div>
 

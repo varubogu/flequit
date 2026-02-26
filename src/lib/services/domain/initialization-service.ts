@@ -19,7 +19,12 @@ export const InitializationService = {
       return await backend.initialization.loadProjectData();
     } catch (error) {
       console.error('Failed to load project data:', error);
-      errorHandler.addSyncError('プロジェクトデータ読み込み', 'initialization', 'project_data', error);
+      errorHandler.addSyncError(
+        'プロジェクトデータ読み込み',
+        'initialization',
+        'project_data',
+        error
+      );
       throw error;
     }
   },

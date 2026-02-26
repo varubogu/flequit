@@ -49,7 +49,8 @@ export class RecurrenceService {
     // 日付補正を適用
     if (
       rule.adjustment &&
-      ((rule.adjustment.dateConditions?.length ?? 0) > 0 || (rule.adjustment.weekdayConditions?.length ?? 0) > 0)
+      ((rule.adjustment.dateConditions?.length ?? 0) > 0 ||
+        (rule.adjustment.weekdayConditions?.length ?? 0) > 0)
     ) {
       nextDate = this.applyDateAdjustment(nextDate, rule.adjustment);
     }
@@ -107,7 +108,8 @@ export class RecurrenceService {
     // 初回の日付にも補正条件を適用
     if (
       rule.adjustment &&
-      ((rule.adjustment.dateConditions?.length ?? 0) > 0 || (rule.adjustment.weekdayConditions?.length ?? 0) > 0)
+      ((rule.adjustment.dateConditions?.length ?? 0) > 0 ||
+        (rule.adjustment.weekdayConditions?.length ?? 0) > 0)
     ) {
       currentDate = this.applyDateAdjustment(currentDate, rule.adjustment);
     }

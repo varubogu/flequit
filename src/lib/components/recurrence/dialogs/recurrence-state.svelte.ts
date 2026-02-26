@@ -1,4 +1,8 @@
-import type { RecurrenceLevel, DateCondition, WeekdayCondition } from '$lib/types/datetime-calendar';
+import type {
+  RecurrenceLevel,
+  DateCondition,
+  WeekdayCondition
+} from '$lib/types/datetime-calendar';
 import type { RecurrenceUnit, DayOfWeek, RecurrencePattern } from '$lib/types/recurrence';
 
 export interface RecurrenceStateSnapshot {

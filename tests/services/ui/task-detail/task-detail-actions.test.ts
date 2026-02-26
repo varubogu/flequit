@@ -45,7 +45,7 @@ function createSubTask(overrides: Partial<SubTask> = {}): SubTask {
     deleted: false,
     updatedBy: 'test-user-id',
     createdAt: new Date(),
-    updatedAt: new Date(),
+    updatedAt: new Date()
   };
   return { ...defaultSubTask, ...overrides };
 }
@@ -174,7 +174,7 @@ describe('TaskDetailActionsService', () => {
       orderIndex: 0,
       isArchived: false,
       createdAt: new Date(),
-      updatedAt: new Date(),
+      updatedAt: new Date()
     };
     const mockList: TaskList = {
       id: 'list-1',
@@ -183,7 +183,7 @@ describe('TaskDetailActionsService', () => {
       orderIndex: 0,
       isArchived: false,
       createdAt: new Date(),
-      updatedAt: new Date(),
+      updatedAt: new Date()
     };
     store.projectInfo = { project: mockProject, taskList: mockList } satisfies TaskProjectContext;
 

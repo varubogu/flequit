@@ -16,12 +16,7 @@
     onAssignmentUpdated?: (itemId: string, assignedUsers: string[]) => void;
   }
 
-  let {
-    task,
-    subTask,
-    availableUsers = [],
-    onAssignmentUpdated
-  }: Props = $props();
+  let { task, subTask, availableUsers = [], onAssignmentUpdated }: Props = $props();
 
   const translationService = useTranslation();
 
@@ -41,30 +36,54 @@
       const projectId = selectionStore.selectedProjectId;
 
       if (!projectId) {
-        errorHandler.addError({ type: 'general', message: 'プロジェクトが選択されていません', retryable: false });
+        errorHandler.addError({
+          type: 'general',
+          message: 'プロジェクトが選択されていません',
+          retryable: false
+        });
         return;
       }
 
       if (isSubTask) {
-        const success = await AssignmentService.createSubtaskAssignment(projectId, currentItem.id, userId);
+        const success = await AssignmentService.createSubtaskAssignment(
+          projectId,
+          currentItem.id,
+          userId
+        );
         if (success) {
           const updatedIds = [...assignedUserIds, userId];
           onAssignmentUpdated?.(currentItem.id, updatedIds);
         } else {
-          errorHandler.addError({ type: 'general', message: 'サブタスクへのユーザー割り当てに失敗しました', retryable: false });
+          errorHandler.addError({
+            type: 'general',
+            message: 'サブタスクへのユーザー割り当てに失敗しました',
+            retryable: false
+          });
         }
       } else {
-        const success = await AssignmentService.createTaskAssignment(projectId, currentItem.id, userId);
+        const success = await AssignmentService.createTaskAssignment(
+          projectId,
+          currentItem.id,
+          userId
+        );
         if (success) {
           const updatedIds = [...assignedUserIds, userId];
           onAssignmentUpdated?.(currentItem.id, updatedIds);
         } else {
-          errorHandler.addError({ type: 'general', message: 'タスクへのユーザー割り当てに失敗しました', retryable: false });
+          errorHandler.addError({
+            type: 'general',
+            message: 'タスクへのユーザー割り当てに失敗しました',
+            retryable: false
+          });
         }
       }
     } catch (error) {
       console.error('Failed to assign user:', error);
-      errorHandler.addError({ type: 'general', message: 'ユーザー割り当て中にエラーが発生しました', retryable: false });
+      errorHandler.addError({
+        type: 'general',
+        message: 'ユーザー割り当て中にエラーが発生しました',
+        retryable: false
+      });
     } finally {
       isLoading = false;
     }
@@ -78,41 +97,65 @@
       const projectId = selectionStore.selectedProjectId;
 
       if (!projectId) {
-        errorHandler.addError({ type: 'general', message: 'プロジェクトが選択されていません', retryable: false });
+        errorHandler.addError({
+          type: 'general',
+          message: 'プロジェクトが選択されていません',
+          retryable: false
+        });
         return;
       }
 
       if (isSubTask) {
-        const success = await AssignmentService.deleteSubtaskAssignment(projectId, currentItem.id, userId);
+        const success = await AssignmentService.deleteSubtaskAssignment(
+          projectId,
+          currentItem.id,
+          userId
+        );
         if (success) {
           const updatedIds = assignedUserIds.filter((id: string) => id !== userId);
           onAssignmentUpdated?.(currentItem.id, updatedIds);
         } else {
-          errorHandler.addError({ type: 'general', message: 'サブタスクからのユーザー割り当て解除に失敗しました', retryable: false });
+          errorHandler.addError({
+            type: 'general',
+            message: 'サブタスクからのユーザー割り当て解除に失敗しました',
+            retryable: false
+          });
         }
       } else {
-        const success = await AssignmentService.deleteTaskAssignment(projectId, currentItem.id, userId);
+        const success = await AssignmentService.deleteTaskAssignment(
+          projectId,
+          currentItem.id,
+          userId
+        );
         if (success) {
           const updatedIds = assignedUserIds.filter((id: string) => id !== userId);
           onAssignmentUpdated?.(currentItem.id, updatedIds);
         } else {
-          errorHandler.addError({ type: 'general', message: 'タスクからのユーザー割り当て解除に失敗しました', retryable: false });
+          errorHandler.addError({
+            type: 'general',
+            message: 'タスクからのユーザー割り当て解除に失敗しました',
+            retryable: false
+          });
         }
       }
     } catch (error) {
       console.error('Failed to unassign user:', error);
-      errorHandler.addError({ type: 'general', message: 'ユーザー割り当て解除中にエラーが発生しました', retryable: false });
+      errorHandler.addError({
+        type: 'general',
+        message: 'ユーザー割り当て解除中にエラーが発生しました',
+        retryable: false
+      });
     } finally {
       isLoading = false;
     }
   }
 
   function getAssignedUsers(): User[] {
-    return availableUsers.filter(user => assignedUserIds.includes(user.id));
+    return availableUsers.filter((user) => assignedUserIds.includes(user.id));
   }
 
   function getUnassignedUsers(): User[] {
-    return availableUsers.filter(user => !assignedUserIds.includes(user.id));
+    return availableUsers.filter((user) => !assignedUserIds.includes(user.id));
   }
 
   function getUserDisplayName(user: User): string {
@@ -123,7 +166,7 @@
     const name = getUserDisplayName(user);
     return name
       .split(' ')
-      .map(word => word.charAt(0))
+      .map((word) => word.charAt(0))
       .join('')
       .toUpperCase()
       .slice(0, 2);
@@ -143,7 +186,9 @@
         {#each getAssignedUsers() as user (user.id)}
           <div class="flex items-center gap-2 rounded-md border px-2 py-1 text-sm">
             <!-- ユーザーアバター -->
-            <div class="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
+            <div
+              class="bg-primary text-primary-foreground flex h-6 w-6 items-center justify-center rounded-full text-xs"
+            >
               {#if user.avatarUrl}
                 <img
                   src={user.avatarUrl}
@@ -161,7 +206,7 @@
             <Button
               variant="ghost"
               size="sm"
-              class="h-auto p-0 text-muted-foreground hover:text-destructive"
+              class="text-muted-foreground hover:text-destructive h-auto p-0"
               onclick={() => handleUserUnassign(user.id)}
               disabled={isLoading}
             >
@@ -171,13 +216,13 @@
         {/each}
       </div>
     {:else}
-      <p class="text-sm text-muted-foreground">まだユーザーが割り当てられていません</p>
+      <p class="text-muted-foreground text-sm">まだユーザーが割り当てられていません</p>
     {/if}
 
     <!-- ユーザー追加 -->
     {#if getUnassignedUsers().length > 0}
       <div class="space-y-2">
-        <h4 class="text-xs font-medium text-muted-foreground">ユーザーを追加</h4>
+        <h4 class="text-muted-foreground text-xs font-medium">ユーザーを追加</h4>
         <div class="flex flex-wrap gap-2">
           {#each getUnassignedUsers() as user (user.id)}
             <Button
@@ -187,9 +232,9 @@
               onclick={() => handleUserAssign(user.id)}
               disabled={isLoading}
             >
-              <UserPlus class="h-3 w-3 mr-1" />
+              <UserPlus class="mr-1 h-3 w-3" />
               <div class="flex items-center gap-1">
-                <div class="flex h-4 w-4 items-center justify-center rounded-full bg-muted text-xs">
+                <div class="bg-muted flex h-4 w-4 items-center justify-center rounded-full text-xs">
                   {#if user.avatarUrl}
                     <img
                       src={user.avatarUrl}

@@ -1,6 +1,9 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { TagCompletionKeyHandler, type KeyHandlerCallbacks } from '$lib/components/tag/completion/tag-completion-keyhandler.svelte';
+  import {
+    TagCompletionKeyHandler,
+    type KeyHandlerCallbacks
+  } from '$lib/components/tag/completion/tag-completion-keyhandler.svelte';
   import { useTagCompletion } from '$lib/components/tag/completion/use-tag-completion.svelte';
   import type { TagDetectionData } from '$lib/components/tag/utils/tag-element-updater.svelte';
   import TagCompletionUI from '$lib/components/tag/completion/tag-completion-ui.svelte';

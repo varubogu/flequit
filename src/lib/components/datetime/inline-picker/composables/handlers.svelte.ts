@@ -11,7 +11,10 @@ export function createEventHandlers(
   }
 
   function handleDateChange() {
-    console.log('[InlineDatePicker.handleDateChange] 呼び出し:', { endDate: state.endDate, endTime: state.endTime });
+    console.log('[InlineDatePicker.handleDateChange] 呼び出し:', {
+      endDate: state.endDate,
+      endTime: state.endTime
+    });
     if (!state.endDate) return;
     const dateTime = `${state.endDate}T${state.endTime}`;
     console.log('[InlineDatePicker.handleDateChange] emitChange呼び出し:', {
@@ -29,8 +32,8 @@ export function createEventHandlers(
   }
 
   function handleRangeInputChange() {
-    console.log('[InlineDatePicker.handleRangeInputChange] 呼び出し:', { 
-      startDate: state.startDate, 
+    console.log('[InlineDatePicker.handleRangeInputChange] 呼び出し:', {
+      startDate: state.startDate,
       endDate: state.endDate,
       startTime: state.startTime,
       endTime: state.endTime
@@ -39,10 +42,13 @@ export function createEventHandlers(
     console.log('[InlineDatePicker.handleRangeInputChange] emitChange呼び出し:', {
       date: state.startDate || state.endDate || '',
       dateTime: `${state.startDate || state.endDate || ''}T${state.startTime}`,
-      range: state.startDate && state.endDate ? {
-        start: `${state.startDate}T${state.startTime}`,
-        end: `${state.endDate}T${state.endTime}`
-      } : undefined,
+      range:
+        state.startDate && state.endDate
+          ? {
+              start: `${state.startDate}T${state.startTime}`,
+              end: `${state.endDate}T${state.endTime}`
+            }
+          : undefined,
       isRangeDate: true,
       recurrenceRule: state.currentRecurrenceRule
     });
@@ -129,7 +135,7 @@ export function createEventHandlers(
       startTime: state.startTime,
       endTime: state.endTime
     });
-    
+
     state.currentRecurrenceRule = rule;
     state.lastSyncedRecurrenceRule = rule;
 

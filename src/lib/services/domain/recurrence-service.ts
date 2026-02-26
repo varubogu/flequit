@@ -98,7 +98,10 @@ export const RecurrenceService = {
     }
   },
 
-  async getTaskRecurrenceByTaskId(projectId: string, taskId: string): Promise<TaskRecurrence | null> {
+  async getTaskRecurrenceByTaskId(
+    projectId: string,
+    taskId: string
+  ): Promise<TaskRecurrence | null> {
     try {
       const backend = await resolveBackend();
       return await backend.taskRecurrence.getByTaskId(projectId, taskId, getCurrentUserId());
@@ -120,21 +123,40 @@ export const RecurrenceService = {
   },
 
   // サブタスク繰り返し管理
-  async createSubtaskRecurrence(projectId: string, subtaskRecurrence: SubtaskRecurrence): Promise<boolean> {
+  async createSubtaskRecurrence(
+    projectId: string,
+    subtaskRecurrence: SubtaskRecurrence
+  ): Promise<boolean> {
     try {
       const backend = await resolveBackend();
-      return await backend.subtaskRecurrence.create(projectId, subtaskRecurrence, getCurrentUserId());
+      return await backend.subtaskRecurrence.create(
+        projectId,
+        subtaskRecurrence,
+        getCurrentUserId()
+      );
     } catch (error) {
       console.error('Failed to create subtask recurrence:', error);
-      errorHandler.addSyncError('サブタスク繰り返し作成', 'subtask', subtaskRecurrence.subtaskId, error);
+      errorHandler.addSyncError(
+        'サブタスク繰り返し作成',
+        'subtask',
+        subtaskRecurrence.subtaskId,
+        error
+      );
       throw error;
     }
   },
 
-  async getSubtaskRecurrenceBySubtaskId(projectId: string, subtaskId: string): Promise<SubtaskRecurrence | null> {
+  async getSubtaskRecurrenceBySubtaskId(
+    projectId: string,
+    subtaskId: string
+  ): Promise<SubtaskRecurrence | null> {
     try {
       const backend = await resolveBackend();
-      return await backend.subtaskRecurrence.getBySubtaskId(projectId, subtaskId, getCurrentUserId());
+      return await backend.subtaskRecurrence.getBySubtaskId(
+        projectId,
+        subtaskId,
+        getCurrentUserId()
+      );
     } catch (error) {
       console.error('Failed to get subtask recurrence:', error);
       throw error;

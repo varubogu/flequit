@@ -14,11 +14,21 @@ export const AssignmentService = {
 
   async createSubtaskAssignment(projectId: string, subTaskId: string, userId: string) {
     const backend = await resolveBackend();
-    return backend.assignment.createSubtaskAssignment(projectId, subTaskId, userId, getCurrentUserId());
+    return backend.assignment.createSubtaskAssignment(
+      projectId,
+      subTaskId,
+      userId,
+      getCurrentUserId()
+    );
   },
 
   async deleteSubtaskAssignment(projectId: string, subTaskId: string, userId: string) {
     const backend = await resolveBackend();
-    return backend.assignment.deleteSubtaskAssignment(projectId, subTaskId, userId, getCurrentUserId());
+    return backend.assignment.deleteSubtaskAssignment(
+      projectId,
+      subTaskId,
+      userId,
+      getCurrentUserId()
+    );
   }
 };

@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { setupOutsideClickHandler } from '$lib/components/datetime/inline-picker/composables/outside-click.svelte';
-import type { InlineDatePickerState, UseInlineDatePickerOptions } from '$lib/components/datetime/inline-picker/composables/types';
+import type {
+  InlineDatePickerState,
+  UseInlineDatePickerOptions
+} from '$lib/components/datetime/inline-picker/composables/types';
 
 describe('outside-click.svelte', () => {
   let state: InlineDatePickerState;

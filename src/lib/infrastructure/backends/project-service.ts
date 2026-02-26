@@ -1,5 +1,9 @@
 import type { ProjectSearchCondition, Project } from '$lib/types/project';
-import type { CrudInterface, SearchInterface, RestorableInterface } from '../../types/crud-interface';
+import type {
+  CrudInterface,
+  SearchInterface,
+  RestorableInterface
+} from '../../types/crud-interface';
 
 /**
  * プロジェクト管理用のバックエンドサービスインターフェース

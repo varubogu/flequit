@@ -62,7 +62,8 @@
           4: 'fourth',
           5: 'last'
         };
-        const weekOfPeriod = weekOfMonthMap[rule.pattern.monthly.weekOfMonth] || ('first' as WeekOfMonth);
+        const weekOfPeriod =
+          weekOfMonthMap[rule.pattern.monthly.weekOfMonth] || ('first' as WeekOfMonth);
         const detail = `${getWeekOfMonthText(weekOfPeriod)} ${getDayOfWeekText(rule.pattern.monthly.dayOfWeek, false)}`;
         text += ' ' + translationService.getMessage('recurrence_monthly_detail', { detail })();
       }

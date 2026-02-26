@@ -82,7 +82,9 @@ vi.mock('$lib/stores/error-handler.svelte', () => ({
 
 const projectStoreMock = {
   projects: [] as ProjectTree[],
-  getProjectById: vi.fn((id: string) => projectStoreMock.projects.find((project) => project.id === id) ?? null)
+  getProjectById: vi.fn(
+    (id: string) => projectStoreMock.projects.find((project) => project.id === id) ?? null
+  )
 };
 
 vi.mock('$lib/stores/project-store.svelte', () => ({
@@ -115,12 +117,18 @@ const buildTaskList = (overrides: Partial<TaskList> = {}): TaskList => {
   };
 };
 
-const toTaskListWithTasks = (list: TaskList, tasks: TaskWithSubTasks[] = []): TaskListWithTasks => ({
+const toTaskListWithTasks = (
+  list: TaskList,
+  tasks: TaskWithSubTasks[] = []
+): TaskListWithTasks => ({
   ...structuredClone(list),
   tasks: tasks.map((task) => structuredClone(task))
 });
 
-const buildProject = (lists: TaskListWithTasks[], overrides: Partial<ProjectTree> = {}): ProjectTree => {
+const buildProject = (
+  lists: TaskListWithTasks[],
+  overrides: Partial<ProjectTree> = {}
+): ProjectTree => {
   const now = new Date();
   return {
     id: overrides.id ?? 'project-1',

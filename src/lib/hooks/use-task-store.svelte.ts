@@ -25,5 +25,5 @@ import { taskStore, type TaskStore } from '$lib/stores/tasks.svelte';
  * ```
  */
 export function useTaskStore(): TaskStore {
-	return taskStore;
+  return taskStore;
 }

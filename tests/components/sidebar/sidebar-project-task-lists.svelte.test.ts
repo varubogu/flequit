@@ -69,7 +69,9 @@ vi.mock('$lib/stores/task-list-store.svelte', () => {
 });
 
 const mockTaskStore = vi.mocked(taskStore);
-const mockSelectionStore = vi.mocked(await import('$lib/stores/selection-store.svelte').then(m => m.selectionStore));
+const mockSelectionStore = vi.mocked(
+  await import('$lib/stores/selection-store.svelte').then((m) => m.selectionStore)
+);
 
 // --- Test Data ---
 const mockProject: ProjectTree = {
@@ -180,8 +182,22 @@ describe('TaskListDisplay Component', () => {
     const backendButton = screen.getByTestId('tasklist-list-2');
 
     // 選択中のタスクリストは強調クラスが付与される
-    expect(frontendButton).toHaveClass('bg-primary/20', 'border-2', 'border-primary', 'shadow-md', 'shadow-primary/40', 'text-foreground');
-    expect(backendButton).not.toHaveClass('bg-primary/20', 'border-2', 'border-primary', 'shadow-md', 'shadow-primary/40', 'text-foreground');
+    expect(frontendButton).toHaveClass(
+      'bg-primary/20',
+      'border-2',
+      'border-primary',
+      'shadow-md',
+      'shadow-primary/40',
+      'text-foreground'
+    );
+    expect(backendButton).not.toHaveClass(
+      'bg-primary/20',
+      'border-2',
+      'border-primary',
+      'shadow-md',
+      'shadow-primary/40',
+      'text-foreground'
+    );
   });
 
   test('should open context menu on right-click', async () => {

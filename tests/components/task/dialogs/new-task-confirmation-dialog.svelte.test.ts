@@ -23,10 +23,10 @@ describe('NewTaskConfirmationDialog', () => {
       reactiveMessage: vi.fn().mockImplementation((fn) => fn),
       getMessage: vi.fn().mockImplementation((key: string) => {
         const translations: Record<string, () => string> = {
-          'confirm_discard_changes': () => 'Confirm discard changes',
-          'unsaved_task_message': () => 'Unsaved task message',
-          'keep_editing': () => 'Keep editing',
-          'discard_changes': () => 'Discard changes'
+          confirm_discard_changes: () => 'Confirm discard changes',
+          unsaved_task_message: () => 'Unsaved task message',
+          keep_editing: () => 'Keep editing',
+          discard_changes: () => 'Discard changes'
         };
         return translations[key] || (() => `mock-${key}`);
       }),

@@ -8,12 +8,10 @@ import type { Tag } from '$lib/types/tag';
  */
 export function getTagsFromIds(tagIds: string[], allTags: Tag[]): Tag[] {
   if (!tagIds || tagIds.length === 0) return [];
-  
-  const tagMap = new Map(allTags.map(tag => [tag.id, tag]));
-  
-  return tagIds
-    .map(id => tagMap.get(id))
-    .filter((tag): tag is Tag => tag !== undefined);
+
+  const tagMap = new Map(allTags.map((tag) => [tag.id, tag]));
+
+  return tagIds.map((id) => tagMap.get(id)).filter((tag): tag is Tag => tag !== undefined);
 }
 
 /**
@@ -23,7 +21,7 @@ export function getTagsFromIds(tagIds: string[], allTags: Tag[]): Tag[] {
  * @returns タグオブジェクト（見つからない場合はundefined）
  */
 export function getTagFromId(tagId: string, allTags: Tag[]): Tag | undefined {
-  return allTags.find(tag => tag.id === tagId);
+  return allTags.find((tag) => tag.id === tagId);
 }
 
 /**
@@ -34,9 +32,9 @@ export function getTagFromId(tagId: string, allTags: Tag[]): Tag | undefined {
  */
 export function validateTagIds(tagIds: string[], allTags: Tag[]): boolean {
   if (!tagIds || tagIds.length === 0) return true;
-  
-  const tagIdSet = new Set(allTags.map(tag => tag.id));
-  return tagIds.every(id => tagIdSet.has(id));
+
+  const tagIdSet = new Set(allTags.map((tag) => tag.id));
+  return tagIds.every((id) => tagIdSet.has(id));
 }
 
 /**

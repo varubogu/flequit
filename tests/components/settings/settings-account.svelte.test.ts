@@ -12,7 +12,8 @@ vi.mock('$lib/stores/locale.svelte', () => ({
           account_type: 'Account Type',
           local_account: 'Local Account',
           cloud_account: 'Cloud Account',
-          local_account_description: 'Using local account. To access cloud features, please select Cloud Account.'
+          local_account_description:
+            'Using local account. To access cloud features, please select Cloud Account.'
         };
         return messages[key] || key;
       };
@@ -77,7 +78,11 @@ describe('SettingsAccount Component', () => {
     test('should display correct message for local account', () => {
       render(SettingsAccount, { settings: defaultSettings });
 
-      expect(screen.getByText('Using local account. To access cloud features, please select Cloud Account.')).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'Using local account. To access cloud features, please select Cloud Account.'
+        )
+      ).toBeInTheDocument();
     });
   });
 
@@ -85,7 +90,9 @@ describe('SettingsAccount Component', () => {
     test('should show cloud coming soon message when cloud is selected', () => {
       render(SettingsAccount, { settings: cloudSettings });
 
-      expect(screen.getByText('Cloud account functionality will be available in future versions.')).toBeInTheDocument();
+      expect(
+        screen.getByText('Cloud account functionality will be available in future versions.')
+      ).toBeInTheDocument();
     });
 
     test('should have correct value for cloud account selection', () => {
@@ -191,12 +198,18 @@ describe('SettingsAccount Component', () => {
 
     test('should display correct message for local account', () => {
       render(SettingsAccount, { settings: defaultSettings });
-      expect(screen.getByText('Using local account. To access cloud features, please select Cloud Account.')).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'Using local account. To access cloud features, please select Cloud Account.'
+        )
+      ).toBeInTheDocument();
     });
 
     test('should display correct message for cloud account', () => {
       render(SettingsAccount, { settings: cloudSettings });
-      expect(screen.getByText('Cloud account functionality will be available in future versions.')).toBeInTheDocument();
+      expect(
+        screen.getByText('Cloud account functionality will be available in future versions.')
+      ).toBeInTheDocument();
     });
   });
 
@@ -209,7 +222,7 @@ describe('SettingsAccount Component', () => {
 
     test('should handle prop updates without errors', () => {
       const { rerender } = render(SettingsAccount, { settings: defaultSettings });
-      
+
       // Update settings should not throw
       expect(() => rerender({ settings: cloudSettings })).not.toThrow();
       expect(() => rerender({ settings: defaultSettings })).not.toThrow();
@@ -238,7 +251,9 @@ describe('SettingsAccount Component', () => {
       }).not.toThrow();
 
       // Should show cloud message for non-local accounts
-      expect(screen.getByText('Cloud account functionality will be available in future versions.')).toBeInTheDocument();
+      expect(
+        screen.getByText('Cloud account functionality will be available in future versions.')
+      ).toBeInTheDocument();
     });
 
     test('should handle empty settings object', () => {
@@ -251,7 +266,9 @@ describe('SettingsAccount Component', () => {
       }).not.toThrow();
 
       // Should show cloud message for non-local accounts
-      expect(screen.getByText('Cloud account functionality will be available in future versions.')).toBeInTheDocument();
+      expect(
+        screen.getByText('Cloud account functionality will be available in future versions.')
+      ).toBeInTheDocument();
     });
   });
 });

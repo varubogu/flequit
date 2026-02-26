@@ -79,10 +79,7 @@ export function shouldShowAddButton(view: ViewType): boolean {
   );
 }
 
-export function handleViewChange(
-  view: ViewType,
-  deps?: ViewStoreDependencies
-): boolean {
+export function handleViewChange(view: ViewType, deps?: ViewStoreDependencies): boolean {
   const resolvedDeps = resolveViewDependencies(deps);
   const { taskStore, selectionStore } = resolvedDeps;
 
@@ -100,10 +97,7 @@ export function handleViewChange(
   return true;
 }
 
-export function forceViewChange(
-  view: ViewType,
-  deps?: ViewStoreDependencies
-): void {
+export function forceViewChange(view: ViewType, deps?: ViewStoreDependencies): void {
   const resolvedDeps = resolveViewDependencies(deps);
   const { taskStore, selectionStore, taskInteractions } = resolvedDeps;
 

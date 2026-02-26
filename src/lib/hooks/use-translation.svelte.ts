@@ -20,5 +20,5 @@ import type { ITranslationService } from '$lib/services/translation-service';
  * ```
  */
 export function useTranslation(): ITranslationService {
-	return getTranslationService();
+  return getTranslationService();
 }

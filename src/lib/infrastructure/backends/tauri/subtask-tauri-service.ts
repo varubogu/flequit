@@ -37,7 +37,12 @@ export class SubtaskTauriService implements SubTaskService {
     }
   }
 
-  async update(projectId: string, id: string, patch: Partial<SubTask>, userId: string): Promise<boolean> {
+  async update(
+    projectId: string,
+    id: string,
+    patch: Partial<SubTask>,
+    userId: string
+  ): Promise<boolean> {
     try {
       // Partial<SubTask>からSubtaskCommandModel形式に変換（Date/ISO文字列両対応）
       const toIsoString = (v: unknown): string | undefined => {
@@ -56,7 +61,7 @@ export class SubtaskTauriService implements SubTaskService {
         doEndDate: toIsoString(patchRecord.doEndDate ?? patchRecord.do_end_date),
         createdAt: toIsoString(patchRecord.createdAt ?? patchRecord.created_at),
         updatedAt: toIsoString(patchRecord.updatedAt ?? patchRecord.updated_at),
-        tagIds: patchRecord.tagIds ?? patchRecord.tag_ids,
+        tagIds: patchRecord.tagIds ?? patchRecord.tag_ids
       } as Partial<SubTask> & {
         planStartDate?: string;
         planEndDate?: string;
@@ -67,7 +72,12 @@ export class SubtaskTauriService implements SubTaskService {
         tagIds?: string[];
       };
 
-      const result = await invoke('update_sub_task', { projectId, id, patch: subtaskPatchCommandModel, userId });
+      const result = await invoke('update_sub_task', {
+        projectId,
+        id,
+        patch: subtaskPatchCommandModel,
+        userId
+      });
       return result as boolean;
     } catch (error) {
       console.error('Failed to update subtask:', error);

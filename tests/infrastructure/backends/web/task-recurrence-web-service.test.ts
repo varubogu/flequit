@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TaskRecurrenceWebService } from '$lib/infrastructure/backends/web/task-recurrence-web-service';
-import type { TaskRecurrence, TaskRecurrenceSearchCondition } from '$lib/types/recurrence-reference';
+import type {
+  TaskRecurrence,
+  TaskRecurrenceSearchCondition
+} from '$lib/types/recurrence-reference';
 
 describe('TaskRecurrenceWebService', () => {
   let service: TaskRecurrenceWebService;
@@ -20,7 +23,10 @@ describe('TaskRecurrenceWebService', () => {
 
       const result = await service.create('test-project', taskRecurrence);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backends: createTaskRecurrence not implemented', { projectId: 'test-project', taskRecurrence });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backends: createTaskRecurrence not implemented',
+        { projectId: 'test-project', taskRecurrence }
+      );
       expect(result).toBe(true);
     });
   });
@@ -31,7 +37,10 @@ describe('TaskRecurrenceWebService', () => {
 
       const result = await service.getByTaskId('test-project', taskId);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backends: getTaskRecurrenceByTaskId not implemented', { projectId: 'test-project', taskId });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backends: getTaskRecurrenceByTaskId not implemented',
+        { projectId: 'test-project', taskId }
+      );
       expect(result).toBeNull();
     });
   });
@@ -42,7 +51,10 @@ describe('TaskRecurrenceWebService', () => {
 
       const result = await service.delete('test-project', taskId);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backends: deleteTaskRecurrence not implemented', { projectId: 'test-project', taskId });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backends: deleteTaskRecurrence not implemented',
+        { projectId: 'test-project', taskId }
+      );
       expect(result).toBe(true);
     });
   });
@@ -56,7 +68,10 @@ describe('TaskRecurrenceWebService', () => {
 
       const result = await service.search('test-project', condition);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backends: searchTaskRecurrences not implemented', { projectId: 'test-project', condition });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backends: searchTaskRecurrences not implemented',
+        { projectId: 'test-project', condition }
+      );
       expect(result).toEqual([]);
     });
   });

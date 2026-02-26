@@ -1,5 +1,9 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { RecurrenceRule, RecurrenceRulePatch, RecurrenceRuleSearchCondition } from '$lib/types/recurrence';
+import type {
+  RecurrenceRule,
+  RecurrenceRulePatch,
+  RecurrenceRuleSearchCondition
+} from '$lib/types/recurrence';
 import type { RecurrenceRuleService } from '$lib/infrastructure/backends/recurrence-rule-service';
 
 /**
@@ -89,8 +93,15 @@ export class RecurrenceRuleTauriService implements RecurrenceRuleService {
     };
 
     try {
-      console.log('[RecurrenceRuleTauriService.create] Sending rule:', JSON.stringify(ruleForTauri, null, 2));
-      const result = await invoke('create_recurrence_rule', { projectId, rule: ruleForTauri, userId });
+      console.log(
+        '[RecurrenceRuleTauriService.create] Sending rule:',
+        JSON.stringify(ruleForTauri, null, 2)
+      );
+      const result = await invoke('create_recurrence_rule', {
+        projectId,
+        rule: ruleForTauri,
+        userId
+      });
       console.log('[RecurrenceRuleTauriService.create] Success:', result);
       return result as boolean;
     } catch (error) {
@@ -101,7 +112,10 @@ export class RecurrenceRuleTauriService implements RecurrenceRuleService {
 
   async get(projectId: string, ruleId: string, userId: string): Promise<RecurrenceRule | null> {
     try {
-      const result = (await invoke('get_recurrence_rule', { projectId, ruleId, userId })) as Record<string, unknown> | null;
+      const result = (await invoke('get_recurrence_rule', { projectId, ruleId, userId })) as Record<
+        string,
+        unknown
+      > | null;
       if (!result) return null;
       return convertFromTauriModel(result);
     } catch (error) {
@@ -112,7 +126,10 @@ export class RecurrenceRuleTauriService implements RecurrenceRuleService {
 
   async getAll(projectId: string, userId: string): Promise<RecurrenceRule[]> {
     try {
-      const result = (await invoke('get_all_recurrence_rules', { projectId, userId })) as Record<string, unknown>[];
+      const result = (await invoke('get_all_recurrence_rules', { projectId, userId })) as Record<
+        string,
+        unknown
+      >[];
       return result.map(convertFromTauriModel);
     } catch (error) {
       console.error('Failed to get all recurrence rules:', error);
@@ -120,7 +137,12 @@ export class RecurrenceRuleTauriService implements RecurrenceRuleService {
     }
   }
 
-  async update(projectId: string, ruleId: string, patch: RecurrenceRulePatch, userId: string): Promise<boolean> {
+  async update(
+    projectId: string,
+    ruleId: string,
+    patch: RecurrenceRulePatch,
+    userId: string
+  ): Promise<boolean> {
     try {
       // Rust側のコマンドモデルに合わせて変換
       const patchForTauri: Record<string, unknown> = {
@@ -159,7 +181,11 @@ export class RecurrenceRuleTauriService implements RecurrenceRuleService {
         }
       }
 
-      const result = await invoke('update_recurrence_rule', { projectId, patch: patchForTauri, userId });
+      const result = await invoke('update_recurrence_rule', {
+        projectId,
+        patch: patchForTauri,
+        userId
+      });
       return result as boolean;
     } catch (error) {
       console.error('Failed to update recurrence rule:', error);
@@ -178,7 +204,10 @@ export class RecurrenceRuleTauriService implements RecurrenceRuleService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async search(projectId: string, _condition: RecurrenceRuleSearchCondition): Promise<RecurrenceRule[]> {
+  async search(
+    projectId: string,
+    _condition: RecurrenceRuleSearchCondition
+  ): Promise<RecurrenceRule[]> {
     try {
       // TODO: search_recurrence_rules コマンドが Tauri側に実装されていないため、一時的にmock実装
       console.warn('search_recurrence_rules is not implemented - using mock implementation');

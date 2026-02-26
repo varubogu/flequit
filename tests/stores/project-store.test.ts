@@ -6,7 +6,10 @@ import type { ProjectTree } from '$lib/types/project';
 describe('ProjectStore', () => {
   let store: ProjectStore;
 
-  const createMockProject = (id: string = 'project-1', name: string = 'Test Project'): ProjectTree => ({
+  const createMockProject = (
+    id: string = 'project-1',
+    name: string = 'Test Project'
+  ): ProjectTree => ({
     id,
     name,
     description: 'Test Description',
@@ -152,10 +155,7 @@ describe('ProjectStore', () => {
     });
 
     test('should handle moving to same position', async () => {
-      const projects = [
-        createMockProject('p1', 'Project 1'),
-        createMockProject('p2', 'Project 2')
-      ];
+      const projects = [createMockProject('p1', 'Project 1'), createMockProject('p2', 'Project 2')];
       store.loadProjects(projects);
 
       await store.reorderProjects(0, 0);

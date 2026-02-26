@@ -304,7 +304,15 @@ describe('WeekdayConditionEditor', () => {
     });
 
     it('should work with all weekday values', () => {
-      const weekdays: DayOfWeek[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+      const weekdays: DayOfWeek[] = [
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+        'sunday'
+      ];
 
       weekdays.forEach((weekday) => {
         const weekdayProps = {

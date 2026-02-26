@@ -85,7 +85,7 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
           orderIndex: 0,
           isArchived: false,
           createdAt: new Date(),
-          updatedAt: new Date(),
+          updatedAt: new Date()
         };
         mockTaskStore.tasks.push(newTask);
         return newTask;
@@ -97,7 +97,7 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
           mockTaskStore.tasks[taskIndex] = {
             ...mockTaskStore.tasks[taskIndex],
             ...updates,
-            updatedAt: new Date(),
+            updatedAt: new Date()
           };
           return mockTaskStore.tasks[taskIndex];
         }

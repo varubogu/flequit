@@ -8,18 +8,14 @@ import type { Tag } from '$lib/types/tag';
  * テスト時にモック実装を提供するために使用されます。
  */
 export interface ITagService {
-	createTag(projectId: string, tagData: { name: string; color?: string }): Promise<Tag | null>;
-	updateTag(projectId: string, tagId: string, updates: Partial<Tag>): Promise<void>;
-	deleteTag(
-		projectId: string,
-		tagId: string,
-		onDelete?: (tagId: string) => void
-	): Promise<void>;
-	getOrCreateTag(projectId: string, name: string, color?: string): Promise<Tag | null>;
-	getProjectIdByTagId(tagId: string): Promise<string | null>;
-	addBookmark(projectId: string, tagId: string): Promise<void>;
-	removeBookmark(projectId: string, tagId: string): Promise<void>;
-	notifyTagUpdate(tag: Tag): void;
+  createTag(projectId: string, tagData: { name: string; color?: string }): Promise<Tag | null>;
+  updateTag(projectId: string, tagId: string, updates: Partial<Tag>): Promise<void>;
+  deleteTag(projectId: string, tagId: string, onDelete?: (tagId: string) => void): Promise<void>;
+  getOrCreateTag(projectId: string, name: string, color?: string): Promise<Tag | null>;
+  getProjectIdByTagId(tagId: string): Promise<string | null>;
+  addBookmark(projectId: string, tagId: string): Promise<void>;
+  removeBookmark(projectId: string, tagId: string): Promise<void>;
+  notifyTagUpdate(tag: Tag): void;
 }
 
 /**
@@ -39,5 +35,5 @@ export interface ITagService {
  * ```
  */
 export function useTagService(): ITagService {
-	return TagService;
+  return TagService;
 }

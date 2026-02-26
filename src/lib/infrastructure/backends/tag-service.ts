@@ -1,5 +1,9 @@
 import type { TagSearchCondition, Tag } from '$lib/types/tag';
-import type { ProjectCrudInterface, ProjectSearchInterface, RestorableProjectInterface } from '../../types/crud-interface';
+import type {
+  ProjectCrudInterface,
+  ProjectSearchInterface,
+  RestorableProjectInterface
+} from '../../types/crud-interface';
 
 /**
  * タグ管理用のバックエンドサービスインターフェース

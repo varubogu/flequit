@@ -218,8 +218,6 @@ export class ProjectTreeTraverser {
    * すべてのタスクを取得
    */
   static getAllTasks(projects: ProjectTree[]): TaskWithSubTasks[] {
-    return projects.flatMap((project) =>
-      project.taskLists.flatMap((list) => list.tasks)
-    );
+    return projects.flatMap((project) => project.taskLists.flatMap((list) => list.tasks));
   }
 }

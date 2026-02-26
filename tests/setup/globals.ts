@@ -4,34 +4,32 @@ const svelteInternalModule = (await import('svelte/internal/client')) as Record<
 const svelteReactivityModule = (await import('svelte/reactivity')) as Record<string, unknown>;
 
 const getModuleValue = <T>(module: Record<string, unknown>, key: string): T | undefined =>
-	(module[key] as T | undefined);
+  module[key] as T | undefined;
 
-const stateImpl = getModuleValue<unknown>(svelteInternalModule, 'state') ??
-	getModuleValue<unknown>(svelteReactivityModule, 'state');
-const derivedImpl = getModuleValue<unknown>(svelteInternalModule, 'derived') ??
-	getModuleValue<unknown>(svelteReactivityModule, 'derived');
-const effectImpl = getModuleValue<unknown>(svelteInternalModule, 'effect') ??
-	getModuleValue<unknown>(svelteReactivityModule, 'effect');
+const stateImpl =
+  getModuleValue<unknown>(svelteInternalModule, 'state') ??
+  getModuleValue<unknown>(svelteReactivityModule, 'state');
+const derivedImpl =
+  getModuleValue<unknown>(svelteInternalModule, 'derived') ??
+  getModuleValue<unknown>(svelteReactivityModule, 'derived');
+const effectImpl =
+  getModuleValue<unknown>(svelteInternalModule, 'effect') ??
+  getModuleValue<unknown>(svelteReactivityModule, 'effect');
 const SvelteDateImpl =
-	getModuleValue<typeof Date>(svelteReactivityModule, 'SvelteDate') ?? class extends Date {};
-const SvelteMapImpl =
-	getModuleValue<MapConstructor>(svelteReactivityModule, 'SvelteMap') ?? Map;
-const SvelteSetImpl =
-	getModuleValue<SetConstructor>(svelteReactivityModule, 'SvelteSet') ?? Set;
+  getModuleValue<typeof Date>(svelteReactivityModule, 'SvelteDate') ?? class extends Date {};
+const SvelteMapImpl = getModuleValue<MapConstructor>(svelteReactivityModule, 'SvelteMap') ?? Map;
+const SvelteSetImpl = getModuleValue<SetConstructor>(svelteReactivityModule, 'SvelteSet') ?? Set;
 const tagImpl =
-	getModuleValue<(...args: unknown[]) => unknown>(svelteInternalModule, 'tag') ??
-	(() => undefined);
+  getModuleValue<(...args: unknown[]) => unknown>(svelteInternalModule, 'tag') ?? (() => undefined);
 const tagProxyImpl =
-	getModuleValue<(value: unknown) => unknown>(svelteInternalModule, 'tag_proxy') ??
-	((value: unknown) => value);
+  getModuleValue<(value: unknown) => unknown>(svelteInternalModule, 'tag_proxy') ??
+  ((value: unknown) => value);
 const traceImpl =
-	getModuleValue<(...args: unknown[]) => { stop: () => void }>(
-		svelteInternalModule,
-		'trace'
-	) ?? (() => ({ stop: () => undefined }));
+  getModuleValue<(...args: unknown[]) => { stop: () => void }>(svelteInternalModule, 'trace') ??
+  (() => ({ stop: () => undefined }));
 const proxyImpl =
-	getModuleValue<(value: unknown) => unknown>(svelteInternalModule, 'proxy') ??
-	((value: unknown) => value);
+  getModuleValue<(value: unknown) => unknown>(svelteInternalModule, 'proxy') ??
+  ((value: unknown) => value);
 
 const globalRecord = globalThis as Record<string, unknown>;
 
@@ -142,7 +140,11 @@ global.console = {
   debug: () => {},
   info: () => {},
   warn: (message: string, ...args: unknown[]) => {
-    if (typeof message === 'string' && message.includes('Web backends:') && message.includes('not implemented')) {
+    if (
+      typeof message === 'string' &&
+      message.includes('Web backends:') &&
+      message.includes('not implemented')
+    ) {
       return;
     }
     if (typeof message === 'string' && message.includes('Tauri environment not available')) {

@@ -37,5 +37,4 @@ export class TasklistWebService implements TaskListService {
     console.warn('Web backends: searchTaskLists not implemented', projectId, condition);
     return []; // 仮実装として空配列を返す
   }
-
 }

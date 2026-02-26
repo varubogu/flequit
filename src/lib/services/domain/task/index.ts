@@ -20,21 +20,21 @@ export type { TaskOperationsDependencies } from './task-operations';
 let _taskOperations: TaskOperations | undefined;
 
 function createTaskOperations(): TaskOperations {
-	return new TaskOperations({
-		taskStore,
-		taskCoreStore,
-		taskListStore,
-		tagStore,
-		errorHandler,
-		recurrenceService: new TaskRecurrenceService()
-	});
+  return new TaskOperations({
+    taskStore,
+    taskCoreStore,
+    taskListStore,
+    tagStore,
+    errorHandler,
+    recurrenceService: new TaskRecurrenceService()
+  });
 }
 
 export function getTaskOperations(): TaskOperations {
-	if (!_taskOperations) {
-		_taskOperations = createTaskOperations();
-	}
-	return _taskOperations;
+  if (!_taskOperations) {
+    _taskOperations = createTaskOperations();
+  }
+  return _taskOperations;
 }
 
 /**
@@ -58,10 +58,9 @@ export function getTaskOperations(): TaskOperations {
  * ```
  */
 export const taskOperations = new Proxy({} as TaskOperations, {
-	get(_target, prop) {
-		const operations = getTaskOperations();
-		const value = operations[prop as keyof TaskOperations];
-		return typeof value === 'function' ? value.bind(operations) : value;
-	}
+  get(_target, prop) {
+    const operations = getTaskOperations();
+    const value = operations[prop as keyof TaskOperations];
+    return typeof value === 'function' ? value.bind(operations) : value;
+  }
 });
-

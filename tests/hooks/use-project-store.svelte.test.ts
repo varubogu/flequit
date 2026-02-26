@@ -4,66 +4,66 @@ import { setupProjectStoreOverride } from '../utils/store-overrides';
 import type { ProjectStore } from '$lib/stores/project-store.svelte';
 
 const { mockProjectStore } = vi.hoisted(() => ({
-	mockProjectStore: {
-		projects: [],
-		selectedProject: null,
-		addProjectToStore: vi.fn(),
-		updateProjectInStore: vi.fn(),
-		removeProjectFromStore: vi.fn(),
-		reorderProjectsInStore: vi.fn(),
-		moveProjectToPositionInStore: vi.fn(),
-		getProjectById: vi.fn(),
-		loadProjects: vi.fn(),
-		setProjects: vi.fn(),
-		reset: vi.fn()
-	}
+  mockProjectStore: {
+    projects: [],
+    selectedProject: null,
+    addProjectToStore: vi.fn(),
+    updateProjectInStore: vi.fn(),
+    removeProjectFromStore: vi.fn(),
+    reorderProjectsInStore: vi.fn(),
+    moveProjectToPositionInStore: vi.fn(),
+    getProjectById: vi.fn(),
+    loadProjects: vi.fn(),
+    setProjects: vi.fn(),
+    reset: vi.fn()
+  }
 }));
 
 describe('useProjectStore', () => {
-	let store: ProjectStore;
-	const typedMockStore = mockProjectStore as unknown as ProjectStore;
-	let cleanup: (() => void) | null = null;
+  let store: ProjectStore;
+  const typedMockStore = mockProjectStore as unknown as ProjectStore;
+  let cleanup: (() => void) | null = null;
 
-	beforeEach(() => {
-		vi.clearAllMocks();
-		cleanup = setupProjectStoreOverride(typedMockStore);
-		store = useProjectStore();
-	});
+  beforeEach(() => {
+    vi.clearAllMocks();
+    cleanup = setupProjectStoreOverride(typedMockStore);
+    store = useProjectStore();
+  });
 
-	afterEach(() => {
-		cleanup?.();
-	});
+  afterEach(() => {
+    cleanup?.();
+  });
 
-	it('プロジェクトストアを取得できる', () => {
-		expect(store).toBeDefined();
-	});
+  it('プロジェクトストアを取得できる', () => {
+    expect(store).toBeDefined();
+  });
 
-	it('同じインスタンスを返す', () => {
-		const storeA = useProjectStore();
-		const storeB = useProjectStore();
-		expect(storeA).toBe(storeB);
-	});
+  it('同じインスタンスを返す', () => {
+    const storeA = useProjectStore();
+    const storeB = useProjectStore();
+    expect(storeA).toBe(storeB);
+  });
 
-	it('プロジェクトのCRUD操作が利用できる', () => {
-		store.addProjectToStore({} as never);
-		store.updateProjectInStore('project-1', {});
-		store.removeProjectFromStore('project-1');
+  it('プロジェクトのCRUD操作が利用できる', () => {
+    store.addProjectToStore({} as never);
+    store.updateProjectInStore('project-1', {});
+    store.removeProjectFromStore('project-1');
 
-		expect(store.addProjectToStore).toHaveBeenCalled();
-		expect(store.updateProjectInStore).toHaveBeenCalledWith('project-1', {});
-		expect(store.removeProjectFromStore).toHaveBeenCalledWith('project-1');
-	});
+    expect(store.addProjectToStore).toHaveBeenCalled();
+    expect(store.updateProjectInStore).toHaveBeenCalledWith('project-1', {});
+    expect(store.removeProjectFromStore).toHaveBeenCalledWith('project-1');
+  });
 
-	it('並び替えAPIが利用できる', () => {
-		store.reorderProjectsInStore(0, 1);
-		store.moveProjectToPositionInStore('project-1', 2);
+  it('並び替えAPIが利用できる', () => {
+    store.reorderProjectsInStore(0, 1);
+    store.moveProjectToPositionInStore('project-1', 2);
 
-		expect(store.reorderProjectsInStore).toHaveBeenCalledWith(0, 1);
-		expect(store.moveProjectToPositionInStore).toHaveBeenCalledWith('project-1', 2);
-	});
+    expect(store.reorderProjectsInStore).toHaveBeenCalledWith(0, 1);
+    expect(store.moveProjectToPositionInStore).toHaveBeenCalledWith('project-1', 2);
+  });
 
-	it('ヘルパーAPIが利用できる', () => {
-		store.getProjectById('project-1');
-		expect(store.getProjectById).toHaveBeenCalledWith('project-1');
-	});
+  it('ヘルパーAPIが利用できる', () => {
+    store.getProjectById('project-1');
+    expect(store.getProjectById).toHaveBeenCalledWith('project-1');
+  });
 });

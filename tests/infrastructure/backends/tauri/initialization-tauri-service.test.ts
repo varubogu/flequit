@@ -76,7 +76,9 @@ describe('InitializationTauriService', () => {
         theme: 'system',
         language: 'ja'
       });
-      expect(consoleSpy).toHaveBeenCalledWith('load_local_settings is not implemented on Tauri side - using default settings');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'load_local_settings is not implemented on Tauri side - using default settings'
+      );
     });
 
     it('should return default settings when invoke returns null', async () => {
@@ -86,7 +88,9 @@ describe('InitializationTauriService', () => {
         theme: 'system',
         language: 'ja'
       });
-      expect(consoleSpy).toHaveBeenCalledWith('load_local_settings is not implemented on Tauri side - using default settings');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'load_local_settings is not implemented on Tauri side - using default settings'
+      );
     });
 
     it('should return default settings when invoke fails', async () => {
@@ -96,28 +100,36 @@ describe('InitializationTauriService', () => {
         theme: 'system',
         language: 'ja'
       });
-      expect(consoleSpy).toHaveBeenCalledWith('load_local_settings is not implemented on Tauri side - using default settings');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'load_local_settings is not implemented on Tauri side - using default settings'
+      );
     });
 
     it('should handle different theme settings', async () => {
       const result = await service.loadLocalSettings();
 
       expect(result.theme).toBe('system');
-      expect(consoleSpy).toHaveBeenCalledWith('load_local_settings is not implemented on Tauri side - using default settings');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'load_local_settings is not implemented on Tauri side - using default settings'
+      );
     });
 
     it('should handle system theme setting', async () => {
       const result = await service.loadLocalSettings();
 
       expect(result.theme).toBe('system');
-      expect(consoleSpy).toHaveBeenCalledWith('load_local_settings is not implemented on Tauri side - using default settings');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'load_local_settings is not implemented on Tauri side - using default settings'
+      );
     });
 
     it('should handle different language settings', async () => {
       const result = await service.loadLocalSettings();
 
       expect(result.language).toBe('ja');
-      expect(consoleSpy).toHaveBeenCalledWith('load_local_settings is not implemented on Tauri side - using default settings');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'load_local_settings is not implemented on Tauri side - using default settings'
+      );
     });
 
     it('should handle custom settings properties', async () => {
@@ -126,7 +138,9 @@ describe('InitializationTauriService', () => {
       expect(result.customOption).toBeUndefined();
       expect(result.maxItems).toBeUndefined();
       expect(result.features).toBeUndefined();
-      expect(consoleSpy).toHaveBeenCalledWith('load_local_settings is not implemented on Tauri side - using default settings');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'load_local_settings is not implemented on Tauri side - using default settings'
+      );
     });
   });
 
@@ -314,7 +328,9 @@ describe('InitializationTauriService', () => {
         account: mockAccount,
         projects: mockProjects
       });
-      expect(consoleSpy).toHaveBeenCalledWith('load_local_settings is not implemented on Tauri side - using default settings');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'load_local_settings is not implemented on Tauri side - using default settings'
+      );
     });
 
     it('should handle initialization with null account', async () => {
@@ -330,7 +346,9 @@ describe('InitializationTauriService', () => {
         language: 'ja'
       });
       expect(result.projects).toEqual(mockProjects);
-      expect(consoleSpy).toHaveBeenCalledWith('load_local_settings is not implemented on Tauri side - using default settings');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'load_local_settings is not implemented on Tauri side - using default settings'
+      );
     });
 
     it('should handle initialization with empty projects', async () => {
@@ -346,7 +364,9 @@ describe('InitializationTauriService', () => {
         language: 'ja'
       });
       expect(result.account).toEqual(mockAccount);
-      expect(consoleSpy).toHaveBeenCalledWith('load_local_settings is not implemented on Tauri side - using default settings');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'load_local_settings is not implemented on Tauri side - using default settings'
+      );
     });
 
     it('should handle partial failures gracefully', async () => {
@@ -363,7 +383,9 @@ describe('InitializationTauriService', () => {
       });
       expect(result.account).toEqual(mockAccount);
       expect(result.projects).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith('load_local_settings is not implemented on Tauri side - using default settings');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'load_local_settings is not implemented on Tauri side - using default settings'
+      );
     });
 
     it('should handle all operations failing', async () => {
@@ -379,7 +401,9 @@ describe('InitializationTauriService', () => {
       });
       expect(result.account).toBeNull();
       expect(result.projects).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith('load_local_settings is not implemented on Tauri side - using default settings');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'load_local_settings is not implemented on Tauri side - using default settings'
+      );
     });
 
     it('should execute operations in correct sequence', async () => {
@@ -399,11 +423,10 @@ describe('InitializationTauriService', () => {
 
       await service.initializeAll();
 
-      expect(callOrder).toEqual([
-        'load_current_account',
-        'load_all_project_data'
-      ]);
-      expect(consoleSpy).toHaveBeenCalledWith('load_local_settings is not implemented on Tauri side - using default settings');
+      expect(callOrder).toEqual(['load_current_account', 'load_all_project_data']);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'load_local_settings is not implemented on Tauri side - using default settings'
+      );
     });
   });
 

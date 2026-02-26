@@ -52,29 +52,28 @@
   );
 
   // Create handler classes
-  const handlers = $derived.by(() => new TaskItemHandlers(
-    task,
-    taskDetailUiStore,
-    dispatch,
-    { onTaskClick, onSubTaskClick }
-  ));
+  const handlers = $derived.by(
+    () => new TaskItemHandlers(task, taskDetailUiStore, dispatch, { onTaskClick, onSubTaskClick })
+  );
 
   const dragDrop = $derived.by(() => new TaskItemDragDrop(task));
 
-  const contextMenu = $derived.by(() => new TaskItemContextMenu(
-    translationService,
-    {
-      handleEditTask: handlers.handleEditTask,
-      handleDeleteTask: handlers.handleDeleteTask,
-      handleEditSubTask: handlers.handleEditSubTask,
-      handleDeleteSubTask: handlers.handleDeleteSubTask
-    }
-  ));
+  const contextMenu = $derived.by(
+    () =>
+      new TaskItemContextMenu(translationService, {
+        handleEditTask: handlers.handleEditTask,
+        handleDeleteTask: handlers.handleDeleteTask,
+        handleEditSubTask: handlers.handleEditSubTask,
+        handleDeleteSubTask: handlers.handleDeleteSubTask
+      })
+  );
 
   // Context menu items
   const taskContextMenuItems = $derived(contextMenu.createTaskContextMenu());
 
-  function createSubTaskContextMenu(subTask: Parameters<typeof contextMenu.createSubTaskContextMenu>[0]) {
+  function createSubTaskContextMenu(
+    subTask: Parameters<typeof contextMenu.createSubTaskContextMenu>[0]
+  ) {
     return contextMenu.createSubTaskContextMenu(subTask);
   }
 

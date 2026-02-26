@@ -126,7 +126,10 @@ export function formatTime(date: Date): string {
  * @param date フォーマット対象の日付
  * @returns 設定に基づいた日付文字列（エラー時は日本語形式でフォールバック）
  */
-export function formatDateJapanese(date: Date, formatPattern = 'yyyy年MM月dd日(EEE) HH:mm:ss'): string {
+export function formatDateJapanese(
+  date: Date,
+  formatPattern = 'yyyy年MM月dd日(EEE) HH:mm:ss'
+): string {
   try {
     return format(date, formatPattern);
   } catch {

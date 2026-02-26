@@ -16,7 +16,11 @@ describe('TaskListStore (Integration)', () => {
   let store: TaskListStore;
   let projectStore: ProjectStore;
 
-  const createMockTaskList = (id: string = 'list-1', name: string = 'Test List', projectId: string = 'project-1'): TaskListWithTasks => ({
+  const createMockTaskList = (
+    id: string = 'list-1',
+    name: string = 'Test List',
+    projectId: string = 'project-1'
+  ): TaskListWithTasks => ({
     id,
     projectId,
     name,
@@ -29,7 +33,10 @@ describe('TaskListStore (Integration)', () => {
     tasks: []
   });
 
-  const createMockProject = (id: string = 'project-1', name: string = 'Test Project'): ProjectTree => ({
+  const createMockProject = (
+    id: string = 'project-1',
+    name: string = 'Test Project'
+  ): ProjectTree => ({
     id,
     name,
     description: 'Test Description',
@@ -102,10 +109,7 @@ describe('TaskListStore (Integration)', () => {
     });
 
     test('should find list across multiple projects', () => {
-      const projects = [
-        createMockProject('p1', 'Project 1'),
-        createMockProject('p2', 'Project 2')
-      ];
+      const projects = [createMockProject('p1', 'Project 1'), createMockProject('p2', 'Project 2')];
       projectStore.loadProjects(projects);
 
       // List-1 is in p1, list-2 is also in p1
@@ -188,10 +192,7 @@ describe('TaskListStore (Integration)', () => {
 
   describe('moveTaskListToProject', () => {
     test('should move task list to different project', async () => {
-      const projects = [
-        createMockProject('p1', 'Project 1'),
-        createMockProject('p2', 'Project 2')
-      ];
+      const projects = [createMockProject('p1', 'Project 1'), createMockProject('p2', 'Project 2')];
       projects[0].taskLists = [
         createMockTaskList('list-1', 'List 1', 'p1'),
         createMockTaskList('list-2', 'List 2', 'p1')
@@ -208,10 +209,7 @@ describe('TaskListStore (Integration)', () => {
     });
 
     test('should update projectId of moved list', async () => {
-      const projects = [
-        createMockProject('p1', 'Project 1'),
-        createMockProject('p2', 'Project 2')
-      ];
+      const projects = [createMockProject('p1', 'Project 1'), createMockProject('p2', 'Project 2')];
       projects[0].taskLists = [createMockTaskList('list-1', 'List 1', 'p1')];
       projects[1].taskLists = [];
       projectStore.loadProjects(projects);
@@ -223,10 +221,7 @@ describe('TaskListStore (Integration)', () => {
     });
 
     test('should insert at specified index', async () => {
-      const projects = [
-        createMockProject('p1', 'Project 1'),
-        createMockProject('p2', 'Project 2')
-      ];
+      const projects = [createMockProject('p1', 'Project 1'), createMockProject('p2', 'Project 2')];
       projects[0].taskLists = [createMockTaskList('list-1', 'List 1', 'p1')];
       projects[1].taskLists = [
         createMockTaskList('list-2', 'List 2', 'p2'),

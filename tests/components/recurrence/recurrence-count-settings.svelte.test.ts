@@ -350,7 +350,6 @@ describe('RecurrenceCountSettings', () => {
         expect(input.value).toBe('');
       });
     });
-
   });
 
   describe('value binding', () => {

@@ -14,21 +14,21 @@ import { getCurrentUserId } from '$lib/services/domain/current-user-id';
  * 2. タスクリストCRUD操作
  */
 type SelectionInfo = {
-	selectedListId: string | null;
-	selectedProjectId: string | null;
+  selectedListId: string | null;
+  selectedProjectId: string | null;
 };
 
 let selectionResolver: () => SelectionInfo = () => ({
-	selectedListId: null,
-	selectedProjectId: null
+  selectedListId: null,
+  selectedProjectId: null
 });
 
 export function configureTaskListSelectionResolver(resolver: () => SelectionInfo) {
-	selectionResolver = resolver;
+  selectionResolver = resolver;
 }
 
 function getSelectionInfo(): SelectionInfo {
-	return selectionResolver();
+  return selectionResolver();
 }
 
 export const TaskListService = {
@@ -85,7 +85,12 @@ export const TaskListService = {
         updated_at: new Date()
       };
 
-      const success = await backend.tasklist.update(projectId, taskListId, patchData, getCurrentUserId());
+      const success = await backend.tasklist.update(
+        projectId,
+        taskListId,
+        patchData,
+        getCurrentUserId()
+      );
 
       if (success) {
         return await backend.tasklist.get(projectId, taskListId, getCurrentUserId());
@@ -134,60 +139,60 @@ export const TaskListService = {
   /**
    * タスクを追加します（UIロジック）
    */
-	async addNewTask(title: string): Promise<string | null> {
-		const trimmedTitle = title.trim();
-		if (!trimmedTitle) {
-			return null;
-		}
+  async addNewTask(title: string): Promise<string | null> {
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle) {
+      return null;
+    }
 
-		const targetListId = this.resolveTargetListId();
-		if (!targetListId) {
-			return null;
-		}
+    const targetListId = this.resolveTargetListId();
+    if (!targetListId) {
+      return null;
+    }
 
-		const newTask = await taskOperations.addTask(targetListId, {
-			title: trimmedTitle
-		});
+    const newTask = await taskOperations.addTask(targetListId, {
+      title: trimmedTitle
+    });
 
-		return newTask ? newTask.id : null;
-	},
+    return newTask ? newTask.id : null;
+  },
 
-	getTaskCountText(count: number): string {
-		return `${count} task${count !== 1 ? 's' : ''}`;
-	},
+  getTaskCountText(count: number): string {
+    return `${count} task${count !== 1 ? 's' : ''}`;
+  },
 
-	resolveTargetListId(): string | null {
-		const { selectedListId } = getSelectionInfo();
-		if (selectedListId) {
-			return selectedListId;
-		}
+  resolveTargetListId(): string | null {
+    const { selectedListId } = getSelectionInfo();
+    if (selectedListId) {
+      return selectedListId;
+    }
 
-		const selectedProject = this.getSelectedProject();
-		const listFromProject = selectedProject?.taskLists?.[0];
-		if (listFromProject) {
-			return listFromProject.id;
-		}
+    const selectedProject = this.getSelectedProject();
+    const listFromProject = selectedProject?.taskLists?.[0];
+    if (listFromProject) {
+      return listFromProject.id;
+    }
 
-		return this.findFirstAvailableList();
-	},
+    return this.findFirstAvailableList();
+  },
 
-	getSelectedProject(): ProjectTree | null {
-		const { selectedProjectId } = getSelectionInfo();
-		if (!selectedProjectId) {
-			return null;
-		}
-		return resolveProjectStore().getProjectById(selectedProjectId);
-	},
+  getSelectedProject(): ProjectTree | null {
+    const { selectedProjectId } = getSelectionInfo();
+    if (!selectedProjectId) {
+      return null;
+    }
+    return resolveProjectStore().getProjectById(selectedProjectId);
+  },
 
-	findFirstAvailableList(): string | null {
-		const store = resolveProjectStore();
-		for (const project of store.projects) {
-			if (project.taskLists?.length) {
-				return project.taskLists[0].id;
-			}
-		}
-		return null;
-	},
+  findFirstAvailableList(): string | null {
+    const store = resolveProjectStore();
+    for (const project of store.projects) {
+      if (project.taskLists?.length) {
+        return project.taskLists[0].id;
+      }
+    }
+    return null;
+  },
 
   /**
    * 論理削除されたタスクリストをバックエンドから復元します

@@ -25,7 +25,7 @@ export class GeneralSettingsStore {
 
   setLanguage(language: string): void {
     this._settings.language = language;
-    this.persistPartial({ language }, "Failed to save language setting:");
+    this.persistPartial({ language }, 'Failed to save language setting:');
   }
 
   get weekStart(): WeekStart {
@@ -78,10 +78,7 @@ export class GeneralSettingsStore {
     return id;
   }
 
-  updateCustomDateFormat(
-    id: string,
-    updates: Partial<Omit<CustomDateFormat, 'id'>>
-  ): void {
+  updateCustomDateFormat(id: string, updates: Partial<Omit<CustomDateFormat, 'id'>>): void {
     const existing = this._settings.customDateFormats.map((formatItem) =>
       formatItem.id === id ? { ...formatItem, ...updates } : formatItem
     );
@@ -148,7 +145,6 @@ export class GeneralSettingsStore {
   private generateId(prefix: string) {
     return `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
   }
-
 }
 
 export const generalSettingsStore = new GeneralSettingsStore();

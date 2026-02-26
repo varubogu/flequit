@@ -236,7 +236,7 @@ describe('AutoFetchService Interface', () => {
 
     it('should handle callback errors gracefully', async () => {
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      
+
       const errorCallback = vi.fn(() => {
         throw new Error('Callback error');
       });
@@ -249,10 +249,10 @@ describe('AutoFetchService Interface', () => {
       await expect(service.notifyDataChange(mockNotification)).resolves.toBeUndefined();
       expect(errorCallback).toHaveBeenCalled();
       expect(normalCallback).toHaveBeenCalled();
-      
+
       // エラーが警告として記録されたことを検証
       expect(consoleWarnSpy).toHaveBeenCalledWith('Callback error:', expect.any(Error));
-      
+
       consoleWarnSpy.mockRestore();
     });
   });

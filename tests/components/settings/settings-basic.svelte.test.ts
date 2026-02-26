@@ -1,10 +1,12 @@
 import { beforeEach, afterAll, describe, expect, test, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import SettingsBasic from '$lib/components/settings/basic/settings-basic.svelte';
-import type {
-  ITranslationServiceWithNotification
-} from '$lib/services/translation-service';
-import { setTranslationService, getTranslationService, localeStore } from '$lib/stores/locale.svelte';
+import type { ITranslationServiceWithNotification } from '$lib/services/translation-service';
+import {
+  setTranslationService,
+  getTranslationService,
+  localeStore
+} from '$lib/stores/locale.svelte';
 import { createUnitTestTranslationService } from '../../unit-translation-mock';
 import type { WeekStart } from '$lib/types/settings';
 
@@ -107,10 +109,10 @@ let currentLocale: SupportedLocale = 'en';
 
 const getCurrentLocaleMock = vi.fn(() => currentLocale);
 const setLocaleMock = vi.fn((locale: string) => {
-    if (supportedLocales.includes(locale as SupportedLocale)) {
-      currentLocale = locale as SupportedLocale;
-    }
-  });
+  if (supportedLocales.includes(locale as SupportedLocale)) {
+    currentLocale = locale as SupportedLocale;
+  }
+});
 const getAvailableLocalesMock = vi.fn(() => supportedLocales);
 const subscribeMock = vi.fn(() => () => {});
 

@@ -175,7 +175,11 @@ describe('タスクのプロジェクト間ドラッグ&ドロップ', () => {
 
     expect(DragDropManager.canDrop(taskDragData, { type: 'project', id: 'project-2' })).toBe(true);
     expect(
-      DragDropManager.canDrop(taskDragData, { type: 'tasklist', id: 'tasklist-2', projectId: 'project-2' })
+      DragDropManager.canDrop(taskDragData, {
+        type: 'tasklist',
+        id: 'tasklist-2',
+        projectId: 'project-2'
+      })
     ).toBe(true);
     expect(DragDropManager.canDrop(taskDragData, { type: 'task', id: 'task-1' })).toBe(false);
     expect(DragDropManager.canDrop(taskDragData, { type: 'subtask', id: 'subtask-1' })).toBe(false);

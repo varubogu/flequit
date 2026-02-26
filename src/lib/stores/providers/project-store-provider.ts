@@ -3,13 +3,13 @@ import { projectStore, type ProjectStore } from '$lib/stores/project-store.svelt
 let projectStoreOverride: ProjectStore | null = null;
 
 export function resolveProjectStore(): ProjectStore {
-	return projectStoreOverride ?? projectStore;
+  return projectStoreOverride ?? projectStore;
 }
 
 export function provideProjectStore(store: ProjectStore | null) {
-	projectStoreOverride = store;
+  projectStoreOverride = store;
 }
 
 export function resetProjectStoreOverride() {
-	projectStoreOverride = null;
+  projectStoreOverride = null;
 }

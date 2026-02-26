@@ -1,6 +1,10 @@
 import { getLocale } from '$paraglide/runtime';
 import { generalSettingsStore } from '$lib/stores/settings/general-settings-store.svelte';
-import { getDefaultDateFormatForLocale, getStandardDateFormatsForLocale, buildAllDateFormats } from './settings/date-format-helpers';
+import {
+  getDefaultDateFormatForLocale,
+  getStandardDateFormatsForLocale,
+  buildAllDateFormats
+} from './settings/date-format-helpers';
 import { getAvailableTimezones } from './settings/timezone-options';
 export { DEFAULT_SETTINGS } from './settings/defaults';
 

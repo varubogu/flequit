@@ -143,7 +143,7 @@
       <!-- 検索モード -->
       <Command.Group heading={messages.search()}>
         <CommandSearchItem
-          isTagSearch={isTagSearch}
+          {isTagSearch}
           showAllResultsText={messages.getShowAllResultsFor(searchValue)()}
           onSelect={handleSearchExecute}
         />

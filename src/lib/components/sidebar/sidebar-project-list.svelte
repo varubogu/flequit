@@ -2,13 +2,13 @@
   import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { ViewType } from '$lib/stores/view-store.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
-import { selectionStore } from '$lib/stores/selection-store.svelte';
+  import { selectionStore } from '$lib/stores/selection-store.svelte';
   import Button from '$lib/components/shared/button.svelte';
   import { Plus } from 'lucide-svelte';
-import ProjectDialog from '$lib/components/project/project-dialog.svelte';
-import ProjectList from '$lib/components/project/project-list.svelte';
-import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
-import { ProjectCompositeService } from '$lib/services/composite/project-composite';
+  import ProjectDialog from '$lib/components/project/project-dialog.svelte';
+  import ProjectList from '$lib/components/project/project-list.svelte';
+  import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
+  import { ProjectCompositeService } from '$lib/services/composite/project-composite';
 
   interface Props {
     currentView?: ViewType;

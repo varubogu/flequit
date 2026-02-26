@@ -13,7 +13,12 @@ export class TagTauriService implements TagService {
     }
   }
 
-  async update(projectId: string, id: string, patch: Partial<Tag>, userId: string): Promise<boolean> {
+  async update(
+    projectId: string,
+    id: string,
+    patch: Partial<Tag>,
+    userId: string
+  ): Promise<boolean> {
     try {
       const result = await invoke('update_tag', { projectId, tagId: id, patch, userId });
       return result as boolean;

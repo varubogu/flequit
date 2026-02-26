@@ -37,5 +37,4 @@ export class ProjectWebService implements ProjectService {
     console.warn('Web backends: searchProjects not implemented', condition);
     return []; // 仮実装として空配列を返す
   }
-
 }

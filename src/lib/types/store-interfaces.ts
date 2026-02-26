@@ -18,23 +18,23 @@ import type { Tag } from './tag';
  * 依存: なし（完全独立）
  */
 export interface ISelectionStore {
-	// 選択状態
-	selectedProjectId: string | null;
-	selectedListId: string | null;
-	selectedTaskId: string | null;
-	selectedSubTaskId: string | null;
+  // 選択状態
+  selectedProjectId: string | null;
+  selectedListId: string | null;
+  selectedTaskId: string | null;
+  selectedSubTaskId: string | null;
 
-	// 保留中の選択
-	pendingTaskSelection: string | null;
-	pendingSubTaskSelection: string | null;
+  // 保留中の選択
+  pendingTaskSelection: string | null;
+  pendingSubTaskSelection: string | null;
 
-	// メソッド
-	selectProject(projectId: string | null): void;
-	selectList(listId: string | null): void;
-	selectTask(taskId: string | null): void;
-	selectSubTask(subTaskId: string | null): void;
-	clearPendingSelections(): void;
-	reset(): void;
+  // メソッド
+  selectProject(projectId: string | null): void;
+  selectList(listId: string | null): void;
+  selectTask(taskId: string | null): void;
+  selectSubTask(subTaskId: string | null): void;
+  clearPendingSelections(): void;
+  reset(): void;
 }
 
 /**
@@ -47,30 +47,30 @@ export interface ISelectionStore {
  *     将来的にProject[]に分離予定（Phase 4以降）
  */
 export interface IProjectStore {
-	// 状態
-	projects: ProjectTree[];
+  // 状態
+  projects: ProjectTree[];
 
-	// 派生状態
-	readonly selectedProject: ProjectTree | null;
+  // 派生状態
+  readonly selectedProject: ProjectTree | null;
 
-    // CRUD操作（Store更新）
-    addProjectToStore(project: ProjectTree): ProjectTree;
-    updateProjectInStore(projectId: string, updates: Partial<ProjectTree>): ProjectTree | null;
-    removeProjectFromStore(projectId: string): boolean;
+  // CRUD操作（Store更新）
+  addProjectToStore(project: ProjectTree): ProjectTree;
+  updateProjectInStore(projectId: string, updates: Partial<ProjectTree>): ProjectTree | null;
+  removeProjectFromStore(projectId: string): boolean;
 
-    // 並び替え
-    reorderProjectsInStore(fromIndex: number, toIndex: number): ProjectTree[];
-    moveProjectToPositionInStore(projectId: string, targetIndex: number): ProjectTree[];
+  // 並び替え
+  reorderProjectsInStore(fromIndex: number, toIndex: number): ProjectTree[];
+  moveProjectToPositionInStore(projectId: string, targetIndex: number): ProjectTree[];
 
-	// ヘルパー
-	getProjectById(id: string): ProjectTree | null;
+  // ヘルパー
+  getProjectById(id: string): ProjectTree | null;
 
-	// データロード
-	loadProjects(projects: ProjectTree[]): void;
-	setProjects(projects: ProjectTree[]): void;
+  // データロード
+  loadProjects(projects: ProjectTree[]): void;
+  setProjects(projects: ProjectTree[]): void;
 
-	// テスト用
-	reset(): void;
+  // テスト用
+  reset(): void;
 }
 
 /**
@@ -82,30 +82,38 @@ export interface IProjectStore {
  * 注: Phase 2.2では実装シグネチャに合わせて調整
  */
 export interface ITaskListStore {
-	// 派生状態
-	readonly selectedTaskList: TaskListWithTasks | null;
+  // 派生状態
+  readonly selectedTaskList: TaskListWithTasks | null;
 
-	// CRUD操作
-	addTaskList(
-		projectId: string,
-		taskList: { name: string; description?: string; color?: string }
-	): Promise<TaskListWithTasks | null>;
-	updateTaskList(
-		taskListId: string,
-		updates: { name?: string; description?: string; color?: string }
-	): Promise<TaskListWithTasks | null>;
-	deleteTaskList(taskListId: string): Promise<boolean>;
+  // CRUD操作
+  addTaskList(
+    projectId: string,
+    taskList: { name: string; description?: string; color?: string }
+  ): Promise<TaskListWithTasks | null>;
+  updateTaskList(
+    taskListId: string,
+    updates: { name?: string; description?: string; color?: string }
+  ): Promise<TaskListWithTasks | null>;
+  deleteTaskList(taskListId: string): Promise<boolean>;
 
-	// 並び替え・移動
-	reorderTaskLists(projectId: string, fromIndex: number, toIndex: number): Promise<void>;
-	moveTaskListToPosition(taskListId: string, targetProjectId: string, targetIndex: number): Promise<void>;
-	moveTaskListToProject(taskListId: string, targetProjectId: string, targetIndex?: number): Promise<void>;
+  // 並び替え・移動
+  reorderTaskLists(projectId: string, fromIndex: number, toIndex: number): Promise<void>;
+  moveTaskListToPosition(
+    taskListId: string,
+    targetProjectId: string,
+    targetIndex: number
+  ): Promise<void>;
+  moveTaskListToProject(
+    taskListId: string,
+    targetProjectId: string,
+    targetIndex?: number
+  ): Promise<void>;
 
-	// ヘルパー
-	getProjectIdByListId(listId: string): string | null;
+  // ヘルパー
+  getProjectIdByListId(listId: string): string | null;
 
-	// テスト用
-	reset(): void;
+  // テスト用
+  reset(): void;
 }
 
 /**
@@ -115,45 +123,45 @@ export interface ITaskListStore {
  * 依存: ITaskListStore（リスト情報）, ISelectionStore（選択状態）
  */
 export interface ITaskStore {
-	// 状態
-	projects: ProjectTree[];
-	isNewTaskMode: boolean;
-	newTaskData: TaskWithSubTasks | null;
+  // 状態
+  projects: ProjectTree[];
+  isNewTaskMode: boolean;
+  newTaskData: TaskWithSubTasks | null;
 
-	// 派生状態
-	readonly selectedTask: TaskWithSubTasks | null;
-	readonly selectedSubTask: SubTask | null;
-	readonly allTasks: TaskWithSubTasks[];
-	readonly todayTasks: TaskWithSubTasks[];
-	readonly overdueTasks: TaskWithSubTasks[];
+  // 派生状態
+  readonly selectedTask: TaskWithSubTasks | null;
+  readonly selectedSubTask: SubTask | null;
+  readonly allTasks: TaskWithSubTasks[];
+  readonly todayTasks: TaskWithSubTasks[];
+  readonly overdueTasks: TaskWithSubTasks[];
 
-	// 選択状態
-	selectedProjectId: string | null;
-	selectedListId: string | null;
-	selectedTaskId: string | null;
-	selectedSubTaskId: string | null;
-	pendingTaskSelection: string | null;
-	pendingSubTaskSelection: string | null;
+  // 選択状態
+  selectedProjectId: string | null;
+  selectedListId: string | null;
+  selectedTaskId: string | null;
+  selectedSubTaskId: string | null;
+  pendingTaskSelection: string | null;
+  pendingSubTaskSelection: string | null;
 
-	// データ同期
-	setProjects(projects: ProjectTree[]): void;
-	loadProjectsData(projects: ProjectTree[]): void;
+  // データ同期
+  setProjects(projects: ProjectTree[]): void;
+  loadProjectsData(projects: ProjectTree[]): void;
 
-	// タグ操作
-	attachTagToTask(taskId: string, tag: Tag): void;
-	detachTagFromTask(taskId: string, tagId: string): Tag | null;
-	removeTagFromAllTasks(tagId: string): void;
-	updateTagInAllTasks(updatedTag: Tag): void;
+  // タグ操作
+  attachTagToTask(taskId: string, tag: Tag): void;
+  detachTagFromTask(taskId: string, tagId: string): Tag | null;
+  removeTagFromAllTasks(tagId: string): void;
+  updateTagInAllTasks(updatedTag: Tag): void;
 
-	// ヘルパー
-	getTaskById(taskId: string): TaskWithSubTasks | null;
-	getTaskProjectAndList(taskId: string): { project: Project; taskList: TaskList } | null;
-	getProjectIdByTaskId(taskId: string): string | null;
-	getProjectIdByTagId(tagId: string): string | null;
-	getTaskCountByTag(tagName: string): number;
+  // ヘルパー
+  getTaskById(taskId: string): TaskWithSubTasks | null;
+  getTaskProjectAndList(taskId: string): { project: Project; taskList: TaskList } | null;
+  getProjectIdByTaskId(taskId: string): string | null;
+  getProjectIdByTagId(tagId: string): string | null;
+  getTaskCountByTag(tagName: string): number;
 
-	// 選択状態リセット
-	clearPendingSelections(): void;
+  // 選択状態リセット
+  clearPendingSelections(): void;
 }
 
 /**
@@ -165,27 +173,27 @@ export interface ITaskStore {
  * 注: Phase 3.1では実装シグネチャに合わせて調整
  */
 export interface ISubTaskStore {
-	// 派生状態
-	readonly selectedSubTask: SubTask | null;
+  // 派生状態
+  readonly selectedSubTask: SubTask | null;
 
-	// CRUD操作
-	addSubTask(
-		taskId: string,
-		subTask: { title: string; description?: string; status?: string; priority?: number }
-	): Promise<SubTask | null>;
-	updateSubTask(subTaskId: string, updates: Partial<SubTask>): Promise<void>;
-	deleteSubTask(subTaskId: string): Promise<void>;
+  // CRUD操作
+  addSubTask(
+    taskId: string,
+    subTask: { title: string; description?: string; status?: string; priority?: number }
+  ): Promise<SubTask | null>;
+  updateSubTask(subTaskId: string, updates: Partial<SubTask>): Promise<void>;
+  deleteSubTask(subTaskId: string): Promise<void>;
 
-	// タグ操作
-	attachTagToSubTask(subTaskId: string, tag: Tag): void;
-	detachTagFromSubTask(subTaskId: string, tagId: string): Tag | null;
+  // タグ操作
+  attachTagToSubTask(subTaskId: string, tag: Tag): void;
+  detachTagFromSubTask(subTaskId: string, tagId: string): Tag | null;
 
-	// ヘルパー
-	getTaskIdBySubTaskId(subTaskId: string): string | null;
-	getProjectIdBySubTaskId(subTaskId: string): string | null;
+  // ヘルパー
+  getTaskIdBySubTaskId(subTaskId: string): string | null;
+  getProjectIdBySubTaskId(subTaskId: string): string | null;
 
-	// テスト用
-	reset(): void;
+  // テスト用
+  reset(): void;
 }
 
 /**
@@ -195,25 +203,25 @@ export interface ISubTaskStore {
  * 依存: なし（独立、ただしタスク更新通知を受け取る）
  */
 export interface ITagStore {
-	// 状態
-	tags: Tag[];
+  // 状態
+  tags: Tag[];
 
-	// CRUD操作
-	addTag(tag: Tag): Promise<void>;
-	updateTag(tagId: string, updates: Partial<Tag>): Promise<void>;
-	deleteTag(tagId: string): Promise<void>;
+  // CRUD操作
+  addTag(tag: Tag): Promise<void>;
+  updateTag(tagId: string, updates: Partial<Tag>): Promise<void>;
+  deleteTag(tagId: string): Promise<void>;
 
-	// 並び替え
-	reorderTags(tagIds: string[]): Promise<void>;
+  // 並び替え
+  reorderTags(tagIds: string[]): Promise<void>;
 
-	// タスク内更新
-	updateTagInAllTasks(tag: Tag): void;
-	removeTagFromAllTasks(tagId: string): void;
+  // タスク内更新
+  updateTagInAllTasks(tag: Tag): void;
+  removeTagFromAllTasks(tagId: string): void;
 
-	// ヘルパー
-	getTagById(tagId: string): Tag | null;
-	getTaskCountByTag(tagId: string): number;
-	getProjectIdByTagId(tagId: string): string | null;
+  // ヘルパー
+  getTagById(tagId: string): Tag | null;
+  getTaskCountByTag(tagId: string): number;
+  getProjectIdByTagId(tagId: string): string | null;
 }
 
 /**
@@ -233,10 +241,10 @@ export interface ITagStore {
  * TagStore (独立、タスク更新通知を受け取る)
  */
 export interface IStoreContainer {
-	selection: ISelectionStore;
-	project?: IProjectStore;
-	taskList?: ITaskListStore;
-	task?: ITaskStore;
-	subTask?: ISubTaskStore;
-	tag?: ITagStore;
+  selection: ISelectionStore;
+  project?: IProjectStore;
+  taskList?: ITaskListStore;
+  task?: ITaskStore;
+  subTask?: ISubTaskStore;
+  tag?: ITagStore;
 }

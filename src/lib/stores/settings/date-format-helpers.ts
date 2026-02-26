@@ -37,7 +37,12 @@ export function getStandardDateFormatsForLocale(locale: string): StandardFormat[
   }
 
   return [
-    { id: 'standard', name: 'Standard format', format: 'EEEE, MMMM do, yyyy HH:mm:ss', isStandard: true },
+    {
+      id: 'standard',
+      name: 'Standard format',
+      format: 'EEEE, MMMM do, yyyy HH:mm:ss',
+      isStandard: true
+    },
     { id: 'short', name: 'Short format', format: 'MM/dd/yyyy HH:mm', isStandard: true },
     { id: 'date_only', name: 'Date only', format: 'MMMM do, yyyy', isStandard: true },
     { id: 'time_only', name: 'Time only', format: 'HH:mm:ss', isStandard: true },
@@ -48,13 +53,20 @@ export function getStandardDateFormatsForLocale(locale: string): StandardFormat[
 export function buildAllDateFormats(customFormats: CustomDateFormat[]): CombinedFormat[] {
   const locale = getLocale();
   const standardFormats = getStandardDateFormatsForLocale(locale);
-  const extendedCustomFormats: Array<CustomDateFormat & { isStandard: false }> = customFormats.map((f) => ({
-    ...f,
-    isStandard: false
-  }));
+  const extendedCustomFormats: Array<CustomDateFormat & { isStandard: false }> = customFormats.map(
+    (f) => ({
+      ...f,
+      isStandard: false
+    })
+  );
 
   const customLabel = locale.startsWith('ja') ? 'カスタム' : 'Custom';
-  const placeholder: CombinedFormat = { id: 'custom', name: customLabel, format: '', isStandard: false };
+  const placeholder: CombinedFormat = {
+    id: 'custom',
+    name: customLabel,
+    format: '',
+    isStandard: false
+  };
 
   return [...standardFormats, ...extendedCustomFormats, placeholder];
 }

@@ -1,5 +1,9 @@
 import type { Task, TaskSearchCondition } from '$lib/types/task';
-import type { ProjectCrudInterface, ProjectSearchInterface, RestorableProjectInterface } from '../../types/crud-interface';
+import type {
+  ProjectCrudInterface,
+  ProjectSearchInterface,
+  RestorableProjectInterface
+} from '../../types/crud-interface';
 
 /**
  * タスク管理用のバックエンドサービスインターフェース

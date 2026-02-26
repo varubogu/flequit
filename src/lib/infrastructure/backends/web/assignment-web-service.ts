@@ -15,15 +15,33 @@ export class AssignmentWebService implements AssignmentService {
   }
 
   // Subtask Assignment operations
-  async createSubtaskAssignment(projectId: string, subtaskId: string, userId: string): Promise<boolean> {
+  async createSubtaskAssignment(
+    projectId: string,
+    subtaskId: string,
+    userId: string
+  ): Promise<boolean> {
     // TODO: Web API実装を追加
-    console.warn('Web backends: createSubtaskAssignment not implemented', projectId, subtaskId, userId);
+    console.warn(
+      'Web backends: createSubtaskAssignment not implemented',
+      projectId,
+      subtaskId,
+      userId
+    );
     return false; // 仮実装として失敗を返す
   }
 
-  async deleteSubtaskAssignment(projectId: string, subtaskId: string, userId: string): Promise<boolean> {
+  async deleteSubtaskAssignment(
+    projectId: string,
+    subtaskId: string,
+    userId: string
+  ): Promise<boolean> {
     // TODO: Web API実装を追加
-    console.warn('Web backends: deleteSubtaskAssignment not implemented', projectId, subtaskId, userId);
+    console.warn(
+      'Web backends: deleteSubtaskAssignment not implemented',
+      projectId,
+      subtaskId,
+      userId
+    );
     return false; // 仮実装として失敗を返す
   }
 }

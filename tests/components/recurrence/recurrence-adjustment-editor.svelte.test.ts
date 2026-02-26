@@ -473,11 +473,13 @@ describe('RecurrenceAdjustmentEditor', () => {
     it('should handle missing condition properties', () => {
       const incompleteProps = {
         ...defaultProps,
-        dateConditions: [{
-          id: 'date-1',
-          relation: 'before' as DateRelation,
-          referenceDate: new Date('2024-01-01')
-        }] // Use complete object instead
+        dateConditions: [
+          {
+            id: 'date-1',
+            relation: 'before' as DateRelation,
+            referenceDate: new Date('2024-01-01')
+          }
+        ] // Use complete object instead
       };
 
       const { container } = render(RecurrenceAdjustmentEditor, { props: incompleteProps });

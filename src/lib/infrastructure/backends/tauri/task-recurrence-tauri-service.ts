@@ -1,9 +1,16 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { TaskRecurrence, TaskRecurrenceSearchCondition } from '$lib/types/recurrence-reference';
+import type {
+  TaskRecurrence,
+  TaskRecurrenceSearchCondition
+} from '$lib/types/recurrence-reference';
 import type { TaskRecurrenceService } from '$lib/infrastructure/backends/task-recurrence-service';
 
 export class TaskRecurrenceTauriService implements TaskRecurrenceService {
-  async create(projectId: string, taskRecurrence: TaskRecurrence, userId: string): Promise<boolean> {
+  async create(
+    projectId: string,
+    taskRecurrence: TaskRecurrence,
+    userId: string
+  ): Promise<boolean> {
     try {
       const result = await invoke('create_task_recurrence', { projectId, taskRecurrence, userId });
       return result as boolean;
@@ -13,9 +20,17 @@ export class TaskRecurrenceTauriService implements TaskRecurrenceService {
     }
   }
 
-  async getByTaskId(projectId: string, taskId: string, userId: string): Promise<TaskRecurrence | null> {
+  async getByTaskId(
+    projectId: string,
+    taskId: string,
+    userId: string
+  ): Promise<TaskRecurrence | null> {
     try {
-      const result = (await invoke('get_task_recurrence_by_task_id', { projectId, taskId, userId })) as TaskRecurrence | null;
+      const result = (await invoke('get_task_recurrence_by_task_id', {
+        projectId,
+        taskId,
+        userId
+      })) as TaskRecurrence | null;
       return result;
     } catch (error) {
       console.error('Failed to get task recurrence by task ID:', error);
@@ -34,7 +49,10 @@ export class TaskRecurrenceTauriService implements TaskRecurrenceService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async search(projectId: string, _condition: TaskRecurrenceSearchCondition): Promise<TaskRecurrence[]> {
+  async search(
+    projectId: string,
+    _condition: TaskRecurrenceSearchCondition
+  ): Promise<TaskRecurrence[]> {
     try {
       // TODO: search_task_recurrences コマンドが Tauri側に実装されていないため、一時的にmock実装
       console.warn('search_task_recurrences is not implemented - using mock implementation');

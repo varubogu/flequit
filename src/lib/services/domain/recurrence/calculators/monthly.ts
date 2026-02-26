@@ -11,9 +11,7 @@ export function calculateMonthlyNext(baseDate: Date, rule: RecurrenceRule): Date
   if (rule.pattern?.monthly?.dayOfMonth) {
     // 特定の日付指定
     currentDate.setMonth(currentDate.getMonth() + rule.interval);
-    currentDate.setDate(
-      Math.min(rule.pattern.monthly.dayOfMonth, getLastDayOfMonth(currentDate))
-    );
+    currentDate.setDate(Math.min(rule.pattern.monthly.dayOfMonth, getLastDayOfMonth(currentDate)));
     return currentDate;
   }
 

@@ -79,7 +79,7 @@ export function toTauriRecurrenceRule(
 //   unified: RecurrenceRule | null | undefined
 // ): TauriRecurrenceRule | undefined {
 //   if (!unified) return undefined;
-// 
+//
 //   // フロントエンド（小文字）からRust（大文字）へのマッピング
 //   const unitMapping: Record<string, string> = {
 //     'minute': 'Minute',
@@ -92,7 +92,7 @@ export function toTauriRecurrenceRule(
 //     'halfyear': 'HalfYear',
 //     'year': 'Year'
 //   };
-// 
+//
 //   const tauri: TauriRecurrenceRule = {
 //     id: unified.id || crypto.randomUUID(),
 //     unit: unitMapping[unified.unit] || unified.unit,
@@ -100,7 +100,7 @@ export function toTauriRecurrenceRule(
 //     days_of_week: unified.daysOfWeek,
 //     max_occurrences: unified.maxOccurrences
 //   };
-// 
+//
 //   // 終了日の変換
 //   if (unified.endDate) {
 //     if (unified.endDate instanceof SvelteDate) {
@@ -109,20 +109,20 @@ export function toTauriRecurrenceRule(
 //       tauri.end_date = unified.endDate.toISOString();
 //     }
 //   }
-// 
+//
 //   // 詳細設定の変換
 //   if (unified.pattern) {
 //     tauri.details = JSON.stringify(unified.pattern);
 //   }
-// 
+//
 //   // 補正条件の変換
 //   if (unified.adjustment) {
 //     tauri.adjustment = JSON.stringify(unified.adjustment);
 //   }
-// 
+//
 //   return tauri;
 // }
-// 
+//
 // /**
 //  * Tauri受信用型から統一型への変換
 //  */
@@ -130,7 +130,7 @@ export function toTauriRecurrenceRule(
 //   tauri: TauriRecurrenceRule | null | undefined
 // ): RecurrenceRule | undefined {
 //   if (!tauri) return undefined;
-// 
+//
 //   // Rust（大文字）からフロントエンド（小文字）へのマッピング
 //   const unitMapping: Record<string, RecurrenceUnit> = {
 //     'Minute': 'minute',
@@ -142,7 +142,7 @@ export function toTauriRecurrenceRule(
 //     'HalfYear': 'halfyear',
 //     'Year': 'year'
 //   };
-// 
+//
 //   const unified: RecurrenceRule = {
 //     id: tauri.id,
 //     unit: unitMapping[tauri.unit] || tauri.unit as RecurrenceUnit,
@@ -150,12 +150,12 @@ export function toTauriRecurrenceRule(
 //     daysOfWeek: tauri.days_of_week as DayOfWeek[] | undefined,
 //     maxOccurrences: tauri.max_occurrences
 //   };
-// 
+//
 //   // 終了日の変換
 //   if (tauri.end_date) {
 //     unified.endDate = new Date(tauri.end_date);
 //   }
-// 
+//
 //   // 詳細設定の変換
 //   if (tauri.details) {
 //     try {
@@ -164,7 +164,7 @@ export function toTauriRecurrenceRule(
 //       console.warn('Failed to parse tauri recurrence details:', e);
 //     }
 //   }
-// 
+//
 //   // 補正条件の変換
 //   if (tauri.adjustment) {
 //     try {
@@ -173,10 +173,10 @@ export function toTauriRecurrenceRule(
 //       console.warn('Failed to parse tauri recurrence adjustment:', e);
 //     }
 //   }
-// 
+//
 //   return unified;
 // }
-// 
+//
 /**
  * 繰り返しルールのバリデーション
  */

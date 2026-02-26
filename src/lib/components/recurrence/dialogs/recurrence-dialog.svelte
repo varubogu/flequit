@@ -38,7 +38,10 @@
   const recurrenceSettings = $derived(translationService.getMessage('recurrence_settings')());
 
   $effect(() => {
-    console.log('[RecurrenceDialog] recurrenceRule props を受け取りました:', $state.snapshot(recurrenceRule));
+    console.log(
+      '[RecurrenceDialog] recurrenceRule props を受け取りました:',
+      $state.snapshot(recurrenceRule)
+    );
     dialogFacade.setRecurrenceRule(recurrenceRule ?? null);
   });
 

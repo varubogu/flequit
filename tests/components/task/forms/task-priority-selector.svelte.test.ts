@@ -40,14 +40,14 @@ describe('TaskPrioritySelector Component', () => {
     expect(getByText('optional')).toBeInTheDocument();
   });
 
-	it('shows not_set option for subtasks only', () => {
-		const { getByText, unmount } = renderComponent(true);
-		expect(getByText('not_set')).toBeInTheDocument();
-		unmount();
+  it('shows not_set option for subtasks only', () => {
+    const { getByText, unmount } = renderComponent(true);
+    expect(getByText('not_set')).toBeInTheDocument();
+    unmount();
 
-		const { queryByText } = renderComponent(false);
-		expect(queryByText('not_set')).toBeNull();
-	});
+    const { queryByText } = renderComponent(false);
+    expect(queryByText('not_set')).toBeNull();
+  });
 
   it('renders priority options', () => {
     const { getByText } = renderComponent(false);

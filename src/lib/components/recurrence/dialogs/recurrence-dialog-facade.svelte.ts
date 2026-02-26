@@ -8,7 +8,10 @@ import type { RecurrenceRule } from '$lib/types/datetime-calendar';
 import { type RecurrenceDialogFacade, type RecurrenceDialogOptions } from './facade-parts/types';
 import { createStateSetters } from '$lib/components/recurrence/dialogs/facade-parts/state-setters.svelte';
 import { buildDialogLogic } from '$lib/components/recurrence/dialogs/facade-parts/logic-builder.svelte';
-import { setupPreviewEffect, setupAutoSaveEffect } from '$lib/components/recurrence/dialogs/facade-parts/effects.svelte';
+import {
+  setupPreviewEffect,
+  setupAutoSaveEffect
+} from '$lib/components/recurrence/dialogs/facade-parts/effects.svelte';
 
 // Re-export types for backward compatibility
 export type {
@@ -18,7 +21,9 @@ export type {
   RecurrenceDialogOptions
 } from './facade-parts/types';
 
-export function createRecurrenceDialogFacade(options: RecurrenceDialogOptions): RecurrenceDialogFacade {
+export function createRecurrenceDialogFacade(
+  options: RecurrenceDialogOptions
+): RecurrenceDialogFacade {
   const recurrenceState = new RecurrenceState();
   const dateConditionManager = new DateConditionManager();
   const weekdayConditionManager = new WeekdayConditionManager();
@@ -117,7 +122,9 @@ export function createRecurrenceDialogFacade(options: RecurrenceDialogOptions): 
     isSaving: () => isSaving,
     isUpdatingPreview: {
       get: () => isUpdatingPreview,
-      set: (value) => { isUpdatingPreview = value; }
+      set: (value) => {
+        isUpdatingPreview = value;
+      }
     },
     updatePreview,
     saveCurrentRule,
@@ -136,7 +143,9 @@ export function createRecurrenceDialogFacade(options: RecurrenceDialogOptions): 
     isSaving: () => isSaving,
     isUpdatingPreview: {
       get: () => isUpdatingPreview,
-      set: (value) => { isUpdatingPreview = value; }
+      set: (value) => {
+        isUpdatingPreview = value;
+      }
     },
     updatePreview,
     saveCurrentRule,

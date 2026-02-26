@@ -19,12 +19,12 @@
  * 繰り返し機能を追加する場合も、この型を使用できます。
  */
 export interface RecurrenceReference<TEntityType extends string = string> {
-	/** エンティティID */
-	entityId: string;
-	/** エンティティタイプ */
-	entityType: TEntityType;
-	/** 繰り返しルールID */
-	recurrenceRuleId: string;
+  /** エンティティID */
+  entityId: string;
+  /** エンティティタイプ */
+  entityType: TEntityType;
+  /** 繰り返しルールID */
+  recurrenceRuleId: string;
 }
 
 // ========================================
@@ -35,36 +35,36 @@ export interface RecurrenceReference<TEntityType extends string = string> {
  * タスク繰り返し関連付け
  */
 export interface TaskRecurrence {
-	/** タスクID */
-	taskId: string;
-	/** 繰り返しルールID */
-	recurrenceRuleId: string;
-	/** 作成日時 */
-	createdAt?: Date;
-	/** 更新日時 */
-	updatedAt?: Date;
-	/** 削除フラグ（論理削除） */
-	deleted?: boolean;
-	/** 最終更新者のユーザーID */
-	updatedBy?: string;
+  /** タスクID */
+  taskId: string;
+  /** 繰り返しルールID */
+  recurrenceRuleId: string;
+  /** 作成日時 */
+  createdAt?: Date;
+  /** 更新日時 */
+  updatedAt?: Date;
+  /** 削除フラグ（論理削除） */
+  deleted?: boolean;
+  /** 最終更新者のユーザーID */
+  updatedBy?: string;
 }
 
 /**
  * サブタスク繰り返し関連付け
  */
 export interface SubtaskRecurrence {
-	/** サブタスクID */
-	subtaskId: string;
-	/** 繰り返しルールID */
-	recurrenceRuleId: string;
-	/** 作成日時 */
-	createdAt?: Date;
-	/** 更新日時 */
-	updatedAt?: Date;
-	/** 削除フラグ（論理削除） */
-	deleted?: boolean;
-	/** 最終更新者のユーザーID */
-	updatedBy?: string;
+  /** サブタスクID */
+  subtaskId: string;
+  /** 繰り返しルールID */
+  recurrenceRuleId: string;
+  /** 作成日時 */
+  createdAt?: Date;
+  /** 更新日時 */
+  updatedAt?: Date;
+  /** 削除フラグ（論理削除） */
+  deleted?: boolean;
+  /** 最終更新者のユーザーID */
+  updatedBy?: string;
 }
 
 /**
@@ -73,10 +73,10 @@ export interface SubtaskRecurrence {
  * 注：将来的に汎用RecurrenceReference<T>型への移行を検討
  */
 export interface ProjectRecurrence {
-	/** プロジェクトID */
-	projectId: string;
-	/** 繰り返しルールID */
-	recurrenceRuleId: string;
+  /** プロジェクトID */
+  projectId: string;
+  /** 繰り返しルールID */
+  recurrenceRuleId: string;
 }
 
 // ========================================
@@ -89,42 +89,42 @@ export interface ProjectRecurrence {
  * @template TEntityType - エンティティタイプ
  */
 export interface RecurrenceReferenceSearchCondition<TEntityType extends string = string> {
-	/** エンティティIDでの絞り込み */
-	entityId?: string;
-	/** エンティティタイプでの絞り込み */
-	entityType?: TEntityType;
-	/** 繰り返しルールIDでの絞り込み */
-	recurrenceRuleId?: string;
+  /** エンティティIDでの絞り込み */
+  entityId?: string;
+  /** エンティティタイプでの絞り込み */
+  entityType?: TEntityType;
+  /** 繰り返しルールIDでの絞り込み */
+  recurrenceRuleId?: string;
 }
 
 /**
  * タスク繰り返し関連付け検索条件
  */
 export interface TaskRecurrenceSearchCondition {
-	/** タスクIDでの絞り込み */
-	taskId?: string;
-	/** 繰り返しルールIDでの絞り込み */
-	recurrenceRuleId?: string;
+  /** タスクIDでの絞り込み */
+  taskId?: string;
+  /** 繰り返しルールIDでの絞り込み */
+  recurrenceRuleId?: string;
 }
 
 /**
  * サブタスク繰り返し関連付け検索条件
  */
 export interface SubtaskRecurrenceSearchCondition {
-	/** サブタスクIDでの絞り込み */
-	subtaskId?: string;
-	/** 繰り返しルールIDでの絞り込み */
-	recurrenceRuleId?: string;
+  /** サブタスクIDでの絞り込み */
+  subtaskId?: string;
+  /** 繰り返しルールIDでの絞り込み */
+  recurrenceRuleId?: string;
 }
 
 /**
  * プロジェクト繰り返し関連付け検索条件（将来用）
  */
 export interface ProjectRecurrenceSearchCondition {
-	/** プロジェクトIDでの絞り込み */
-	projectId?: string;
-	/** 繰り返しルールIDでの絞り込み */
-	recurrenceRuleId?: string;
+  /** プロジェクトIDでの絞り込み */
+  projectId?: string;
+  /** 繰り返しルールIDでの絞り込み */
+  recurrenceRuleId?: string;
 }
 
 // ========================================
@@ -140,19 +140,19 @@ export interface ProjectRecurrenceSearchCondition {
  * @returns タスク繰り返し関連付け
  */
 export function createTaskRecurrence(
-	taskId: string,
-	recurrenceRuleId: string,
-	updatedBy: string
+  taskId: string,
+  recurrenceRuleId: string,
+  updatedBy: string
 ): TaskRecurrence {
-	const now = new Date();
-	return {
-		taskId,
-		recurrenceRuleId,
-		createdAt: now,
-		updatedAt: now,
-		deleted: false,
-		updatedBy
-	};
+  const now = new Date();
+  return {
+    taskId,
+    recurrenceRuleId,
+    createdAt: now,
+    updatedAt: now,
+    deleted: false,
+    updatedBy
+  };
 }
 
 /**
@@ -164,19 +164,19 @@ export function createTaskRecurrence(
  * @returns サブタスク繰り返し関連付け
  */
 export function createSubtaskRecurrence(
-	subtaskId: string,
-	recurrenceRuleId: string,
-	updatedBy: string
+  subtaskId: string,
+  recurrenceRuleId: string,
+  updatedBy: string
 ): SubtaskRecurrence {
-	const now = new Date();
-	return {
-		subtaskId,
-		recurrenceRuleId,
-		createdAt: now,
-		updatedAt: now,
-		deleted: false,
-		updatedBy
-	};
+  const now = new Date();
+  return {
+    subtaskId,
+    recurrenceRuleId,
+    createdAt: now,
+    updatedAt: now,
+    deleted: false,
+    updatedBy
+  };
 }
 
 /**
@@ -187,11 +187,11 @@ export function createSubtaskRecurrence(
  * @returns プロジェクト繰り返し関連付け
  */
 export function createProjectRecurrence(
-	projectId: string,
-	recurrenceRuleId: string
+  projectId: string,
+  recurrenceRuleId: string
 ): ProjectRecurrence {
-	return {
-		projectId,
-		recurrenceRuleId
-	};
+  return {
+    projectId,
+    recurrenceRuleId
+  };
 }

@@ -69,11 +69,7 @@ export const TagService = {
    * - バックエンドに非同期で同期
    * @param projectId プロジェクトID（必須）
    */
-  async updateTag(
-    projectId: string,
-    tagId: string,
-    updates: Partial<Tag>
-  ): Promise<void> {
+  async updateTag(projectId: string, tagId: string, updates: Partial<Tag>): Promise<void> {
     const originalTag = tagStoreInternal.findTagById(tagId);
     if (!originalTag) {
       return;
@@ -88,10 +84,15 @@ export const TagService = {
     // 2. バックエンドに同期
     try {
       const backend = await resolveBackend();
-      await backend.tag.update(projectId, tagId, {
-        ...updates,
-        updatedAt: new Date()
-      }, getCurrentUserId());
+      await backend.tag.update(
+        projectId,
+        tagId,
+        {
+          ...updates,
+          updatedAt: new Date()
+        },
+        getCurrentUserId()
+      );
 
       // 更新通知
       this.notifyTagUpdate(tagStoreInternal.findTagById(tagId)!);
@@ -144,11 +145,7 @@ export const TagService = {
    * タグを取得または作成します
    * @param projectId プロジェクトID（必須）
    */
-  async getOrCreateTag(
-    projectId: string,
-    name: string,
-    color?: string
-  ): Promise<Tag | null> {
+  async getOrCreateTag(projectId: string, name: string, color?: string): Promise<Tag | null> {
     const trimmedName = name.trim();
     if (!trimmedName) {
       return null;

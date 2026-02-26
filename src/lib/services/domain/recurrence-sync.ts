@@ -67,12 +67,16 @@ export const RecurrenceSyncService = {
         const ruleId = crypto.randomUUID();
 
         // Step 1: Create recurrence rule
-        const ruleCreateSuccess = await backend.recurrenceRule.create(projectId, {
-          ...unifiedRule!,
-          id: ruleId,
-          deleted: false,
-          updatedBy: userId
-        }, userId);
+        const ruleCreateSuccess = await backend.recurrenceRule.create(
+          projectId,
+          {
+            ...unifiedRule!,
+            id: ruleId,
+            deleted: false,
+            updatedBy: userId
+          },
+          userId
+        );
 
         if (!ruleCreateSuccess) {
           throw new Error('Failed to create recurrence rule');
@@ -80,22 +84,30 @@ export const RecurrenceSyncService = {
 
         // Step 2: Create association between task/subtask and rule
         const associationSuccess = isSubTask
-          ? await backend.subtaskRecurrence.create(projectId, {
-              subtaskId: itemId,
-              recurrenceRuleId: ruleId,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              deleted: false,
-              updatedBy: userId
-            }, userId)
-          : await backend.taskRecurrence.create(projectId, {
-              taskId: itemId,
-              recurrenceRuleId: ruleId,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              deleted: false,
-              updatedBy: userId
-            }, userId);
+          ? await backend.subtaskRecurrence.create(
+              projectId,
+              {
+                subtaskId: itemId,
+                recurrenceRuleId: ruleId,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                deleted: false,
+                updatedBy: userId
+              },
+              userId
+            )
+          : await backend.taskRecurrence.create(
+              projectId,
+              {
+                taskId: itemId,
+                recurrenceRuleId: ruleId,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                deleted: false,
+                updatedBy: userId
+              },
+              userId
+            );
 
         if (!associationSuccess) {
           throw new Error('Failed to create recurrence association');

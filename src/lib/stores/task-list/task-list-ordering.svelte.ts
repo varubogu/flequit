@@ -7,7 +7,7 @@ import { SvelteDate } from 'svelte/reactivity';
 
 /**
  * タスクリスト並び替え操作
- * 
+ *
  * 責務: タスクリストの順序変更、プロジェクト間移動
  */
 export class TaskListOrdering {
@@ -40,7 +40,9 @@ export class TaskListOrdering {
       taskList.updatedAt = new SvelteDate();
 
       try {
-        await TaskListCrudService.updateTaskList(projectId, taskList.id, { orderIndex: index } as Partial<TaskList>);
+        await TaskListCrudService.updateTaskList(projectId, taskList.id, {
+          orderIndex: index
+        } as Partial<TaskList>);
       } catch (error) {
         console.error('Failed to sync task list order to backends:', error);
         errorHandler.addSyncError('タスクリスト順序更新', 'tasklist', taskList.id, error);
@@ -72,9 +74,11 @@ export class TaskListOrdering {
           tl.orderIndex = index;
           tl.updatedAt = new SvelteDate();
 
-        try {
-          await TaskListCrudService.updateTaskList(project.id, tl.id, { orderIndex: index } as Partial<TaskList>);
-        } catch (error) {
+          try {
+            await TaskListCrudService.updateTaskList(project.id, tl.id, {
+              orderIndex: index
+            } as Partial<TaskList>);
+          } catch (error) {
             console.error('Failed to sync source project task list order to backends:', error);
             errorHandler.addSyncError('タスクリスト順序更新（移動元）', 'tasklist', tl.id, error);
           }
@@ -118,7 +122,7 @@ export class TaskListOrdering {
       tl.orderIndex = index;
       tl.updatedAt = new SvelteDate();
 
-    try {
+      try {
         await TaskListCrudService.updateTaskList(targetProject.id, tl.id, {
           orderIndex: index
         } as Partial<TaskList>);

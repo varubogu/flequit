@@ -96,7 +96,10 @@ describe('SettingsPersistence', () => {
 
     expect(loadSettingsSpy).toHaveBeenCalledTimes(1);
     expect(state.language).toBe('fr');
-    expect(global.localStorage.setItem).toHaveBeenCalledWith(expect.any(String), expect.any(String));
+    expect(global.localStorage.setItem).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.any(String)
+    );
   });
 
   test('load falls back to localStorage on error', async () => {

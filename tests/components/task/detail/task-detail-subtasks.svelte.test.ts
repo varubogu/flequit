@@ -51,96 +51,96 @@ const buildTask = (): TaskWithSubTasks =>
 type TaskDetailSubTasksProps = ComponentProps<typeof TaskDetailSubTasks>;
 
 const renderComponent = (props?: Partial<TaskDetailSubTasksProps>) => {
-	const defaultProps = {
-		task: buildTask(),
-		selectedSubTaskId: null,
-		onSubTaskClick: vi.fn(),
-		onSubTaskToggle: vi.fn(),
-		onAddSubTask: vi.fn(),
-		showSubTaskAddForm: false,
-		onSubTaskAdded: vi.fn(),
-		onSubTaskAddCancel: vi.fn()
-	} satisfies TaskDetailSubTasksProps;
-	const merged: TaskDetailSubTasksProps = { ...defaultProps, ...(props ?? {}) };
-	return render(TaskDetailSubTasks, { props: merged });
+  const defaultProps = {
+    task: buildTask(),
+    selectedSubTaskId: null,
+    onSubTaskClick: vi.fn(),
+    onSubTaskToggle: vi.fn(),
+    onAddSubTask: vi.fn(),
+    showSubTaskAddForm: false,
+    onSubTaskAdded: vi.fn(),
+    onSubTaskAddCancel: vi.fn()
+  } satisfies TaskDetailSubTasksProps;
+  const merged: TaskDetailSubTasksProps = { ...defaultProps, ...(props ?? {}) };
+  return render(TaskDetailSubTasks, { props: merged });
 };
 
 describe('TaskDetailSubTasks', () => {
-	beforeEach(() => {
-		vi.clearAllMocks();
-	});
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
-	it('renders header and subtasks', () => {
-		const result = renderComponent();
-		expect(result.getByText('sub_tasks')).toBeInTheDocument();
-		expect(result.getByText('SubTask 1')).toBeInTheDocument();
-		expect(result.getByText('SubTask 2')).toBeInTheDocument();
-	});
+  it('renders header and subtasks', () => {
+    const result = renderComponent();
+    expect(result.getByText('sub_tasks')).toBeInTheDocument();
+    expect(result.getByText('SubTask 1')).toBeInTheDocument();
+    expect(result.getByText('SubTask 2')).toBeInTheDocument();
+  });
 
-	it('shows add button when handler provided', async () => {
-		const onAddSubTask = vi.fn();
-		const result = renderComponent({ onAddSubTask });
-		const addButton = result.getByTestId('add-subtask');
-		await fireEvent.click(addButton);
-		expect(onAddSubTask).toHaveBeenCalled();
-	});
+  it('shows add button when handler provided', async () => {
+    const onAddSubTask = vi.fn();
+    const result = renderComponent({ onAddSubTask });
+    const addButton = result.getByTestId('add-subtask');
+    await fireEvent.click(addButton);
+    expect(onAddSubTask).toHaveBeenCalled();
+  });
 
-	it('marks selected subtask', () => {
-		const result = renderComponent({ selectedSubTaskId: 'subtask-1' });
-		const selected = result.getByText('SubTask 1').closest('button');
-		expect(selected).toHaveClass('bg-primary/10');
-	});
+  it('marks selected subtask', () => {
+    const result = renderComponent({ selectedSubTaskId: 'subtask-1' });
+    const selected = result.getByText('SubTask 1').closest('button');
+    expect(selected).toHaveClass('bg-primary/10');
+  });
 
-	it('invokes onSubTaskClick when subtask clicked', async () => {
-		const onSubTaskClick = vi.fn();
-		const result = renderComponent({ onSubTaskClick });
-		await fireEvent.click(result.getByText('SubTask 1'));
-		expect(onSubTaskClick).toHaveBeenCalledWith('subtask-1');
-	});
+  it('invokes onSubTaskClick when subtask clicked', async () => {
+    const onSubTaskClick = vi.fn();
+    const result = renderComponent({ onSubTaskClick });
+    await fireEvent.click(result.getByText('SubTask 1'));
+    expect(onSubTaskClick).toHaveBeenCalledWith('subtask-1');
+  });
 
-	it('invokes onSubTaskToggle without triggering click handler', async () => {
-		const onSubTaskToggle = vi.fn();
-		const onSubTaskClick = vi.fn();
-		const result = renderComponent({ onSubTaskToggle, onSubTaskClick });
-		const toggleButtons = result.getAllByLabelText('toggle_subtask_completion');
-		await fireEvent.click(toggleButtons[0]);
-		expect(onSubTaskToggle).toHaveBeenCalledWith('subtask-1');
-		expect(onSubTaskClick).not.toHaveBeenCalled();
-	});
+  it('invokes onSubTaskToggle without triggering click handler', async () => {
+    const onSubTaskToggle = vi.fn();
+    const onSubTaskClick = vi.fn();
+    const result = renderComponent({ onSubTaskToggle, onSubTaskClick });
+    const toggleButtons = result.getAllByLabelText('toggle_subtask_completion');
+    await fireEvent.click(toggleButtons[0]);
+    expect(onSubTaskToggle).toHaveBeenCalledWith('subtask-1');
+    expect(onSubTaskClick).not.toHaveBeenCalled();
+  });
 
-	it('shows completion visuals for completed subtasks', () => {
-		const result = renderComponent();
-		const toggles = result.getAllByLabelText('toggle_subtask_completion');
-		expect(toggles[1]).toHaveTextContent('✅');
-		expect(result.getByText('SubTask 2')).toHaveClass('line-through');
-	});
+  it('shows completion visuals for completed subtasks', () => {
+    const result = renderComponent();
+    const toggles = result.getAllByLabelText('toggle_subtask_completion');
+    expect(toggles[1]).toHaveTextContent('✅');
+    expect(result.getByText('SubTask 2')).toHaveClass('line-through');
+  });
 
-	it('renders due date indicator when planEndDate exists', () => {
-		const result = renderComponent();
-		const dueDateButton = result
-			.getAllByRole('button')
-			.find((btn) => btn !== null && btn.textContent && btn.textContent.includes('/'));
-		expect(dueDateButton).toBeDefined();
-	});
+  it('renders due date indicator when planEndDate exists', () => {
+    const result = renderComponent();
+    const dueDateButton = result
+      .getAllByRole('button')
+      .find((btn) => btn !== null && btn.textContent && btn.textContent.includes('/'));
+    expect(dueDateButton).toBeDefined();
+  });
 
-	it('renders add form when requested', () => {
-		const result = renderComponent({ showSubTaskAddForm: true });
-		expect(result.getByPlaceholderText('sub_task_title')).toBeInTheDocument();
-	});
+  it('renders add form when requested', () => {
+    const result = renderComponent({ showSubTaskAddForm: true });
+    expect(result.getByPlaceholderText('sub_task_title')).toBeInTheDocument();
+  });
 
-	it('submits new subtask via form', async () => {
-		const onSubTaskAdded = vi.fn();
-		const result = renderComponent({ showSubTaskAddForm: true, onSubTaskAdded });
-		const input = result.getByPlaceholderText('sub_task_title');
-		const saveButton = result.getAllByTitle('add_subtask')[1];
-		await fireEvent.input(input, { target: { value: 'New Subtask' } });
-		await fireEvent.click(saveButton);
-		expect(onSubTaskAdded).toHaveBeenCalledWith('New Subtask');
-	});
+  it('submits new subtask via form', async () => {
+    const onSubTaskAdded = vi.fn();
+    const result = renderComponent({ showSubTaskAddForm: true, onSubTaskAdded });
+    const input = result.getByPlaceholderText('sub_task_title');
+    const saveButton = result.getAllByTitle('add_subtask')[1];
+    await fireEvent.input(input, { target: { value: 'New Subtask' } });
+    await fireEvent.click(saveButton);
+    expect(onSubTaskAdded).toHaveBeenCalledWith('New Subtask');
+  });
 
-	it('renders zero state when no subtasks present', () => {
-		const taskWithoutSubtasks = { ...buildTask(), subTasks: [] };
-		const result = renderComponent({ task: taskWithoutSubtasks });
-		expect(result.getByText('0 subtasks')).toBeInTheDocument();
-	});
+  it('renders zero state when no subtasks present', () => {
+    const taskWithoutSubtasks = { ...buildTask(), subTasks: [] };
+    const result = renderComponent({ task: taskWithoutSubtasks });
+    expect(result.getByText('0 subtasks')).toBeInTheDocument();
+  });
 });

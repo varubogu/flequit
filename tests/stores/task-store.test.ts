@@ -189,7 +189,7 @@ describe('TaskStore', () => {
         orderIndex: 0,
         isArchived: false,
         createdAt: new Date(),
-        updatedAt: new Date(),
+        updatedAt: new Date()
       });
 
       expect(newTask).not.toBeNull();
@@ -330,7 +330,7 @@ describe('TaskStore', () => {
         orderIndex: 3,
         isArchived: false,
         createdAt: new Date(),
-        updatedAt: new Date(),
+        updatedAt: new Date()
       };
 
       const newTask = await taskCoreStore.addTask('list-1', newTaskData);
@@ -349,7 +349,7 @@ describe('TaskStore', () => {
 
     test('addTask should return null for non-existent list', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      
+
       const result = await taskCoreStore.addTask('non-existent-list', {
         projectId: 'non-existent-proj',
         listId: 'non-existent-list',
@@ -361,16 +361,14 @@ describe('TaskStore', () => {
         orderIndex: 0,
         isArchived: false,
         createdAt: new Date(),
-        updatedAt: new Date(),
+        updatedAt: new Date()
       });
 
       expect(result).toBeNull();
-      
+
       // エラーログが出力されたことを検証
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Task list not found: non-existent-list'
-      );
-      
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Task list not found: non-existent-list');
+
       consoleErrorSpy.mockRestore();
     });
 
@@ -432,20 +430,20 @@ describe('TaskStore', () => {
 
     test('addSubTask should handle creation failure gracefully', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      
+
       const result = await subTaskStore.addSubTask('non-existent-task', {
         title: 'Failed SubTask'
       });
 
       // 失敗時は null が返され、ローカル状態にも変化がない
       expect(result).toBeNull();
-      
+
       // エラーログが出力されたことを検証
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Failed to find task for subtask creation:',
         'non-existent-task'
       );
-      
+
       consoleErrorSpy.mockRestore();
 
       // 期待通り、実際のタスクリストには追加されていない

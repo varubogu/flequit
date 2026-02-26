@@ -19,7 +19,9 @@ export function initBackendContext() {
 export function useBackendContext() {
   const value = getContext<BackendContextValue | undefined>(BACKEND_CONTEXT);
   if (!value) {
-    throw new Error('Backend context has not been initialized. Make sure initBackendContext() is called at the top level.');
+    throw new Error(
+      'Backend context has not been initialized. Make sure initBackendContext() is called at the top level.'
+    );
   }
   return value;
 }

@@ -44,7 +44,11 @@
     if (isNewTaskMode) {
       taskInteractions.addTagToNewTask(event.detail.tagName);
     } else if (isSubTask && 'taskId' in currentItem) {
-      void subTaskMutations.addTagToSubTaskByName(currentItem.id, currentItem.taskId, event.detail.tagName);
+      void subTaskMutations.addTagToSubTaskByName(
+        currentItem.id,
+        currentItem.taskId,
+        event.detail.tagName
+      );
     } else if ('listId' in currentItem) {
       void taskOperations.addTagToTaskByName(currentItem.id, event.detail.tagName);
     }

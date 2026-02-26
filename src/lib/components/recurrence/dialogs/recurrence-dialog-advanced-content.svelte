@@ -20,7 +20,9 @@
     <div class="min-w-[480px] flex-1 space-y-6 overflow-y-auto">
       <RecurrenceLevelSelector
         bind:value={logic.recurrenceLevel}
-        onchange={(value) => { logic.recurrenceLevel = value; }}
+        onchange={(value) => {
+          logic.recurrenceLevel = value;
+        }}
       />
 
       {#if logic.showBasicSettings}

@@ -94,7 +94,7 @@ const mockTaskDateStore = {
         mockTaskDateStore.tasks[taskIndex] = {
           ...mockTaskDateStore.tasks[taskIndex],
           ...dateData,
-          updatedAt: new Date(),
+          updatedAt: new Date()
         };
         return mockTaskDateStore.tasks[taskIndex];
       }

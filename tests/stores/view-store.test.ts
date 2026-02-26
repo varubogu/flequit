@@ -1,8 +1,5 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
-import {
-  ViewStore,
-  type ViewStoreDependencies
-} from '../../src/lib/stores/view-store.svelte';
+import { ViewStore, type ViewStoreDependencies } from '../../src/lib/stores/view-store.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 
 const createTask = (overrides: Partial<TaskWithSubTasks> = {}): TaskWithSubTasks => ({

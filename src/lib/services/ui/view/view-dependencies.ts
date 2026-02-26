@@ -13,8 +13,6 @@ export const defaultViewDependencies: ViewStoreDependencies = {
   translationService
 };
 
-export function resolveViewDependencies(
-  deps?: ViewStoreDependencies
-): ViewStoreDependencies {
+export function resolveViewDependencies(deps?: ViewStoreDependencies): ViewStoreDependencies {
   return deps ?? defaultViewDependencies;
 }

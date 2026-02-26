@@ -76,6 +76,11 @@
 {#if currentItem}
   <div>
     <h3 class="mb-2 block text-sm font-medium">{tags()}</h3>
-    <TagInput tags={currentItem.tags || []} projectId={projectId() || undefined} ontagAdded={handleTagAdded} ontagRemoved={handleTagRemoved} />
+    <TagInput
+      tags={currentItem.tags || []}
+      projectId={projectId() || undefined}
+      ontagAdded={handleTagAdded}
+      ontagRemoved={handleTagRemoved}
+    />
   </div>
 {/if}

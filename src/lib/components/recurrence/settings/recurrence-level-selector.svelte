@@ -32,7 +32,7 @@
   <h3 class="w-32 flex-shrink-0 text-lg font-semibold">{recurrence()}</h3>
   <div class="flex-1">
     <select
-      value={value}
+      {value}
       onchange={handleChange}
       class="border-border bg-background text-foreground w-full rounded border p-2"
     >

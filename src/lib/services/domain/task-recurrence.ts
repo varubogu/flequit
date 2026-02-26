@@ -20,8 +20,7 @@ export class TaskRecurrenceService {
       planStartDate:
         task.isRangeDate && task.planStartDate && task.planEndDate
           ? new Date(
-              nextDate.getTime() -
-              (task.planEndDate.getTime() - task.planStartDate.getTime())
+              nextDate.getTime() - (task.planEndDate.getTime() - task.planStartDate.getTime())
             )
           : undefined,
       planEndDate: nextDate,

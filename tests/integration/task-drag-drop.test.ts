@@ -4,10 +4,7 @@ import TaskList from '$lib/components/task/core/task-list.svelte';
 import SidebarViewList from '$lib/components/sidebar/sidebar-view-list.svelte';
 import SidebarTagList from '$lib/components/sidebar/sidebar-tag-list.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
-import {
-  setTranslationService,
-  getTranslationService
-} from '$lib/stores/locale.svelte';
+import { setTranslationService, getTranslationService } from '$lib/stores/locale.svelte';
 import type { ITranslationService } from '$lib/services/translation-service';
 
 function createTestTranslationService(): ITranslationService {
@@ -319,12 +316,12 @@ describe('Task Drag & Drop Integration', () => {
 
   describe('タスクとタグのドラッグ&ドロップ', () => {
     it('タグリストが正しくレンダリングされる', () => {
-    const { container } = render(SidebarTagList, {
-      props: {
-        currentView: 'all',
-        onViewChange: vi.fn()
-      }
-    });
+      const { container } = render(SidebarTagList, {
+        props: {
+          currentView: 'all',
+          onViewChange: vi.fn()
+        }
+      });
 
       // sidebar-tag-listはbookmarkedTagsがある場合にのみコンテンツを表示
       // ここではコンポーネントが正常にレンダリングされることを確認

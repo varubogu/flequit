@@ -129,24 +129,24 @@ function createDragDropEnvironment() {
         task.subTasks.splice(index, 1);
       }
     }),
-	attachTagToSubTask: vi.fn((subTaskId: string, tag: Tag) => {
-		const sub = task.subTasks.find((item) => item.id === subTaskId);
-		if (!sub) return;
-		const tagsList = sub.tags ?? (sub.tags = []);
-		if (tagsList.some((existing) => existing.id === tag.id)) return;
-		tagsList.push(tag);
-		sub.updatedAt = new Date();
-	}),
-	detachTagFromSubTask: vi.fn((subTaskId: string, tagId: string) => {
-		const sub = task.subTasks.find((item) => item.id === subTaskId);
-		if (!sub) return null;
-		const tagsList = sub.tags ?? [];
-		const index = tagsList.findIndex((tag) => tag.id === tagId);
-		if (index === -1) return null;
-		const [removed] = tagsList.splice(index, 1);
-		sub.updatedAt = new Date();
-		return removed ?? null;
-	})
+    attachTagToSubTask: vi.fn((subTaskId: string, tag: Tag) => {
+      const sub = task.subTasks.find((item) => item.id === subTaskId);
+      if (!sub) return;
+      const tagsList = sub.tags ?? (sub.tags = []);
+      if (tagsList.some((existing) => existing.id === tag.id)) return;
+      tagsList.push(tag);
+      sub.updatedAt = new Date();
+    }),
+    detachTagFromSubTask: vi.fn((subTaskId: string, tagId: string) => {
+      const sub = task.subTasks.find((item) => item.id === subTaskId);
+      if (!sub) return null;
+      const tagsList = sub.tags ?? [];
+      const index = tagsList.findIndex((tag) => tag.id === tagId);
+      if (index === -1) return null;
+      const [removed] = tagsList.splice(index, 1);
+      sub.updatedAt = new Date();
+      return removed ?? null;
+    })
   };
 
   const taskStoreMock = {
@@ -167,7 +167,7 @@ function createDragDropEnvironment() {
       name,
       color: '#00aa00',
       createdAt: new Date(),
-      updatedAt: new Date(),
+      updatedAt: new Date()
     })),
     deleteSubtaskTag: vi.fn(async () => {})
   };

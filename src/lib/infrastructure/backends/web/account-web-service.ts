@@ -25,5 +25,4 @@ export class AccountWebService implements AccountService {
     console.warn('Web backends: deleteAccount not implemented', id);
     return false; // 仮実装として失敗を返す
   }
-
 }

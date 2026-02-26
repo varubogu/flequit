@@ -34,7 +34,7 @@ describe('シンプルな結合テスト', () => {
           mockTaskStore.tasks[taskIndex] = {
             ...mockTaskStore.tasks[taskIndex],
             ...updates,
-            updatedAt: new Date(),
+            updatedAt: new Date()
           };
           return mockTaskStore.tasks[taskIndex];
         }

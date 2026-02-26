@@ -1,11 +1,22 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { SubtaskRecurrence, SubtaskRecurrenceSearchCondition } from '$lib/types/recurrence-reference';
+import type {
+  SubtaskRecurrence,
+  SubtaskRecurrenceSearchCondition
+} from '$lib/types/recurrence-reference';
 import type { SubtaskRecurrenceService } from '$lib/infrastructure/backends/subtask-recurrence-service';
 
 export class SubtaskRecurrenceTauriService implements SubtaskRecurrenceService {
-  async create(projectId: string, subtaskRecurrence: SubtaskRecurrence, userId: string): Promise<boolean> {
+  async create(
+    projectId: string,
+    subtaskRecurrence: SubtaskRecurrence,
+    userId: string
+  ): Promise<boolean> {
     try {
-      const result = await invoke('create_subtask_recurrence', { projectId, subtaskRecurrence, userId });
+      const result = await invoke('create_subtask_recurrence', {
+        projectId,
+        subtaskRecurrence,
+        userId
+      });
       return result as boolean;
     } catch (error) {
       console.error('Failed to create subtask recurrence:', error);
@@ -13,9 +24,17 @@ export class SubtaskRecurrenceTauriService implements SubtaskRecurrenceService {
     }
   }
 
-  async getBySubtaskId(projectId: string, subtaskId: string, userId: string): Promise<SubtaskRecurrence | null> {
+  async getBySubtaskId(
+    projectId: string,
+    subtaskId: string,
+    userId: string
+  ): Promise<SubtaskRecurrence | null> {
     try {
-      const result = (await invoke('get_subtask_recurrence_by_subtask_id', { projectId, subtaskId, userId })) as SubtaskRecurrence | null;
+      const result = (await invoke('get_subtask_recurrence_by_subtask_id', {
+        projectId,
+        subtaskId,
+        userId
+      })) as SubtaskRecurrence | null;
       return result;
     } catch (error) {
       console.error('Failed to get subtask recurrence by subtask ID:', error);
@@ -34,7 +53,10 @@ export class SubtaskRecurrenceTauriService implements SubtaskRecurrenceService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async search(projectId: string, _condition: SubtaskRecurrenceSearchCondition): Promise<SubtaskRecurrence[]> {
+  async search(
+    projectId: string,
+    _condition: SubtaskRecurrenceSearchCondition
+  ): Promise<SubtaskRecurrence[]> {
     try {
       // TODO: search_subtask_recurrences コマンドが Tauri側に実装されていないため、一時的にmock実装
       console.warn('search_subtask_recurrences is not implemented - using mock implementation');

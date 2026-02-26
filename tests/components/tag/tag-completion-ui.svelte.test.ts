@@ -10,7 +10,15 @@ vi.mock('lucide-svelte', () => ({
 
 describe('TagCompletionUI', () => {
   const mockTags: Tag[] = [
-    { id: 'tag-1', name: 'work', color: '#ff0000', createdAt: new Date(), updatedAt: new Date(), deleted: false, updatedBy: 'test-user' },
+    {
+      id: 'tag-1',
+      name: 'work',
+      color: '#ff0000',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deleted: false,
+      updatedBy: 'test-user'
+    },
     {
       id: 'tag-2',
       name: 'personal',
@@ -390,7 +398,15 @@ describe('TagCompletionUI', () => {
 
     it('should handle tags without ids', () => {
       const tagsWithoutIds: Tag[] = [
-        { id: '', name: 'work', color: '#ff0000', createdAt: new Date(), updatedAt: new Date(), deleted: false, updatedBy: 'test-user' },
+        {
+          id: '',
+          name: 'work',
+          color: '#ff0000',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deleted: false,
+          updatedBy: 'test-user'
+        },
         {
           id: null as unknown as string,
           name: 'personal',

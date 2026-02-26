@@ -41,7 +41,14 @@ class AppearanceStore {
     this.saveSettings({ backgroundColor });
   }
 
-  private async saveSettings(partialSettings: Partial<{ font: string; fontSize: number; fontColor: string; backgroundColor: string }>) {
+  private async saveSettings(
+    partialSettings: Partial<{
+      font: string;
+      fontSize: number;
+      fontColor: string;
+      backgroundColor: string;
+    }>
+  ) {
     // 初期化が完了していない場合は保存しない
     if (!this.isInitialized) {
       return;

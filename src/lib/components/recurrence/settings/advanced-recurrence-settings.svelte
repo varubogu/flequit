@@ -126,7 +126,9 @@
       </label>
       <select
         id="week-of-period-select"
-        value={details?.monthly?.weekOfMonth ? numberToWeekOfMonth[details.monthly.weekOfMonth] : ''}
+        value={details?.monthly?.weekOfMonth
+          ? numberToWeekOfMonth[details.monthly.weekOfMonth]
+          : ''}
         class="border-border bg-background text-foreground w-full rounded border p-2"
         onchange={handleWeekOfPeriodChange}
       >

@@ -117,7 +117,15 @@ const replaceTags = (tags: TagRecord[]) => {
   }
 };
 
-const toTagRecord = (tag: { id: string; name: string; color?: string; createdAt: Date; updatedAt: Date; projectId?: string; orderIndex?: number }): TagRecord => ({
+const toTagRecord = (tag: {
+  id: string;
+  name: string;
+  color?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  projectId?: string;
+  orderIndex?: number;
+}): TagRecord => ({
   id: tag.id,
   name: tag.name,
   color: tag.color,
@@ -178,11 +186,15 @@ const resetDomainState = () => {
   mockSettings = createDefaultSettings();
 };
 
-const ensureProject = (projectId: string): ProjectRecord | null => mockProjects.get(projectId) ?? null;
-const ensureTaskList = (taskListId: string): TaskListRecord | null => mockTaskLists.get(taskListId) ?? null;
-const ensureTag = (tagId: string): TagRecord | null => mockTags.find((tag) => tag.id === tagId) ?? null;
+const ensureProject = (projectId: string): ProjectRecord | null =>
+  mockProjects.get(projectId) ?? null;
+const ensureTaskList = (taskListId: string): TaskListRecord | null =>
+  mockTaskLists.get(taskListId) ?? null;
+const ensureTag = (tagId: string): TagRecord | null =>
+  mockTags.find((tag) => tag.id === tagId) ?? null;
 
-const generateId = (prefix: string) => `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+const generateId = (prefix: string) =>
+  `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
 const getBookmarksSnapshot = () => mockBookmarkedOrder.filter(Boolean);
 
@@ -375,7 +387,7 @@ const dataServiceImpl = {
     const updated: TaskRecord = {
       ...existing,
       title: (updates.title as string) ?? existing.title,
-      description: updates.description as string | undefined ?? existing.description,
+      description: (updates.description as string | undefined) ?? existing.description,
       status: (updates.status as string) ?? existing.status,
       priority: (updates.priority as number | undefined) ?? existing.priority,
       listId: (updates.listId as string | undefined) ?? existing.listId,
@@ -386,7 +398,11 @@ const dataServiceImpl = {
     return structuredCopy(updated);
   },
 
-  async updateTaskWithSubTasks(projectId: string, taskId: string, updates: Record<string, unknown>) {
+  async updateTaskWithSubTasks(
+    projectId: string,
+    taskId: string,
+    updates: Record<string, unknown>
+  ) {
     await this.updateTask(projectId, taskId, updates);
   },
 
@@ -443,7 +459,7 @@ const dataServiceImpl = {
     const updated: SubTaskRecord = {
       ...existing,
       title: (updates.title as string) ?? existing.title,
-      description: updates.description as string | undefined ?? existing.description,
+      description: (updates.description as string | undefined) ?? existing.description,
       status: (updates.status as string) ?? existing.status,
       priority: (updates.priority as number | undefined) ?? existing.priority,
       updatedAt: new Date()
@@ -672,7 +688,9 @@ const buildTaskServiceFacade = async () => {
   const { taskListStore } = await import('../../src/lib/stores/task-list-store.svelte');
   const { subTaskStore } = await import('../../src/lib/stores/sub-task-store.svelte');
   const { TaggingService } = await import('../../src/lib/services/domain/tagging');
-  const { RecurrenceService } = await import('../../src/lib/services/composite/recurrence-composite');
+  const { RecurrenceService } = await import(
+    '../../src/lib/services/composite/recurrence-composite'
+  );
   const { errorHandler } = await import('../../src/lib/stores/error-handler.svelte');
   const { tagStore } = await import('../../src/lib/stores/tags.svelte');
 
@@ -752,10 +770,7 @@ const buildTaskServiceFacade = async () => {
       const task = taskStore.getTaskById?.(taskId) as TaskRecord | undefined;
 
       if (newStatus === 'completed' && task?.recurrenceRule && task.planEndDate) {
-        const nextDate = RecurrenceService.calculateNextDate(
-          task.planEndDate,
-          task.recurrenceRule
-        );
+        const nextDate = RecurrenceService.calculateNextDate(task.planEndDate, task.recurrenceRule);
         if (nextDate) {
           let planStartDate = task.planStartDate;
           if (task.isRangeDate && task.planStartDate && task.planEndDate) {
@@ -796,9 +811,15 @@ const buildTaskServiceFacade = async () => {
         createdAt: new Date(),
         updatedAt: new Date()
       };
-      return taskCoreStore.addTask(listId, newTask as unknown as TaskRecord & { subTasks: []; tags: [] });
+      return taskCoreStore.addTask(
+        listId,
+        newTask as unknown as TaskRecord & { subTasks: []; tags: [] }
+      );
     },
-    toggleSubTaskStatus(task: TaskRecord & { subTasks: Array<{ id: string; status: string }> }, subTaskId: string) {
+    toggleSubTaskStatus(
+      task: TaskRecord & { subTasks: Array<{ id: string; status: string }> },
+      subTaskId: string
+    ) {
       const found = task.subTasks.find((st) => st.id === subTaskId);
       if (!found) {
         return;
@@ -1005,21 +1026,25 @@ beforeEach(() => {
     return first?.id ?? null;
   });
 
-  taggingServiceMock.createTaskTag.mockReset().mockImplementation(async (_projectId, _taskId, tagName) => ({
-    id: crypto.randomUUID(),
-    name: tagName,
-    color: undefined,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  }));
+  taggingServiceMock.createTaskTag
+    .mockReset()
+    .mockImplementation(async (_projectId, _taskId, tagName) => ({
+      id: crypto.randomUUID(),
+      name: tagName,
+      color: undefined,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }));
   taggingServiceMock.deleteTaskTag.mockReset().mockResolvedValue(true);
-  taggingServiceMock.createSubtaskTag.mockReset().mockImplementation(async (_projectId, _subTaskId, tagName) => ({
-    id: crypto.randomUUID(),
-    name: tagName,
-    color: undefined,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  }));
+  taggingServiceMock.createSubtaskTag
+    .mockReset()
+    .mockImplementation(async (_projectId, _subTaskId, tagName) => ({
+      id: crypto.randomUUID(),
+      name: tagName,
+      color: undefined,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }));
   taggingServiceMock.deleteSubtaskTag.mockReset().mockResolvedValue(true);
 });
 
@@ -1040,14 +1065,14 @@ vi.mock('$lib/services/domain/task-list', () => ({
 }));
 
 vi.mock('$lib/services/domain/task/task-crud', () => ({
-	TaskService: {
-		createTask: dataServiceImpl.createTask.bind(dataServiceImpl),
-		updateTask: dataServiceImpl.updateTask.bind(dataServiceImpl),
-		deleteTask: dataServiceImpl.deleteTask.bind(dataServiceImpl),
-		createTaskWithSubTasks: dataServiceImpl.createTaskWithSubTasks.bind(dataServiceImpl),
-		updateTaskWithSubTasks: dataServiceImpl.updateTaskWithSubTasks.bind(dataServiceImpl),
-		deleteTaskWithSubTasks: dataServiceImpl.deleteTaskWithSubTasks.bind(dataServiceImpl)
-	}
+  TaskService: {
+    createTask: dataServiceImpl.createTask.bind(dataServiceImpl),
+    updateTask: dataServiceImpl.updateTask.bind(dataServiceImpl),
+    deleteTask: dataServiceImpl.deleteTask.bind(dataServiceImpl),
+    createTaskWithSubTasks: dataServiceImpl.createTaskWithSubTasks.bind(dataServiceImpl),
+    updateTaskWithSubTasks: dataServiceImpl.updateTaskWithSubTasks.bind(dataServiceImpl),
+    deleteTaskWithSubTasks: dataServiceImpl.deleteTaskWithSubTasks.bind(dataServiceImpl)
+  }
 }));
 
 vi.mock('$lib/services/domain/tag', () => ({
@@ -1055,8 +1080,9 @@ vi.mock('$lib/services/domain/tag', () => ({
     createTag: vi.fn(async (projectId: string | undefined, tagData: Record<string, unknown>) =>
       dataServiceImpl.createTag(projectId, tagData)
     ),
-    updateTag: vi.fn(async (projectId: string | undefined, tagId: string, updates: Record<string, unknown>) =>
-      dataServiceImpl.updateTag(projectId, tagId, updates)
+    updateTag: vi.fn(
+      async (projectId: string | undefined, tagId: string, updates: Record<string, unknown>) =>
+        dataServiceImpl.updateTag(projectId, tagId, updates)
     ),
     deleteTag: vi.fn(async (projectId: string | undefined, tagId: string) =>
       dataServiceImpl.deleteTag(projectId, tagId)
@@ -1096,9 +1122,8 @@ vi.mock('../../src/lib/services/domain/task', async () => {
 });
 
 vi.mock('$lib/stores/tags.svelte', async () => {
-  const actual = await vi.importActual<typeof import('$lib/stores/tags.svelte')>(
-    '$lib/stores/tags.svelte'
-  );
+  const actual =
+    await vi.importActual<typeof import('$lib/stores/tags.svelte')>('$lib/stores/tags.svelte');
 
   const tagStore = {
     ...actual.tagStore,
@@ -1283,9 +1308,8 @@ vi.mock('$lib/services/domain/settings', async () => {
       loadSettings: dataServiceImpl.loadSettings.bind(dataServiceImpl),
       saveSettings: dataServiceImpl.saveSettings.bind(dataServiceImpl),
       settingsFileExists: dataServiceImpl.settingsFileExists.bind(dataServiceImpl),
-      initializeSettingsWithDefaults: dataServiceImpl.initializeSettingsWithDefaults.bind(
-        dataServiceImpl
-      ),
+      initializeSettingsWithDefaults:
+        dataServiceImpl.initializeSettingsWithDefaults.bind(dataServiceImpl),
       getSettingsFilePath: dataServiceImpl.getSettingsFilePath.bind(dataServiceImpl),
       updateSettingsPartially: dataServiceImpl.updateSettingsPartially.bind(dataServiceImpl),
       addCustomDueDay: dataServiceImpl.addCustomDueDay.bind(dataServiceImpl)
@@ -1350,7 +1374,9 @@ vi.mock('$lib/stores/settings.svelte', () => {
       }
     ),
     removeCustomDateFormat: vi.fn((id: string) => {
-      mockSettings.customDateFormats = mockSettings.customDateFormats.filter((item) => item.id !== id);
+      mockSettings.customDateFormats = mockSettings.customDateFormats.filter(
+        (item) => item.id !== id
+      );
     }),
     get timeLabels() {
       return mockSettings.timeLabels;
@@ -1360,13 +1386,11 @@ vi.mock('$lib/stores/settings.svelte', () => {
       mockSettings.timeLabels.push({ id, name, time });
       return id;
     }),
-    updateTimeLabel: vi.fn(
-      (id: string, updates: Partial<{ name: string; time: string }>) => {
-        mockSettings.timeLabels = mockSettings.timeLabels.map((label) =>
-          label.id === id ? { ...label, ...updates } : label
-        );
-      }
-    ),
+    updateTimeLabel: vi.fn((id: string, updates: Partial<{ name: string; time: string }>) => {
+      mockSettings.timeLabels = mockSettings.timeLabels.map((label) =>
+        label.id === id ? { ...label, ...updates } : label
+      );
+    }),
     removeTimeLabel: vi.fn((id: string) => {
       mockSettings.timeLabels = mockSettings.timeLabels.filter((label) => label.id !== id);
     }),

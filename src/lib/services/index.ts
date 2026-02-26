@@ -6,11 +6,7 @@
  */
 
 // Domain Services（単一エンティティ操作）
-export {
-	ProjectBackend,
-	ProjectQueryService,
-	ProjectHelpers
-} from './domain/project/index';
+export { ProjectBackend, ProjectQueryService, ProjectHelpers } from './domain/project/index';
 
 // Composite Services（CRUD + Store更新）
 export { ProjectCompositeService } from './composite/project-composite';

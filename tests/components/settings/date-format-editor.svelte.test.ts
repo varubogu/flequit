@@ -45,49 +45,119 @@ vi.mock('$lib/components/settings/date-format/hooks/use-format-management.svelte
 // 子コンポーネントのモック
 vi.mock('$lib/components/settings/date-format/date-format-editor-header.svelte', () => ({
   default: vi.fn().mockImplementation(() => ({
-    $$: { on_mount: [], on_destroy: [], before_update: [], after_update: [], context: new Map(), callbacks: new Map(), dirty: [], skip_bound: false, bound: {} }
+    $$: {
+      on_mount: [],
+      on_destroy: [],
+      before_update: [],
+      after_update: [],
+      context: new Map(),
+      callbacks: new Map(),
+      dirty: [],
+      skip_bound: false,
+      bound: {}
+    }
   }))
 }));
 
 vi.mock('$lib/components/settings/date-format/test-datetime-section.svelte', () => ({
   default: vi.fn().mockImplementation(() => ({
-    $$: { on_mount: [], on_destroy: [], before_update: [], after_update: [], context: new Map(), callbacks: new Map(), dirty: [], skip_bound: false, bound: {} }
+    $$: {
+      on_mount: [],
+      on_destroy: [],
+      before_update: [],
+      after_update: [],
+      context: new Map(),
+      callbacks: new Map(),
+      dirty: [],
+      skip_bound: false,
+      bound: {}
+    }
   }))
 }));
 
 vi.mock('$lib/components/settings/date-format/main-date-format-section.svelte', () => ({
   default: vi.fn().mockImplementation(() => ({
-    $$: { on_mount: [], on_destroy: [], before_update: [], after_update: [], context: new Map(), callbacks: new Map(), dirty: [], skip_bound: false, bound: {} }
+    $$: {
+      on_mount: [],
+      on_destroy: [],
+      before_update: [],
+      after_update: [],
+      context: new Map(),
+      callbacks: new Map(),
+      dirty: [],
+      skip_bound: false,
+      bound: {}
+    }
   }))
 }));
 
 vi.mock('$lib/components/settings/date-format/format-copy-buttons.svelte', () => ({
   default: vi.fn().mockImplementation(() => ({
-    $$: { on_mount: [], on_destroy: [], before_update: [], after_update: [], context: new Map(), callbacks: new Map(), dirty: [], skip_bound: false, bound: {} }
+    $$: {
+      on_mount: [],
+      on_destroy: [],
+      before_update: [],
+      after_update: [],
+      context: new Map(),
+      callbacks: new Map(),
+      dirty: [],
+      skip_bound: false,
+      bound: {}
+    }
   }))
 }));
 
 vi.mock('$lib/components/settings/date-format/test-format-section.svelte', () => ({
   default: vi.fn().mockImplementation(() => ({
-    $$: { on_mount: [], on_destroy: [], before_update: [], after_update: [], context: new Map(), callbacks: new Map(), dirty: [], skip_bound: false, bound: {} }
+    $$: {
+      on_mount: [],
+      on_destroy: [],
+      before_update: [],
+      after_update: [],
+      context: new Map(),
+      callbacks: new Map(),
+      dirty: [],
+      skip_bound: false,
+      bound: {}
+    }
   }))
 }));
 
 vi.mock('$lib/components/settings/date-format/custom-format-controls.svelte', () => ({
   default: vi.fn().mockImplementation(() => ({
-    $$: { on_mount: [], on_destroy: [], before_update: [], after_update: [], context: new Map(), callbacks: new Map(), dirty: [], skip_bound: false, bound: {} }
+    $$: {
+      on_mount: [],
+      on_destroy: [],
+      before_update: [],
+      after_update: [],
+      context: new Map(),
+      callbacks: new Map(),
+      dirty: [],
+      skip_bound: false,
+      bound: {}
+    }
   }))
 }));
 
 vi.mock('$lib/components/settings/date-format/delete-format-dialog.svelte', () => ({
   default: vi.fn().mockImplementation(() => ({
-    $$: { on_mount: [], on_destroy: [], before_update: [], after_update: [], context: new Map(), callbacks: new Map(), dirty: [], skip_bound: false, bound: {} }
+    $$: {
+      on_mount: [],
+      on_destroy: [],
+      before_update: [],
+      after_update: [],
+      context: new Map(),
+      callbacks: new Map(),
+      dirty: [],
+      skip_bound: false,
+      bound: {}
+    }
   }))
 }));
 
 /**
  * DateFormatEditor コンポーネントのUIレンダリングテスト
- * 
+ *
  * ロジックのテストは以下の分離されたテストファイルを参照:
  * - date-format-editor-controller.svelte.test.ts: 状態管理とロジック
  * - use-format-management.svelte.test.ts: フォーマット管理機能

@@ -161,7 +161,6 @@ describe('RecurrenceIntervalSettings', () => {
         fireEvent.change(select, { target: { value: 'week' } });
       }).not.toThrow();
     });
-
   });
 
   describe('interval change handling', () => {

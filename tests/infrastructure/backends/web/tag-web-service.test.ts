@@ -39,7 +39,11 @@ describe('TagWebService', () => {
       const result = await service.create('test-project-id', mockTag);
 
       expect(result).toBe(true);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backends: createTag not implemented', 'test-project-id', mockTag);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backends: createTag not implemented',
+        'test-project-id',
+        mockTag
+      );
     });
   });
 
@@ -48,7 +52,12 @@ describe('TagWebService', () => {
       const result = await service.update('test-project-id', mockTag.id, mockTag);
 
       expect(result).toBe(true);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backends: updateTag not implemented', 'test-project-id', mockTag.id, mockTag);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backends: updateTag not implemented',
+        'test-project-id',
+        mockTag.id,
+        mockTag
+      );
     });
   });
 
@@ -57,7 +66,11 @@ describe('TagWebService', () => {
       const result = await service.delete('test-project-id', 'tag-123');
 
       expect(result).toBe(true);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backends: deleteTag not implemented', 'test-project-id', 'tag-123');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backends: deleteTag not implemented',
+        'test-project-id',
+        'tag-123'
+      );
     });
   });
 
@@ -66,7 +79,11 @@ describe('TagWebService', () => {
       const result = await service.get('test-project-id', 'tag-123');
 
       expect(result).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith('Web backends: getTag not implemented', 'test-project-id', 'tag-123');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backends: getTag not implemented',
+        'test-project-id',
+        'tag-123'
+      );
     });
   });
 

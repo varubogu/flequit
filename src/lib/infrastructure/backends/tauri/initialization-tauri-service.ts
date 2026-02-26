@@ -81,5 +81,4 @@ export class InitializationTauriService implements InitializationService {
       language: 'ja'
     };
   }
-
 }

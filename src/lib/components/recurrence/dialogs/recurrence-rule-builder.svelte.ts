@@ -1,5 +1,14 @@
-import type { RecurrenceRule, RecurrencePattern, RecurrenceUnit, DayOfWeek } from '$lib/types/recurrence';
-import type { RecurrenceLevel, DateCondition, WeekdayCondition } from '$lib/types/datetime-calendar';
+import type {
+  RecurrenceRule,
+  RecurrencePattern,
+  RecurrenceUnit,
+  DayOfWeek
+} from '$lib/types/recurrence';
+import type {
+  RecurrenceLevel,
+  DateCondition,
+  WeekdayCondition
+} from '$lib/types/datetime-calendar';
 
 export class RecurrenceRuleBuilder {
   buildRule(

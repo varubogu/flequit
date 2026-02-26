@@ -37,5 +37,4 @@ export class TagWebService implements TagService {
     console.warn('Web backends: searchTags not implemented', projectId, condition);
     return []; // 仮実装として空配列を返す
   }
-
 }

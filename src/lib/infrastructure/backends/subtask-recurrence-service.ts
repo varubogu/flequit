@@ -1,4 +1,7 @@
-import type { SubtaskRecurrence, SubtaskRecurrenceSearchCondition } from '$lib/types/recurrence-reference';
+import type {
+  SubtaskRecurrence,
+  SubtaskRecurrenceSearchCondition
+} from '$lib/types/recurrence-reference';
 
 /**
  * サブタスク繰り返し関連付け管理サービスのインターフェース
@@ -20,7 +23,11 @@ export interface SubtaskRecurrenceService {
    * @param userId 操作を行ったユーザーID
    * @returns サブタスク繰り返し関連付け（存在しない場合はnull）
    */
-  getBySubtaskId(projectId: string, subtaskId: string, userId: string): Promise<SubtaskRecurrence | null>;
+  getBySubtaskId(
+    projectId: string,
+    subtaskId: string,
+    userId: string
+  ): Promise<SubtaskRecurrence | null>;
 
   /**
    * サブタスクの繰り返し関連付けを削除する
@@ -37,5 +44,8 @@ export interface SubtaskRecurrenceService {
    * @param condition 検索条件
    * @returns 条件に合致するサブタスク繰り返し関連付けの配列
    */
-  search(projectId: string, condition: SubtaskRecurrenceSearchCondition): Promise<SubtaskRecurrence[]>;
+  search(
+    projectId: string,
+    condition: SubtaskRecurrenceSearchCondition
+  ): Promise<SubtaskRecurrence[]>;
 }

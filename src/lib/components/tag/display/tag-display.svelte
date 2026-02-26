@@ -58,7 +58,7 @@
     try {
       // projectIdが渡されていればそれを使用、なければ取得
       console.log('[TagDisplay] Resolving projectId...');
-      const resolvedProjectId = projectId || await tagStore.getProjectIdByTagId(tag.id);
+      const resolvedProjectId = projectId || (await tagStore.getProjectIdByTagId(tag.id));
       console.log('[TagDisplay] Resolved projectId:', resolvedProjectId);
 
       if (!resolvedProjectId) {

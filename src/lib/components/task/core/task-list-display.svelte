@@ -109,11 +109,11 @@
       // タスクリスト同士の並び替えまたは別プロジェクトから移動
       const targetIndex = project.taskLists.findIndex((tl) => tl.id === targetList.id);
       await taskListStore.moveTaskListToPosition(dragData.id, project.id, targetIndex);
-  } else if (dragData.type === 'task') {
-    // タスクをタスクリストにドロップ
-    await taskOperations.moveTaskToList(dragData.id, targetList.id);
+    } else if (dragData.type === 'task') {
+      // タスクをタスクリストにドロップ
+      await taskOperations.moveTaskToList(dragData.id, targetList.id);
+    }
   }
-}
 
   function handleTaskListDragEnd(event: DragEvent) {
     DragDropManager.handleDragEnd(event);
@@ -168,12 +168,13 @@
     {#each currentProject.taskLists as list (list.id)}
       <ContextMenuWrapper items={createTaskListContextMenu(list)}>
         <Button
-          variant={currentView === 'tasklist' &&
-            taskStore.selectedListId === list.id ? 'secondary' : 'ghost'}
+          variant={currentView === 'tasklist' && taskStore.selectedListId === list.id
+            ? 'secondary'
+            : 'ghost'}
           size="sm"
           class={`${
             currentView === 'tasklist' && taskStore.selectedListId === list.id
-              ? 'bg-primary/20 border-2 border-primary shadow-md shadow-primary/40 text-foreground'
+              ? 'bg-primary/20 border-primary shadow-primary/40 text-foreground border-2 shadow-md'
               : ''
           } flex h-auto w-full items-center justify-between p-2 text-xs transition-all duration-100 active:scale-100 active:brightness-[0.4]`}
           onclick={() => handleTaskListSelect(list)}

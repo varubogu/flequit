@@ -1,4 +1,4 @@
-import type { Tag } from "$lib/types/tag";
+import type { Tag } from '$lib/types/tag';
 
 /**
  * タギング（タグ付け）管理サービスインターフェース
@@ -23,7 +23,12 @@ export interface TaggingService {
   /**
    * サブタスクにタグを関連付け
    */
-  createSubtaskTag(projectId: string, subtaskId: string, tagName: string, userId: string): Promise<Tag>;
+  createSubtaskTag(
+    projectId: string,
+    subtaskId: string,
+    tagName: string,
+    userId: string
+  ): Promise<Tag>;
 
   /**
    * サブタスクとタグの関連付けを削除
@@ -32,5 +37,10 @@ export interface TaggingService {
    * @param tagId タグID
    * @param userId 削除を行ったユーザーID
    */
-  deleteSubtaskTag(projectId: string, subtaskId: string, tagId: string, userId: string): Promise<boolean>;
+  deleteSubtaskTag(
+    projectId: string,
+    subtaskId: string,
+    tagId: string,
+    userId: string
+  ): Promise<boolean>;
 }

@@ -147,8 +147,8 @@ export class ViewsVisibilityStore {
             const parsedConfig = JSON.parse(stored);
             // Merge with defaults to handle new view items
             const existingIds = new SvelteSet<string>(
-                parsedConfig.viewItems?.map((item: ViewItem) => item.id) || []
-              );
+              parsedConfig.viewItems?.map((item: ViewItem) => item.id) || []
+            );
             const mergedItems = [
               ...(parsedConfig.viewItems || []),
               ...DEFAULT_VIEW_ITEMS.filter((item) => !existingIds.has(item.id))

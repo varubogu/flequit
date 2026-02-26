@@ -380,7 +380,7 @@ describe('DayTargetSelector', () => {
       expect(() => rerender(updatedProps)).not.toThrow();
 
       // Svelte 5の$effectは非同期なので、DOMの更新を待つ
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
       const select = document.querySelector('select') as HTMLSelectElement;
       expect(select.value).toBe('weekend');

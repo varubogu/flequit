@@ -7,7 +7,7 @@ vi.mock('$lib/stores/datetime-format.svelte', () => {
   const mockAddCustomFormat = vi.fn(() => Promise.resolve('new-id'));
   const mockUpdateCustomFormat = vi.fn(() => Promise.resolve());
   const mockRemoveCustomFormat = vi.fn(() => Promise.resolve());
-  
+
   return {
     dateTimeFormatStore: {
       currentFormat: 'yyyy-MM-dd',
@@ -48,17 +48,17 @@ describe('useFormatManagement', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    
+
     // モックされた関数への参照を取得
     const { dateTimeFormatStore } = await import('$lib/stores/datetime-format.svelte');
     const { toast } = await import('svelte-sonner');
-    
+
     mockAddCustomFormat = vi.mocked(dateTimeFormatStore.addCustomFormat);
     mockUpdateCustomFormat = vi.mocked(dateTimeFormatStore.updateCustomFormat);
     mockRemoveCustomFormat = vi.mocked(dateTimeFormatStore.removeCustomFormat);
     mockToastSuccess = vi.mocked(toast.success);
     mockToastError = vi.mocked(toast.error);
-    
+
     controller = new DateFormatEditorController();
     controller.initialize(true);
     formatManagement = useFormatManagement(controller);
@@ -117,8 +117,6 @@ describe('useFormatManagement', () => {
       expect(mockAddCustomFormat).not.toHaveBeenCalled();
     });
 
-
-
     it('重複するフォーマットはエラーメッセージを表示', async () => {
       controller.editMode = 'new';
       controller.testFormat = 'dd/MM/yyyy'; // 既存のフォーマット
@@ -154,7 +152,7 @@ describe('useFormatManagement', () => {
       controller.editMode = 'new';
       controller.testFormat = 'unique-format';
       controller.testFormatName = 'Unique Name';
-      
+
       const error = new Error('Save failed');
       mockAddCustomFormat.mockRejectedValue(error);
 
@@ -167,7 +165,7 @@ describe('useFormatManagement', () => {
       controller.editMode = 'new';
       controller.testFormat = 'unique-format';
       controller.testFormatName = 'Unique Name';
-      
+
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       const error = new Error('Save failed');
       mockAddCustomFormat.mockRejectedValue(error);
@@ -327,7 +325,7 @@ describe('useFormatManagement', () => {
 
       // 削除前に改めてモックをセットアップ
       vi.clearAllMocks();
-      
+
       // 削除
       controller.editMode = 'manual';
       controller.testFormat = 'dd/MM/yyyy'; // 既存のカスタムフォーマット
@@ -354,7 +352,7 @@ describe('useFormatManagement', () => {
 
       // 削除前に改めてモックをセットアップ
       vi.clearAllMocks();
-      
+
       // 手動で manual モードに設定
       controller.editMode = 'manual';
       controller.testFormat = 'dd/MM/yyyy';

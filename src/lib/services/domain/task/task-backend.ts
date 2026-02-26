@@ -58,7 +58,16 @@ export const TaskBackend = {
   ): Promise<Task | null> {
     // TaskWithSubTasksから来る可能性があるため、不要なフィールドを除外
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { subTasks, tags, planStartDate, planEndDate, doStartDate, doEndDate, recurrenceRule, ...taskUpdates } = updates as Record<string, unknown>;
+    const {
+      subTasks,
+      tags,
+      planStartDate,
+      planEndDate,
+      doStartDate,
+      doEndDate,
+      recurrenceRule,
+      ...taskUpdates
+    } = updates as Record<string, unknown>;
 
     const patchData: Record<string, unknown> = {
       ...taskUpdates,

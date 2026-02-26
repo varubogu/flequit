@@ -6,7 +6,5 @@ export { projectStore } from './project-store.svelte';
 export { selectionStore } from './selection-store.svelte';
 export { viewStore } from './view-store.svelte';
 export type { ViewStore } from './view-store.svelte';
-export {
-  TaskDetailViewStore
-} from './task-detail-view-store.svelte';
+export { TaskDetailViewStore } from './task-detail-view-store.svelte';
 export type { TaskDetailViewStoreOptions } from './task-detail-view-store.svelte';

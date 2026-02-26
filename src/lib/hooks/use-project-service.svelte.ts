@@ -8,28 +8,28 @@ import type { Project, ProjectTree } from '$lib/types/project';
  * テスト時にモック実装を提供するために使用されます。
  */
 export interface IProjectService {
-	createProject(projectData: {
-		name: string;
-		description?: string;
-		color?: string;
-		order_index?: number;
-	}): Promise<ProjectTree | null>;
+  createProject(projectData: {
+    name: string;
+    description?: string;
+    color?: string;
+    order_index?: number;
+  }): Promise<ProjectTree | null>;
 
-	updateProject(
-		projectId: string,
-		updates: {
-			name?: string;
-			description?: string;
-			color?: string;
-			order_index?: number;
-			is_archived?: boolean;
-		}
-	): Promise<Project | null>;
+  updateProject(
+    projectId: string,
+    updates: {
+      name?: string;
+      description?: string;
+      color?: string;
+      order_index?: number;
+      is_archived?: boolean;
+    }
+  ): Promise<Project | null>;
 
-	deleteProject(projectId: string): Promise<boolean>;
-	reorderProjects(fromIndex: number, toIndex: number): Promise<void>;
-	moveProjectToPosition(projectId: string, targetIndex: number): Promise<void>;
-	archiveProject(projectId: string, isArchived: boolean): Promise<boolean>;
+  deleteProject(projectId: string): Promise<boolean>;
+  reorderProjects(fromIndex: number, toIndex: number): Promise<void>;
+  moveProjectToPosition(projectId: string, targetIndex: number): Promise<void>;
+  archiveProject(projectId: string, isArchived: boolean): Promise<boolean>;
 }
 
 /**
@@ -49,5 +49,5 @@ export interface IProjectService {
  * ```
  */
 export function useProjectService(): IProjectService {
-	return ProjectCompositeService;
+  return ProjectCompositeService;
 }

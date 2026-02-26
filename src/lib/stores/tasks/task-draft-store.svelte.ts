@@ -2,70 +2,71 @@ import type { TaskWithSubTasks } from '$lib/types/task';
 import { SvelteDate } from 'svelte/reactivity';
 
 export type TaskDraftDependencies = {
-	taskListStore: {
-		getProjectIdByListId(listId: string): string | null;
-	};
-	selection: {
-		selectedProjectId: string | null;
-	};
+  taskListStore: {
+    getProjectIdByListId(listId: string): string | null;
+  };
+  selection: {
+    selectedProjectId: string | null;
+  };
 };
 
 export class TaskDraftStore {
-	#deps: TaskDraftDependencies;
+  #deps: TaskDraftDependencies;
 
-	isNewTaskMode = $state<boolean>(false);
-	newTaskDraft = $state<TaskWithSubTasks | null>(null);
+  isNewTaskMode = $state<boolean>(false);
+  newTaskDraft = $state<TaskWithSubTasks | null>(null);
 
-	constructor(deps: TaskDraftDependencies) {
-		this.#deps = deps;
-	}
+  constructor(deps: TaskDraftDependencies) {
+    this.#deps = deps;
+  }
 
-	start(listId: string): void {
-		this.isNewTaskMode = true;
-		const projectId =
-			this.#deps.taskListStore.getProjectIdByListId(listId) ?? this.#deps.selection.selectedProjectId;
-		if (!projectId) {
-			console.error('Failed to determine project for list:', listId);
-			this.cancel();
-			return;
-		}
+  start(listId: string): void {
+    this.isNewTaskMode = true;
+    const projectId =
+      this.#deps.taskListStore.getProjectIdByListId(listId) ??
+      this.#deps.selection.selectedProjectId;
+    if (!projectId) {
+      console.error('Failed to determine project for list:', listId);
+      this.cancel();
+      return;
+    }
 
-		// デフォルトの期日を今日の23:59:59に設定
-		const getDefaultDueDate = (): SvelteDate => {
-			const today = new SvelteDate();
-			today.setHours(23, 59, 59, 999);
-			return today;
-		};
+    // デフォルトの期日を今日の23:59:59に設定
+    const getDefaultDueDate = (): SvelteDate => {
+      const today = new SvelteDate();
+      today.setHours(23, 59, 59, 999);
+      return today;
+    };
 
-		this.newTaskDraft = {
-			id: 'new-task',
-			projectId,
-			listId,
-			title: '',
-			description: '',
-			status: 'not_started',
-			priority: 2, // デフォルトを中（2）に変更
-			planEndDate: getDefaultDueDate(), // デフォルトで今日中に設定
-			orderIndex: 0,
-			isArchived: false,
-			assignedUserIds: [],
-			tagIds: [],
-			createdAt: new SvelteDate(),
-			updatedAt: new SvelteDate(),
-			deleted: false,
-			updatedBy: 'system',
-			subTasks: [],
-			tags: []
-		} as TaskWithSubTasks;
-	}
+    this.newTaskDraft = {
+      id: 'new-task',
+      projectId,
+      listId,
+      title: '',
+      description: '',
+      status: 'not_started',
+      priority: 2, // デフォルトを中（2）に変更
+      planEndDate: getDefaultDueDate(), // デフォルトで今日中に設定
+      orderIndex: 0,
+      isArchived: false,
+      assignedUserIds: [],
+      tagIds: [],
+      createdAt: new SvelteDate(),
+      updatedAt: new SvelteDate(),
+      deleted: false,
+      updatedBy: 'system',
+      subTasks: [],
+      tags: []
+    } as TaskWithSubTasks;
+  }
 
-	cancel(): void {
-		this.isNewTaskMode = false;
-		this.newTaskDraft = null;
-	}
+  cancel(): void {
+    this.isNewTaskMode = false;
+    this.newTaskDraft = null;
+  }
 
-	updateDraft(updates: Partial<TaskWithSubTasks>): void {
-		if (!this.newTaskDraft) return;
-		this.newTaskDraft = { ...this.newTaskDraft, ...updates };
-	}
+  updateDraft(updates: Partial<TaskWithSubTasks>): void {
+    if (!this.newTaskDraft) return;
+    this.newTaskDraft = { ...this.newTaskDraft, ...updates };
+  }
 }

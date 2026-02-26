@@ -6,159 +6,153 @@ import { createMockTaskWithSubTasks } from '../../../utils/mock-factories';
 
 // Mock DragDropManager
 vi.mock('$lib/utils/drag-drop', () => ({
-	DragDropManager: {
-		startDrag: vi.fn(),
-		handleDragOver: vi.fn(),
-		handleDrop: vi.fn(() => null),
-		handleDragEnd: vi.fn(),
-		handleDragEnter: vi.fn(),
-		handleDragLeave: vi.fn()
-	}
+  DragDropManager: {
+    startDrag: vi.fn(),
+    handleDragOver: vi.fn(),
+    handleDrop: vi.fn(() => null),
+    handleDragEnd: vi.fn(),
+    handleDragEnter: vi.fn(),
+    handleDragLeave: vi.fn()
+  }
 }));
 
 // Mock taskOperations and legacy taskMutations alias
 vi.mock('$lib/services/domain/task', () => {
-	const taskOperations = {
-		addTagToTask: vi.fn(() => Promise.resolve())
-	};
+  const taskOperations = {
+    addTagToTask: vi.fn(() => Promise.resolve())
+  };
 
-	return {
-		taskMutations: taskOperations,
-		taskOperations
-	};
+  return {
+    taskMutations: taskOperations,
+    taskOperations
+  };
 });
 
 describe('TaskItemDragDrop', () => {
-	let dragDrop: TaskItemDragDrop;
-	let mockTask: TaskWithSubTasks;
+  let dragDrop: TaskItemDragDrop;
+  let mockTask: TaskWithSubTasks;
 
-	beforeEach(() => {
-		mockTask = createMockTaskWithSubTasks({
-			id: 'task-1',
-			title: 'Test Task'
-		});
+  beforeEach(() => {
+    mockTask = createMockTaskWithSubTasks({
+      id: 'task-1',
+      title: 'Test Task'
+    });
 
-		dragDrop = new TaskItemDragDrop(mockTask);
-	});
+    dragDrop = new TaskItemDragDrop(mockTask);
+  });
 
-	afterEach(() => {
-		vi.clearAllMocks();
-	});
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
-	describe('handleDragStart', () => {
-		it('ドラッグ開始処理を実行', async () => {
-			const { DragDropManager } = await import('$lib/utils/drag-drop');
-			const mockEvent = {} as DragEvent;
+  describe('handleDragStart', () => {
+    it('ドラッグ開始処理を実行', async () => {
+      const { DragDropManager } = await import('$lib/utils/drag-drop');
+      const mockEvent = {} as DragEvent;
 
-			dragDrop.handleDragStart(mockEvent);
+      dragDrop.handleDragStart(mockEvent);
 
-			expect(DragDropManager.startDrag).toHaveBeenCalledWith(mockEvent, {
-				type: 'task',
-				id: 'task-1'
-			});
-		});
-	});
+      expect(DragDropManager.startDrag).toHaveBeenCalledWith(mockEvent, {
+        type: 'task',
+        id: 'task-1'
+      });
+    });
+  });
 
-	describe('handleDragOver', () => {
-		it('ドラッグオーバー処理を実行', async () => {
-			const { DragDropManager } = await import('$lib/utils/drag-drop');
-			const mockEvent = {} as DragEvent;
+  describe('handleDragOver', () => {
+    it('ドラッグオーバー処理を実行', async () => {
+      const { DragDropManager } = await import('$lib/utils/drag-drop');
+      const mockEvent = {} as DragEvent;
 
-			dragDrop.handleDragOver(mockEvent);
+      dragDrop.handleDragOver(mockEvent);
 
-			expect(DragDropManager.handleDragOver).toHaveBeenCalledWith(mockEvent, {
-				type: 'task',
-				id: 'task-1'
-			});
-		});
-	});
+      expect(DragDropManager.handleDragOver).toHaveBeenCalledWith(mockEvent, {
+        type: 'task',
+        id: 'task-1'
+      });
+    });
+  });
 
-	describe('handleDrop', () => {
-		it('タグをドロップした場合、タスクにタグを追加', async () => {
-			const { DragDropManager } = await import('$lib/utils/drag-drop');
-			const { taskOperations } = await import(
-				'$lib/services/domain/task'
-			);
+  describe('handleDrop', () => {
+    it('タグをドロップした場合、タスクにタグを追加', async () => {
+      const { DragDropManager } = await import('$lib/utils/drag-drop');
+      const { taskOperations } = await import('$lib/services/domain/task');
 
-			// Mock handleDrop to return tag drag data
-			const tagDragData: DragData = { type: 'tag', id: 'tag-1' };
-			DragDropManager.handleDrop = vi.fn<typeof DragDropManager.handleDrop>(() => tagDragData);
+      // Mock handleDrop to return tag drag data
+      const tagDragData: DragData = { type: 'tag', id: 'tag-1' };
+      DragDropManager.handleDrop = vi.fn<typeof DragDropManager.handleDrop>(() => tagDragData);
 
-			const mockEvent = {} as DragEvent;
+      const mockEvent = {} as DragEvent;
 
-			dragDrop.handleDrop(mockEvent);
+      dragDrop.handleDrop(mockEvent);
 
-			expect(DragDropManager.handleDrop).toHaveBeenCalledWith(mockEvent, {
-				type: 'task',
-				id: 'task-1'
-			});
-			expect(taskOperations.addTagToTask).toHaveBeenCalledWith('task-1', 'tag-1');
-		});
+      expect(DragDropManager.handleDrop).toHaveBeenCalledWith(mockEvent, {
+        type: 'task',
+        id: 'task-1'
+      });
+      expect(taskOperations.addTagToTask).toHaveBeenCalledWith('task-1', 'tag-1');
+    });
 
-		it('ドラッグデータがnullの場合は何もしない', async () => {
-			const { DragDropManager } = await import('$lib/utils/drag-drop');
-			const { taskOperations } = await import(
-				'$lib/services/domain/task'
-			);
+    it('ドラッグデータがnullの場合は何もしない', async () => {
+      const { DragDropManager } = await import('$lib/utils/drag-drop');
+      const { taskOperations } = await import('$lib/services/domain/task');
 
-			DragDropManager.handleDrop = vi.fn(() => null);
+      DragDropManager.handleDrop = vi.fn(() => null);
 
-			const mockEvent = {} as DragEvent;
+      const mockEvent = {} as DragEvent;
 
-			dragDrop.handleDrop(mockEvent);
+      dragDrop.handleDrop(mockEvent);
 
-			expect(taskOperations.addTagToTask).not.toHaveBeenCalled();
-		});
+      expect(taskOperations.addTagToTask).not.toHaveBeenCalled();
+    });
 
-		it('タグ以外のドラッグデータの場合は何もしない', async () => {
-			const { DragDropManager } = await import('$lib/utils/drag-drop');
-			const { taskOperations } = await import(
-				'$lib/services/domain/task'
-			);
+    it('タグ以外のドラッグデータの場合は何もしない', async () => {
+      const { DragDropManager } = await import('$lib/utils/drag-drop');
+      const { taskOperations } = await import('$lib/services/domain/task');
 
-			const taskDragData: DragData = { type: 'task', id: 'task-2' };
-			DragDropManager.handleDrop = vi.fn<typeof DragDropManager.handleDrop>(() => taskDragData);
+      const taskDragData: DragData = { type: 'task', id: 'task-2' };
+      DragDropManager.handleDrop = vi.fn<typeof DragDropManager.handleDrop>(() => taskDragData);
 
-			const mockEvent = {} as DragEvent;
+      const mockEvent = {} as DragEvent;
 
-			dragDrop.handleDrop(mockEvent);
+      dragDrop.handleDrop(mockEvent);
 
-			expect(taskOperations.addTagToTask).not.toHaveBeenCalled();
-		});
-	});
+      expect(taskOperations.addTagToTask).not.toHaveBeenCalled();
+    });
+  });
 
-	describe('handleDragEnd', () => {
-		it('ドラッグ終了処理を実行', async () => {
-			const { DragDropManager } = await import('$lib/utils/drag-drop');
-			const mockEvent = {} as DragEvent;
+  describe('handleDragEnd', () => {
+    it('ドラッグ終了処理を実行', async () => {
+      const { DragDropManager } = await import('$lib/utils/drag-drop');
+      const mockEvent = {} as DragEvent;
 
-			dragDrop.handleDragEnd(mockEvent);
+      dragDrop.handleDragEnd(mockEvent);
 
-			expect(DragDropManager.handleDragEnd).toHaveBeenCalledWith(mockEvent);
-		});
-	});
+      expect(DragDropManager.handleDragEnd).toHaveBeenCalledWith(mockEvent);
+    });
+  });
 
-	describe('handleDragEnter', () => {
-		it('ドラッグ進入処理を実行', async () => {
-			const { DragDropManager } = await import('$lib/utils/drag-drop');
-			const mockEvent = {} as DragEvent;
-			const mockElement = {} as HTMLElement;
+  describe('handleDragEnter', () => {
+    it('ドラッグ進入処理を実行', async () => {
+      const { DragDropManager } = await import('$lib/utils/drag-drop');
+      const mockEvent = {} as DragEvent;
+      const mockElement = {} as HTMLElement;
 
-			dragDrop.handleDragEnter(mockEvent, mockElement);
+      dragDrop.handleDragEnter(mockEvent, mockElement);
 
-			expect(DragDropManager.handleDragEnter).toHaveBeenCalledWith(mockEvent, mockElement);
-		});
-	});
+      expect(DragDropManager.handleDragEnter).toHaveBeenCalledWith(mockEvent, mockElement);
+    });
+  });
 
-	describe('handleDragLeave', () => {
-		it('ドラッグ離脱処理を実行', async () => {
-			const { DragDropManager } = await import('$lib/utils/drag-drop');
-			const mockEvent = {} as DragEvent;
-			const mockElement = {} as HTMLElement;
+  describe('handleDragLeave', () => {
+    it('ドラッグ離脱処理を実行', async () => {
+      const { DragDropManager } = await import('$lib/utils/drag-drop');
+      const mockEvent = {} as DragEvent;
+      const mockElement = {} as HTMLElement;
 
-			dragDrop.handleDragLeave(mockEvent, mockElement);
+      dragDrop.handleDragLeave(mockEvent, mockElement);
 
-			expect(DragDropManager.handleDragLeave).toHaveBeenCalledWith(mockEvent, mockElement);
-		});
-	});
+      expect(DragDropManager.handleDragLeave).toHaveBeenCalledWith(mockEvent, mockElement);
+    });
+  });
 });

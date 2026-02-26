@@ -141,7 +141,11 @@ describe('RecurrenceRuleTauriService', () => {
 
       const result = await service.get('test-project', 'rule-123', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_rule', { projectId: 'test-project', ruleId: 'rule-123', userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_rule', {
+        projectId: 'test-project',
+        ruleId: 'rule-123',
+        userId: 'test-user-id'
+      });
       expect(result).toEqual(mockRecurrenceRule);
     });
 
@@ -150,7 +154,11 @@ describe('RecurrenceRuleTauriService', () => {
 
       const result = await service.get('test-project', 'non-existent', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_rule', { projectId: 'test-project', ruleId: 'non-existent', userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_rule', {
+        projectId: 'test-project',
+        ruleId: 'non-existent',
+        userId: 'test-user-id'
+      });
       expect(result).toBeNull();
     });
 
@@ -160,7 +168,11 @@ describe('RecurrenceRuleTauriService', () => {
 
       const result = await service.get('test-project', 'rule-123', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_rule', { projectId: 'test-project', ruleId: 'rule-123', userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_rule', {
+        projectId: 'test-project',
+        ruleId: 'rule-123',
+        userId: 'test-user-id'
+      });
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith('Failed to get recurrence rule:', expect.any(Error));
 
@@ -175,7 +187,10 @@ describe('RecurrenceRuleTauriService', () => {
 
       const result = await service.getAll('test-project', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_all_recurrence_rules', { projectId: 'test-project', userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_all_recurrence_rules', {
+        projectId: 'test-project',
+        userId: 'test-user-id'
+      });
       expect(result).toEqual(mockRules);
     });
 
@@ -184,7 +199,10 @@ describe('RecurrenceRuleTauriService', () => {
 
       const result = await service.getAll('test-project', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_all_recurrence_rules', { projectId: 'test-project', userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_all_recurrence_rules', {
+        projectId: 'test-project',
+        userId: 'test-user-id'
+      });
       expect(result).toEqual([]);
     });
 
@@ -194,9 +212,15 @@ describe('RecurrenceRuleTauriService', () => {
 
       const result = await service.getAll('test-project', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_all_recurrence_rules', { projectId: 'test-project', userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_all_recurrence_rules', {
+        projectId: 'test-project',
+        userId: 'test-user-id'
+      });
       expect(result).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to get all recurrence rules:', expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to get all recurrence rules:',
+        expect.any(Error)
+      );
 
       consoleSpy.mockRestore();
     });
@@ -209,7 +233,11 @@ describe('RecurrenceRuleTauriService', () => {
       const { id, ...patch } = mockRecurrenceRule;
       const result = await service.update('test-project', id!, patch, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_recurrence_rule', { projectId: 'test-project', patch: { ...patch, id }, userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('update_recurrence_rule', {
+        projectId: 'test-project',
+        patch: { ...patch, id },
+        userId: 'test-user-id'
+      });
       expect(result).toBe(true);
     });
 
@@ -220,9 +248,16 @@ describe('RecurrenceRuleTauriService', () => {
       const { id, ...patch } = mockRecurrenceRule;
       const result = await service.update('test-project', id!, patch, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_recurrence_rule', { projectId: 'test-project', patch: { ...patch, id }, userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('update_recurrence_rule', {
+        projectId: 'test-project',
+        patch: { ...patch, id },
+        userId: 'test-user-id'
+      });
       expect(result).toBe(false);
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to update recurrence rule:', expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to update recurrence rule:',
+        expect.any(Error)
+      );
 
       consoleSpy.mockRestore();
     });
@@ -234,9 +269,18 @@ describe('RecurrenceRuleTauriService', () => {
         interval: 3
       };
 
-      const result = await service.update('test-project', mockRecurrenceRule.id!, updatedPatch, 'test-user-id');
+      const result = await service.update(
+        'test-project',
+        mockRecurrenceRule.id!,
+        updatedPatch,
+        'test-user-id'
+      );
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_recurrence_rule', { projectId: 'test-project', patch: { ...updatedPatch, id: mockRecurrenceRule.id }, userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('update_recurrence_rule', {
+        projectId: 'test-project',
+        patch: { ...updatedPatch, id: mockRecurrenceRule.id },
+        userId: 'test-user-id'
+      });
       expect(result).toBe(true);
     });
 
@@ -247,9 +291,18 @@ describe('RecurrenceRuleTauriService', () => {
         unit: 'month' as const
       };
 
-      const result = await service.update('test-project', mockRecurrenceRule.id!, updatedPatch, 'test-user-id');
+      const result = await service.update(
+        'test-project',
+        mockRecurrenceRule.id!,
+        updatedPatch,
+        'test-user-id'
+      );
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_recurrence_rule', { projectId: 'test-project', patch: { ...updatedPatch, id: mockRecurrenceRule.id }, userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('update_recurrence_rule', {
+        projectId: 'test-project',
+        patch: { ...updatedPatch, id: mockRecurrenceRule.id },
+        userId: 'test-user-id'
+      });
       expect(result).toBe(true);
     });
   });
@@ -260,7 +313,11 @@ describe('RecurrenceRuleTauriService', () => {
 
       const result = await service.delete('test-project', 'rule-123', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('delete_recurrence_rule', { projectId: 'test-project', ruleId: 'rule-123', userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('delete_recurrence_rule', {
+        projectId: 'test-project',
+        ruleId: 'rule-123',
+        userId: 'test-user-id'
+      });
       expect(result).toBe(true);
     });
 
@@ -270,9 +327,16 @@ describe('RecurrenceRuleTauriService', () => {
 
       const result = await service.delete('test-project', 'rule-123', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('delete_recurrence_rule', { projectId: 'test-project', ruleId: 'rule-123', userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('delete_recurrence_rule', {
+        projectId: 'test-project',
+        ruleId: 'rule-123',
+        userId: 'test-user-id'
+      });
       expect(result).toBe(false);
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to delete recurrence rule:', expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to delete recurrence rule:',
+        expect.any(Error)
+      );
 
       consoleSpy.mockRestore();
     });
@@ -285,7 +349,9 @@ describe('RecurrenceRuleTauriService', () => {
       const result = await service.search('test-project', mockSearchCondition);
 
       expect(result).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith('search_recurrence_rules is not implemented - using mock implementation');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'search_recurrence_rules is not implemented - using mock implementation'
+      );
 
       consoleSpy.mockRestore();
     });
@@ -297,7 +363,9 @@ describe('RecurrenceRuleTauriService', () => {
       const result = await service.search('test-project', emptyCondition);
 
       expect(result).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith('search_recurrence_rules is not implemented - using mock implementation');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'search_recurrence_rules is not implemented - using mock implementation'
+      );
 
       consoleSpy.mockRestore();
     });
@@ -307,7 +375,16 @@ describe('RecurrenceRuleTauriService', () => {
     it('should handle different recurrence units', async () => {
       mockInvoke.mockResolvedValue(true);
 
-      const units = ['minute', 'hour', 'day', 'week', 'month', 'quarter', 'halfyear', 'year'] as const;
+      const units = [
+        'minute',
+        'hour',
+        'day',
+        'week',
+        'month',
+        'quarter',
+        'halfyear',
+        'year'
+      ] as const;
 
       for (const unit of units) {
         const unitRule = {

@@ -171,7 +171,10 @@ describe('view helpers', () => {
     });
 
     test("returns overdue tasks for 'overdue' view", () => {
-      const overdueTask = createTask({ id: 'task-overdue', planEndDate: new Date(Date.now() - 86400000) });
+      const overdueTask = createTask({
+        id: 'task-overdue',
+        planEndDate: new Date(Date.now() - 86400000)
+      });
       taskStore.overdueTasks = [overdueTask];
 
       expect(getTasksForView('overdue', '', deps)).toEqual([overdueTask]);
@@ -181,23 +184,23 @@ describe('view helpers', () => {
       expect(getTasksForView('completed', '', deps)).toEqual([completedTask]);
     });
 
-    test("returns project tasks when project selected", () => {
+    test('returns project tasks when project selected', () => {
       taskStore.selectedProjectId = 'project-1';
       expect(getTasksForView('project', '', deps)).toEqual([todayTask, completedTask, futureTask]);
     });
 
-    test("returns list tasks when list selected", () => {
+    test('returns list tasks when list selected', () => {
       taskStore.selectedProjectId = 'project-1';
       taskStore.selectedListId = 'list-1';
 
       expect(getTasksForView('project', '', deps)).toEqual([todayTask, completedTask]);
     });
 
-    test("returns empty array when no selection for project view", () => {
+    test('returns empty array when no selection for project view', () => {
       expect(getTasksForView('project', '', deps)).toEqual([]);
     });
 
-    test("searches title, description, subtasks, and tags", () => {
+    test('searches title, description, subtasks, and tags', () => {
       expect(getTasksForView('search', 'future', deps)).toEqual([futureTask]);
       expect(getTasksForView('search', 'subtask', deps)).toEqual([futureTask]);
       expect(getTasksForView('search', 'today', deps)).toEqual([todayTask]);
@@ -209,7 +212,7 @@ describe('view helpers', () => {
       expect(getTasksForView('search', '#', deps)).toEqual([todayTask]);
     });
 
-    test("returns all tasks for empty search query", () => {
+    test('returns all tasks for empty search query', () => {
       expect(getTasksForView('search', '', deps)).toEqual(taskStore.allTasks);
     });
 
@@ -224,7 +227,7 @@ describe('view helpers', () => {
       expect(result.every((task) => task.status !== 'completed')).toBe(true);
     });
 
-    test("returns tasks due within next 3 days", () => {
+    test('returns tasks due within next 3 days', () => {
       const inTwoDays = new Date();
       inTwoDays.setDate(inTwoDays.getDate() + 2);
       const task = createTask({ id: 'task-next3', planEndDate: inTwoDays });
@@ -233,7 +236,7 @@ describe('view helpers', () => {
       expect(getTasksForView('next3days', '', deps)).toContain(task);
     });
 
-    test("returns tasks due within next week", () => {
+    test('returns tasks due within next week', () => {
       const inFiveDays = new Date();
       inFiveDays.setDate(inFiveDays.getDate() + 5);
       const task = createTask({ id: 'task-nextweek', planEndDate: inFiveDays });
@@ -242,7 +245,7 @@ describe('view helpers', () => {
       expect(getTasksForView('nextweek', '', deps)).toContain(task);
     });
 
-    test("returns tasks due within this month", () => {
+    test('returns tasks due within this month', () => {
       const endOfMonth = new Date();
       endOfMonth.setDate(28);
       const task = createTask({ id: 'task-thismonth', planEndDate: endOfMonth });
@@ -278,15 +281,9 @@ describe('view helpers', () => {
 
   describe('shouldShowAddButton', () => {
     test('returns true for views that allow adding tasks', () => {
-      const views: Array<'all' | 'project' | 'tasklist' | 'tomorrow' | 'next3days' | 'nextweek' | 'thismonth'> = [
-        'all',
-        'project',
-        'tasklist',
-        'tomorrow',
-        'next3days',
-        'nextweek',
-        'thismonth'
-      ];
+      const views: Array<
+        'all' | 'project' | 'tasklist' | 'tomorrow' | 'next3days' | 'nextweek' | 'thismonth'
+      > = ['all', 'project', 'tasklist', 'tomorrow', 'next3days', 'nextweek', 'thismonth'];
 
       for (const view of views) {
         expect(shouldShowAddButton(view)).toBe(true);

@@ -9,219 +9,210 @@ type TaskDetailStoreMock = Pick<TaskDetailUiStore, 'openTaskDetail' | 'openSubTa
 
 // Mock dependencies
 vi.mock('$lib/stores/tasks.svelte', () => ({
-	taskStore: {
-		isNewTaskMode: false,
-		selectedTaskId: null,
-		selectedSubTaskId: null
-	}
+  taskStore: {
+    isNewTaskMode: false,
+    selectedTaskId: null,
+    selectedSubTaskId: null
+  }
 }));
 
 vi.mock('$lib/services/domain/task', () => ({
-	taskOperations: {
-		deleteTask: vi.fn(() => Promise.resolve()),
-		toggleTaskStatus: vi.fn(() => Promise.resolve())
-	}
+  taskOperations: {
+    deleteTask: vi.fn(() => Promise.resolve()),
+    toggleTaskStatus: vi.fn(() => Promise.resolve())
+  }
 }));
 
 vi.mock('$lib/services/domain/subtask', () => {
-	const subTaskOperations = {
-		deleteSubTask: vi.fn(() => Promise.resolve()),
-		toggleSubTaskStatus: vi.fn()
-	};
+  const subTaskOperations = {
+    deleteSubTask: vi.fn(() => Promise.resolve()),
+    toggleSubTaskStatus: vi.fn()
+  };
 
-	return {
-		SubTaskOperations: vi.fn().mockImplementation(() => subTaskOperations),
-		getSubTaskOperations: vi.fn(() => subTaskOperations),
-		subTaskOperations
-	};
+  return {
+    SubTaskOperations: vi.fn().mockImplementation(() => subTaskOperations),
+    getSubTaskOperations: vi.fn(() => subTaskOperations),
+    subTaskOperations
+  };
 });
 
 vi.mock('$lib/stores/selection-store.svelte', () => ({
-	selectionStore: {
-		selectTask: vi.fn(),
-		selectSubTask: vi.fn()
-	}
+  selectionStore: {
+    selectTask: vi.fn(),
+    selectSubTask: vi.fn()
+  }
 }));
 
 describe('TaskItemHandlers', () => {
-	let handlers: TaskItemHandlers;
-	let mockTask: TaskWithSubTasks;
-	let mockSubTask: SubTask;
-	let mockTaskDetailUiStore: TaskDetailUiStore;
-	let taskDetailHandlerMocks: TaskDetailStoreMock;
-	let mockDispatch: ReturnType<typeof vi.fn>;
-	let mockCallbacks: {
-		onTaskClick?: (taskId: string) => void;
-		onSubTaskClick?: (subTaskId: string) => void;
-	};
+  let handlers: TaskItemHandlers;
+  let mockTask: TaskWithSubTasks;
+  let mockSubTask: SubTask;
+  let mockTaskDetailUiStore: TaskDetailUiStore;
+  let taskDetailHandlerMocks: TaskDetailStoreMock;
+  let mockDispatch: ReturnType<typeof vi.fn>;
+  let mockCallbacks: {
+    onTaskClick?: (taskId: string) => void;
+    onSubTaskClick?: (subTaskId: string) => void;
+  };
 
-	beforeEach(() => {
-		const now = new Date();
-		mockTask = createMockTaskWithSubTasks({
-			id: 'task-1',
-			title: 'Test Task',
-			subTasks: [
-				{
-					id: 'subtask-1',
-					taskId: 'task-1',
-					title: 'Test SubTask',
-					description: 'Subtask description',
-					status: 'not_started',
-					priority: 0,
-					orderIndex: 0,
-					completed: false,
-					assignedUserIds: [],
-					tagIds: [],
-					tags: [],
-					createdAt: now,
-					updatedAt: now
-				}
-			]
-		});
+  beforeEach(() => {
+    const now = new Date();
+    mockTask = createMockTaskWithSubTasks({
+      id: 'task-1',
+      title: 'Test Task',
+      subTasks: [
+        {
+          id: 'subtask-1',
+          taskId: 'task-1',
+          title: 'Test SubTask',
+          description: 'Subtask description',
+          status: 'not_started',
+          priority: 0,
+          orderIndex: 0,
+          completed: false,
+          assignedUserIds: [],
+          tagIds: [],
+          tags: [],
+          createdAt: now,
+          updatedAt: now
+        }
+      ]
+    });
 
-		mockSubTask = mockTask.subTasks[0];
+    mockSubTask = mockTask.subTasks[0];
 
-		taskDetailHandlerMocks = {
-			openTaskDetail: vi.fn(),
-			openSubTaskDetail: vi.fn()
-		};
-		mockTaskDetailUiStore = taskDetailHandlerMocks as unknown as TaskDetailUiStore;
+    taskDetailHandlerMocks = {
+      openTaskDetail: vi.fn(),
+      openSubTaskDetail: vi.fn()
+    };
+    mockTaskDetailUiStore = taskDetailHandlerMocks as unknown as TaskDetailUiStore;
 
-		mockDispatch = vi.fn();
-		mockCallbacks = {};
+    mockDispatch = vi.fn();
+    mockCallbacks = {};
 
-		handlers = new TaskItemHandlers(
-			mockTask,
-			mockTaskDetailUiStore,
-			mockDispatch,
-			mockCallbacks
-		);
-	});
+    handlers = new TaskItemHandlers(mockTask, mockTaskDetailUiStore, mockDispatch, mockCallbacks);
+  });
 
-	describe('handleEditTask', () => {
-		it('タスク詳細画面を開く', () => {
-			handlers.handleEditTask();
+  describe('handleEditTask', () => {
+    it('タスク詳細画面を開く', () => {
+      handlers.handleEditTask();
 
-			expect(taskDetailHandlerMocks.openTaskDetail).toHaveBeenCalledWith('task-1');
-		});
-	});
+      expect(taskDetailHandlerMocks.openTaskDetail).toHaveBeenCalledWith('task-1');
+    });
+  });
 
-	describe('handleDeleteTask', () => {
-		it('タスクを削除する', async () => {
-			const { taskOperations } = await import(
-				'$lib/services/domain/task'
-			);
+  describe('handleDeleteTask', () => {
+    it('タスクを削除する', async () => {
+      const { taskOperations } = await import('$lib/services/domain/task');
 
-			handlers.handleDeleteTask();
+      handlers.handleDeleteTask();
 
-			expect(taskOperations.deleteTask).toHaveBeenCalledWith('task-1');
-		});
-	});
+      expect(taskOperations.deleteTask).toHaveBeenCalledWith('task-1');
+    });
+  });
 
-	describe('handleTaskClick', () => {
-		it('カスタムハンドラーがある場合は優先する', () => {
-			mockCallbacks.onTaskClick = vi.fn();
-			handlers = new TaskItemHandlers(mockTask, mockTaskDetailUiStore, mockDispatch, mockCallbacks);
+  describe('handleTaskClick', () => {
+    it('カスタムハンドラーがある場合は優先する', () => {
+      mockCallbacks.onTaskClick = vi.fn();
+      handlers = new TaskItemHandlers(mockTask, mockTaskDetailUiStore, mockDispatch, mockCallbacks);
 
-			handlers.handleTaskClick();
+      handlers.handleTaskClick();
 
-			expect(mockCallbacks.onTaskClick).toHaveBeenCalledWith('task-1');
-		});
+      expect(mockCallbacks.onTaskClick).toHaveBeenCalledWith('task-1');
+    });
 
-		it('新規タスクモード時はイベントをディスパッチ', async () => {
-			const { taskStore } = await import('$lib/stores/tasks.svelte');
-			taskStore.isNewTaskMode = true;
+    it('新規タスクモード時はイベントをディスパッチ', async () => {
+      const { taskStore } = await import('$lib/stores/tasks.svelte');
+      taskStore.isNewTaskMode = true;
 
-			handlers.handleTaskClick();
+      handlers.handleTaskClick();
 
-			expect(mockDispatch).toHaveBeenCalledWith('taskSelectionRequested', { taskId: 'task-1' });
-		});
+      expect(mockDispatch).toHaveBeenCalledWith('taskSelectionRequested', { taskId: 'task-1' });
+    });
 
-		it('通常時はタスクを選択', async () => {
-			const { taskStore } = await import('$lib/stores/tasks.svelte');
-			const { selectionStore } = await import('$lib/stores/selection-store.svelte');
-			taskStore.isNewTaskMode = false;
+    it('通常時はタスクを選択', async () => {
+      const { taskStore } = await import('$lib/stores/tasks.svelte');
+      const { selectionStore } = await import('$lib/stores/selection-store.svelte');
+      taskStore.isNewTaskMode = false;
 
-			handlers.handleTaskClick();
+      handlers.handleTaskClick();
 
-			expect(selectionStore.selectTask).toHaveBeenCalledWith('task-1');
-		});
-	});
+      expect(selectionStore.selectTask).toHaveBeenCalledWith('task-1');
+    });
+  });
 
-	describe('handleStatusToggle', () => {
-		it('タスクのステータスをトグルする', async () => {
-			const { taskOperations } = await import(
-				'$lib/services/domain/task'
-			);
+  describe('handleStatusToggle', () => {
+    it('タスクのステータスをトグルする', async () => {
+      const { taskOperations } = await import('$lib/services/domain/task');
 
-			handlers.handleStatusToggle();
+      handlers.handleStatusToggle();
 
-			expect(taskOperations.toggleTaskStatus).toHaveBeenCalledWith('task-1');
-		});
-	});
+      expect(taskOperations.toggleTaskStatus).toHaveBeenCalledWith('task-1');
+    });
+  });
 
-	describe('handleEditSubTask', () => {
-		it('サブタスク詳細画面を開く', () => {
-			handlers.handleEditSubTask(mockSubTask);
+  describe('handleEditSubTask', () => {
+    it('サブタスク詳細画面を開く', () => {
+      handlers.handleEditSubTask(mockSubTask);
 
-			expect(taskDetailHandlerMocks.openSubTaskDetail).toHaveBeenCalledWith('subtask-1');
-		});
-	});
+      expect(taskDetailHandlerMocks.openSubTaskDetail).toHaveBeenCalledWith('subtask-1');
+    });
+  });
 
-	describe('handleSubTaskToggle', () => {
-		it('イベントの伝播を停止してステータスをトグル', () => {
-			const mockEvent = {
-				stopPropagation: vi.fn()
-			} as unknown as Event;
+  describe('handleSubTaskToggle', () => {
+    it('イベントの伝播を停止してステータスをトグル', () => {
+      const mockEvent = {
+        stopPropagation: vi.fn()
+      } as unknown as Event;
 
-			handlers.handleSubTaskToggle(mockEvent, 'subtask-1');
+      handlers.handleSubTaskToggle(mockEvent, 'subtask-1');
 
-			expect(mockEvent.stopPropagation).toHaveBeenCalled();
-		});
-	});
+      expect(mockEvent.stopPropagation).toHaveBeenCalled();
+    });
+  });
 
-	describe('handleSubTaskClick', () => {
-		it('カスタムハンドラーがある場合は優先する', () => {
-			mockCallbacks.onSubTaskClick = vi.fn();
-			handlers = new TaskItemHandlers(mockTask, mockTaskDetailUiStore, mockDispatch, mockCallbacks);
+  describe('handleSubTaskClick', () => {
+    it('カスタムハンドラーがある場合は優先する', () => {
+      mockCallbacks.onSubTaskClick = vi.fn();
+      handlers = new TaskItemHandlers(mockTask, mockTaskDetailUiStore, mockDispatch, mockCallbacks);
 
-			const mockEvent = {
-				stopPropagation: vi.fn()
-			} as unknown as Event;
+      const mockEvent = {
+        stopPropagation: vi.fn()
+      } as unknown as Event;
 
-			handlers.handleSubTaskClick(mockEvent, 'subtask-1');
+      handlers.handleSubTaskClick(mockEvent, 'subtask-1');
 
-			expect(mockEvent.stopPropagation).toHaveBeenCalled();
-			expect(mockCallbacks.onSubTaskClick).toHaveBeenCalledWith('subtask-1');
-		});
+      expect(mockEvent.stopPropagation).toHaveBeenCalled();
+      expect(mockCallbacks.onSubTaskClick).toHaveBeenCalledWith('subtask-1');
+    });
 
-		it('新規タスクモード時はイベントをディスパッチ', async () => {
-			const { taskStore } = await import('$lib/stores/tasks.svelte');
-			taskStore.isNewTaskMode = true;
+    it('新規タスクモード時はイベントをディスパッチ', async () => {
+      const { taskStore } = await import('$lib/stores/tasks.svelte');
+      taskStore.isNewTaskMode = true;
 
-			const mockEvent = {
-				stopPropagation: vi.fn()
-			} as unknown as Event;
+      const mockEvent = {
+        stopPropagation: vi.fn()
+      } as unknown as Event;
 
-			handlers.handleSubTaskClick(mockEvent, 'subtask-1');
+      handlers.handleSubTaskClick(mockEvent, 'subtask-1');
 
-			expect(mockDispatch).toHaveBeenCalledWith('subTaskSelectionRequested', {
-				subTaskId: 'subtask-1'
-			});
-		});
+      expect(mockDispatch).toHaveBeenCalledWith('subTaskSelectionRequested', {
+        subTaskId: 'subtask-1'
+      });
+    });
 
-		it('通常時はサブタスクを選択', async () => {
-			const { taskStore } = await import('$lib/stores/tasks.svelte');
-			const { selectionStore } = await import('$lib/stores/selection-store.svelte');
-			taskStore.isNewTaskMode = false;
+    it('通常時はサブタスクを選択', async () => {
+      const { taskStore } = await import('$lib/stores/tasks.svelte');
+      const { selectionStore } = await import('$lib/stores/selection-store.svelte');
+      taskStore.isNewTaskMode = false;
 
-			const mockEvent = {
-				stopPropagation: vi.fn()
-			} as unknown as Event;
+      const mockEvent = {
+        stopPropagation: vi.fn()
+      } as unknown as Event;
 
-			handlers.handleSubTaskClick(mockEvent, 'subtask-1');
+      handlers.handleSubTaskClick(mockEvent, 'subtask-1');
 
-			expect(selectionStore.selectSubTask).toHaveBeenCalledWith('subtask-1');
-		});
-	});
+      expect(selectionStore.selectSubTask).toHaveBeenCalledWith('subtask-1');
+    });
+  });
 });

@@ -53,12 +53,15 @@ export function applySettingsPatch(target: Settings, patch: Partial<Settings>) {
   if (source.timezone !== undefined) target.timezone = source.timezone;
   if (source.dateFormat !== undefined) target.dateFormat = source.dateFormat;
   if (source.customDueDays !== undefined) target.customDueDays = [...source.customDueDays];
-  if (source.customDateFormats !== undefined) target.customDateFormats = [...source.customDateFormats];
+  if (source.customDateFormats !== undefined)
+    target.customDateFormats = [...source.customDateFormats];
   if (source.timeLabels !== undefined) target.timeLabels = [...source.timeLabels];
-  if (source.dueDateButtons !== undefined) target.dueDateButtons = {
-    ...target.dueDateButtons,
-    ...source.dueDateButtons
-  };
+  if (source.dueDateButtons !== undefined)
+    target.dueDateButtons = {
+      ...target.dueDateButtons,
+      ...source.dueDateButtons
+    };
   if (source.viewItems !== undefined) target.viewItems = [...source.viewItems];
-  if (source.lastSelectedAccount !== undefined) target.lastSelectedAccount = source.lastSelectedAccount;
+  if (source.lastSelectedAccount !== undefined)
+    target.lastSelectedAccount = source.lastSelectedAccount;
 }

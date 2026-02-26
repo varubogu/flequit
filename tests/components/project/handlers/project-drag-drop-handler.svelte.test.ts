@@ -149,10 +149,7 @@ describe('ProjectDragDropHandler', () => {
 
       await handler.handleProjectDrop(mockEvent, mockProjects[0]);
 
-      expect(taskListStore.moveTaskListToProject).toHaveBeenCalledWith(
-        'tasklist-123',
-        'project-1'
-      );
+      expect(taskListStore.moveTaskListToProject).toHaveBeenCalledWith('tasklist-123', 'project-1');
     });
 
     it('should handle task to project drop (to default task list)', async () => {

@@ -93,7 +93,7 @@
   {/if}
 
   <!-- Input field wrapped with TagCompletionProvider -->
-  <TagCompletionProvider ontagDetected={handleTagCompletion} projectId={projectId}>
+  <TagCompletionProvider ontagDetected={handleTagCompletion} {projectId}>
     <input
       bind:this={inputElement}
       type="text"

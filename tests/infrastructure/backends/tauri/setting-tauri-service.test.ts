@@ -218,7 +218,7 @@ describe('SettingTauriService', () => {
         value: 'value',
         dataType: 'string' as const,
         createdAt: new Date(),
-        updatedAt: new Date(),
+        updatedAt: new Date()
       };
 
       const result = await service.update(minimalSetting);

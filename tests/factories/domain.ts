@@ -81,7 +81,9 @@ export const buildTag = (overrides: Partial<Tag> = {}): Tag => {
   };
 };
 
-export const buildTaskWithSubTasks = (overrides: Partial<TaskWithSubTasks> = {}): TaskWithSubTasks => {
+export const buildTaskWithSubTasks = (
+  overrides: Partial<TaskWithSubTasks> = {}
+): TaskWithSubTasks => {
   const now = new Date('2025-01-15T12:00:00.000Z');
   const base: TaskWithSubTasks = {
     id: nextId('task'),

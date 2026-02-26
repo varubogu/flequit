@@ -65,10 +65,13 @@
   $effect(() => {
     const nextRule = recurrenceRule ?? null;
     if (nextRule !== pickerState.lastSyncedRecurrenceRule) {
-      console.log('[InlineDatePicker] props の recurrenceRule が変更されました。pickerState を同期します:', {
-        from: $state.snapshot(pickerState.lastSyncedRecurrenceRule),
-        to: $state.snapshot(nextRule)
-      });
+      console.log(
+        '[InlineDatePicker] props の recurrenceRule が変更されました。pickerState を同期します:',
+        {
+          from: $state.snapshot(pickerState.lastSyncedRecurrenceRule),
+          to: $state.snapshot(nextRule)
+        }
+      );
       pickerState.currentRecurrenceRule = nextRule;
       pickerState.lastSyncedRecurrenceRule = nextRule;
     }
@@ -106,7 +109,9 @@
   startDateTime={pickerState.useRangeMode && pickerState.startDate && pickerState.startTime
     ? new SvelteDate(`${pickerState.startDate}T${pickerState.startTime}`)
     : undefined}
-  endDateTime={pickerState.endDate && pickerState.endTime ? new SvelteDate(`${pickerState.endDate}T${pickerState.endTime}`) : undefined}
+  endDateTime={pickerState.endDate && pickerState.endTime
+    ? new SvelteDate(`${pickerState.endDate}T${pickerState.endTime}`)
+    : undefined}
   isRangeDate={pickerState.useRangeMode}
   onSave={handleRecurrenceSave}
   onOpenChange={handleRecurrenceDialogClose}

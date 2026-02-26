@@ -8,12 +8,12 @@ import { ProjectTreeTraverser } from '$lib/utils/project-tree-traverser';
  * 責務: タスクの検索、取得などの読み取り専用操作
  */
 export class TaskCoreQueries {
-	constructor(private projectsRef: () => ProjectTree[]) {}
+  constructor(private projectsRef: () => ProjectTree[]) {}
 
-	/**
-	 * タスクIDでタスクを取得
-	 */
-	getTaskById(taskId: string): TaskWithSubTasks | null {
-		return ProjectTreeTraverser.findTask(this.projectsRef(), taskId);
-	}
+  /**
+   * タスクIDでタスクを取得
+   */
+  getTaskById(taskId: string): TaskWithSubTasks | null {
+    return ProjectTreeTraverser.findTask(this.projectsRef(), taskId);
+  }
 }

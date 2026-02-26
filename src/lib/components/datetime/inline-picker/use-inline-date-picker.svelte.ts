@@ -16,7 +16,9 @@ export type {
   InlineDatePickerReturn
 } from './composables/types';
 
-export function useInlineDatePicker(options: import('./composables/types').UseInlineDatePickerOptions) {
+export function useInlineDatePicker(
+  options: import('./composables/types').UseInlineDatePickerOptions
+) {
   const state = createInlineDatePickerState(options);
   const handlers = createEventHandlers(state, options);
 

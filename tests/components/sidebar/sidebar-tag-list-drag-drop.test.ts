@@ -95,14 +95,14 @@ describe('SidebarTagList - Drag & Drop', () => {
       name: 'Work',
       color: '#blue',
       createdAt: new Date(),
-      updatedAt: new Date(),
+      updatedAt: new Date()
     },
     {
       id: 'tag-2',
       name: 'Personal',
       color: '#green',
       createdAt: new Date(),
-      updatedAt: new Date(),
+      updatedAt: new Date()
     }
   ];
 
@@ -143,10 +143,10 @@ describe('SidebarTagList - Drag & Drop', () => {
           value: { dropEffect: '' }
         });
 
-    await fireEvent(tagElements[0], dropEvent);
+        await fireEvent(tagElements[0], dropEvent);
 
-    expect(DragDropManager.handleDrop).toHaveBeenCalled();
-    expect(taskOperations.addTagToTask).toHaveBeenCalledWith('task-1', 'tag-1');
+        expect(DragDropManager.handleDrop).toHaveBeenCalled();
+        expect(taskOperations.addTagToTask).toHaveBeenCalledWith('task-1', 'tag-1');
       }
     });
 

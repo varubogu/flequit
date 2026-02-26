@@ -45,7 +45,10 @@
       console.log('[+layout] Initialization complete');
     } catch (error) {
       console.error('[+layout] Failed to load initial data:', error);
-      console.error('[+layout] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      console.error(
+        '[+layout] Error stack:',
+        error instanceof Error ? error.stack : 'No stack trace'
+      );
       errorHandler.addError({
         type: 'general',
         message: 'データの初期化に失敗しました',

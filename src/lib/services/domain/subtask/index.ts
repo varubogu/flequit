@@ -22,21 +22,21 @@ export type { SubTaskOperationsDependencies } from './subtask-operations';
 let _subTaskOperations: SubTaskOperations | undefined;
 
 function createSubTaskOperations(): SubTaskOperations {
-	return new SubTaskOperations({
-		taskStore,
-		taskCoreStore,
-		subTaskStore,
-		tagStore,
-		taggingService: TaggingService,
-		errorHandler
-	});
+  return new SubTaskOperations({
+    taskStore,
+    taskCoreStore,
+    subTaskStore,
+    tagStore,
+    taggingService: TaggingService,
+    errorHandler
+  });
 }
 
 export function getSubTaskOperations(): SubTaskOperations {
-	if (!_subTaskOperations) {
-		_subTaskOperations = createSubTaskOperations();
-	}
-	return _subTaskOperations;
+  if (!_subTaskOperations) {
+    _subTaskOperations = createSubTaskOperations();
+  }
+  return _subTaskOperations;
 }
 
 /**
@@ -60,9 +60,9 @@ export function getSubTaskOperations(): SubTaskOperations {
  * ```
  */
 export const subTaskOperations = new Proxy({} as SubTaskOperations, {
-	get(_target, prop) {
-		const operations = getSubTaskOperations();
-		const value = operations[prop as keyof SubTaskOperations];
-		return typeof value === 'function' ? value.bind(operations) : value;
-	}
+  get(_target, prop) {
+    const operations = getSubTaskOperations();
+    const value = operations[prop as keyof SubTaskOperations];
+    return typeof value === 'function' ? value.bind(operations) : value;
+  }
 });

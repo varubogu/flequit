@@ -1,8 +1,8 @@
 import type { ProjectStore } from '$lib/stores/project-store.svelte';
 import {
-	resolveProjectStore,
-	provideProjectStore,
-	resetProjectStoreOverride
+  resolveProjectStore,
+  provideProjectStore,
+  resetProjectStoreOverride
 } from '$lib/stores/providers/project-store-provider';
 
 /**
@@ -17,5 +17,5 @@ import {
 export { provideProjectStore, resetProjectStoreOverride };
 
 export function useProjectStore(): ProjectStore {
-	return resolveProjectStore();
+  return resolveProjectStore();
 }

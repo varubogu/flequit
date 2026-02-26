@@ -9,7 +9,7 @@ import { ViewItemService } from './settings-categories/view-item-service';
 
 /**
  * Tauri設定管理サービス（Facade）
- * 
+ *
  * カテゴリ別サービスを統合し、統一的なインターフェースを提供します。
  */
 export class SettingsManagementTauriService implements SettingsManagementService {

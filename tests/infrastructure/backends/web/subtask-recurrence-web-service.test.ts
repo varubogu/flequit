@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { SubtaskRecurrenceWebService } from '$lib/infrastructure/backends/web/subtask-recurrence-web-service';
-import type { SubtaskRecurrence, SubtaskRecurrenceSearchCondition } from '$lib/types/recurrence-reference';
+import type {
+  SubtaskRecurrence,
+  SubtaskRecurrenceSearchCondition
+} from '$lib/types/recurrence-reference';
 
 describe('SubtaskRecurrenceWebService', () => {
   let service: SubtaskRecurrenceWebService;
@@ -20,7 +23,10 @@ describe('SubtaskRecurrenceWebService', () => {
 
       const result = await service.create('test-project', subtaskRecurrence);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backends: createSubtaskRecurrence not implemented', { projectId: 'test-project', subtaskRecurrence });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backends: createSubtaskRecurrence not implemented',
+        { projectId: 'test-project', subtaskRecurrence }
+      );
       expect(result).toBe(true);
     });
   });
@@ -31,7 +37,10 @@ describe('SubtaskRecurrenceWebService', () => {
 
       const result = await service.getBySubtaskId('test-project', subtaskId);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backends: getSubtaskRecurrenceBySubtaskId not implemented', { projectId: 'test-project', subtaskId });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backends: getSubtaskRecurrenceBySubtaskId not implemented',
+        { projectId: 'test-project', subtaskId }
+      );
       expect(result).toBeNull();
     });
   });
@@ -42,7 +51,10 @@ describe('SubtaskRecurrenceWebService', () => {
 
       const result = await service.delete('test-project', subtaskId);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backends: deleteSubtaskRecurrence not implemented', { projectId: 'test-project', subtaskId });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backends: deleteSubtaskRecurrence not implemented',
+        { projectId: 'test-project', subtaskId }
+      );
       expect(result).toBe(true);
     });
   });
@@ -56,7 +68,10 @@ describe('SubtaskRecurrenceWebService', () => {
 
       const result = await service.search('test-project', condition);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backends: searchSubtaskRecurrences not implemented', { projectId: 'test-project', condition });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backends: searchSubtaskRecurrences not implemented',
+        { projectId: 'test-project', condition }
+      );
       expect(result).toEqual([]);
     });
   });

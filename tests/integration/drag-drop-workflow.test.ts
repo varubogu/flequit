@@ -303,7 +303,7 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
         assignedUserIds: [],
         tagIds: [],
         createdAt: new Date(),
-        updatedAt: new Date(),
+        updatedAt: new Date()
       });
 
       expect(task1).toBeTruthy();
