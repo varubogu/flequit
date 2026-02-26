@@ -1,5 +1,4 @@
-/* eslint-disable no-restricted-imports -- TODO [計画02]: フロントエンド層方針の再定義と移行で対応予定。期限: 2026-04-30 */
-import { SettingsService } from '$lib/services/domain/settings';
+import { resolveSettingsGateway, type SettingsGateway } from '$lib/dependencies/settings';
 
 export interface AppearanceSettings {
   font: string;
@@ -9,6 +8,8 @@ export interface AppearanceSettings {
 }
 
 class AppearanceStore {
+  private settingsGateway: SettingsGateway;
+
   private _settings = $state<AppearanceSettings>({
     font: 'default',
     fontSize: 13,
@@ -17,6 +18,10 @@ class AppearanceStore {
   });
 
   private isInitialized = false;
+
+  constructor(settingsGateway: SettingsGateway = resolveSettingsGateway()) {
+    this.settingsGateway = settingsGateway;
+  }
 
   get settings(): AppearanceSettings {
     return this._settings;
@@ -56,7 +61,7 @@ class AppearanceStore {
     }
 
     try {
-      const updatedSettings = await SettingsService.updateSettingsPartially(partialSettings);
+      const updatedSettings = await this.settingsGateway.updateSettingsPartially(partialSettings);
       if (!updatedSettings) {
         throw new Error('Failed to update settings');
       }
@@ -72,7 +77,7 @@ class AppearanceStore {
   private async loadSettings() {
     try {
       // 新しい設定管理システムから全設定を取得
-      const settings = await SettingsService.loadSettings();
+      const settings = await this.settingsGateway.loadSettings();
 
       if (settings) {
         // 外観設定を適用

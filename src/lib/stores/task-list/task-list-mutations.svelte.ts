@@ -1,8 +1,7 @@
-/* eslint-disable no-restricted-imports -- TODO [計画02]: フロントエンド層方針の再定義と移行で対応予定。期限: 2026-04-30 */
 import type { IProjectStore, ISelectionStore } from '$lib/types/store-interfaces';
 import type { TaskListWithTasks } from '$lib/types/task-list';
-import { TaskListService as TaskListCrudService } from '$lib/services/domain/task-list';
 import type { TaskListQueries } from '$lib/stores/task-list/task-list-queries.svelte';
+import { resolveTaskListGateway, type TaskListGateway } from '$lib/dependencies/task-list';
 
 /**
  * タスクリストCRUD操作
@@ -10,11 +9,16 @@ import type { TaskListQueries } from '$lib/stores/task-list/task-list-queries.sv
  * 責務: タスクリストの作成、更新、削除
  */
 export class TaskListMutations {
+  private readonly taskListGateway: TaskListGateway;
+
   constructor(
     private projectStoreRef: IProjectStore,
     private selection: ISelectionStore,
-    private queries: TaskListQueries
-  ) {}
+    private queries: TaskListQueries,
+    taskListGateway: TaskListGateway = resolveTaskListGateway()
+  ) {
+    this.taskListGateway = taskListGateway;
+  }
 
   /**
    * タスクリストを追加
@@ -29,7 +33,7 @@ export class TaskListMutations {
         ...taskList,
         order_index: project?.taskLists?.length ?? 0
       };
-      const newTaskList = await TaskListCrudService.createTaskListWithTasks(
+      const newTaskList = await this.taskListGateway.createTaskListWithTasks(
         projectId,
         taskListWithOrderIndex
       );
@@ -60,7 +64,7 @@ export class TaskListMutations {
         throw new Error(`タスクリストID ${taskListId} に対応するプロジェクトが見つかりません。`);
       }
 
-      const updatedTaskList = await TaskListCrudService.updateTaskList(
+      const updatedTaskList = await this.taskListGateway.updateTaskList(
         projectId,
         taskListId,
         updates
@@ -96,7 +100,7 @@ export class TaskListMutations {
         throw new Error(`タスクリストID ${taskListId} に対応するプロジェクトが見つかりません。`);
       }
 
-      const success = await TaskListCrudService.deleteTaskList(projectId, taskListId);
+      const success = await this.taskListGateway.deleteTaskList(projectId, taskListId);
       if (success) {
         for (const project of this.projectStoreRef.projects) {
           const listIndex = project.taskLists.findIndex((l) => l.id === taskListId);

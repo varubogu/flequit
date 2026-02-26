@@ -1,9 +1,12 @@
-/* eslint-disable no-restricted-imports -- TODO [計画02]: フロントエンド層方針の再定義と移行で対応予定。期限: 2026-04-30 */
 import type { Tag } from '$lib/types/tag';
 import { tagStore as tagStoreInternal } from '$lib/stores/tags/tag-store.svelte';
 import { tagBookmarkStore } from '$lib/stores/tags/tag-bookmark-store.svelte';
-import { TagBookmarkService } from '$lib/services/domain/tag-bookmark';
-import { TagService } from '$lib/services/domain/tag';
+import {
+  resolveTagBookmarkGateway,
+  resolveTagGateway,
+  type TagBookmarkGateway,
+  type TagGateway
+} from '$lib/dependencies/tag';
 
 /**
  * タグのブックマーク操作
@@ -11,7 +14,17 @@ import { TagService } from '$lib/services/domain/tag';
  * 責務: ブックマークの追加、削除、並び替え
  */
 export class TagBookmarkOperations {
-  constructor(private bookmarkStore: typeof tagBookmarkStore) {}
+  private readonly tagGateway: TagGateway;
+  private readonly tagBookmarkGateway: TagBookmarkGateway;
+
+  constructor(
+    private bookmarkStore: typeof tagBookmarkStore,
+    tagGateway: TagGateway = resolveTagGateway(),
+    tagBookmarkGateway: TagBookmarkGateway = resolveTagBookmarkGateway()
+  ) {
+    this.tagGateway = tagGateway;
+    this.tagBookmarkGateway = tagBookmarkGateway;
+  }
 
   /**
    * ブックマーク済みタグのリストを取得
@@ -25,12 +38,12 @@ export class TagBookmarkOperations {
    * ブックマークのトグル
    */
   async toggleBookmark(tagId: string) {
-    const projectId = await TagService.getProjectIdByTagId(tagId);
+    const projectId = await this.tagGateway.getProjectIdByTagId(tagId);
     if (!projectId) {
       console.error('Project ID not found for tag:', tagId);
       return;
     }
-    await TagBookmarkService.toggleBookmark(projectId, tagId);
+    await this.tagBookmarkGateway.toggleBookmark(projectId, tagId);
   }
 
   /**
@@ -44,12 +57,12 @@ export class TagBookmarkOperations {
    * ブックマークを追加
    */
   async addBookmark(tagId: string) {
-    const projectId = await TagService.getProjectIdByTagId(tagId);
+    const projectId = await this.tagGateway.getProjectIdByTagId(tagId);
     if (!projectId) {
       console.error('Project ID not found for tag:', tagId);
       return;
     }
-    await TagBookmarkService.create(projectId, tagId);
+    await this.tagBookmarkGateway.create(projectId, tagId);
   }
 
   /**
@@ -73,7 +86,7 @@ export class TagBookmarkOperations {
       console.error('Bookmark not found for tag:', tagId);
       return;
     }
-    await TagBookmarkService.delete(bookmark.id, tagId);
+    await this.tagBookmarkGateway.delete(bookmark.id, tagId);
   }
 
   /**
@@ -83,7 +96,7 @@ export class TagBookmarkOperations {
     const projectId = await this.getProjectIdFromFirstBookmark();
     if (!projectId) return;
 
-    await TagBookmarkService.reorder(projectId, fromIndex, toIndex);
+    await this.tagBookmarkGateway.reorder(projectId, fromIndex, toIndex);
   }
 
   /**

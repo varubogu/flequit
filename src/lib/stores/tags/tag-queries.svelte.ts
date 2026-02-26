@@ -1,7 +1,6 @@
-/* eslint-disable no-restricted-imports -- TODO [計画02]: フロントエンド層方針の再定義と移行で対応予定。期限: 2026-04-30 */
 import type { Tag } from '$lib/types/tag';
 import { tagStore as tagStoreInternal } from '$lib/stores/tags/tag-store.svelte';
-import { TagService } from '$lib/services/domain/tag';
+import { resolveTagGateway, type TagGateway } from '$lib/dependencies/tag';
 
 /**
  * タグの検索・取得操作
@@ -9,6 +8,12 @@ import { TagService } from '$lib/services/domain/tag';
  * 責務: タグの検索、名前による検索、プロジェクトID取得
  */
 export class TagQueries {
+  private readonly tagGateway: TagGateway;
+
+  constructor(tagGateway: TagGateway = resolveTagGateway()) {
+    this.tagGateway = tagGateway;
+  }
+
   /**
    * すべてのタグを取得
    */
@@ -41,6 +46,6 @@ export class TagQueries {
    * タグIDからプロジェクトIDを取得
    */
   async getProjectIdByTagId(tagId: string): Promise<string | null> {
-    return TagService.getProjectIdByTagId(tagId);
+    return this.tagGateway.getProjectIdByTagId(tagId);
   }
 }

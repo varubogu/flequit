@@ -1,9 +1,8 @@
-/* eslint-disable no-restricted-imports -- TODO [計画02]: フロントエンド層方針の再定義と移行で対応予定。期限: 2026-04-30 */
 import type { Tag } from '$lib/types/tag';
 import { SvelteDate } from 'svelte/reactivity';
 import { tagStore as tagStoreInternal } from '$lib/stores/tags/tag-store.svelte';
-import { TagService } from '$lib/services/domain/tag';
-import { getCurrentUserId } from '$lib/services/domain/current-user-id';
+import { resolveCurrentUserIdProvider, type CurrentUserIdProvider } from '$lib/dependencies/current-user-id';
+import { resolveTagGateway, type TagGateway } from '$lib/dependencies/tag';
 
 /**
  * タグのCRUD操作
@@ -11,6 +10,17 @@ import { getCurrentUserId } from '$lib/services/domain/current-user-id';
  * 責務: タグの作成、更新、削除
  */
 export class TagMutations {
+  private readonly getCurrentUserId: CurrentUserIdProvider;
+  private readonly tagGateway: TagGateway;
+
+  constructor(
+    tagGateway: TagGateway = resolveTagGateway(),
+    getCurrentUserId: CurrentUserIdProvider = resolveCurrentUserIdProvider()
+  ) {
+    this.tagGateway = tagGateway;
+    this.getCurrentUserId = getCurrentUserId;
+  }
+
   /**
    * ローカルタグを作成
    */
@@ -33,7 +43,7 @@ export class TagMutations {
       createdAt: now,
       updatedAt: now,
       deleted: false,
-      updatedBy: getCurrentUserId()
+      updatedBy: this.getCurrentUserId()
     };
 
     return tagStoreInternal.addTagWithId(newTag);
@@ -47,7 +57,7 @@ export class TagMutations {
       return this.createLocalTag(tagData);
     }
 
-    return TagService.createTag(projectId, tagData);
+    return this.tagGateway.createTag(projectId, tagData);
   }
 
   /**
@@ -86,7 +96,7 @@ export class TagMutations {
       return;
     }
 
-    return TagService.updateTag(projectId, tagId, updates);
+    return this.tagGateway.updateTag(projectId, tagId, updates);
   }
 
   /**
@@ -110,7 +120,7 @@ export class TagMutations {
       return;
     }
 
-    return TagService.deleteTag(projectId, tagId, onDelete);
+    return this.tagGateway.deleteTag(projectId, tagId, onDelete);
   }
 
   /**
@@ -127,7 +137,7 @@ export class TagMutations {
       return;
     }
 
-    return TagService.deleteTag(projectId, tagId, onDelete);
+    return this.tagGateway.deleteTag(projectId, tagId, onDelete);
   }
 
   /**
@@ -138,7 +148,7 @@ export class TagMutations {
       return this.createLocalTag({ name, color });
     }
 
-    return TagService.getOrCreateTag(projectId, name, color);
+    return this.tagGateway.getOrCreateTag(projectId, name, color);
   }
 
   /**

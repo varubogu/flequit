@@ -1,11 +1,15 @@
-/* eslint-disable no-restricted-imports -- TODO [計画02]: フロントエンド層方針の再定義と移行で対応予定。期限: 2026-04-30 */
 import { setMode, userPrefersMode } from 'mode-watcher';
-import { SettingsService } from '$lib/services/domain/settings';
+import { resolveSettingsGateway, type SettingsGateway } from '$lib/dependencies/settings';
 
 type Theme = 'system' | 'light' | 'dark';
 
 class ThemeStore {
+  private settingsGateway: SettingsGateway;
   private isInitialized = false;
+
+  constructor(settingsGateway: SettingsGateway = resolveSettingsGateway()) {
+    this.settingsGateway = settingsGateway;
+  }
 
   get currentTheme(): Theme {
     return userPrefersMode.current as Theme;
@@ -24,7 +28,7 @@ class ThemeStore {
     }
 
     try {
-      const updatedSettings = await SettingsService.updateSettingsPartially({ theme });
+      const updatedSettings = await this.settingsGateway.updateSettingsPartially({ theme });
       if (!updatedSettings) {
         throw new Error('Failed to update theme setting');
       }
@@ -40,7 +44,7 @@ class ThemeStore {
   private async loadTheme() {
     try {
       // 新しい設定管理システムから全設定を取得
-      const settings = await SettingsService.loadSettings();
+      const settings = await this.settingsGateway.loadSettings();
 
       if (
         settings?.theme &&

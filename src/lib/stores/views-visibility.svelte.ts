@@ -1,6 +1,5 @@
-/* eslint-disable no-restricted-imports -- TODO [計画02]: フロントエンド層方針の再定義と移行で対応予定。期限: 2026-04-30 */
 import { getTranslationService } from '$lib/stores/locale.svelte';
-import { settingsInitService } from '$lib/services/domain/settings';
+import { resolveSettingsInitGateway, type SettingsInitGateway } from '$lib/dependencies/settings';
 import type { Setting } from '$lib/types/settings';
 import { SvelteDate, SvelteMap, SvelteSet } from 'svelte/reactivity';
 
@@ -65,12 +64,14 @@ const DEFAULT_VIEW_ITEMS: ViewItem[] = [
 const STORAGE_KEY = 'views-configuration';
 
 export class ViewsVisibilityStore {
+  private settingsInitGateway: SettingsInitGateway;
   private _configuration = $state<ViewsConfiguration>({
     viewItems: [...DEFAULT_VIEW_ITEMS]
   });
   private isInitialized = false;
 
-  constructor() {
+  constructor(settingsInitGateway: SettingsInitGateway = resolveSettingsInitGateway()) {
+    this.settingsInitGateway = settingsInitGateway;
     // 非同期初期化は外部で実行
     // this.init() は別途呼び出す必要がある
   }
@@ -119,8 +120,8 @@ export class ViewsVisibilityStore {
   private async loadConfiguration() {
     try {
       // 統合初期化サービスから全設定を取得
-      const allSettings = await settingsInitService.getAllSettings();
-      const viewsSetting = settingsInitService.getSettingByKey(allSettings, 'views_visibility');
+      const allSettings = await this.settingsInitGateway.getAllSettings();
+      const viewsSetting = this.settingsInitGateway.getSettingByKey(allSettings, 'views_visibility');
 
       if (viewsSetting) {
         const parsedConfig = JSON.parse(viewsSetting.value);
@@ -191,7 +192,7 @@ export class ViewsVisibilityStore {
         updatedAt: new SvelteDate()
       };
 
-      await settingsInitService.updateSetting(setting);
+      await this.settingsInitGateway.updateSetting(setting);
     } catch (error) {
       console.error('Failed to save views visibility to backends:', error);
 

@@ -1,7 +1,9 @@
-/* eslint-disable no-restricted-imports -- TODO [計画02]: フロントエンド層方針の再定義と移行で対応予定。期限: 2026-04-30 */
 import type { CustomDateTimeFormat } from '$lib/types/datetime-format';
 import type { CustomDateFormat } from '$lib/types/settings';
-import { CustomDateFormatTauriService } from '$lib/infrastructure/backends/tauri/custom-date-format-tauri-service';
+import {
+  resolveCustomDateFormatGateway,
+  type CustomDateFormatGateway
+} from '$lib/dependencies/datetime-format';
 
 /**
  * カスタムフォーマットのCRUD操作
@@ -9,9 +11,14 @@ import { CustomDateFormatTauriService } from '$lib/infrastructure/backends/tauri
  * 責務: カスタムフォーマットの追加、更新、削除
  */
 export class FormatMutations {
-  private customDateFormatService = new CustomDateFormatTauriService();
+  private customDateFormatGateway: CustomDateFormatGateway;
 
-  constructor(private customFormatsRef: () => CustomDateTimeFormat[]) {}
+  constructor(
+    private customFormatsRef: () => CustomDateTimeFormat[],
+    customDateFormatGateway: CustomDateFormatGateway = resolveCustomDateFormatGateway()
+  ) {
+    this.customDateFormatGateway = customDateFormatGateway;
+  }
 
   /**
    * カスタムフォーマットを追加
@@ -38,7 +45,7 @@ export class FormatMutations {
     };
 
     try {
-      const savedFormat = await this.customDateFormatService.create(newFormatForTauri);
+      const savedFormat = await this.customDateFormatGateway.create(newFormatForTauri);
       if (savedFormat) {
         const newFormat: CustomDateTimeFormat = {
           id: savedFormat.id,
@@ -78,7 +85,7 @@ export class FormatMutations {
     };
 
     try {
-      const savedFormat = await this.customDateFormatService.update(updatedFormatForTauri);
+      const savedFormat = await this.customDateFormatGateway.update(updatedFormatForTauri);
       if (savedFormat) {
         this.customFormatsRef()[index] = { ...this.customFormatsRef()[index], ...updates };
       } else {
@@ -100,7 +107,7 @@ export class FormatMutations {
     }
 
     try {
-      const success = await this.customDateFormatService.delete(id);
+      const success = await this.customDateFormatGateway.delete(id);
       if (success) {
         this.customFormatsRef().splice(index, 1);
       } else {

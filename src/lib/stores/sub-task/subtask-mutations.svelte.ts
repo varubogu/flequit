@@ -1,10 +1,9 @@
-/* eslint-disable no-restricted-imports -- TODO [計画02]: フロントエンド層方針の再定義と移行で対応予定。期限: 2026-04-30 */
 import type { IProjectStore, ISelectionStore } from '$lib/types/store-interfaces';
 import type { SubTask, SubTaskWithTags } from '$lib/types/sub-task';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import { errorHandler } from '$lib/stores/error-handler.svelte';
 import { SvelteDate } from 'svelte/reactivity';
-import { SubTaskBackend } from '$lib/services/domain/subtask';
+import { resolveSubTaskGateway, type SubTaskGateway } from '$lib/dependencies/sub-task';
 
 /**
  * サブタスクのCRUD操作
@@ -12,10 +11,15 @@ import { SubTaskBackend } from '$lib/services/domain/subtask';
  * 責務: サブタスクの作成、更新、削除
  */
 export class SubTaskMutations {
+  private subTaskGateway: SubTaskGateway;
+
   constructor(
     private projectStoreRef: IProjectStore,
-    private selection: ISelectionStore
-  ) {}
+    private selection: ISelectionStore,
+    subTaskGateway: SubTaskGateway = resolveSubTaskGateway()
+  ) {
+    this.subTaskGateway = subTaskGateway;
+  }
 
   /**
    * サブタスクを追加
@@ -45,7 +49,7 @@ export class SubTaskMutations {
     }
 
     try {
-      const newSubTask = await SubTaskBackend.createSubTask(targetProjectId, taskId, subTask);
+      const newSubTask = await this.subTaskGateway.createSubTask(targetProjectId, taskId, subTask);
       const subTaskWithTags = { ...newSubTask, tags: [] } as SubTaskWithTags;
       targetTask.subTasks.push(subTaskWithTags);
       return newSubTask;
@@ -74,7 +78,7 @@ export class SubTaskMutations {
 
             const projectId = project.id;
             try {
-              await SubTaskBackend.updateSubTask(projectId, subTaskId, updates);
+              await this.subTaskGateway.updateSubTask(projectId, subTaskId, updates);
             } catch (error) {
               console.error('Failed to sync subtask update to backends:', error);
               errorHandler.addSyncError('サブタスク更新', 'task', subTaskId, error);
@@ -107,7 +111,7 @@ export class SubTaskMutations {
             }
 
             try {
-              await SubTaskBackend.deleteSubTask(projectId, subTaskId);
+              await this.subTaskGateway.deleteSubTask(projectId, subTaskId);
             } catch (error) {
               console.error('Failed to sync subtask deletion to backends:', error);
               errorHandler.addSyncError('サブタスク削除', 'task', subTaskId, error);

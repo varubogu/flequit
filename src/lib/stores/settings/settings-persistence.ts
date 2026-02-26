@@ -1,12 +1,17 @@
-/* eslint-disable no-restricted-imports -- TODO [計画02]: フロントエンド層方針の再定義と移行で対応予定。期限: 2026-04-30 */
-import { SettingsService } from '$lib/services/domain/settings';
+import { resolveSettingsGateway, type SettingsGateway } from '$lib/dependencies/settings';
 import type { Settings } from '$lib/types/settings';
 import { applySettingsPatch, SETTINGS_STORAGE_KEY } from './defaults';
 
 export class SettingsPersistence {
   private isInitialized = false;
+  private settingsGateway: SettingsGateway;
 
-  constructor(private readonly state: Settings) {}
+  constructor(state: Settings, settingsGateway: SettingsGateway = resolveSettingsGateway()) {
+    this.state = state;
+    this.settingsGateway = settingsGateway;
+  }
+
+  private readonly state: Settings;
 
   markInitialized() {
     this.isInitialized = true;
@@ -18,7 +23,7 @@ export class SettingsPersistence {
     }
 
     try {
-      const updated = await SettingsService.updateSettingsPartially(partial);
+      const updated = await this.settingsGateway.updateSettingsPartially(partial);
       if (updated) {
         applySettingsPatch(this.state, updated);
         this.persistToLocalStorage();
@@ -31,7 +36,7 @@ export class SettingsPersistence {
 
   async load() {
     try {
-      const loaded = await SettingsService.loadSettings();
+      const loaded = await this.settingsGateway.loadSettings();
       if (loaded) {
         applySettingsPatch(this.state, loaded);
         this.persistToLocalStorage();

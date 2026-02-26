@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-imports -- TODO [計画02]: フロントエンド層方針の再定義と移行で対応予定。期限: 2026-04-30 */
 import type { IProjectStore } from '$lib/types/store-interfaces';
 import type { Project, ProjectTree } from '$lib/types/project';
 import type { ISelectionStore } from '$lib/types/store-interfaces';
@@ -6,7 +5,10 @@ import { selectionStore } from '$lib/stores/selection-store.svelte';
 import { tagStore } from '$lib/stores/tags.svelte';
 import { SvelteDate } from 'svelte/reactivity';
 import { loadProjectsData as loadProjects, registerTagsToStore } from '$lib/services/data-loader';
-import { getCurrentUserId } from '$lib/services/domain/current-user-id';
+import {
+  resolveCurrentUserIdProvider,
+  type CurrentUserIdProvider
+} from '$lib/dependencies/current-user-id';
 
 /**
  * プロジェクト管理ストア
@@ -18,8 +20,14 @@ import { getCurrentUserId } from '$lib/services/domain/current-user-id';
  */
 export class ProjectStore implements IProjectStore {
   projects = $state<ProjectTree[]>([]);
+  private readonly getCurrentUserId: CurrentUserIdProvider;
 
-  constructor(private selection: ISelectionStore) {}
+  constructor(selection: ISelectionStore, getCurrentUserId = resolveCurrentUserIdProvider()) {
+    this.selection = selection;
+    this.getCurrentUserId = getCurrentUserId;
+  }
+
+  private selection: ISelectionStore;
 
   // 派生状態
   get selectedProject(): ProjectTree | null {
@@ -128,7 +136,7 @@ export class ProjectStore implements IProjectStore {
       createdAt: new SvelteDate(),
       updatedAt: new SvelteDate(),
       deleted: false,
-      updatedBy: getCurrentUserId(),
+      updatedBy: this.getCurrentUserId(),
       taskLists: [],
       allTags: []
     };

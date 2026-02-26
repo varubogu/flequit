@@ -1,17 +1,19 @@
-/* eslint-disable no-restricted-imports -- TODO [計画02]: フロントエンド層方針の再定義と移行で対応予定。期限: 2026-04-30 */
 import { SvelteDate } from 'svelte/reactivity';
 import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
-import { taskInteractions } from '$lib/services/ui/task';
-import { taskOperations } from '$lib/services/domain/task';
 import { fromLegacyRecurrenceRule, toLegacyRecurrenceRule } from '$lib/utils/recurrence-converter';
 import type { EditFormState } from './task-detail-types';
 import type { TaskDetailViewState } from '$lib/stores/task-detail/task-detail-view-state.svelte';
+import {
+  resolveTaskEditActionsGateway,
+  type TaskEditActionsGateway
+} from '$lib/dependencies/task-detail';
 
 const SAVE_DEBOUNCE_MS = 500;
 
 export class TaskEditFormStore {
   #viewState: TaskDetailViewState;
   #saveTimeout: ReturnType<typeof setTimeout> | null = null;
+  #actionsGateway: TaskEditActionsGateway;
 
   editForm = $state<EditFormState>({
     title: '',
@@ -33,8 +35,12 @@ export class TaskEditFormStore {
     recurrenceRule: toLegacyRecurrenceRule(this.editForm.recurrenceRule)
   }));
 
-  constructor(viewState: TaskDetailViewState) {
+  constructor(
+    viewState: TaskDetailViewState,
+    actionsGateway: TaskEditActionsGateway = resolveTaskEditActionsGateway()
+  ) {
     this.#viewState = viewState;
+    this.#actionsGateway = actionsGateway;
 
     $effect(() => {
       const currentItem = this.#viewState.currentItem;
@@ -144,11 +150,11 @@ export class TaskEditFormStore {
     };
 
     if (this.#viewState.isNewTaskMode) {
-      taskInteractions.updateNewTaskData(updates);
+      this.#actionsGateway.updateNewTaskData(updates);
     } else if (this.#viewState.isSubTask && currentItem) {
       subTaskStore.updateSubTask(currentItem.id, updates);
     } else {
-      void taskOperations.updateTask(currentItem.id, updates);
+      void this.#actionsGateway.updateTask(currentItem.id, updates);
     }
   }
 }

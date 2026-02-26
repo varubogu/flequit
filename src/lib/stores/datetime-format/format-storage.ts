@@ -1,10 +1,9 @@
-/* eslint-disable no-restricted-imports -- TODO [計画02]: フロントエンド層方針の再定義と移行で対応予定。期限: 2026-04-30 */
 import type { CustomDateTimeFormat } from '$lib/types/datetime-format';
 import type { CustomDateFormat } from '$lib/types/settings';
 import {
-  CustomDateFormatTauriService,
-  type CustomDateFormatService
-} from '$lib/infrastructure/backends/tauri/custom-date-format-tauri-service';
+  resolveCustomDateFormatGateway,
+  type CustomDateFormatGateway
+} from '$lib/dependencies/datetime-format';
 
 const STORAGE_KEY = 'flequit-datetime-format';
 
@@ -15,7 +14,7 @@ const STORAGE_KEY = 'flequit-datetime-format';
  */
 export class FormatStorage {
   constructor(
-    private readonly customDateFormatService: CustomDateFormatService = new CustomDateFormatTauriService()
+    private readonly customDateFormatGateway: CustomDateFormatGateway = resolveCustomDateFormatGateway()
   ) {}
 
   private getLocalStorage(): Pick<Storage, 'getItem' | 'setItem'> | null {
@@ -67,7 +66,7 @@ export class FormatStorage {
    */
   async loadCustomFormatsFromTauri(): Promise<CustomDateTimeFormat[]> {
     try {
-      const tauriFormats = await this.customDateFormatService.getAll();
+      const tauriFormats = await this.customDateFormatGateway.getAll();
       return tauriFormats.map((f) => this.convertFromTauri(f));
     } catch (error) {
       console.error('Failed to load custom formats from Tauri:', error);

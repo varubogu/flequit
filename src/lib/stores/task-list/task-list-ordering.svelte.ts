@@ -1,10 +1,9 @@
-/* eslint-disable no-restricted-imports -- TODO [計画02]: フロントエンド層方針の再定義と移行で対応予定。期限: 2026-04-30 */
 import type { IProjectStore } from '$lib/types/store-interfaces';
 import type { TaskList, TaskListWithTasks } from '$lib/types/task-list';
 import type { ProjectTree } from '$lib/types/project';
-import { TaskListService as TaskListCrudService } from '$lib/services/domain/task-list';
 import { errorHandler } from '$lib/stores/error-handler.svelte';
 import { SvelteDate } from 'svelte/reactivity';
+import { resolveTaskListGateway, type TaskListGateway } from '$lib/dependencies/task-list';
 
 /**
  * タスクリスト並び替え操作
@@ -12,7 +11,14 @@ import { SvelteDate } from 'svelte/reactivity';
  * 責務: タスクリストの順序変更、プロジェクト間移動
  */
 export class TaskListOrdering {
-  constructor(private projectStoreRef: IProjectStore) {}
+  private readonly taskListGateway: TaskListGateway;
+
+  constructor(
+    private projectStoreRef: IProjectStore,
+    taskListGateway: TaskListGateway = resolveTaskListGateway()
+  ) {
+    this.taskListGateway = taskListGateway;
+  }
 
   /**
    * プロジェクト内でタスクリストを並び替え
@@ -41,7 +47,7 @@ export class TaskListOrdering {
       taskList.updatedAt = new SvelteDate();
 
       try {
-        await TaskListCrudService.updateTaskList(projectId, taskList.id, {
+        await this.taskListGateway.updateTaskList(projectId, taskList.id, {
           orderIndex: index
         } as Partial<TaskList>);
       } catch (error) {
@@ -76,7 +82,7 @@ export class TaskListOrdering {
           tl.updatedAt = new SvelteDate();
 
           try {
-            await TaskListCrudService.updateTaskList(project.id, tl.id, {
+            await this.taskListGateway.updateTaskList(project.id, tl.id, {
               orderIndex: index
             } as Partial<TaskList>);
           } catch (error) {
@@ -124,7 +130,7 @@ export class TaskListOrdering {
       tl.updatedAt = new SvelteDate();
 
       try {
-        await TaskListCrudService.updateTaskList(targetProject.id, tl.id, {
+        await this.taskListGateway.updateTaskList(targetProject.id, tl.id, {
           orderIndex: index
         } as Partial<TaskList>);
       } catch (error) {
