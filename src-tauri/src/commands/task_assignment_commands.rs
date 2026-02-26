@@ -3,7 +3,9 @@ use crate::state::AppState;
 use flequit_core::facades::task_assignment_facades as facades;
 use flequit_model::types::id_types::{ProjectId, TaskId, UserId};
 use tauri::State;
+use tracing::instrument;
 
+#[instrument(level = "info", skip(state, task_assignment), fields(project_id = %project_id))]
 #[tauri::command]
 pub async fn create_task_assignment(
     state: State<'_, AppState>,
@@ -27,6 +29,7 @@ pub async fn create_task_assignment(
         })
 }
 
+#[instrument(level = "info", skip(state), fields(project_id = %project_id, task_id = %task_id))]
 #[tauri::command]
 pub async fn delete_task_assignment(
     state: State<'_, AppState>,

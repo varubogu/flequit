@@ -136,6 +136,7 @@ pub async fn delete_datetime_format(
 // =============================================================================
 
 /// datetime_formats に要素を追加（id重複はエラー）
+#[instrument(level = "info", skip(state, format))]
 #[tauri::command]
 pub async fn add_datetime_format_setting(
     state: State<'_, AppState>,
@@ -159,6 +160,7 @@ pub async fn add_datetime_format_setting(
 }
 
 /// datetime_formats の要素を上書き（id一致で置換、なければ追加）
+#[instrument(level = "info", skip(state, format))]
 #[tauri::command]
 pub async fn upsert_datetime_format_setting(
     state: State<'_, AppState>,
@@ -187,6 +189,7 @@ pub async fn upsert_datetime_format_setting(
 }
 
 /// datetime_formats から要素を削除（id指定）
+#[instrument(level = "info", skip(state), fields(id = %id))]
 #[tauri::command]
 pub async fn delete_datetime_format_setting(
     state: State<'_, AppState>,

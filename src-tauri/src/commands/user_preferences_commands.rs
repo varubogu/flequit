@@ -5,6 +5,7 @@ use flequit_core::InfrastructureRepositoriesTrait;
 use flequit_model::models::user_preferences::tag_bookmark::TagBookmark;
 use flequit_model::types::id_types::{ProjectId, TagBookmarkId, TagId, UserId};
 use tauri::State;
+use tracing::instrument;
 
 /// TagBookmarkをコマンドモデルに変換
 fn to_command_model(bookmark: TagBookmark) -> TagBookmarkCommandModel {
@@ -20,6 +21,7 @@ fn to_command_model(bookmark: TagBookmark) -> TagBookmarkCommandModel {
 }
 
 /// ブックマークを作成
+#[instrument(level = "info", skip(state), fields(user_id = %user_id, project_id = %project_id, tag_id = %tag_id))]
 #[tauri::command]
 pub async fn create_tag_bookmark(
     user_id: String,
@@ -27,8 +29,6 @@ pub async fn create_tag_bookmark(
     tag_id: String,
     state: State<'_, AppState>,
 ) -> Result<TagBookmarkCommandModel, String> {
-    println!("[Tauri] create_tag_bookmark called - user_id: {}, project_id: {}, tag_id: {}", user_id, project_id, tag_id);
-
     let repos_lock = state.repositories.read().await;
     let repos = &*repos_lock;
     let user_id = UserId::from(user_id);
@@ -39,18 +39,15 @@ pub async fn create_tag_bookmark(
     let bookmark_id = TagBookmarkId::new();
     let now = chrono::Utc::now();
 
-    println!("[Tauri] Getting max order index...");
     // order_indexを取得
     let max_order = repos
         .tag_bookmarks_sqlite()
         .get_max_order_index(&user_id, &project_id)
         .await
         .map_err(|e| {
-            println!("[Tauri] Error getting max order index: {}", e);
+            tracing::error!(target: "commands::user_preferences", command = "create_tag_bookmark", error = %e);
             e.to_string()
         })?;
-
-    println!("[Tauri] Max order: {}, new order will be: {}", max_order, max_order + 1);
 
     let bookmark = TagBookmark {
         id: bookmark_id,
@@ -62,27 +59,24 @@ pub async fn create_tag_bookmark(
         updated_at: now,
     };
 
-    println!("[Tauri] Calling tag_bookmark_service::create_bookmark...");
     tag_bookmark_service::create_bookmark(repos, &bookmark)
         .await
         .map_err(|e| {
-            println!("[Tauri] Error creating bookmark: {}", e);
+            tracing::error!(target: "commands::user_preferences", command = "create_tag_bookmark", error = %e);
             e.to_string()
         })?;
 
-    println!("[Tauri] Bookmark created successfully, returning model");
     Ok(to_command_model(bookmark))
 }
 
 /// プロジェクトのブックマーク一覧を取得
+#[instrument(level = "info", skip(state), fields(user_id = %user_id, project_id = %project_id))]
 #[tauri::command]
 pub async fn list_tag_bookmarks_by_project(
     user_id: String,
     project_id: String,
     state: State<'_, AppState>,
 ) -> Result<Vec<TagBookmarkCommandModel>, String> {
-    println!("[Tauri] list_tag_bookmarks_by_project called - user_id: {}, project_id: {}", user_id, project_id);
-
     let repos_lock = state.repositories.read().await;
     let repos = &*repos_lock;
     let user_id = UserId::from(user_id);
@@ -94,19 +88,21 @@ pub async fn list_tag_bookmarks_by_project(
         &project_id,
     )
     .await
-    .map_err(|e| e.to_string())?;
+    .map_err(|e| {
+        tracing::error!(target: "commands::user_preferences", command = "list_tag_bookmarks_by_project", error = %e);
+        e.to_string()
+    })?;
 
     Ok(bookmarks.into_iter().map(to_command_model).collect())
 }
 
 /// ユーザーの全ブックマークを取得
+#[instrument(level = "info", skip(state), fields(user_id = %user_id))]
 #[tauri::command]
 pub async fn list_tag_bookmarks_by_user(
     user_id: String,
     state: State<'_, AppState>,
 ) -> Result<Vec<TagBookmarkCommandModel>, String> {
-    println!("[Tauri] list_tag_bookmarks_by_user called - user_id: {}", user_id);
-
     let repos_lock = state.repositories.read().await;
     let repos = &*repos_lock;
     let user_id = UserId::from(user_id);
@@ -114,15 +110,15 @@ pub async fn list_tag_bookmarks_by_user(
     let bookmarks = tag_bookmark_service::list_bookmarks_by_user(repos, &user_id)
         .await
         .map_err(|e| {
-            println!("[Tauri] Error listing bookmarks: {}", e);
+            tracing::error!(target: "commands::user_preferences", command = "list_tag_bookmarks_by_user", error = %e);
             e.to_string()
         })?;
 
-    println!("[Tauri] Found {} bookmarks", bookmarks.len());
     Ok(bookmarks.into_iter().map(to_command_model).collect())
 }
 
 /// ブックマークを更新
+#[instrument(level = "info", skip(state), fields(bookmark_id = %bookmark_id))]
 #[tauri::command]
 pub async fn update_tag_bookmark(
     bookmark_id: String,
@@ -139,7 +135,10 @@ pub async fn update_tag_bookmark(
         .tag_bookmarks_sqlite()
         .find_by_id(&bookmark_id)
         .await
-        .map_err(|e| e.to_string())?
+        .map_err(|e| {
+            tracing::error!(target: "commands::user_preferences", command = "update_tag_bookmark", bookmark_id = %bookmark_id, error = %e);
+            e.to_string()
+        })?
         .ok_or_else(|| "Bookmark not found".to_string())?;
 
     let mut updated_bookmark = bookmark.clone();
@@ -148,19 +147,21 @@ pub async fn update_tag_bookmark(
 
     tag_bookmark_service::update_bookmark(repos, &updated_bookmark)
         .await
-        .map_err(|e| e.to_string())?;
+        .map_err(|e| {
+            tracing::error!(target: "commands::user_preferences", command = "update_tag_bookmark", bookmark_id = %bookmark_id, error = %e);
+            e.to_string()
+        })?;
 
     Ok(())
 }
 
 /// ブックマークを削除
+#[instrument(level = "info", skip(state), fields(bookmark_id = %bookmark_id))]
 #[tauri::command]
 pub async fn delete_tag_bookmark(
     bookmark_id: String,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
-    println!("[Tauri] delete_tag_bookmark called - bookmark_id: {}", bookmark_id);
-
     let repos_lock = state.repositories.read().await;
     let repos = &*repos_lock;
     let bookmark_id = TagBookmarkId::from(bookmark_id);
@@ -171,12 +172,11 @@ pub async fn delete_tag_bookmark(
         .find_by_id(&bookmark_id)
         .await
         .map_err(|e| {
-            println!("[Tauri] Error finding bookmark: {}", e);
+            tracing::error!(target: "commands::user_preferences", command = "delete_tag_bookmark", bookmark_id = %bookmark_id, error = %e);
             e.to_string()
         })?
         .ok_or_else(|| "Bookmark not found".to_string())?;
 
-    println!("[Tauri] Found bookmark, deleting...");
     tag_bookmark_service::delete_bookmark(
         repos,
         &bookmark_id,
@@ -186,15 +186,15 @@ pub async fn delete_tag_bookmark(
     )
     .await
     .map_err(|e| {
-        println!("[Tauri] Error deleting bookmark: {}", e);
+        tracing::error!(target: "commands::user_preferences", command = "delete_tag_bookmark", bookmark_id = %bookmark_id, error = %e);
         e.to_string()
     })?;
 
-    println!("[Tauri] Bookmark deleted successfully");
     Ok(())
 }
 
 /// タグがブックマーク済みかチェック
+#[instrument(level = "info", skip(state), fields(user_id = %user_id, project_id = %project_id, tag_id = %tag_id))]
 #[tauri::command]
 pub async fn is_tag_bookmarked(
     user_id: String,
@@ -202,8 +202,6 @@ pub async fn is_tag_bookmarked(
     tag_id: String,
     state: State<'_, AppState>,
 ) -> Result<bool, String> {
-    println!("[Tauri] is_tag_bookmarked called - user_id: {}, project_id: {}, tag_id: {}", user_id, project_id, tag_id);
-
     let repos_lock = state.repositories.read().await;
     let repos = &*repos_lock;
     let user_id = UserId::from(user_id);
@@ -213,12 +211,16 @@ pub async fn is_tag_bookmarked(
     let is_bookmarked =
         tag_bookmark_service::is_bookmarked(repos, &user_id, &project_id, &tag_id)
             .await
-            .map_err(|e| e.to_string())?;
+            .map_err(|e| {
+                tracing::error!(target: "commands::user_preferences", command = "is_tag_bookmarked", error = %e);
+                e.to_string()
+            })?;
 
     Ok(is_bookmarked)
 }
 
 /// ブックマークを並び替え
+#[instrument(level = "info", skip(state), fields(user_id = %user_id, project_id = %project_id))]
 #[tauri::command]
 pub async fn reorder_tag_bookmarks(
     user_id: String,
@@ -227,8 +229,6 @@ pub async fn reorder_tag_bookmarks(
     to_index: i32,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
-    println!("[Tauri] reorder_tag_bookmarks called - user_id: {}, project_id: {}, from: {}, to: {}", user_id, project_id, from_index, to_index);
-
     let repos_lock = state.repositories.read().await;
     let repos = &*repos_lock;
     let user_id = UserId::from(user_id);
@@ -236,7 +236,10 @@ pub async fn reorder_tag_bookmarks(
 
     tag_bookmark_service::reorder_bookmarks(repos, &user_id, &project_id, from_index, to_index)
         .await
-        .map_err(|e| e.to_string())?;
+        .map_err(|e| {
+            tracing::error!(target: "commands::user_preferences", command = "reorder_tag_bookmarks", error = %e);
+            e.to_string()
+        })?;
 
     Ok(())
 }
