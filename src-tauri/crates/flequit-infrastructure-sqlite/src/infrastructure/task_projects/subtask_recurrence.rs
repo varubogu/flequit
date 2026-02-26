@@ -140,7 +140,7 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let existing = SubTaskRecurrenceEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -181,7 +181,7 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         SubTaskRecurrenceEntity::delete_many()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -203,7 +203,7 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         SubTaskRecurrenceEntity::delete_many()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -224,7 +224,7 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = SubTaskRecurrenceEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -258,7 +258,7 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let count = SubTaskRecurrenceEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -279,7 +279,7 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let count = SubTaskRecurrenceEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -299,7 +299,7 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = SubTaskRecurrenceEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -333,7 +333,7 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let model = SubTaskRecurrenceEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))

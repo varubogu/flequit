@@ -26,18 +26,14 @@ use tracing::instrument;
 /// 新しい設定管理APIで設定を読み込み
 ///
 /// stateから設定を取得します。
-
 #[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn load_settings(state: State<'_, AppState>) -> Result<SettingsCommandModel, String> {
     let settings = state.settings.read().await.clone();
-    Ok(SettingsCommandModel::from(
-        settings.to_command_model().await?,
-    ))
+    settings.to_command_model().await
 }
 
 /// 新しい設定管理APIで設定を保存
-
 #[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn save_settings(
@@ -66,7 +62,6 @@ pub async fn save_settings(
 }
 
 /// 設定ファイルが存在するかチェック
-
 #[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn settings_file_exists(state: State<'_, AppState>) -> Result<bool, String> {
@@ -104,16 +99,13 @@ pub async fn update_settings_partially(
     }
 
     // 更新された設定をコマンドモデルとして返す
-    Ok(SettingsCommandModel::from(
-        updated_settings
+    updated_settings
             .to_command_model()
             .await
-            .map_err(|e| e.to_string())?,
-    ))
+            .map_err(|e| e.to_string())
 }
 
 /// デフォルト設定で設定ファイルを初期化
-
 #[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn initialize_settings_with_defaults(state: State<'_, AppState>) -> Result<(), String> {
@@ -136,7 +128,6 @@ pub async fn initialize_settings_with_defaults(state: State<'_, AppState>) -> Re
 }
 
 /// 設定ファイルのパスを取得
-
 #[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn get_settings_file_path(state: State<'_, AppState>) -> Result<String, String> {
@@ -152,7 +143,6 @@ pub async fn get_settings_file_path(state: State<'_, AppState>) -> Result<String
 // ---------------------------
 
 /// アプリケーション設定（Settings）をすべて取得します。
-
 #[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn get_all_settings(state: State<'_, AppState>) -> Result<SettingsCommandModel, String> {
@@ -164,7 +154,6 @@ pub async fn get_all_settings(state: State<'_, AppState>) -> Result<SettingsComm
 }
 
 /// 特定のキーの設定値を保存します。
-
 #[tauri::command]
 pub async fn set_setting(
     state: State<'_, AppState>,
@@ -186,7 +175,6 @@ pub async fn set_setting(
 // NOTE: Custom Date Format機能は一時的に無効化されています
 // setting_facades::get_custom_date_formatが実装されていないため
 /// 指定されたIDのカスタム日付フォーマットを取得します。
-
 #[instrument(level = "info", skip(_state))]
 #[tauri::command]
 pub async fn get_custom_date_format_setting(
@@ -199,7 +187,6 @@ pub async fn get_custom_date_format_setting(
 }
 
 /// すべてのカスタム日付フォーマットを取得します。
-
 #[instrument(level = "info", skip(_state))]
 #[tauri::command]
 pub async fn get_all_custom_date_format_settings(
@@ -210,7 +197,6 @@ pub async fn get_all_custom_date_format_settings(
 }
 
 /// カスタム日付フォーマットを追加します。
-
 #[instrument(level = "info", skip(_state))]
 #[tauri::command]
 pub async fn add_custom_date_format_setting(
@@ -222,7 +208,6 @@ pub async fn add_custom_date_format_setting(
 }
 
 /// カスタム日付フォーマットを更新します。
-
 #[instrument(level = "info", skip(_state))]
 #[tauri::command]
 pub async fn update_custom_date_format_setting(
@@ -235,7 +220,6 @@ pub async fn update_custom_date_format_setting(
 }
 
 /// カスタム日付フォーマットを削除します。
-
 #[instrument(level = "info", skip(_state))]
 #[tauri::command]
 pub async fn delete_custom_date_format_setting(
@@ -253,7 +237,6 @@ pub async fn delete_custom_date_format_setting(
 // ---------------------------
 
 /// 指定されたIDの時刻ラベルを取得します。
-
 #[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn get_time_label_setting(
@@ -281,7 +264,6 @@ pub async fn get_time_label_setting(
 }
 
 /// すべての時刻ラベルを取得します。
-
 #[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn get_all_time_label_settings(
@@ -303,7 +285,6 @@ pub async fn get_all_time_label_settings(
 }
 
 /// 時刻ラベルを追加します。
-
 #[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn add_time_label_setting(
@@ -327,7 +308,7 @@ pub async fn add_time_label_setting(
         // ファイルにも保存
         state
             .settings_manager
-            .save_settings(&*settings)
+            .save_settings(&settings)
             .await
             .map_err(|e| {
                 tracing::error!(target: "commands::settings", command = "add_time_label_setting", error = %e);
@@ -339,7 +320,6 @@ pub async fn add_time_label_setting(
 }
 
 /// 時刻ラベルを更新します。
-
 #[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn update_time_label_setting(
@@ -370,7 +350,7 @@ pub async fn update_time_label_setting(
         // ファイルにも保存
         state
             .settings_manager
-            .save_settings(&*settings)
+            .save_settings(&settings)
             .await
             .map_err(|e| {
                 tracing::error!(target: "commands::settings", command = "update_time_label_setting", error = %e);
@@ -382,7 +362,6 @@ pub async fn update_time_label_setting(
 }
 
 /// 時刻ラベルを削除します。
-
 #[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn delete_time_label_setting(
@@ -399,7 +378,7 @@ pub async fn delete_time_label_setting(
         // ファイルにも保存
         state
             .settings_manager
-            .save_settings(&*settings)
+            .save_settings(&settings)
             .await
             .map_err(|e| {
                 tracing::error!(target: "commands::settings", command = "delete_time_label_setting", error = %e);
@@ -415,7 +394,6 @@ pub async fn delete_time_label_setting(
 // ---------------------------
 
 /// 指定されたIDのビューアイテムを取得します。
-
 #[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn get_view_item_setting(
@@ -443,7 +421,6 @@ pub async fn get_view_item_setting(
 }
 
 /// すべてのビューアイテムを取得します。
-
 #[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn get_all_view_item_settings(
@@ -465,7 +442,6 @@ pub async fn get_all_view_item_settings(
 }
 
 /// ビューアイテムを追加します。
-
 #[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn add_view_item_setting(
@@ -489,7 +465,7 @@ pub async fn add_view_item_setting(
         // ファイルにも保存
         state
             .settings_manager
-            .save_settings(&*settings)
+            .save_settings(&settings)
             .await
             .map_err(|e| e.to_string())?;
     }
@@ -498,7 +474,6 @@ pub async fn add_view_item_setting(
 }
 
 /// ビューアイテムを更新します。
-
 #[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn update_view_item_setting(
@@ -529,7 +504,7 @@ pub async fn update_view_item_setting(
         // ファイルにも保存
         state
             .settings_manager
-            .save_settings(&*settings)
+            .save_settings(&settings)
             .await
             .map_err(|e| e.to_string())?;
     }
@@ -538,7 +513,6 @@ pub async fn update_view_item_setting(
 }
 
 /// ビューアイテムを削除します。
-
 #[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn delete_view_item_setting(
@@ -555,7 +529,7 @@ pub async fn delete_view_item_setting(
         // ファイルにも保存
         state
             .settings_manager
-            .save_settings(&*settings)
+            .save_settings(&settings)
             .await
             .map_err(|e| e.to_string())?;
     }
@@ -564,7 +538,6 @@ pub async fn delete_view_item_setting(
 }
 
 /// 特定のキーの設定値を取得します。
-
 #[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn get_setting(
@@ -593,7 +566,6 @@ pub async fn get_setting(
 }
 
 /// 特定のキーの設定値を更新します。
-
 #[instrument(level = "info", skip(state, value))]
 #[tauri::command]
 pub async fn update_setting(
@@ -743,7 +715,6 @@ pub async fn delete_datetime_format(
 // =============================================================================
 
 /// custom_due_days に要素を追加
-
 #[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn add_custom_due_day(state: State<'_, AppState>, day: i32) -> Result<(), String> {
@@ -754,7 +725,7 @@ pub async fn add_custom_due_day(state: State<'_, AppState>, day: i32) -> Result<
     }
     state
         .settings_manager
-        .save_settings(&*settings)
+        .save_settings(&settings)
         .await
         .map_err(|e| {
             tracing::error!(target: "commands::settings", command = "add_custom_due_day", error = %e);
@@ -764,7 +735,6 @@ pub async fn add_custom_due_day(state: State<'_, AppState>, day: i32) -> Result<
 }
 
 /// custom_due_days の既存要素を新しい値で置換
-
 #[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn update_custom_due_day(
@@ -779,7 +749,7 @@ pub async fn update_custom_due_day(
         settings.custom_due_days.dedup();
         state
             .settings_manager
-            .save_settings(&*settings)
+            .save_settings(&settings)
             .await
             .map_err(|e| {
                 tracing::error!(target: "commands::settings", command = "update_custom_due_day", error = %e);
@@ -791,7 +761,6 @@ pub async fn update_custom_due_day(
 }
 
 /// custom_due_days から要素を削除
-
 #[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn delete_custom_due_day(state: State<'_, AppState>, day: i32) -> Result<(), String> {
@@ -803,7 +772,7 @@ pub async fn delete_custom_due_day(state: State<'_, AppState>, day: i32) -> Resu
     }
     state
         .settings_manager
-        .save_settings(&*settings)
+        .save_settings(&settings)
         .await
         .map_err(|e| {
             tracing::error!(target: "commands::settings", command = "delete_custom_due_day", error = %e);
@@ -817,7 +786,6 @@ pub async fn delete_custom_due_day(state: State<'_, AppState>, day: i32) -> Resu
 // =============================================================================
 
 /// datetime_formats に要素を追加（id重複はエラー）
-
 #[tauri::command]
 pub async fn add_datetime_format_setting(
     state: State<'_, AppState>,
@@ -831,7 +799,7 @@ pub async fn add_datetime_format_setting(
     settings.datetime_formats.push(model);
     state
         .settings_manager
-        .save_settings(&*settings)
+        .save_settings(&settings)
         .await
         .map_err(|e| {
             tracing::error!(target: "commands::settings", command = "add_datetime_format_setting", error = %e);
@@ -841,7 +809,6 @@ pub async fn add_datetime_format_setting(
 }
 
 /// datetime_formats の要素を上書き（id一致で置換、なければ追加）
-
 #[tauri::command]
 pub async fn upsert_datetime_format_setting(
     state: State<'_, AppState>,
@@ -860,7 +827,7 @@ pub async fn upsert_datetime_format_setting(
     }
     state
         .settings_manager
-        .save_settings(&*settings)
+        .save_settings(&settings)
         .await
         .map_err(|e| {
             tracing::error!(target: "commands::settings", command = "upsert_datetime_format_setting", error = %e);
@@ -870,7 +837,6 @@ pub async fn upsert_datetime_format_setting(
 }
 
 /// datetime_formats から要素を削除（id指定）
-
 #[tauri::command]
 pub async fn delete_datetime_format_setting(
     state: State<'_, AppState>,
@@ -884,7 +850,7 @@ pub async fn delete_datetime_format_setting(
     }
     state
         .settings_manager
-        .save_settings(&*settings)
+        .save_settings(&settings)
         .await
         .map_err(|e| {
             tracing::error!(target: "commands::settings", command = "delete_datetime_format_setting", error = %e);

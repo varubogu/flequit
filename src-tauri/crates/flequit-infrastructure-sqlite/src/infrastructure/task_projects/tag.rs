@@ -34,7 +34,7 @@ impl TagLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         if let Some(model) = TagEntity::find()
             .filter(Column::Name.eq(name))
@@ -57,7 +57,7 @@ impl TagLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = TagEntity::find()
             .filter(Column::Color.eq(color))
@@ -83,7 +83,7 @@ impl TagLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = TagEntity::find()
             .order_by_desc(Column::UsageCount)
@@ -113,7 +113,7 @@ impl TagLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let existing = TagEntity::find_by_id((project_id.to_string(), tag_id.to_string()))
             .one(db)
@@ -143,7 +143,7 @@ impl TagLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let existing = TagEntity::find_by_id((project_id.to_string(), tag_id.to_string()))
             .one(db)
@@ -173,7 +173,7 @@ impl TagLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         if let Some(model) = TagEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -201,7 +201,7 @@ impl TagLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = TagEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -241,7 +241,7 @@ impl ProjectRepository<Tag, TagId> for TagLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         // 名前での重複チェック（プロジェクト内のみ）
         let existing_by_name = self.find_by_name_in_project(project_id, &tag.name).await?;
@@ -280,7 +280,7 @@ impl ProjectRepository<Tag, TagId> for TagLocalSqliteRepository {
         } else {
             // 新規作成
             let active_model = tag
-                .to_sqlite_model_with_project_id(&project_id)
+                .to_sqlite_model_with_project_id(project_id)
                 .await
                 .map_err(|e: String| RepositoryError::from(SQLiteError::ConversionError(e)))?;
             active_model
@@ -300,7 +300,7 @@ impl ProjectRepository<Tag, TagId> for TagLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         if let Some(model) = TagEntity::find_by_id((project_id.to_string(), id.to_string()))
             .one(db)
@@ -322,7 +322,7 @@ impl ProjectRepository<Tag, TagId> for TagLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = TagEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -348,7 +348,7 @@ impl ProjectRepository<Tag, TagId> for TagLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
         TagEntity::delete_by_id((project_id.to_string(), id.to_string()))
             .exec(db)
             .await
@@ -361,7 +361,7 @@ impl ProjectRepository<Tag, TagId> for TagLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
         let count = TagEntity::find_by_id((project_id.to_string(), id.to_string()))
             .count(db)
             .await
@@ -374,7 +374,7 @@ impl ProjectRepository<Tag, TagId> for TagLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
         let count = TagEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
             .count(db)

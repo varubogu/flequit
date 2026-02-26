@@ -91,7 +91,7 @@ pub fn init_logger(
 /// アプリケーションのログディレクトリを取得
 pub fn get_log_directory() -> Result<PathBuf, Box<dyn std::error::Error>> {
     let mut log_dir = dirs::data_local_dir()
-        .or_else(|| dirs::data_dir())
+        .or_else(dirs::data_dir)
         .ok_or("Could not determine data directory")?;
 
     log_dir.push("flequit");

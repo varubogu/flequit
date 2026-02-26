@@ -168,8 +168,8 @@ impl ModelConverter<SubTask> for SubTaskTree {
     /// 関連データを含まない軽量な基本サブタスク構造に変換します。
     async fn to_model(&self) -> Result<SubTask, String> {
         Ok(SubTask {
-            id: self.id.clone(),
-            task_id: self.task_id.clone(),
+            id: self.id,
+            task_id: self.task_id,
             title: self.title.clone(),
             description: self.description.clone(),
             status: self.status.clone(),

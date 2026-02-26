@@ -91,7 +91,6 @@ pub struct ProjectLocalAutomergeRepository {
 
 impl ProjectLocalAutomergeRepository {
     /// 新しいProjectRepositoryを作成
-
     pub async fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let document_manager = DocumentManager::new(base_path)?;
         Ok(Self {
@@ -100,7 +99,6 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// 共有DocumentManagerを使用して新しいインスタンスを作成
-
     pub async fn new_with_manager(
         document_manager: Arc<Mutex<DocumentManager>>,
     ) -> Result<Self, RepositoryError> {
@@ -108,12 +106,11 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// 指定されたプロジェクトのDocumentを取得または作成
-
     async fn get_or_create_document(
         &self,
         project_id: &ProjectId,
     ) -> Result<Document, RepositoryError> {
-        let doc_type = DocumentType::Project(project_id.clone());
+        let doc_type = DocumentType::Project(*project_id);
         let mut manager = self.document_manager.lock().await;
         manager
             .get_or_create(&doc_type)
@@ -122,7 +119,6 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// プロジェクトドキュメント全体を取得
-
     pub async fn get_project_document(
         &self,
         project_id: &ProjectId,
@@ -179,7 +175,6 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// プロジェクトドキュメント全体を保存
-
     pub async fn save_project_document(
         &self,
         project_id: &ProjectId,
@@ -236,7 +231,6 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// 空のプロジェクトドキュメントを作成
-
     pub async fn create_empty_project_document(
         &self,
         project: &Project,
@@ -249,10 +243,10 @@ impl ProjectLocalAutomergeRepository {
             order_index: project.order_index,
             is_archived: project.is_archived,
             status: project.status.clone(),
-            owner_id: project.owner_id.clone(),
+            owner_id: project.owner_id,
             created_at: project.created_at,
             updated_at: project.updated_at,
-            updated_by: project.updated_by.clone(),
+            updated_by: project.updated_by,
             deleted: project.deleted,
             task_lists: Vec::new(),
             tasks: Vec::new(),
@@ -266,7 +260,6 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// IDでプロジェクトを取得（プロジェクトドキュメントから基本情報のみ）
-
     pub async fn get_project(&self, project_id: &str) -> Result<Option<Project>, RepositoryError> {
         if let Some(document) = self
             .get_project_document(&ProjectId::from(project_id))
@@ -292,7 +285,6 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// プロジェクトを作成または更新（基本情報のみ）
-
     pub async fn set_project(&self, project: &Project) -> Result<(), RepositoryError> {
         log::info!("set_project - 開始: {:?}", project.id);
 
@@ -309,9 +301,9 @@ impl ProjectLocalAutomergeRepository {
             document.order_index = project.order_index;
             document.is_archived = project.is_archived;
             document.status = project.status.clone();
-            document.owner_id = project.owner_id.clone();
+            document.owner_id = project.owner_id;
             document.updated_at = project.updated_at;
-            document.updated_by = project.updated_by.clone();
+            document.updated_by = project.updated_by;
             document.deleted = project.deleted;
 
             self.save_project_document(&project.id, &document).await
@@ -326,7 +318,6 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// タスクリストを追加
-
     pub async fn add_task_list(
         &self,
         project_id: &ProjectId,
@@ -350,7 +341,6 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// タスクを追加
-
     pub async fn add_task(
         &self,
         project_id: &ProjectId,
@@ -374,7 +364,6 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// サブタスクを追加
-
     pub async fn add_subtask(
         &self,
         project_id: &ProjectId,
@@ -398,7 +387,6 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// タグを追加
-
     pub async fn add_tag(&self, project_id: &ProjectId, tag: &Tag) -> Result<(), RepositoryError> {
         // プロジェクトドキュメントを取得または作成
         let mut document = if let Some(doc) = self.get_project_document(project_id).await? {
@@ -418,7 +406,6 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// メンバーを追加
-
     pub async fn add_member(
         &self,
         project_id: &ProjectId,
@@ -442,7 +429,6 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// プロジェクト内の全タスクを取得
-
     pub async fn get_tasks(&self, project_id: &ProjectId) -> Result<Vec<Task>, RepositoryError> {
         if let Some(document) = self.get_project_document(project_id).await? {
             Ok(document.tasks)
@@ -452,7 +438,6 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// プロジェクト内の全タスクリストを取得
-
     pub async fn get_task_lists(
         &self,
         project_id: &ProjectId,
@@ -465,7 +450,6 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// プロジェクト内の全サブタスクを取得
-
     pub async fn get_subtasks(
         &self,
         project_id: &ProjectId,
@@ -478,7 +462,6 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// プロジェクト内の全タグを取得
-
     pub async fn get_tags(&self, project_id: &ProjectId) -> Result<Vec<Tag>, RepositoryError> {
         if let Some(document) = self.get_project_document(project_id).await? {
             Ok(document.tags)
@@ -488,7 +471,6 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// プロジェクト内の全メンバーを取得
-
     pub async fn get_members(
         &self,
         project_id: &ProjectId,
@@ -501,20 +483,18 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// プロジェクトドキュメント自体を削除
-
     pub async fn delete_project_document(
         &self,
         project_id: &ProjectId,
     ) -> Result<(), RepositoryError> {
         let mut manager = self.document_manager.lock().await;
-        let doc_type = DocumentType::Project(project_id.clone());
+        let doc_type = DocumentType::Project(*project_id);
         manager
             .delete(doc_type)
             .map_err(|e| RepositoryError::AutomergeError(e.to_string()))
     }
 
     /// JSON出力機能：プロジェクト変更履歴をエクスポート
-
     pub async fn export_project_changes_history<P: AsRef<Path>>(
         &self,
         project_id: &ProjectId,
@@ -529,7 +509,6 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// JSON出力機能：現在のプロジェクト状態をファイルにエクスポート
-
     pub async fn export_project_state<P: AsRef<Path>>(
         &self,
         project_id: &ProjectId,
@@ -562,7 +541,7 @@ impl ProjectLocalAutomergeRepository {
     ) -> Result<(), RepositoryError> {
         if let Some(mut project) = self.get_project(&project_id.to_string()).await? {
             // Trackableトレイトを使用して論理削除
-            project.mark_deleted(user_id.clone(), *timestamp);
+            project.mark_deleted(*user_id, *timestamp);
             self.set_project(&project).await
         } else {
             Err(RepositoryError::NotFound(format!(
@@ -587,7 +566,7 @@ impl ProjectLocalAutomergeRepository {
             })?;
 
         for task in &mut document.tasks {
-            task.mark_deleted(user_id.clone(), *timestamp);
+            task.mark_deleted(*user_id, *timestamp);
         }
 
         self.save_project_document(project_id, &document).await
@@ -608,7 +587,7 @@ impl ProjectLocalAutomergeRepository {
             })?;
 
         for tag in &mut document.tags {
-            tag.mark_deleted(user_id.clone(), *timestamp);
+            tag.mark_deleted(*user_id, *timestamp);
         }
 
         self.save_project_document(project_id, &document).await
@@ -629,7 +608,7 @@ impl ProjectLocalAutomergeRepository {
             })?;
 
         for task_list in &mut document.task_lists {
-            task_list.mark_deleted(user_id.clone(), *timestamp);
+            task_list.mark_deleted(*user_id, *timestamp);
         }
 
         self.save_project_document(project_id, &document).await
@@ -822,7 +801,7 @@ impl ProjectLocalAutomergeRepository {
             }
 
             // Trackableトレイトを使用して復元
-            project.mark_restored(user_id.clone(), *timestamp);
+            project.mark_restored(*user_id, *timestamp);
             self.set_project(&project).await
         } else {
             Err(RepositoryError::NotFound(format!(
@@ -848,7 +827,7 @@ impl ProjectLocalAutomergeRepository {
 
         for task in &mut document.tasks {
             if task.is_deleted() {
-                task.mark_restored(user_id.clone(), *timestamp);
+                task.mark_restored(*user_id, *timestamp);
             }
         }
 
@@ -871,7 +850,7 @@ impl ProjectLocalAutomergeRepository {
 
         for tag in &mut document.tags {
             if tag.is_deleted() {
-                tag.mark_restored(user_id.clone(), *timestamp);
+                tag.mark_restored(*user_id, *timestamp);
             }
         }
 
@@ -894,7 +873,7 @@ impl ProjectLocalAutomergeRepository {
 
         for task_list in &mut document.task_lists {
             if task_list.is_deleted() {
-                task_list.mark_restored(user_id.clone(), *timestamp);
+                task_list.mark_restored(*user_id, *timestamp);
             }
         }
 
@@ -919,7 +898,7 @@ impl ProjectLocalAutomergeRepository {
         let task = document.tasks.iter_mut().find(|t| t.id == *task_id).ok_or_else(|| {
             RepositoryError::NotFound(format!("Task not found: {}", task_id))
         })?;
-        task.mark_deleted(user_id.clone(), *timestamp);
+        task.mark_deleted(*user_id, *timestamp);
 
         self.save_project_document(project_id, &document).await
     }
@@ -942,7 +921,7 @@ impl ProjectLocalAutomergeRepository {
         let tag = document.tags.iter_mut().find(|t| t.id == *tag_id).ok_or_else(|| {
             RepositoryError::NotFound(format!("Tag not found: {}", tag_id))
         })?;
-        tag.mark_deleted(user_id.clone(), *timestamp);
+        tag.mark_deleted(*user_id, *timestamp);
 
         self.save_project_document(project_id, &document).await
     }
@@ -969,7 +948,7 @@ impl ProjectLocalAutomergeRepository {
             .ok_or_else(|| {
                 RepositoryError::NotFound(format!("TaskList not found: {}", task_list_id))
             })?;
-        task_list.mark_deleted(user_id.clone(), *timestamp);
+        task_list.mark_deleted(*user_id, *timestamp);
 
         self.save_project_document(project_id, &document).await
     }
@@ -998,7 +977,7 @@ impl ProjectLocalAutomergeRepository {
                 task_id
             )));
         }
-        task.mark_restored(user_id.clone(), *timestamp);
+        task.mark_restored(*user_id, *timestamp);
 
         self.save_project_document(project_id, &document).await
     }
@@ -1027,7 +1006,7 @@ impl ProjectLocalAutomergeRepository {
                 tag_id
             )));
         }
-        tag.mark_restored(user_id.clone(), *timestamp);
+        tag.mark_restored(*user_id, *timestamp);
 
         self.save_project_document(project_id, &document).await
     }
@@ -1060,7 +1039,7 @@ impl ProjectLocalAutomergeRepository {
                 task_list_id
             )));
         }
-        task_list.mark_restored(user_id.clone(), *timestamp);
+        task_list.mark_restored(*user_id, *timestamp);
 
         self.save_project_document(project_id, &document).await
     }
@@ -1121,7 +1100,7 @@ impl Repository<Project, ProjectId> for ProjectLocalAutomergeRepository {
 
         // updated_by と updated_at を更新
         let mut updated_entity = entity.clone();
-        updated_entity.updated_by = user_id.clone();
+        updated_entity.updated_by = *user_id;
         updated_entity.updated_at = *timestamp;
 
         let result = self.set_project(&updated_entity).await;

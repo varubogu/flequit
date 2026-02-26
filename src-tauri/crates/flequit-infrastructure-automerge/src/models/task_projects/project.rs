@@ -58,6 +58,7 @@ impl AutoMergeProject {
     }
 
     /// プロジェクト情報を更新
+    #[allow(clippy::too_many_arguments)]
     pub fn update(
         &mut self,
         name: Option<String>,

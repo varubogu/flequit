@@ -198,8 +198,8 @@ impl ModelConverter<TaskList> for TaskListTree {
     async fn to_model(&self) -> Result<TaskList, String> {
         // TaskListTreeからTaskListに変換（関連データのtasksは除く）
         Ok(TaskList {
-            id: self.id.clone(),
-            project_id: self.project_id.clone(),
+            id: self.id,
+            project_id: self.project_id,
             name: self.name.clone(),
             description: self.description.clone(),
             color: self.color.clone(),

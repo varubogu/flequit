@@ -37,7 +37,7 @@ impl TaskTagLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = TaskTagEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -64,7 +64,7 @@ impl TaskTagLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = TaskTagEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -92,7 +92,7 @@ impl TaskTagLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         // 既存の関連が存在するかチェック
         let existing = TaskTagEntity::find()
@@ -143,7 +143,7 @@ impl TaskTagLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         TaskTagEntity::delete_many()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -188,7 +188,7 @@ impl TaskTagLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         TaskTagEntity::delete_many()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -232,7 +232,7 @@ impl TaskTagLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         TaskTagEntity::delete_many()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -321,7 +321,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagLocalSqliteRep
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = TaskTagEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -335,7 +335,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagLocalSqliteRep
             let domain_model = model
                 .to_domain_model()
                 .await
-                .map_err(|e| RepositoryError::ConversionError(e))?;
+                .map_err(RepositoryError::ConversionError)?;
             domain_models.push(domain_model);
         }
 
@@ -351,7 +351,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagLocalSqliteRep
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let count = TaskTagEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -372,7 +372,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagLocalSqliteRep
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let count = TaskTagEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -389,7 +389,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagLocalSqliteRep
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = TaskTagEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -402,7 +402,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagLocalSqliteRep
             let domain_model = model
                 .to_domain_model()
                 .await
-                .map_err(|e| RepositoryError::ConversionError(e))?;
+                .map_err(RepositoryError::ConversionError)?;
             domain_models.push(domain_model);
         }
 
@@ -419,7 +419,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagLocalSqliteRep
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let model = TaskTagEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -434,7 +434,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagLocalSqliteRep
                 let domain_model = m
                     .to_domain_model()
                     .await
-                    .map_err(|e| RepositoryError::ConversionError(e))?;
+                    .map_err(RepositoryError::ConversionError)?;
                 Ok(Some(domain_model))
             }
             None => Ok(None),

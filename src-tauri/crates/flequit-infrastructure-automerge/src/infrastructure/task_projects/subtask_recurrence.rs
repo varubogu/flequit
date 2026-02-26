@@ -48,7 +48,7 @@ impl SubtaskRecurrenceLocalAutomergeRepository {
         &self,
         project_id: &ProjectId,
     ) -> Result<Document, RepositoryError> {
-        let document_type = DocumentType::Project(project_id.clone());
+        let document_type = DocumentType::Project(*project_id);
         let mut manager = self.document_manager.lock().await;
         manager
             .get_or_create(&document_type)
@@ -241,7 +241,7 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
         let mut out = Vec::new();
         for v in list.into_iter().filter(|x| x.subtask_id == s) {
             out.push(SubTaskRecurrence {
-                subtask_id: parent_id.clone(),
+                subtask_id: *parent_id,
                 recurrence_rule_id: RecurrenceRuleId::from(v.recurrence_rule_id),
                 created_at: v.created_at,
                 updated_at: v.updated_at,
@@ -304,8 +304,8 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
             .find(|x| x.subtask_id == s && x.recurrence_rule_id == r)
         {
             return Ok(Some(SubTaskRecurrence {
-                subtask_id: parent_id.clone(),
-                recurrence_rule_id: child_id.clone(),
+                subtask_id: *parent_id,
+                recurrence_rule_id: *child_id,
                 created_at: found.created_at,
                 updated_at: found.updated_at,
                 updated_by: UserId::from(found.updated_by),

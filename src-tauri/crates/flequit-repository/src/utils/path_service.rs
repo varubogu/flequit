@@ -90,10 +90,13 @@ impl PathService {
 
     /// 設定済みまたはデフォルトのデータディレクトリを取得
     pub fn get_data_dir(&self) -> Result<PathBuf, Box<dyn std::error::Error>> {
-        if self.config.use_system_default || self.config.data_dir.is_none() {
-            Self::get_default_data_dir()
-        } else {
-            Ok(self.config.data_dir.as_ref().unwrap().clone())
+        if self.config.use_system_default {
+            return Self::get_default_data_dir();
+        }
+
+        match &self.config.data_dir {
+            Some(data_dir) => Ok(data_dir.clone()),
+            None => Self::get_default_data_dir(),
         }
     }
 

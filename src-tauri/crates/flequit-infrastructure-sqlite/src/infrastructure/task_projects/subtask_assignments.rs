@@ -36,7 +36,7 @@ impl SubtaskAssignmentLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = SubtaskAssignmentEntity::find()
             .filter(Column::SubtaskId.eq(subtask_id.to_string()))
@@ -61,7 +61,7 @@ impl SubtaskAssignmentLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = SubtaskAssignmentEntity::find()
             .filter(Column::UserId.eq(user_id.to_string()))
@@ -88,7 +88,7 @@ impl SubtaskAssignmentLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         // 既存の割り当てが存在するかチェック
         let existing = SubtaskAssignmentEntity::find()
@@ -130,7 +130,7 @@ impl SubtaskAssignmentLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         SubtaskAssignmentEntity::delete_many()
             .filter(Column::SubtaskId.eq(subtask_id.to_string()))
@@ -151,7 +151,7 @@ impl SubtaskAssignmentLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         SubtaskAssignmentEntity::delete_many()
             .filter(Column::SubtaskId.eq(subtask_id.to_string()))
@@ -171,7 +171,7 @@ impl SubtaskAssignmentLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         SubtaskAssignmentEntity::delete_many()
             .filter(Column::UserId.eq(user_id.to_string()))
@@ -260,7 +260,7 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = SubtaskAssignmentEntity::find()
             .filter(Column::SubtaskId.eq(parent_id.to_string()))
@@ -273,7 +273,7 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
             let domain_model = model
                 .to_domain_model()
                 .await
-                .map_err(|e| RepositoryError::ConversionError(e))?;
+                .map_err(RepositoryError::ConversionError)?;
             domain_models.push(domain_model);
         }
 
@@ -289,7 +289,7 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let count = SubtaskAssignmentEntity::find()
             .filter(Column::SubtaskId.eq(parent_id.to_string()))
@@ -309,7 +309,7 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let count = SubtaskAssignmentEntity::find()
             .filter(Column::SubtaskId.eq(parent_id.to_string()))
@@ -328,7 +328,7 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = SubtaskAssignmentEntity::find()
             .all(db)
@@ -340,7 +340,7 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
             let domain_model = model
                 .to_domain_model()
                 .await
-                .map_err(|e| RepositoryError::ConversionError(e))?;
+                .map_err(RepositoryError::ConversionError)?;
             domain_models.push(domain_model);
         }
 
@@ -357,7 +357,7 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let model = SubtaskAssignmentEntity::find()
             .filter(Column::SubtaskId.eq(parent_id.to_string()))
@@ -371,7 +371,7 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
                 let domain_model = m
                     .to_domain_model()
                     .await
-                    .map_err(|e| RepositoryError::ConversionError(e))?;
+                    .map_err(RepositoryError::ConversionError)?;
                 Ok(Some(domain_model))
             }
             None => Ok(None),

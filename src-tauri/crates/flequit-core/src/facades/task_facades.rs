@@ -231,7 +231,6 @@ where
 }
 
 /// TaskTag facades (moved from tagging_facades.rs)
-
 pub async fn add_task_tag_relation<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -280,7 +279,7 @@ where
             created_at: now,
             updated_at: now,
             deleted: false,
-            updated_by: user_id.clone(),
+            updated_by: *user_id,
         };
         match tag_service::create_tag(repositories, project_id, &new_tag, user_id).await {
             Ok(_) => new_tag,

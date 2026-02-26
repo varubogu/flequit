@@ -39,7 +39,6 @@ impl ProjectListLocalAutomergeRepository {
     }
 
     /// 全プロジェクト一覧を取得（削除済み含む、内部処理用）
-
     async fn list_all_projects_raw(&self) -> Result<Vec<Project>, RepositoryError> {
         let document = self.get_or_create_settings_document().await?;
         let projects = document.load_data::<Vec<Project>>("projects").await?;
@@ -51,14 +50,12 @@ impl ProjectListLocalAutomergeRepository {
     }
 
     /// アクティブなプロジェクト一覧を取得（deleted=falseのみ）
-
     pub async fn list_projects(&self) -> Result<Vec<Project>, RepositoryError> {
         let projects = self.list_all_projects_raw().await?;
         Ok(projects.into_iter().filter(|p| !p.is_deleted()).collect())
     }
 
     /// プロジェクトをプロジェクト一覧に追加または更新
-
     pub async fn add_or_update_project(&self, project: &Project) -> Result<(), RepositoryError> {
         log::info!("add_or_update_project - 開始: {:?}", project.id);
 
@@ -100,7 +97,6 @@ impl ProjectListLocalAutomergeRepository {
     }
 
     /// IDでプロジェクトを取得（一覧から）
-
     pub async fn get_project_from_list(
         &self,
         project_id: &str,
@@ -110,7 +106,6 @@ impl ProjectListLocalAutomergeRepository {
     }
 
     /// プロジェクトをプロジェクト一覧から削除
-
     pub async fn remove_project_from_list(
         &self,
         project_id: &str,
@@ -129,14 +124,12 @@ impl ProjectListLocalAutomergeRepository {
     }
 
     /// プロジェクト数を取得
-
     pub async fn count_projects(&self) -> Result<u64, RepositoryError> {
         let projects = self.list_projects().await?;
         Ok(projects.len() as u64)
     }
 
     /// プロジェクトが一覧に存在するかチェック
-
     pub async fn project_exists_in_list(
         &self,
         project_id: &ProjectId,
@@ -146,7 +139,6 @@ impl ProjectListLocalAutomergeRepository {
     }
 
     /// 削除済みプロジェクト一覧を取得（deleted=trueのみ）
-
     pub async fn list_deleted_projects(&self) -> Result<Vec<Project>, RepositoryError> {
         let projects = self.list_all_projects_raw().await?;
         Ok(projects.into_iter().filter(|p| p.is_deleted()).collect())

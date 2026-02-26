@@ -39,7 +39,7 @@ impl ModelConverter<DateTimeFormat> for DateTimeFormatCommandModel {
             name: self.name.clone(),
             format: self.format.clone(),
             group,
-            order: self.order.clone(),
+            order: self.order,
         })
     }
 }
@@ -60,7 +60,7 @@ impl CommandModelConverter<DateTimeFormatCommandModel> for DateTimeFormat {
             name: self.name.clone(),
             format: self.format.clone(),
             group,
-            order: self.order.clone(),
+            order: self.order,
         })
     }
 }

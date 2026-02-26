@@ -171,7 +171,6 @@ impl UserLocalAutomergeRepository {
     }
 
     /// JSON出力機能：ユーザー変更履歴をエクスポート
-
     pub async fn export_user_changes_history<P: AsRef<Path>>(
         &self,
         output_dir: P,
@@ -184,7 +183,6 @@ impl UserLocalAutomergeRepository {
     }
 
     /// JSON出力機能：現在のユーザー状態をファイルにエクスポート
-
     pub async fn export_user_state<P: AsRef<Path>>(
         &self,
         file_path: P,

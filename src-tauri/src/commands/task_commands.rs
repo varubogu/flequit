@@ -81,7 +81,7 @@ pub async fn update_task(
 
     // patchからtask_idを取得
     let task_id = match &patch.id {
-        Some(id) => id.clone(),
+        Some(id) => *id,
         None => return Err("Task ID is required in patch".to_string()),
     };
 
@@ -153,7 +153,6 @@ pub async fn restore_task(
 // =============================================================================
 
 /// タスクに繰り返しルールを関連付けます。
-
 #[instrument(level = "info", skip(state, task_recurrence), fields(project_id = %project_id, task_id = %task_recurrence.task_id, recurrence_rule_id = %task_recurrence.recurrence_rule_id))]
 #[tauri::command]
 pub async fn create_task_recurrence(
@@ -182,7 +181,6 @@ pub async fn create_task_recurrence(
 }
 
 /// タスクIDによる繰り返し関連付けを取得します。
-
 #[instrument(level = "info", skip(state), fields(project_id = %project_id, task_id = %task_id))]
 #[tauri::command]
 pub async fn get_task_recurrence_by_task_id(
@@ -210,7 +208,6 @@ pub async fn get_task_recurrence_by_task_id(
 }
 
 /// タスクの繰り返し関連付けを削除します。
-
 #[instrument(level = "info", skip(state), fields(project_id = %project_id, task_id = %task_id))]
 #[tauri::command]
 pub async fn delete_task_recurrence(
@@ -237,7 +234,6 @@ pub async fn delete_task_recurrence(
 // =============================================================================
 
 /// 繰り返しルールを作成します。
-
 #[instrument(level = "info", skip(state, rule), fields(project_id = %project_id, rule_id = %rule.id))]
 #[tauri::command]
 pub async fn create_recurrence_rule(
@@ -262,7 +258,6 @@ pub async fn create_recurrence_rule(
 }
 
 /// 繰り返しルールを取得します。
-
 #[instrument(level = "info", skip(state), fields(project_id = %project_id, rule_id = %rule_id))]
 #[tauri::command]
 pub async fn get_recurrence_rule(
@@ -288,7 +283,6 @@ pub async fn get_recurrence_rule(
 }
 
 /// すべての繰り返しルールを取得します。
-
 #[instrument(level = "info", skip(state), fields(project_id = %project_id))]
 #[tauri::command]
 pub async fn get_all_recurrence_rules(
@@ -314,7 +308,6 @@ pub async fn get_all_recurrence_rules(
 }
 
 /// 繰り返しルールを更新します。
-
 #[instrument(level = "info", skip(state, patch), fields(project_id = %project_id, rule_id = ?patch.id))]
 #[tauri::command]
 pub async fn update_recurrence_rule(
@@ -346,7 +339,6 @@ pub async fn update_recurrence_rule(
 }
 
 /// 繰り返しルールを削除します。
-
 #[instrument(level = "info", skip(state), fields(project_id = %project_id, rule_id = %rule_id))]
 #[tauri::command]
 pub async fn delete_recurrence_rule(
@@ -372,7 +364,6 @@ pub async fn delete_recurrence_rule(
 // =============================================================================
 
 /// 繰り返し調整を作成します。
-
 #[instrument(level = "info", skip(state, adjustment), fields(project_id = %project_id))]
 #[tauri::command]
 pub async fn create_recurrence_adjustment(
@@ -395,7 +386,6 @@ pub async fn create_recurrence_adjustment(
 }
 
 /// 繰り返しルールIDによる調整一覧を取得します。
-
 #[instrument(level = "info", skip(state), fields(project_id = %project_id, rule_id = %rule_id))]
 #[tauri::command]
 pub async fn get_recurrence_adjustments_by_rule_id(
@@ -423,7 +413,6 @@ pub async fn get_recurrence_adjustments_by_rule_id(
 }
 
 /// 繰り返し調整を削除します。
-
 #[instrument(level = "info", skip(state), fields(project_id = %project_id, adjustment_id = %adjustment_id))]
 #[tauri::command]
 pub async fn delete_recurrence_adjustment(
@@ -449,7 +438,6 @@ pub async fn delete_recurrence_adjustment(
 // =============================================================================
 
 /// 繰り返し詳細を作成します。
-
 #[instrument(level = "info", skip(state, details), fields(project_id = %project_id))]
 #[tauri::command]
 pub async fn create_recurrence_details(
@@ -472,7 +460,6 @@ pub async fn create_recurrence_details(
 }
 
 /// 繰り返しルールIDによる詳細を取得します。
-
 #[instrument(level = "info", skip(state), fields(project_id = %project_id, rule_id = %rule_id))]
 #[tauri::command]
 pub async fn get_recurrence_details_by_rule_id(
@@ -499,7 +486,6 @@ pub async fn get_recurrence_details_by_rule_id(
 }
 
 /// 繰り返し詳細を更新します。
-
 #[instrument(level = "info", skip(state, details), fields(project_id = %project_id))]
 #[tauri::command]
 pub async fn update_recurrence_details(
@@ -522,7 +508,6 @@ pub async fn update_recurrence_details(
 }
 
 /// 繰り返し詳細を削除します。
-
 #[instrument(level = "info", skip(state), fields(project_id = %project_id, details_id = %details_id))]
 #[tauri::command]
 pub async fn delete_recurrence_details(

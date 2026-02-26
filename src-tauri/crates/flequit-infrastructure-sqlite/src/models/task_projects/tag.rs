@@ -131,7 +131,6 @@ impl DomainToSqliteConverterWithProjectId<ActiveModel> for Tag {
 /// タグの使用回数を更新するための追加メソッド
 impl ActiveModel {
     /// タグの使用回数をインクリメント
-
     pub fn increment_usage(mut self) -> Self {
         if let Set(current_count) = self.usage_count {
             self.usage_count = Set(current_count + 1);
@@ -141,7 +140,6 @@ impl ActiveModel {
     }
 
     /// タグの使用回数をデクリメント（0未満にはならない）
-
     pub fn decrement_usage(mut self) -> Self {
         if let Set(current_count) = self.usage_count {
             self.usage_count = Set((current_count - 1).max(0));

@@ -50,7 +50,7 @@ impl SubtaskAssignmentLocalAutomergeRepository {
         &self,
         project_id: &ProjectId,
     ) -> Result<Document, RepositoryError> {
-        let document_type = DocumentType::Project(project_id.clone());
+        let document_type = DocumentType::Project(*project_id);
         let mut manager = self.document_manager.lock().await;
         manager
             .get_or_create(&document_type)
@@ -306,8 +306,8 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         // 各ユーザーIDに対して SubTaskAssignment を作成
         for user_id in user_ids {
             let assignment = SubTaskAssignment {
-                subtask_id: parent_id.clone(),
-                user_id: user_id.clone(),
+                subtask_id: *parent_id,
+                user_id,
                 created_at: chrono::Utc::now(),
                 updated_at: chrono::Utc::now(),
                 updated_by: user_id,
@@ -356,8 +356,8 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
                 a.subtask_id == parent_id.to_string() && a.user_id == child_id.to_string()
             }) {
                 let assignment = SubTaskAssignment {
-                    subtask_id: parent_id.clone(),
-                    user_id: child_id.clone(),
+                    subtask_id: *parent_id,
+                    user_id: *child_id,
                     created_at: assignment_relation.created_at,
                     updated_at: assignment_relation.updated_at,
                     updated_by: UserId::from(assignment_relation.updated_by.clone()),

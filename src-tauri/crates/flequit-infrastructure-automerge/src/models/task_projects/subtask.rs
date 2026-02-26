@@ -57,6 +57,7 @@ pub mod subtask_status {
 
 impl AutoMergeSubTask {
     /// 新しいサブタスクを作成
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         id: String,
         project_id: String,
@@ -94,6 +95,7 @@ impl AutoMergeSubTask {
     }
 
     /// サブタスク情報を更新
+    #[allow(clippy::too_many_arguments)]
     pub fn update(
         &mut self,
         title: Option<String>,

@@ -38,7 +38,7 @@ impl UserLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         if let Some(model) = UserEntity::find()
             .filter(Column::Email.eq(email))
@@ -65,7 +65,7 @@ impl UserLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         if let Some(model) = UserEntity::find()
             .filter(Column::HandleId.eq(handle_id))
@@ -89,7 +89,7 @@ impl UserLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = UserEntity::find()
             .filter(Column::HandleId.contains(name))
@@ -119,7 +119,7 @@ impl UserLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = UserEntity::find()
             .filter(Column::DisplayName.contains(display_name))
@@ -146,7 +146,7 @@ impl UserLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = UserEntity::find()
             .order_by_desc(Column::CreatedAt)
@@ -177,7 +177,7 @@ impl Repository<User, UserId> for UserLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         // 既存のユーザーをチェック（IDで）
         let existing = UserEntity::find_by_id(user.id.to_string())
@@ -226,7 +226,7 @@ impl Repository<User, UserId> for UserLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         if let Some(model) = UserEntity::find_by_id(id.to_string())
             .one(db)
@@ -248,7 +248,7 @@ impl Repository<User, UserId> for UserLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         UserEntity::delete_by_id(id.to_string())
             .exec(db)
@@ -262,7 +262,7 @@ impl Repository<User, UserId> for UserLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = UserEntity::find()
             .order_by_asc(Column::CreatedAt)
@@ -290,7 +290,7 @@ impl Repository<User, UserId> for UserLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let count = UserEntity::find_by_id(id.to_string())
             .count(db)
@@ -307,7 +307,7 @@ impl Repository<User, UserId> for UserLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let count = UserEntity::find()
             .count(db)

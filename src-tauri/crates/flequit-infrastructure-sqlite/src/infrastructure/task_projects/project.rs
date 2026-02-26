@@ -31,7 +31,7 @@ impl ProjectLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+            .map_err(RepositoryError::from)?;
 
         let models = ProjectEntity::find()
             .filter(Column::OwnerId.eq(owner_id))
@@ -57,7 +57,7 @@ impl ProjectLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+            .map_err(RepositoryError::from)?;
 
         let models = ProjectEntity::find()
             .filter(Column::IsArchived.eq(false))
@@ -106,7 +106,7 @@ impl Repository<Project, ProjectId> for ProjectLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+            .map_err(RepositoryError::from)?;
         log::info!("ProjectLocalSqliteRepository::save - DB接続取得完了");
         let active_model = project
             .to_sqlite_model()
@@ -115,7 +115,7 @@ impl Repository<Project, ProjectId> for ProjectLocalSqliteRepository {
         log::info!("ProjectLocalSqliteRepository::save - ActiveModel作成完了");
 
         // 既存レコードを確認
-        let existing = ProjectEntity::find_by_id(&project.id.to_string())
+        let existing = ProjectEntity::find_by_id(project.id.to_string())
             .one(db)
             .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
@@ -146,7 +146,7 @@ impl Repository<Project, ProjectId> for ProjectLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+            .map_err(RepositoryError::from)?;
 
         if let Some(model) = ProjectEntity::find_by_id(id.to_string())
             .one(db)
@@ -168,7 +168,7 @@ impl Repository<Project, ProjectId> for ProjectLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+            .map_err(RepositoryError::from)?;
 
         let models = ProjectEntity::find()
             .order_by_asc(Column::OrderIndex)
@@ -193,7 +193,7 @@ impl Repository<Project, ProjectId> for ProjectLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+            .map_err(RepositoryError::from)?;
         ProjectEntity::delete_by_id(id.to_string())
             .exec(db)
             .await
@@ -206,7 +206,7 @@ impl Repository<Project, ProjectId> for ProjectLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+            .map_err(RepositoryError::from)?;
         let count = ProjectEntity::find_by_id(id.to_string())
             .count(db)
             .await
@@ -219,7 +219,7 @@ impl Repository<Project, ProjectId> for ProjectLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+            .map_err(RepositoryError::from)?;
         let count = ProjectEntity::find()
             .count(db)
             .await

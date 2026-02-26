@@ -50,7 +50,7 @@ impl SubtaskTagLocalAutomergeRepository {
         &self,
         project_id: &ProjectId,
     ) -> Result<Document, RepositoryError> {
-        let document_type = DocumentType::Project(project_id.clone());
+        let document_type = DocumentType::Project(*project_id);
         let mut manager = self.document_manager.lock().await;
         manager
             .get_or_create(&document_type)
@@ -289,8 +289,8 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId>
         // 各タグIDに対して SubTaskTag を作成
         for tag_id in tag_ids {
             let tag_relation = SubTaskTag {
-                subtask_id: parent_id.clone(),
-                tag_id: tag_id.clone(),
+                subtask_id: *parent_id,
+                tag_id,
                 created_at: chrono::Utc::now(),
                 updated_at: chrono::Utc::now(),
                 updated_by: UserId::from("system"),
@@ -339,8 +339,8 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId>
                 .find(|r| r.subtask_id == parent_id.to_string() && r.tag_id == child_id.to_string())
             {
                 let subtask_tag = SubTaskTag {
-                    subtask_id: parent_id.clone(),
-                    tag_id: child_id.clone(),
+                    subtask_id: *parent_id,
+                    tag_id: *child_id,
                     created_at: subtask_tag_relation.created_at,
                     updated_at: subtask_tag_relation.updated_at,
                     updated_by: UserId::from(subtask_tag_relation.updated_by.clone()),

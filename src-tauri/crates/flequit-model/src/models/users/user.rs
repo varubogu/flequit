@@ -208,7 +208,7 @@ impl ModelConverter<User> for UserTree {
     async fn to_model(&self) -> Result<User, String> {
         // UserTreeからUser基本構造体に変換（関連データのtask_assignments, subtask_assignmentsは除く）
         Ok(User {
-            id: self.id.clone(),
+            id: self.id,
             handle_id: self.handle_id.clone(),
             display_name: self.display_name.clone(),
             email: self.email.clone(),
@@ -219,7 +219,7 @@ impl ModelConverter<User> for UserTree {
             created_at: self.created_at,
             updated_at: self.updated_at,
             deleted: self.deleted,
-            updated_by: self.updated_by.clone(),
+            updated_by: self.updated_by,
         })
     }
 }

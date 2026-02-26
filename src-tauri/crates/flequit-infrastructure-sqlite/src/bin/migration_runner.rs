@@ -29,12 +29,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env::set_var("FLEQUIT_DB_PATH", db_path);
 
     // 強制モードの場合は、既存のDBファイルを削除
-    if force_mode {
-        if std::path::Path::new(db_path).exists() {
+    if force_mode
+        && std::path::Path::new(db_path).exists() {
             println!("⚠️  既存のデータベースファイルを削除します");
             std::fs::remove_file(db_path)?;
         }
-    }
 
     // DatabaseManagerを作成（シングルトンではない新しいインスタンスが必要）
     let db_manager = DatabaseManager::new_for_test(db_path);

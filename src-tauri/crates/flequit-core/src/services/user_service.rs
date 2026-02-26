@@ -116,10 +116,10 @@ where
                 .to_lowercase()
                 .contains(&query.to_lowercase())
                 || user.display_name.contains(&query.to_lowercase())
-                || user.email.as_ref().map_or(false, |email| {
+                || user.email.as_ref().is_some_and(|email| {
                     email.to_lowercase().contains(&query.to_lowercase())
                 })
-                || user.bio.as_ref().map_or(false, |bio| {
+                || user.bio.as_ref().is_some_and(|bio| {
                     bio.to_lowercase().contains(&query.to_lowercase())
                 })
         })
@@ -141,8 +141,8 @@ where
     let exists = users.iter().any(|user| {
         user.email
             .as_ref()
-            .map_or(false, |user_email| user_email == email)
-            && exclude_id.map_or(true, |id| user.id.to_string() != id)
+            .is_some_and(|user_email| user_email == email)
+            && exclude_id.is_none_or(|id| user.id.to_string() != id)
     });
 
     Ok(exists)
@@ -150,6 +150,7 @@ where
 
 /// 編集権限チェック付きでユーザープロフィールを更新
 /// 自分のAccount.user_idにマッチするプロフィールのみ更新可能
+#[allow(clippy::too_many_arguments)]
 pub async fn update_user_profile<R>(
     repositories: &R,
     current_account: &Account,

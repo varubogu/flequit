@@ -24,7 +24,6 @@ use flequit_types::errors::service_error::ServiceError;
 // =============================================================================
 
 /// 繰り返しルールを作成します。
-
 pub async fn create_recurrence_rule<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -42,7 +41,6 @@ where
 }
 
 /// 繰り返しルールを取得します。
-
 pub async fn get_recurrence_rule<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -59,7 +57,6 @@ where
 }
 
 /// すべての繰り返しルールを取得します。
-
 pub async fn get_all_recurrence_rules<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -74,7 +71,6 @@ where
 }
 
 /// 繰り返しルールを更新します。
-
 pub async fn update_recurrence_rule<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -93,7 +89,6 @@ where
 }
 
 /// 繰り返しルールを削除します。
-
 pub async fn delete_recurrence_rule<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -114,7 +109,6 @@ where
 // =============================================================================
 
 /// 繰り返し調整を作成します。
-
 pub async fn create_recurrence_adjustment<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -133,7 +127,6 @@ where
 }
 
 /// 繰り返しルールIDによる調整一覧を取得します。
-
 pub async fn get_recurrence_adjustments_by_rule_id<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -155,7 +148,6 @@ where
 }
 
 /// 繰り返し調整を削除します。
-
 pub async fn delete_recurrence_adjustment<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -178,7 +170,6 @@ where
 // =============================================================================
 
 /// 繰り返し詳細を作成します。
-
 pub async fn create_recurrence_details<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -195,7 +186,6 @@ where
 }
 
 /// 繰り返しルールIDによる詳細を取得します。
-
 pub async fn get_recurrence_details_by_rule_id<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -213,7 +203,6 @@ where
 }
 
 /// 繰り返し詳細を更新します。
-
 pub async fn update_recurrence_details<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -230,7 +219,6 @@ where
 }
 
 /// 繰り返し詳細を削除します。
-
 pub async fn delete_recurrence_details<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -239,7 +227,7 @@ pub async fn delete_recurrence_details<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::delete_recurrence_details(repositories, project_id, &details_id).await
+    match recurrence_service::delete_recurrence_details(repositories, project_id, details_id).await
     {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
@@ -252,7 +240,6 @@ where
 // =============================================================================
 
 /// タスクに繰り返しルールを関連付けます。
-
 pub async fn create_task_recurrence<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -266,7 +253,7 @@ where
         repositories,
         project_id,
         task_id,
-        &recurrence_rule_id,
+        recurrence_rule_id,
     )
     .await
     {
@@ -277,7 +264,6 @@ where
 }
 
 /// タスクIDによる繰り返し関連付けを取得します。
-
 pub async fn get_task_recurrence_by_task_id<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -286,7 +272,7 @@ pub async fn get_task_recurrence_by_task_id<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::get_task_recurrence_by_task_id(repositories, project_id, &task_id)
+    match recurrence_service::get_task_recurrence_by_task_id(repositories, project_id, task_id)
         .await
     {
         Ok(task_recurrence) => Ok(task_recurrence),
@@ -295,7 +281,6 @@ where
 }
 
 /// タスクの繰り返し関連付けを削除します。
-
 pub async fn delete_task_recurrence<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -304,7 +289,7 @@ pub async fn delete_task_recurrence<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::delete_task_recurrence(repositories, project_id, &task_id).await {
+    match recurrence_service::delete_task_recurrence(repositories, project_id, task_id).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to delete task recurrence: {:?}", e)),
@@ -316,7 +301,6 @@ where
 // =============================================================================
 
 /// サブタスクに繰り返しルールを関連付けます。
-
 pub async fn create_subtask_recurrence<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -329,8 +313,8 @@ where
     match recurrence_service::create_subtask_recurrence(
         repositories,
         project_id,
-        &subtask_id,
-        &recurrence_rule_id,
+        subtask_id,
+        recurrence_rule_id,
     )
     .await
     {
@@ -341,7 +325,6 @@ where
 }
 
 /// サブタスクIDによる繰り返し関連付けを取得します。
-
 pub async fn get_subtask_recurrence_by_subtask_id<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -353,7 +336,7 @@ where
     match recurrence_service::get_subtask_recurrence_by_subtask_id(
         repositories,
         project_id,
-        &subtask_id,
+        subtask_id,
     )
     .await
     {
@@ -363,7 +346,6 @@ where
 }
 
 /// サブタスクの繰り返し関連付けを削除します。
-
 pub async fn delete_subtask_recurrence<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -372,7 +354,7 @@ pub async fn delete_subtask_recurrence<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::delete_subtask_recurrence(repositories, project_id, &subtask_id).await
+    match recurrence_service::delete_subtask_recurrence(repositories, project_id, subtask_id).await
     {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),

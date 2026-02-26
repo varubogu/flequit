@@ -42,7 +42,7 @@ impl TaskListLocalAutomergeRepository {
         &self,
         project_id: &ProjectId,
     ) -> Result<Document, RepositoryError> {
-        let doc_type = DocumentType::Project(project_id.clone());
+        let doc_type = DocumentType::Project(*project_id);
         let mut manager = self.document_manager.lock().await;
         manager
             .get_or_create(&doc_type)

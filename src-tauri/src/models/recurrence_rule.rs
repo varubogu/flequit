@@ -306,11 +306,7 @@ impl ModelConverter<PartialRecurrenceRule> for PartialRecurrenceRuleCommandModel
             None
         };
 
-        let id = if let Some(ref id_str) = self.id {
-            Some(RecurrenceRuleId::from(id_str.clone()))
-        } else {
-            None
-        };
+        let id = self.id.as_ref().map(|id_str| RecurrenceRuleId::from(id_str.clone()));
 
         Ok(PartialRecurrenceRule {
             id,

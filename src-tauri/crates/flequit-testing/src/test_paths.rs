@@ -82,7 +82,7 @@ impl TestPathGenerator {
         // フォールバック: ファイル名のみ（拡張子なし）
         path.with_extension("")
             .file_name()
-            .map(|name| PathBuf::from(name))
+            .map(PathBuf::from)
             .unwrap_or_else(|| PathBuf::from("unknown-test"))
     }
 

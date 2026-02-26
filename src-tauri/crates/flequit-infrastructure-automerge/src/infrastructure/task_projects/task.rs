@@ -50,7 +50,6 @@ impl TaskLocalAutomergeRepository {
     }
 
     /// 共有DocumentManagerを使用して新しいインスタンスを作成
-
     pub async fn new_with_manager(
         document_manager: Arc<Mutex<DocumentManager>>,
     ) -> Result<Self, RepositoryError> {
@@ -58,12 +57,11 @@ impl TaskLocalAutomergeRepository {
     }
 
     /// 指定されたプロジェクトのDocumentを取得または作成
-
     async fn get_or_create_document(
         &self,
         project_id: &ProjectId,
     ) -> Result<Document, RepositoryError> {
-        let doc_type = DocumentType::Project(project_id.clone());
+        let doc_type = DocumentType::Project(*project_id);
         let mut manager = self.document_manager.lock().await;
         manager
             .get_or_create(&doc_type)
@@ -72,7 +70,6 @@ impl TaskLocalAutomergeRepository {
     }
 
     /// 指定されたプロジェクトの全タスクを取得
-
     async fn list_all_tasks_raw(&self, project_id: &ProjectId) -> Result<Vec<Task>, RepositoryError> {
         let document = self.get_or_create_document(project_id).await?;
         let tasks = document.load_data::<Vec<Task>>("tasks").await?;
@@ -89,7 +86,6 @@ impl TaskLocalAutomergeRepository {
     }
 
     /// IDでタスクを取得
-
     pub async fn get_task(
         &self,
         project_id: &ProjectId,
@@ -100,7 +96,6 @@ impl TaskLocalAutomergeRepository {
     }
 
     /// タスクを作成または更新
-
     pub async fn set_task(
         &self,
         project_id: &ProjectId,
@@ -135,7 +130,6 @@ impl TaskLocalAutomergeRepository {
     }
 
     /// タスクを削除
-
     pub async fn delete_task(
         &self,
         project_id: &ProjectId,

@@ -36,7 +36,7 @@ impl TaskListLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = TaskListEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -104,9 +104,9 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
         let active_model = task_list
-            .to_sqlite_model_with_project_id(&project_id)
+            .to_sqlite_model_with_project_id(project_id)
             .await
             .map_err(|e: String| RepositoryError::from(SQLiteError::ConversionError(e)))?;
 
@@ -142,7 +142,7 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         if let Some(model) = TaskListEntity::find_by_id((project_id.to_string(), id.to_string()))
             .one(db)
@@ -164,7 +164,7 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = TaskListEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -191,7 +191,7 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
         TaskListEntity::delete_by_id((project_id.to_string(), id.to_string()))
             .exec(db)
             .await
@@ -208,7 +208,7 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
         let count = TaskListEntity::find_by_id((project_id.to_string(), id.to_string()))
             .count(db)
             .await
@@ -221,7 +221,7 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
         let count = TaskListEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
             .filter(Column::IsArchived.eq(false))

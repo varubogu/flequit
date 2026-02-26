@@ -111,11 +111,11 @@ where
 
     if users.iter().all(|user| user.deleted) {
         let now = chrono::Utc::now();
-        let user_id = resolve_primary_user_id(&users, &accounts).unwrap_or_else(UserId::new);
+        let user_id = resolve_primary_user_id(&users, &accounts).unwrap_or_default();
         let handle_id = build_unique_user_handle(&users, DEFAULT_LOCAL_USER_HANDLE_BASE);
 
         let default_user = User {
-            id: user_id.clone(),
+            id: user_id,
             handle_id,
             display_name: DEFAULT_LOCAL_USER_DISPLAY_NAME.to_string(),
             email: None,
@@ -126,7 +126,7 @@ where
             created_at: now,
             updated_at: now,
             deleted: false,
-            updated_by: user_id.clone(),
+            updated_by: user_id,
         };
 
         repositories.users().save(&default_user, &user_id, &now).await?;
@@ -142,7 +142,7 @@ where
 
         let default_account = Account {
             id: AccountId::new(),
-            user_id: user_id.clone(),
+            user_id,
             email: None,
             display_name: Some(DEFAULT_LOCAL_ACCOUNT_DISPLAY_NAME.to_string()),
             avatar_url: None,
@@ -155,7 +155,7 @@ where
             created_at: now,
             updated_at: now,
             deleted: false,
-            updated_by: user_id.clone(),
+            updated_by: user_id,
         };
 
         repositories
@@ -186,11 +186,11 @@ where
             order_index: next_order_index,
             is_archived: false,
             status: None,
-            owner_id: Some(owner_user_id.clone()),
+            owner_id: Some(owner_user_id),
             created_at: now,
             updated_at: now,
             deleted: false,
-            updated_by: owner_user_id.clone(),
+            updated_by: owner_user_id,
         };
 
         repositories
@@ -259,7 +259,7 @@ where
         .await?;
 
         let project_tree = ProjectTree {
-            id: project.id.clone(),
+            id: project.id,
             name: project.name,
             description: project.description,
             color: project.color,

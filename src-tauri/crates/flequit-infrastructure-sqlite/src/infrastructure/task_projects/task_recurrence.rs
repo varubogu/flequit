@@ -64,7 +64,7 @@ impl ProjectRelationRepository<TaskRecurrence, TaskId, RecurrenceRuleId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         // 既存チェック
         let existing = TaskRecurrenceEntity::find()
@@ -106,7 +106,7 @@ impl ProjectRelationRepository<TaskRecurrence, TaskId, RecurrenceRuleId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         TaskRecurrenceEntity::delete_many()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -128,7 +128,7 @@ impl ProjectRelationRepository<TaskRecurrence, TaskId, RecurrenceRuleId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         TaskRecurrenceEntity::delete_many()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -149,7 +149,7 @@ impl ProjectRelationRepository<TaskRecurrence, TaskId, RecurrenceRuleId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = TaskRecurrenceEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -183,7 +183,7 @@ impl ProjectRelationRepository<TaskRecurrence, TaskId, RecurrenceRuleId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let count = TaskRecurrenceEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -204,7 +204,7 @@ impl ProjectRelationRepository<TaskRecurrence, TaskId, RecurrenceRuleId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let count = TaskRecurrenceEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -224,7 +224,7 @@ impl ProjectRelationRepository<TaskRecurrence, TaskId, RecurrenceRuleId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = TaskRecurrenceEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -258,7 +258,7 @@ impl ProjectRelationRepository<TaskRecurrence, TaskId, RecurrenceRuleId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let model = TaskRecurrenceEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))

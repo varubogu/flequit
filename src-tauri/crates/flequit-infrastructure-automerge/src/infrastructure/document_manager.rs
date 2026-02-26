@@ -63,7 +63,7 @@ impl DocumentType {
     /// プロジェクトIDを取得（Project型の場合のみ）
     pub fn project_id(&self) -> Option<ProjectId> {
         match self {
-            DocumentType::Project(id) => Some(id.clone()),
+            DocumentType::Project(id) => Some(*id),
             _ => None,
         }
     }
@@ -139,7 +139,7 @@ impl DocumentManager {
         log::debug!("get_or_create called for document type: {:?}", doc_type);
 
         // キャッシュから取得
-        if let Some(doc) = self.documents.get(&doc_type) {
+        if let Some(doc) = self.documents.get(doc_type) {
             log::debug!("Document found in cache for type: {:?}", doc_type);
             return Ok(doc.clone());
         }

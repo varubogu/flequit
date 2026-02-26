@@ -47,12 +47,11 @@ impl MemberLocalAutomergeRepository {
     }
 
     /// 指定されたプロジェクトのDocumentを取得または作成
-
     async fn get_or_create_document(
         &self,
         project_id: &ProjectId,
     ) -> Result<Document, RepositoryError> {
-        let doc_type = DocumentType::Project(project_id.clone());
+        let doc_type = DocumentType::Project(*project_id);
         let mut manager = self.document_manager.write().await;
         manager
             .get_or_create(&doc_type)
@@ -61,7 +60,6 @@ impl MemberLocalAutomergeRepository {
     }
 
     /// 指定されたプロジェクトの全メンバーを取得
-
     pub async fn list_members(
         &self,
         project_id: &ProjectId,
@@ -76,7 +74,6 @@ impl MemberLocalAutomergeRepository {
     }
 
     /// IDでメンバーを取得
-
     pub async fn get_member(
         &self,
         project_id: &ProjectId,
@@ -89,7 +86,6 @@ impl MemberLocalAutomergeRepository {
     }
 
     /// メンバーを作成または更新
-
     pub async fn set_member(
         &self,
         project_id: &ProjectId,
@@ -124,7 +120,6 @@ impl MemberLocalAutomergeRepository {
     }
 
     /// メンバーを削除
-
     pub async fn delete_member(
         &self,
         project_id: &ProjectId,

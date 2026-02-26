@@ -204,7 +204,7 @@ impl ModelConverter<RecurrenceRule> for RecurrenceRuleTree {
     async fn to_model(&self) -> Result<RecurrenceRule, String> {
         // RecurrenceRuleTreeからRecurrenceRule基本構造体に変換（関連データのtask_recurrences, subtask_recurrencesは除く）
         Ok(RecurrenceRule {
-            id: self.id.clone(),
+            id: self.id,
             unit: self.unit.clone(),
             interval: self.interval,
             days_of_week: self.days_of_week.clone(),

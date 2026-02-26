@@ -47,12 +47,11 @@ impl DateConditionLocalAutomergeRepository {
     }
 
     /// 指定されたプロジェクトのDocumentを取得または作成
-
     async fn get_or_create_document(
         &self,
         project_id: &ProjectId,
     ) -> Result<Document, RepositoryError> {
-        let doc_type = DocumentType::Project(project_id.clone());
+        let doc_type = DocumentType::Project(*project_id);
         let mut manager = self.document_manager.write().await;
         manager
             .get_or_create(&doc_type)
@@ -61,7 +60,6 @@ impl DateConditionLocalAutomergeRepository {
     }
 
     /// 指定されたプロジェクトの全日付条件を取得
-
     pub async fn list_date_conditions(
         &self,
         project_id: &ProjectId,
@@ -78,7 +76,6 @@ impl DateConditionLocalAutomergeRepository {
     }
 
     /// IDで日付条件を取得
-
     pub async fn get_date_condition(
         &self,
         project_id: &ProjectId,
@@ -91,7 +88,6 @@ impl DateConditionLocalAutomergeRepository {
     }
 
     /// 日付条件を作成または更新
-
     pub async fn set_date_condition(
         &self,
         project_id: &ProjectId,
@@ -143,7 +139,6 @@ impl DateConditionLocalAutomergeRepository {
     }
 
     /// 日付条件を削除
-
     pub async fn delete_date_condition(
         &self,
         project_id: &ProjectId,

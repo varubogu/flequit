@@ -49,7 +49,6 @@ impl TagLocalAutomergeRepository {
     }
 
     /// 共有DocumentManagerを使用して新しいインスタンスを作成
-
     pub async fn new_with_manager(
         document_manager: Arc<Mutex<DocumentManager>>,
     ) -> Result<Self, RepositoryError> {
@@ -57,12 +56,11 @@ impl TagLocalAutomergeRepository {
     }
 
     /// 指定されたプロジェクトのDocumentを取得または作成
-
     async fn get_or_create_document(
         &self,
         project_id: &ProjectId,
     ) -> Result<Document, RepositoryError> {
-        let doc_type = DocumentType::Project(project_id.clone());
+        let doc_type = DocumentType::Project(*project_id);
         let mut manager = self.document_manager.lock().await;
         manager
             .get_or_create(&doc_type)
@@ -71,7 +69,6 @@ impl TagLocalAutomergeRepository {
     }
 
     /// 指定されたプロジェクトの全タグを取得
-
     async fn list_all_tags_raw(&self, project_id: &ProjectId) -> Result<Vec<Tag>, RepositoryError> {
         let document = self.get_or_create_document(project_id).await?;
         let tags = document.load_data::<Vec<Tag>>("tags").await?;
@@ -88,7 +85,6 @@ impl TagLocalAutomergeRepository {
     }
 
     /// IDでタグを取得
-
     pub async fn get_tag(
         &self,
         project_id: &ProjectId,
@@ -99,7 +95,6 @@ impl TagLocalAutomergeRepository {
     }
 
     /// タグを作成または更新
-
     pub async fn set_tag(&self, project_id: &ProjectId, tag: &Tag) -> Result<(), RepositoryError> {
         log::info!("set_tag - 開始: {:?}", tag.id);
         let mut tags = self.list_all_tags_raw(project_id).await?;
@@ -130,7 +125,6 @@ impl TagLocalAutomergeRepository {
     }
 
     /// タグを削除
-
     pub async fn delete_tag(
         &self,
         project_id: &ProjectId,

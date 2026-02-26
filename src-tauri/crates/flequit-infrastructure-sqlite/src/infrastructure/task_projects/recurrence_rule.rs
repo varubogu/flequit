@@ -314,7 +314,7 @@ impl RecurrenceRuleLocalSqliteRepository {
             let then_weekday_str = weekday_condition
                 .then_weekday
                 .as_ref()
-                .map(|d| day_of_week_to_string(d));
+                .map(day_of_week_to_string);
 
             let weekday_condition_active = RecurrenceWeekdayConditionActiveModel {
                 project_id: Set(project_id.to_string()),
@@ -541,7 +541,7 @@ impl RecurrenceRuleLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = RecurrenceRuleEntity::find()
             .filter(Column::Unit.eq(unit))
@@ -571,7 +571,7 @@ impl RecurrenceRuleLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = RecurrenceRuleEntity::find()
             .filter(Column::Interval.eq(interval))
@@ -598,7 +598,7 @@ impl RecurrenceRuleLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = RecurrenceRuleEntity::find()
             .filter(Column::MaxOccurrences.is_not_null())
@@ -635,7 +635,7 @@ impl ProjectRepository<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleLocal
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         // トランザクション開始
         let txn = db
@@ -738,7 +738,7 @@ impl ProjectRepository<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleLocal
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         if let Some(model) =
             RecurrenceRuleEntity::find_by_id((project_id.to_string(), id.to_string()))
@@ -775,7 +775,7 @@ impl ProjectRepository<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleLocal
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = RecurrenceRuleEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -793,7 +793,7 @@ impl ProjectRepository<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleLocal
                 .map_err(|e: String| RepositoryError::from(SQLiteError::ConversionError(e)))?;
 
             // 2. adjustment を読み込む
-            let rule_id = rule.id.clone();
+            let rule_id = rule.id;
             rule.adjustment = self.load_adjustment(db, project_id, &rule_id).await?;
 
             // 3. details を読み込む
@@ -817,7 +817,7 @@ impl ProjectRepository<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleLocal
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         RecurrenceRuleEntity::delete_by_id((project_id.to_string(), id.to_string()))
             .exec(db)
@@ -835,7 +835,7 @@ impl ProjectRepository<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleLocal
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
         let count = RecurrenceRuleEntity::find_by_id((project_id.to_string(), id.to_string()))
             .count(db)
             .await
@@ -848,7 +848,7 @@ impl ProjectRepository<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleLocal
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
         let count = RecurrenceRuleEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
             .count(db)

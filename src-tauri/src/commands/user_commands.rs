@@ -79,7 +79,7 @@ pub async fn update_user(
         created_at: existing_user.created_at,
         updated_at: chrono::Utc::now(), // 更新時刻を現在時刻に設定
         deleted: existing_user.deleted,
-        updated_by: user_id_typed.clone(),
+        updated_by: user_id_typed,
     };
 
     user_facades::update_user(&*repositories, &updated_user, &user_id_typed)

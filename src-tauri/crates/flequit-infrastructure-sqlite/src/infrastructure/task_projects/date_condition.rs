@@ -39,10 +39,10 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalSql
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let sqlite_model = entity
-            .to_sqlite_model_with_project_id(&project_id)
+            .to_sqlite_model_with_project_id(project_id)
             .await
             .map_err(|e: String| RepositoryError::from(SQLiteError::ConversionError(e)))?;
 
@@ -73,7 +73,7 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalSql
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         if let Some(model) = DateConditionEntity::find()
             .filter(Column::Id.eq(id.as_str()))
@@ -99,7 +99,7 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalSql
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = DateConditionEntity::find()
             .all(db)
@@ -127,7 +127,7 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalSql
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         DateConditionEntity::delete_many()
             .filter(Column::Id.eq(id.as_str()))
@@ -147,7 +147,7 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalSql
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let count = DateConditionEntity::find()
             .filter(Column::Id.eq(id.as_str()))
@@ -163,7 +163,7 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalSql
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let count = DateConditionEntity::find()
             .count(db)

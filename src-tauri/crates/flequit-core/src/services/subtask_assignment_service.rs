@@ -152,7 +152,7 @@ where
         .await
         .map_err(ServiceError::Repository)?;
     for subtask in subtasks {
-        let _ = repositories
+        repositories
             .subtask_assignments()
             .remove(project_id, &subtask.id, user_id)
             .await

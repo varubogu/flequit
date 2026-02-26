@@ -36,7 +36,7 @@ impl ProjectRepository<Member, UserId> for MemberLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let sqlite_model = entity
             .to_sqlite_model_with_project_id(project_id)
@@ -70,7 +70,7 @@ impl ProjectRepository<Member, UserId> for MemberLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         if let Some(model) = MemberEntity::find()
             .filter(Column::Id.eq(id.as_str()))
@@ -93,7 +93,7 @@ impl ProjectRepository<Member, UserId> for MemberLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = MemberEntity::find()
             .all(db)
@@ -117,7 +117,7 @@ impl ProjectRepository<Member, UserId> for MemberLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         MemberEntity::delete_many()
             .filter(Column::Id.eq(id.as_str()))
@@ -133,7 +133,7 @@ impl ProjectRepository<Member, UserId> for MemberLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let count = MemberEntity::find()
             .filter(Column::Id.eq(id.as_str()))
@@ -149,7 +149,7 @@ impl ProjectRepository<Member, UserId> for MemberLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let count = MemberEntity::find()
             .count(db)

@@ -162,7 +162,7 @@ impl ModelConverter<Tag> for TagTree {
     async fn to_model(&self) -> Result<Tag, String> {
         // TagTreeからTag基本構造体に変換（関連データのtask_tags, subtask_tagsは除く）
         Ok(Tag {
-            id: self.id.clone(),
+            id: self.id,
             name: self.name.clone(),
             color: self.color.clone(),
             order_index: self.order_index,

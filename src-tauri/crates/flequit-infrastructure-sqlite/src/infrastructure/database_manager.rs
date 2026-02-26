@@ -139,7 +139,7 @@ impl TransactionManager for DatabaseManager {
         let db = self
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         db.begin()
             .await

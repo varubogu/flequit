@@ -120,7 +120,6 @@ pub async fn delete_sub_task(
 // =============================================================================
 
 /// サブタスクに繰り返しルールを関連付けます。
-
 #[instrument(level = "info", skip(state, subtask_recurrence), fields(project_id = %project_id, subtask_id = %subtask_recurrence.subtask_id, recurrence_rule_id = %subtask_recurrence.recurrence_rule_id))]
 #[tauri::command]
 pub async fn create_subtask_recurrence(
@@ -150,7 +149,6 @@ pub async fn create_subtask_recurrence(
 }
 
 /// サブタスクIDによる繰り返し関連付けを取得します。
-
 #[instrument(level = "info", skip(state), fields(project_id = %project_id, subtask_id = %subtask_id))]
 #[tauri::command]
 pub async fn get_subtask_recurrence_by_subtask_id(
@@ -179,7 +177,6 @@ pub async fn get_subtask_recurrence_by_subtask_id(
 }
 
 /// サブタスクの繰り返し関連付けを削除します。
-
 #[instrument(level = "info", skip(state), fields(project_id = %project_id, subtask_id = %subtask_id))]
 #[tauri::command]
 pub async fn delete_subtask_recurrence(

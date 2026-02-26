@@ -220,7 +220,7 @@ impl FileStorage {
 
     /// ファイルパスからファイル名を抽出してマッピングを確保
     /// append/compact時に呼ばれ、ファイル書き込み後もマッピングが維持されるようにする
-    fn ensure_mapping_from_path(&self, path: &PathBuf, id: DocumentId) {
+    fn ensure_mapping_from_path(&self, path: &Path, id: DocumentId) {
         if let Some(filename) = path.file_name().and_then(|n| n.to_str()) {
             let filename_without_ext = filename.replace(".automerge", "");
 

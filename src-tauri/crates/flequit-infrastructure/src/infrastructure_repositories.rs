@@ -117,7 +117,6 @@ impl InfrastructureRepositories {
     /// 新しいInfrastructureRepositoriesを作成
     ///
     /// 各UnifiedRepositoryのデフォルト実装を使用する
-
     pub fn new() -> Self {
         Self {
             accounts: AccountUnifiedRepository::default(),
@@ -153,7 +152,6 @@ impl InfrastructureRepositories {
     /// SQLiteとAutomergeのリポジトリを設定した完全なInfrastructureRepositoriesを作成
     ///
     /// 実際のアプリケーションで使用するためのセットアップされたリポジトリ群を返す
-
     pub async fn setup_with_sqlite_and_automerge(
         config: UnifiedConfig,
     ) -> Result<Self, Box<dyn std::error::Error>> {

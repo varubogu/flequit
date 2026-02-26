@@ -30,7 +30,7 @@ pub async fn create_task_tag(
         tracing::error!(target: "commands::tagging", command = "create_task_tag", project_id = %project_id, task_id = %task_id, tag_name = %tag_name, error = %e);
         return Err(e);
     }
-    Ok(result.unwrap().to_command_model().await?)
+    result.unwrap().to_command_model().await
 }
 
 #[instrument(level = "info", skip(state), fields(project_id = %project_id, task_id = %task_id, tag_id = %tag_id))]
@@ -80,7 +80,7 @@ pub async fn create_task_tag_by_name(
         tracing::error!(target: "commands::tagging", command = "create_task_tag_by_name", project_id = %project_id, task_id = %task_id, tag_name = %tag_name, error = %e);
         return Err(e);
     }
-    Ok(result.unwrap().to_command_model().await?)
+    result.unwrap().to_command_model().await
 }
 
 #[instrument(level = "info", skip(state, tag_name), fields(project_id = %project_id, subtask_id = %subtask_id))]
@@ -105,7 +105,7 @@ pub async fn create_subtask_tag_by_name(
         tracing::error!(target: "commands::tagging", command = "create_subtask_tag_by_name", project_id = %project_id, subtask_id = %subtask_id, tag_name = %tag_name, error = %e);
         return Err(e);
     }
-    Ok(result.unwrap().to_command_model().await?)
+    result.unwrap().to_command_model().await
 }
 
 // 名前指定の削除は行わず、削除はID厳格指定の既存コマンドを使用する
@@ -133,7 +133,7 @@ pub async fn create_subtask_tag(
         tracing::error!(target: "commands::tagging", command = "create_subtask_tag", project_id = %project_id, subtask_id = %subtask_id, tag_name = %tag_name, error = %e);
         return Err(e);
     }
-    Ok(result.unwrap().to_command_model().await?)
+    result.unwrap().to_command_model().await
 }
 
 #[instrument(level = "info", skip(state), fields(project_id = %project_id, subtask_id = %subtask_id, tag_id = %tag_id))]

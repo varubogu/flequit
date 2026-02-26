@@ -20,7 +20,6 @@ pub struct AccountLocalAutomergeRepository {
 
 impl AccountLocalAutomergeRepository {
     /// 新しいAccountRepositoryを作成
-
     pub async fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let doc_type = &DocumentType::Account;
         let mut document_manager = DocumentManager::new(base_path)?;
@@ -29,7 +28,6 @@ impl AccountLocalAutomergeRepository {
     }
 
     /// 共有DocumentManagerを使用して新しいインスタンスを作成
-
     pub async fn new_with_manager(
         document_manager: Arc<Mutex<DocumentManager>>,
     ) -> Result<Self, RepositoryError> {
@@ -42,7 +40,6 @@ impl AccountLocalAutomergeRepository {
     }
 
     /// 全アカウントリストを取得
-
     pub async fn list_users(&self) -> Result<Vec<Account>, RepositoryError> {
         let accounts = { self.document.load_data::<Vec<Account>>("accounts").await? };
         if let Some(accounts) = accounts {
@@ -53,14 +50,12 @@ impl AccountLocalAutomergeRepository {
     }
 
     /// IDでアカウントを取得
-
     pub async fn get_user(&self, account_id: &str) -> Result<Option<Account>, RepositoryError> {
         let accounts = self.list_users().await?;
         Ok(accounts.into_iter().find(|acc| acc.id == account_id.into()))
     }
 
     /// アカウントを作成または更新
-
     pub async fn set_user(&self, account: &Account) -> Result<(), RepositoryError> {
         let mut accounts = self.list_users().await?;
 
@@ -81,7 +76,6 @@ impl AccountLocalAutomergeRepository {
     }
 
     /// アカウントを削除
-
     pub async fn delete_account(&self, account_id: &str) -> Result<bool, RepositoryError> {
         let mut accounts = self.list_users().await?;
         let initial_len = accounts.len();
@@ -99,7 +93,6 @@ impl AccountLocalAutomergeRepository {
     }
 
     /// 現在選択中のアカウントIDを取得
-
     pub async fn get_current_account_id(&self) -> Result<Option<String>, RepositoryError> {
         self.document
             .load_data::<String>("current_account_id")
@@ -108,7 +101,6 @@ impl AccountLocalAutomergeRepository {
     }
 
     /// 現在選択中のアカウントIDを設定
-
     pub async fn set_current_account_id(
         &self,
         account_id: Option<&str>,
@@ -130,7 +122,6 @@ impl AccountLocalAutomergeRepository {
     }
 
     /// 現在選択中のアカウントを取得
-
     pub async fn get_current_account(&self) -> Result<Option<Account>, RepositoryError> {
         if let Some(current_id) = self.get_current_account_id().await? {
             if !current_id.is_empty() {
@@ -144,7 +135,6 @@ impl AccountLocalAutomergeRepository {
     }
 
     /// プロバイダーで検索
-
     pub async fn find_accounts_by_provider(
         &self,
         provider: &str,
@@ -157,14 +147,12 @@ impl AccountLocalAutomergeRepository {
     }
 
     /// アクティブなアカウントのみを取得
-
     pub async fn list_active_accounts(&self) -> Result<Vec<Account>, RepositoryError> {
         let accounts = self.list_users().await?;
         Ok(accounts.into_iter().filter(|acc| acc.is_active).collect())
     }
 
     /// アカウントのバックアップを作成
-
     pub async fn backup_accounts(&self, backup_path: &str) -> Result<(), RepositoryError> {
         use std::fs;
 
@@ -189,7 +177,6 @@ impl AccountLocalAutomergeRepository {
     }
 
     /// バックアップからアカウントを復元
-
     pub async fn restore_accounts(&self, backup_path: &str) -> Result<(), RepositoryError> {
         use std::fs;
 

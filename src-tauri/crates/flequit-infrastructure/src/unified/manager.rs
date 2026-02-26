@@ -87,7 +87,7 @@ impl UnifiedManager {
         if self.config.automerge_storage_enabled {
             // 共有DocumentManagerを初期化（SQLiteと同じディレクトリ構造を使用）
             let base_path = get_default_automerge_path()
-                .ok_or_else(|| "Failed to get default Automerge path")?;
+                .ok_or("Failed to get default Automerge path")?;
 
             // ディレクトリが存在しない場合は作成
             if !base_path.exists() {
@@ -147,7 +147,7 @@ impl UnifiedManager {
                 ProjectLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
                 let base_path = get_default_automerge_path()
-                    .ok_or_else(|| "Failed to get default Automerge path")?;
+                    .ok_or("Failed to get default Automerge path")?;
                 ProjectLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -201,7 +201,7 @@ impl UnifiedManager {
                 AccountLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
                 let base_path = get_default_automerge_path()
-                    .ok_or_else(|| "Failed to get default Automerge path")?;
+                    .ok_or("Failed to get default Automerge path")?;
                 AccountLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -249,7 +249,7 @@ impl UnifiedManager {
                 TaskLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
                 let base_path = get_default_automerge_path()
-                    .ok_or_else(|| "Failed to get default Automerge path")?;
+                    .ok_or("Failed to get default Automerge path")?;
                 TaskLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -300,7 +300,7 @@ impl UnifiedManager {
                 TaskListLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
                 let base_path = get_default_automerge_path()
-                    .ok_or_else(|| "Failed to get default Automerge path")?;
+                    .ok_or("Failed to get default Automerge path")?;
                 TaskListLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -349,7 +349,7 @@ impl UnifiedManager {
                 TagLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
                 let base_path = get_default_automerge_path()
-                    .ok_or_else(|| "Failed to get default Automerge path")?;
+                    .ok_or("Failed to get default Automerge path")?;
                 TagLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -398,7 +398,7 @@ impl UnifiedManager {
                 SubTaskLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
                 let base_path = get_default_automerge_path()
-                    .ok_or_else(|| "Failed to get default Automerge path")?;
+                    .ok_or("Failed to get default Automerge path")?;
                 SubTaskLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -449,7 +449,7 @@ impl UnifiedManager {
                 UserLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
                 let base_path = get_default_automerge_path()
-                    .ok_or_else(|| "Failed to get default Automerge path")?;
+                    .ok_or("Failed to get default Automerge path")?;
                 UserLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -499,7 +499,7 @@ impl UnifiedManager {
                     .await?
             } else {
                 let base_path = get_default_automerge_path()
-                    .ok_or_else(|| "Failed to get default Automerge path")?;
+                    .ok_or("Failed to get default Automerge path")?;
                 TaskAssignmentLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -549,7 +549,7 @@ impl UnifiedManager {
                     .await?
             } else {
                 let base_path = get_default_automerge_path()
-                    .ok_or_else(|| "Failed to get default Automerge path")?;
+                    .ok_or("Failed to get default Automerge path")?;
                 SubtaskAssignmentLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -600,7 +600,7 @@ impl UnifiedManager {
                 TaskTagLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
                 let base_path = get_default_automerge_path()
-                    .ok_or_else(|| "Failed to get default Automerge path")?;
+                    .ok_or("Failed to get default Automerge path")?;
                 TaskTagLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -648,7 +648,7 @@ impl UnifiedManager {
                 SubtaskTagLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
                 let base_path = get_default_automerge_path()
-                    .ok_or_else(|| "Failed to get default Automerge path")?;
+                    .ok_or("Failed to get default Automerge path")?;
                 SubtaskTagLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -696,7 +696,7 @@ impl UnifiedManager {
                 RecurrenceRuleLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
                 let base_path = get_default_automerge_path()
-                    .ok_or_else(|| "Failed to get default Automerge path")?;
+                    .ok_or("Failed to get default Automerge path")?;
                 RecurrenceRuleLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -745,7 +745,7 @@ impl UnifiedManager {
                 TaskRecurrenceLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
                 let base_path = get_default_automerge_path()
-                    .ok_or_else(|| "Failed to get default Automerge path")?;
+                    .ok_or("Failed to get default Automerge path")?;
                 TaskRecurrenceLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -794,7 +794,7 @@ impl UnifiedManager {
                 SubtaskRecurrenceLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
                 let base_path = get_default_automerge_path()
-                    .ok_or_else(|| "Failed to get default Automerge path")?;
+                    .ok_or("Failed to get default Automerge path")?;
                 SubtaskRecurrenceLocalAutomergeRepository::new(base_path).await?
             };
 

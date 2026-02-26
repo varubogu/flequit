@@ -26,19 +26,17 @@ pub struct AccountLocalSqliteRepository {
 
 impl AccountLocalSqliteRepository {
     /// 新しいAccountRepositoryを作成
-
     pub fn new(db_manager: Arc<RwLock<DatabaseManager>>) -> Self {
         Self { db_manager }
     }
 
     /// メールアドレスでアカウントを検索
-
     pub async fn find_by_email(&self, email: &str) -> Result<Option<Account>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         if let Some(model) = AccountEntity::find()
             .filter(Column::Email.eq(email))
@@ -57,7 +55,6 @@ impl AccountLocalSqliteRepository {
     }
 
     /// プロバイダーとプロバイダーIDでアカウントを検索
-
     pub async fn find_by_provider(
         &self,
         provider: &str,
@@ -67,7 +64,7 @@ impl AccountLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+            .map_err(RepositoryError::from)?;
 
         if let Some(model) = AccountEntity::find()
             .filter(Column::Provider.eq(provider))
@@ -87,13 +84,12 @@ impl AccountLocalSqliteRepository {
     }
 
     /// アクティブなアカウントを取得
-
     pub async fn find_active_accounts(&self) -> Result<Vec<Account>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = AccountEntity::find()
             .filter(Column::IsActive.eq(true))
@@ -115,13 +111,12 @@ impl AccountLocalSqliteRepository {
     }
 
     /// 現在アクティブなアカウントを取得（最新のアクティブアカウント）
-
     pub async fn find_current_account(&self) -> Result<Option<Account>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         if let Some(model) = AccountEntity::find()
             .filter(Column::IsActive.eq(true))
@@ -141,13 +136,12 @@ impl AccountLocalSqliteRepository {
     }
 
     /// アカウントをアクティブ化（他のアカウントは非アクティブ化）
-
     pub async fn activate_account(&self, account_id: &str) -> Result<Account, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         // すべてのアカウントを非アクティブ化
         AccountEntity::update_many()
@@ -180,13 +174,12 @@ impl AccountLocalSqliteRepository {
     }
 
     /// プロバイダー別のアカウント数を取得
-
     pub async fn count_by_provider(&self, provider: &str) -> Result<u64, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let count = AccountEntity::find()
             .filter(Column::Provider.eq(provider))
@@ -207,7 +200,7 @@ impl Repository<Account, AccountId> for AccountLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         // 既存のアカウントをチェック（プロバイダーとプロバイダーIDで）
         let existing = if let Some(provider_id) = &account.provider_id {
@@ -257,7 +250,7 @@ impl Repository<Account, AccountId> for AccountLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         if let Some(model) = AccountEntity::find_by_id(id.to_string())
             .one(db)
@@ -279,7 +272,7 @@ impl Repository<Account, AccountId> for AccountLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         AccountEntity::delete_by_id(id.to_string())
             .exec(db)
@@ -293,7 +286,7 @@ impl Repository<Account, AccountId> for AccountLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = AccountEntity::find()
             .order_by_asc(Column::CreatedAt)
@@ -318,7 +311,7 @@ impl Repository<Account, AccountId> for AccountLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
         let count = AccountEntity::find_by_id(id.to_string())
             .count(db)
             .await
@@ -331,7 +324,7 @@ impl Repository<Account, AccountId> for AccountLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
         let count = AccountEntity::find()
             .count(db)
             .await

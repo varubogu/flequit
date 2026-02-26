@@ -41,10 +41,10 @@ impl ProjectRepository<WeekdayCondition, WeekdayConditionId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let sqlite_model = entity
-            .to_sqlite_model_with_project_id(&project_id)
+            .to_sqlite_model_with_project_id(project_id)
             .await
             .map_err(|e: String| RepositoryError::from(SQLiteError::ConversionError(e)))?;
 
@@ -78,7 +78,7 @@ impl ProjectRepository<WeekdayCondition, WeekdayConditionId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         if let Some(model) = WeekdayConditionEntity::find()
             .filter(Column::Id.eq(id.as_str()))
@@ -104,7 +104,7 @@ impl ProjectRepository<WeekdayCondition, WeekdayConditionId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = WeekdayConditionEntity::find()
             .all(db)
@@ -132,7 +132,7 @@ impl ProjectRepository<WeekdayCondition, WeekdayConditionId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         WeekdayConditionEntity::delete_many()
             .filter(Column::Id.eq(id.as_str()))
@@ -152,7 +152,7 @@ impl ProjectRepository<WeekdayCondition, WeekdayConditionId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let count = WeekdayConditionEntity::find()
             .filter(Column::Id.eq(id.as_str()))
@@ -168,7 +168,7 @@ impl ProjectRepository<WeekdayCondition, WeekdayConditionId>
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let count = WeekdayConditionEntity::find()
             .count(db)

@@ -29,7 +29,7 @@ impl TagBookmarkLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let active_model = bookmark
             .to_sqlite_model()
@@ -53,7 +53,7 @@ impl TagBookmarkLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         if let Some(model) = TagBookmarkEntity::find_by_id(id.to_string())
             .one(db)
@@ -81,7 +81,7 @@ impl TagBookmarkLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         if let Some(model) = TagBookmarkEntity::find()
             .filter(Column::UserId.eq(user_id.to_string()))
@@ -111,7 +111,7 @@ impl TagBookmarkLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = TagBookmarkEntity::find()
             .filter(Column::UserId.eq(user_id.to_string()))
@@ -139,7 +139,7 @@ impl TagBookmarkLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = TagBookmarkEntity::find()
             .filter(Column::UserId.eq(user_id.to_string()))
@@ -170,7 +170,7 @@ impl TagBookmarkLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let models = TagBookmarkEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
@@ -197,7 +197,7 @@ impl TagBookmarkLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         let existing = TagBookmarkEntity::find_by_id(bookmark.id.to_string())
             .one(db)
@@ -235,7 +235,7 @@ impl TagBookmarkLocalSqliteRepository {
         let db = db_manager
             .get_connection()
             .await
-            .map_err(|e| RepositoryError::from(e))?;
+            .map_err(RepositoryError::from)?;
 
         TagBookmarkEntity::delete_by_id(id.to_string())
             .exec(db)

@@ -116,17 +116,17 @@ where
     // 3-2. HashMap を作成してルックアップを高速化
     let recurrence_rule_map: std::collections::HashMap<_, _> = all_recurrence_rules
         .into_iter()
-        .map(|rule| (rule.id.clone(), rule))
+        .map(|rule| (rule.id, rule))
         .collect();
 
     let task_recurrence_map: std::collections::HashMap<_, _> = all_task_recurrences
         .into_iter()
-        .map(|tr| (tr.task_id.clone(), tr.recurrence_rule_id.clone()))
+        .map(|tr| (tr.task_id, tr.recurrence_rule_id))
         .collect();
 
     let subtask_recurrence_map: std::collections::HashMap<_, _> = all_subtask_recurrences
         .into_iter()
-        .map(|sr| (sr.subtask_id.clone(), sr.recurrence_rule_id.clone()))
+        .map(|sr| (sr.subtask_id, sr.recurrence_rule_id))
         .collect();
 
     let mut task_lists_with_tasks = Vec::new();
@@ -159,8 +159,8 @@ where
                     .cloned();
 
                 let sub_task_tree = SubTaskTree {
-                    id: subtask.id.clone(),
-                    task_id: subtask.task_id.clone(),
+                    id: subtask.id,
+                    task_id: subtask.task_id,
                     title: subtask.title.clone(),
                     description: subtask.description.clone(),
                     status: subtask.status.clone(),
@@ -176,7 +176,7 @@ where
                     created_at: subtask.created_at,
                     updated_at: subtask.updated_at,
                     deleted: subtask.deleted,
-                    updated_by: subtask.updated_by.clone(),
+                    updated_by: subtask.updated_by,
                     assigned_user_ids: subtask.assigned_user_ids.clone(),
                     tag_ids: subtask.tag_ids.clone(),
                 };
@@ -190,9 +190,9 @@ where
                 .cloned();
 
             let task_tree = TaskTree {
-                id: task.id.clone(),
-                project_id: task.project_id.clone(),
-                list_id: task.list_id.clone(),
+                id: task.id,
+                project_id: task.project_id,
+                list_id: task.list_id,
                 title: task.title.clone(),
                 description: task.description.clone(),
                 status: task.status.clone(),
@@ -209,7 +209,7 @@ where
                 created_at: task.created_at,
                 updated_at: task.updated_at,
                 deleted: task.deleted,
-                updated_by: task.updated_by.clone(),
+                updated_by: task.updated_by,
                 sub_tasks: sub_task_trees,
                 tag_ids: task.tag_ids.clone(),
             };

@@ -135,14 +135,14 @@ impl ModelConverter<Project> for ProjectTree {
     async fn to_model(&self) -> Result<Project, String> {
         // ProjectTreeからProjectに変換（関連データのtask_listsは除く）
         Ok(Project {
-            id: self.id.clone(),
+            id: self.id,
             name: self.name.clone(),
             description: self.description.clone(),
             color: self.color.clone(),
             order_index: self.order_index,
             is_archived: self.is_archived,
             status: self.status.clone(),
-            owner_id: self.owner_id.clone(),
+            owner_id: self.owner_id,
             created_at: self.created_at,
             updated_at: self.updated_at,
             deleted: self.deleted,

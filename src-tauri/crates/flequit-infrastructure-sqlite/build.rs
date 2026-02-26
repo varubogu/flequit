@@ -6,10 +6,6 @@ fn main() {
     println!("cargo:rerun-if-env-changed={ENABLE_SETUP_ENV}");
 
     if !is_build_rs_setup_enabled() {
-        println!(
-            "cargo:warning=ℹ️ build.rsテストセットアップをスキップ（{} が未設定）",
-            ENABLE_SETUP_ENV
-        );
         return;
     }
 

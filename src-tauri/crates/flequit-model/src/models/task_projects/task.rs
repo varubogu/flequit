@@ -235,9 +235,9 @@ impl ModelConverter<Task> for TaskTree {
     async fn to_model(&self) -> Result<Task, String> {
         // TaskTreeからTaskに変換（関連データのsub_tasks, tag_idsは直接使用）
         Ok(Task {
-            id: self.id.clone(),
-            project_id: self.project_id.clone(),
-            list_id: self.list_id.clone(),
+            id: self.id,
+            project_id: self.project_id,
+            list_id: self.list_id,
             title: self.title.clone(),
             description: self.description.clone(),
             status: self.status.clone(),
