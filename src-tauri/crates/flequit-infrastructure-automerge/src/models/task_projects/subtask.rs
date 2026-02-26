@@ -39,6 +39,34 @@ pub struct AutoMergeSubTask {
     pub updated_at: DateTime<Utc>,
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct AutoMergeSubTaskCreate {
+    pub id: String,
+    pub project_id: String,
+    pub task_id: String,
+    pub title: String,
+    pub description: Option<String>,
+    pub status: String,
+    pub priority: i32,
+    pub start_date: Option<DateTime<Utc>>,
+    pub end_date: Option<DateTime<Utc>>,
+    pub is_range_date: Option<bool>,
+    pub order_index: i32,
+}
+
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct AutoMergeSubTaskUpdate {
+    pub title: Option<String>,
+    pub description: Option<Option<String>>,
+    pub status: Option<String>,
+    pub priority: Option<i32>,
+    pub start_date: Option<Option<DateTime<Utc>>>,
+    pub end_date: Option<Option<DateTime<Utc>>>,
+    pub is_range_date: Option<Option<bool>>,
+    pub order_index: Option<i32>,
+    pub is_archived: Option<bool>,
+}
+
 /// サブタスクステータス定数（タスクと同じ）
 pub mod subtask_status {
     pub const NOT_STARTED: &str = "not_started";
@@ -57,20 +85,21 @@ pub mod subtask_status {
 
 impl AutoMergeSubTask {
     /// 新しいサブタスクを作成
-    #[allow(clippy::too_many_arguments)]
-    pub fn new(
-        id: String,
-        project_id: String,
-        task_id: String,
-        title: String,
-        description: Option<String>,
-        status: String,
-        priority: i32,
-        start_date: Option<DateTime<Utc>>,
-        end_date: Option<DateTime<Utc>>,
-        is_range_date: Option<bool>,
-        order_index: i32,
-    ) -> Result<Self, String> {
+    pub fn new(params: AutoMergeSubTaskCreate) -> Result<Self, String> {
+        let AutoMergeSubTaskCreate {
+            id,
+            project_id,
+            task_id,
+            title,
+            description,
+            status,
+            priority,
+            start_date,
+            end_date,
+            is_range_date,
+            order_index,
+        } = params;
+
         if !subtask_status::is_valid(&status) {
             return Err(format!("Invalid subtask status: {}", status));
         }
@@ -95,19 +124,19 @@ impl AutoMergeSubTask {
     }
 
     /// サブタスク情報を更新
-    #[allow(clippy::too_many_arguments)]
-    pub fn update(
-        &mut self,
-        title: Option<String>,
-        description: Option<Option<String>>,
-        status: Option<String>,
-        priority: Option<i32>,
-        start_date: Option<Option<DateTime<Utc>>>,
-        end_date: Option<Option<DateTime<Utc>>>,
-        is_range_date: Option<Option<bool>>,
-        order_index: Option<i32>,
-        is_archived: Option<bool>,
-    ) -> Result<(), String> {
+    pub fn update(&mut self, params: AutoMergeSubTaskUpdate) -> Result<(), String> {
+        let AutoMergeSubTaskUpdate {
+            title,
+            description,
+            status,
+            priority,
+            start_date,
+            end_date,
+            is_range_date,
+            order_index,
+            is_archived,
+        } = params;
+
         if let Some(title) = title {
             self.title = title;
         }
@@ -206,19 +235,19 @@ mod tests {
 
     #[test]
     fn test_new_subtask() {
-        let subtask = AutoMergeSubTask::new(
-            "subtask-1".to_string(),
-            "project-1".to_string(),
-            "task-1".to_string(),
-            "Test SubTask".to_string(),
-            Some("Test Description".to_string()),
-            subtask_status::NOT_STARTED.to_string(),
-            1,
-            None,
-            None,
-            None,
-            0,
-        )
+        let subtask = AutoMergeSubTask::new(AutoMergeSubTaskCreate {
+            id: "subtask-1".to_string(),
+            project_id: "project-1".to_string(),
+            task_id: "task-1".to_string(),
+            title: "Test SubTask".to_string(),
+            description: Some("Test Description".to_string()),
+            status: subtask_status::NOT_STARTED.to_string(),
+            priority: 1,
+            start_date: None,
+            end_date: None,
+            is_range_date: None,
+            order_index: 0,
+        })
         .unwrap();
 
         assert_eq!(subtask.id, "subtask-1");
@@ -233,38 +262,38 @@ mod tests {
 
     #[test]
     fn test_invalid_status() {
-        let result = AutoMergeSubTask::new(
-            "subtask-1".to_string(),
-            "project-1".to_string(),
-            "task-1".to_string(),
-            "Test SubTask".to_string(),
-            None,
-            "invalid_status".to_string(),
-            1,
-            None,
-            None,
-            None,
-            0,
-        );
+        let result = AutoMergeSubTask::new(AutoMergeSubTaskCreate {
+            id: "subtask-1".to_string(),
+            project_id: "project-1".to_string(),
+            task_id: "task-1".to_string(),
+            title: "Test SubTask".to_string(),
+            description: None,
+            status: "invalid_status".to_string(),
+            priority: 1,
+            start_date: None,
+            end_date: None,
+            is_range_date: None,
+            order_index: 0,
+        });
 
         assert!(result.is_err());
     }
 
     #[test]
     fn test_subtask_filters() {
-        let subtask = AutoMergeSubTask::new(
-            "subtask-1".to_string(),
-            "project-1".to_string(),
-            "task-1".to_string(),
-            "Test SubTask".to_string(),
-            None,
-            subtask_status::IN_PROGRESS.to_string(),
-            1,
-            None,
-            None,
-            None,
-            0,
-        )
+        let subtask = AutoMergeSubTask::new(AutoMergeSubTaskCreate {
+            id: "subtask-1".to_string(),
+            project_id: "project-1".to_string(),
+            task_id: "task-1".to_string(),
+            title: "Test SubTask".to_string(),
+            description: None,
+            status: subtask_status::IN_PROGRESS.to_string(),
+            priority: 1,
+            start_date: None,
+            end_date: None,
+            is_range_date: None,
+            order_index: 0,
+        })
         .unwrap();
 
         assert!(subtask.belongs_to_project("project-1"));
@@ -278,36 +307,29 @@ mod tests {
     #[test]
     fn test_overdue_check() {
         let past_date = Utc::now() - Duration::days(1);
-        let mut subtask = AutoMergeSubTask::new(
-            "subtask-1".to_string(),
-            "project-1".to_string(),
-            "task-1".to_string(),
-            "Test SubTask".to_string(),
-            None,
-            subtask_status::IN_PROGRESS.to_string(),
-            1,
-            None,
-            Some(past_date),
-            None,
-            0,
-        )
+        let mut subtask = AutoMergeSubTask::new(AutoMergeSubTaskCreate {
+            id: "subtask-1".to_string(),
+            project_id: "project-1".to_string(),
+            task_id: "task-1".to_string(),
+            title: "Test SubTask".to_string(),
+            description: None,
+            status: subtask_status::IN_PROGRESS.to_string(),
+            priority: 1,
+            start_date: None,
+            end_date: Some(past_date),
+            is_range_date: None,
+            order_index: 0,
+        })
         .unwrap();
 
         assert!(subtask.is_overdue());
 
         // 完了させると期限切れではなくなる
         subtask
-            .update(
-                None,
-                None,
-                Some(subtask_status::COMPLETED.to_string()),
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-            )
+            .update(AutoMergeSubTaskUpdate {
+                status: Some(subtask_status::COMPLETED.to_string()),
+                ..Default::default()
+            })
             .unwrap();
         assert!(!subtask.is_overdue());
     }

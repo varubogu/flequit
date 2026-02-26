@@ -31,6 +31,17 @@ pub struct AutoMergeProject {
     pub updated_at: DateTime<Utc>,
 }
 
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct AutoMergeProjectUpdate {
+    pub name: Option<String>,
+    pub description: Option<Option<String>>,
+    pub color: Option<Option<String>>,
+    pub order_index: Option<i32>,
+    pub is_archived: Option<bool>,
+    pub status: Option<Option<String>>,
+    pub owner_id: Option<Option<String>>,
+}
+
 impl AutoMergeProject {
     /// 新しいプロジェクトを作成
     pub fn new(
@@ -58,17 +69,17 @@ impl AutoMergeProject {
     }
 
     /// プロジェクト情報を更新
-    #[allow(clippy::too_many_arguments)]
-    pub fn update(
-        &mut self,
-        name: Option<String>,
-        description: Option<Option<String>>,
-        color: Option<Option<String>>,
-        order_index: Option<i32>,
-        is_archived: Option<bool>,
-        status: Option<Option<String>>,
-        owner_id: Option<Option<String>>,
-    ) {
+    pub fn update(&mut self, params: AutoMergeProjectUpdate) {
+        let AutoMergeProjectUpdate {
+            name,
+            description,
+            color,
+            order_index,
+            is_archived,
+            status,
+            owner_id,
+        } = params;
+
         if let Some(name) = name {
             self.name = name;
         }
@@ -130,15 +141,13 @@ mod tests {
         // 少し時間を空ける
         std::thread::sleep(std::time::Duration::from_millis(1));
 
-        project.update(
-            Some("Updated Name".to_string()),
-            Some(Some("Updated Description".to_string())),
-            None,
-            Some(10),
-            Some(true),
-            None,
-            None,
-        );
+        project.update(AutoMergeProjectUpdate {
+            name: Some("Updated Name".to_string()),
+            description: Some(Some("Updated Description".to_string())),
+            order_index: Some(10),
+            is_archived: Some(true),
+            ..Default::default()
+        });
 
         assert_eq!(project.name, "Updated Name");
         assert_eq!(project.description, Some("Updated Description".to_string()));

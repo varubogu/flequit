@@ -7,6 +7,15 @@ use flequit_model::types::id_types::UserId;
 use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_types::errors::service_error::ServiceError;
 
+#[derive(Debug, Clone, Default)]
+pub struct UpdateUserProfileInput {
+    pub user_id: String,
+    pub display_name: Option<String>,
+    pub avatar_url: Option<String>,
+    pub bio: Option<String>,
+    pub timezone: Option<String>,
+}
+
 /// ユーザープロフィールの編集権限をチェック
 /// 自分のAccount.user_idにマッチするプロフィールのみ編集可能
 pub async fn can_edit_user_profile(current_account: &Account, target_user_id: &UserId) -> bool {
@@ -150,21 +159,16 @@ where
 
 /// 編集権限チェック付きでユーザープロフィールを更新
 /// 自分のAccount.user_idにマッチするプロフィールのみ更新可能
-#[allow(clippy::too_many_arguments)]
 pub async fn update_user_profile<R>(
     repositories: &R,
     current_account: &Account,
-    user_id: &str,
     updating_user_id: &UserId,
-    display_name: &Option<String>,
-    avatar_url: &Option<String>,
-    bio: &Option<String>,
-    timezone: &Option<String>,
+    input: UpdateUserProfileInput,
 ) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    let user_id_typed = UserId::from(user_id.to_string());
+    let user_id_typed = UserId::from(input.user_id);
 
     // 編集権限チェック
     if !can_edit_user_profile(current_account, &user_id_typed).await {
@@ -174,17 +178,17 @@ where
     }
 
     if let Some(mut user) = repositories.users().find_by_id(&user_id_typed).await? {
-        if let Some(dn) = display_name {
-            user.display_name = dn.clone();
+        if let Some(dn) = input.display_name {
+            user.display_name = dn;
         }
-        if let Some(avatar) = avatar_url {
-            user.avatar_url = Some(avatar.clone());
+        if let Some(avatar) = input.avatar_url {
+            user.avatar_url = Some(avatar);
         }
-        if let Some(bio_text) = bio {
-            user.bio = Some(bio_text.clone());
+        if let Some(bio_text) = input.bio {
+            user.bio = Some(bio_text);
         }
-        if let Some(tz) = timezone {
-            user.timezone = Some(tz.clone());
+        if let Some(tz) = input.timezone {
+            user.timezone = Some(tz);
         }
         let now = Utc::now();
         user.updated_at = now;

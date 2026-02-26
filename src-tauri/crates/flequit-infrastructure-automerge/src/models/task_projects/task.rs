@@ -39,6 +39,34 @@ pub struct AutoMergeTask {
     pub updated_at: DateTime<Utc>,
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct AutoMergeTaskCreate {
+    pub id: String,
+    pub project_id: String,
+    pub list_id: String,
+    pub title: String,
+    pub description: Option<String>,
+    pub status: String,
+    pub priority: i32,
+    pub start_date: Option<DateTime<Utc>>,
+    pub end_date: Option<DateTime<Utc>>,
+    pub is_range_date: Option<bool>,
+    pub order_index: i32,
+}
+
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct AutoMergeTaskUpdate {
+    pub title: Option<String>,
+    pub description: Option<Option<String>>,
+    pub status: Option<String>,
+    pub priority: Option<i32>,
+    pub start_date: Option<Option<DateTime<Utc>>>,
+    pub end_date: Option<Option<DateTime<Utc>>>,
+    pub is_range_date: Option<Option<bool>>,
+    pub order_index: Option<i32>,
+    pub is_archived: Option<bool>,
+}
+
 /// タスクステータス定数
 pub mod task_status {
     pub const NOT_STARTED: &str = "not_started";
@@ -57,20 +85,21 @@ pub mod task_status {
 
 impl AutoMergeTask {
     /// 新しいタスクを作成
-    #[allow(clippy::too_many_arguments)]
-    pub fn new(
-        id: String,
-        project_id: String,
-        list_id: String,
-        title: String,
-        description: Option<String>,
-        status: String,
-        priority: i32,
-        start_date: Option<DateTime<Utc>>,
-        end_date: Option<DateTime<Utc>>,
-        is_range_date: Option<bool>,
-        order_index: i32,
-    ) -> Result<Self, String> {
+    pub fn new(params: AutoMergeTaskCreate) -> Result<Self, String> {
+        let AutoMergeTaskCreate {
+            id,
+            project_id,
+            list_id,
+            title,
+            description,
+            status,
+            priority,
+            start_date,
+            end_date,
+            is_range_date,
+            order_index,
+        } = params;
+
         if !task_status::is_valid(&status) {
             return Err(format!("Invalid task status: {}", status));
         }
@@ -95,19 +124,19 @@ impl AutoMergeTask {
     }
 
     /// タスク情報を更新
-    #[allow(clippy::too_many_arguments)]
-    pub fn update(
-        &mut self,
-        title: Option<String>,
-        description: Option<Option<String>>,
-        status: Option<String>,
-        priority: Option<i32>,
-        start_date: Option<Option<DateTime<Utc>>>,
-        end_date: Option<Option<DateTime<Utc>>>,
-        is_range_date: Option<Option<bool>>,
-        order_index: Option<i32>,
-        is_archived: Option<bool>,
-    ) -> Result<(), String> {
+    pub fn update(&mut self, params: AutoMergeTaskUpdate) -> Result<(), String> {
+        let AutoMergeTaskUpdate {
+            title,
+            description,
+            status,
+            priority,
+            start_date,
+            end_date,
+            is_range_date,
+            order_index,
+            is_archived,
+        } = params;
+
         if let Some(title) = title {
             self.title = title;
         }
@@ -206,19 +235,19 @@ mod tests {
 
     #[test]
     fn test_new_task() {
-        let task = AutoMergeTask::new(
-            "task-1".to_string(),
-            "project-1".to_string(),
-            "list-1".to_string(),
-            "Test Task".to_string(),
-            Some("Test Description".to_string()),
-            task_status::NOT_STARTED.to_string(),
-            1,
-            None,
-            None,
-            None,
-            0,
-        )
+        let task = AutoMergeTask::new(AutoMergeTaskCreate {
+            id: "task-1".to_string(),
+            project_id: "project-1".to_string(),
+            list_id: "list-1".to_string(),
+            title: "Test Task".to_string(),
+            description: Some("Test Description".to_string()),
+            status: task_status::NOT_STARTED.to_string(),
+            priority: 1,
+            start_date: None,
+            end_date: None,
+            is_range_date: None,
+            order_index: 0,
+        })
         .unwrap();
 
         assert_eq!(task.id, "task-1");
@@ -233,38 +262,38 @@ mod tests {
 
     #[test]
     fn test_invalid_status() {
-        let result = AutoMergeTask::new(
-            "task-1".to_string(),
-            "project-1".to_string(),
-            "list-1".to_string(),
-            "Test Task".to_string(),
-            None,
-            "invalid_status".to_string(),
-            1,
-            None,
-            None,
-            None,
-            0,
-        );
+        let result = AutoMergeTask::new(AutoMergeTaskCreate {
+            id: "task-1".to_string(),
+            project_id: "project-1".to_string(),
+            list_id: "list-1".to_string(),
+            title: "Test Task".to_string(),
+            description: None,
+            status: "invalid_status".to_string(),
+            priority: 1,
+            start_date: None,
+            end_date: None,
+            is_range_date: None,
+            order_index: 0,
+        });
 
         assert!(result.is_err());
     }
 
     #[test]
     fn test_task_filters() {
-        let task = AutoMergeTask::new(
-            "task-1".to_string(),
-            "project-1".to_string(),
-            "list-1".to_string(),
-            "Test Task".to_string(),
-            None,
-            task_status::IN_PROGRESS.to_string(),
-            1,
-            None,
-            None,
-            None,
-            0,
-        )
+        let task = AutoMergeTask::new(AutoMergeTaskCreate {
+            id: "task-1".to_string(),
+            project_id: "project-1".to_string(),
+            list_id: "list-1".to_string(),
+            title: "Test Task".to_string(),
+            description: None,
+            status: task_status::IN_PROGRESS.to_string(),
+            priority: 1,
+            start_date: None,
+            end_date: None,
+            is_range_date: None,
+            order_index: 0,
+        })
         .unwrap();
 
         assert!(task.belongs_to_project("project-1"));
@@ -278,35 +307,28 @@ mod tests {
     #[test]
     fn test_overdue_check() {
         let past_date = Utc::now() - Duration::days(1);
-        let mut task = AutoMergeTask::new(
-            "task-1".to_string(),
-            "project-1".to_string(),
-            "list-1".to_string(),
-            "Test Task".to_string(),
-            None,
-            task_status::IN_PROGRESS.to_string(),
-            1,
-            None,
-            Some(past_date),
-            None,
-            0,
-        )
+        let mut task = AutoMergeTask::new(AutoMergeTaskCreate {
+            id: "task-1".to_string(),
+            project_id: "project-1".to_string(),
+            list_id: "list-1".to_string(),
+            title: "Test Task".to_string(),
+            description: None,
+            status: task_status::IN_PROGRESS.to_string(),
+            priority: 1,
+            start_date: None,
+            end_date: Some(past_date),
+            is_range_date: None,
+            order_index: 0,
+        })
         .unwrap();
 
         assert!(task.is_overdue());
 
         // 完了させると期限切れではなくなる
-        task.update(
-            None,
-            None,
-            Some(task_status::COMPLETED.to_string()),
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-        )
+        task.update(AutoMergeTaskUpdate {
+            status: Some(task_status::COMPLETED.to_string()),
+            ..Default::default()
+        })
         .unwrap();
         assert!(!task.is_overdue());
     }
