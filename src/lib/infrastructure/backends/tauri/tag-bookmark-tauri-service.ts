@@ -7,10 +7,10 @@ import type {
 } from '$lib/types/tag-bookmark';
 
 /**
- * TagBookmarkバックエンドサービス
+ * TagBookmark Tauri バックエンドサービス
  * Tauriコマンド経由でRustバックエンドと通信
  */
-export const TagBookmarkBackendService = {
+export const TagBookmarkTauriService = {
   /**
    * ブックマークを作成
    */
@@ -23,7 +23,7 @@ export const TagBookmarkBackendService = {
       });
       return result;
     } catch (error) {
-      console.error('[TagBookmarkBackendService.create] Tauri command failed:', error);
+      console.error('[TagBookmarkTauriService.create] Tauri command failed:', error);
       throw error;
     }
   },

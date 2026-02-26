@@ -1,5 +1,5 @@
 import type { TagBookmark } from '$lib/types/tag-bookmark';
-import { TagBookmarkBackendService } from '$lib/services/backend/tag-bookmark';
+import { TagBookmarkTauriService as TagBookmarkBackendService } from '$lib/infrastructure/backends/tauri/tag-bookmark-tauri-service';
 import { tagBookmarkStore } from '$lib/stores/tags/tag-bookmark-store.svelte';
 import { errorHandler } from '$lib/stores/error-handler.svelte';
 import { accountStore } from '$lib/stores/account-store.svelte';
