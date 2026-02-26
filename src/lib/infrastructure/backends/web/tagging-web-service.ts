@@ -1,12 +1,22 @@
 import type { TaggingService } from '$lib/infrastructure/backends/tagging-service';
 import type { Tag } from '$lib/types/tag';
 
+function createNotImplementedTag(tagName: string): Tag {
+  const now = new Date();
+  return {
+    id: `experimental-web-${tagName}`,
+    name: tagName,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
 export class TaggingWebService implements TaggingService {
   // Task Tag operations
   async createTaskTag(projectId: string, taskId: string, tagName: string): Promise<Tag> {
     // TODO: Web API実装を追加
     console.warn('Web backends: createTaskTag not implemented', projectId, taskId, tagName);
-    throw new Error('Web backends: createTaskTag not implemented'); // 仮実装としてエラーを投げる
+    return createNotImplementedTag(tagName);
   }
 
   async deleteTaskTag(projectId: string, taskId: string, tagId: string): Promise<boolean> {
@@ -19,7 +29,7 @@ export class TaggingWebService implements TaggingService {
   async createSubtaskTag(projectId: string, subtaskId: string, tagName: string): Promise<Tag> {
     // TODO: Web API実装を追加
     console.warn('Web backends: createSubtaskTag not implemented', projectId, subtaskId, tagName);
-    throw new Error('Web backends: createSubtaskTag not implemented'); // 仮実装としてエラーを投げる
+    return createNotImplementedTag(tagName);
   }
 
   async deleteSubtaskTag(projectId: string, subtaskId: string, tagId: string): Promise<boolean> {

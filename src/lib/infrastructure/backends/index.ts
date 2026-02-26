@@ -14,6 +14,7 @@ import type { RecurrenceRuleService } from './recurrence-rule-service';
 import type { TaskRecurrenceService } from '$lib/infrastructure/backends/task-recurrence-service';
 import type { SubtaskRecurrenceService } from './subtask-recurrence-service';
 import type { SettingsManagementService } from './settings-management-service';
+import { isExperimentalWebBackendEnabled } from './web/experimental-web-backend';
 
 /**
  * 統合BackendServiceインターフェース
@@ -119,6 +120,11 @@ export async function getBackendService(): Promise<BackendService> {
     const { BackendTauriService } = await import('./tauri/backend-tauri-service');
     return new BackendTauriService();
   } else {
+    if (!isExperimentalWebBackendEnabled()) {
+      throw new Error(
+        'Web backend is experimental and disabled. Set PUBLIC_ENABLE_EXPERIMENTAL_WEB_BACKEND=true to enable it.'
+      );
+    }
     const { BackendWebService } = await import('./web/backend-web-service');
     return new BackendWebService();
   }

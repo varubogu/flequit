@@ -23,6 +23,7 @@
 - **Rust**: Backend logic
 - **SQLite**: Local database
 - **Automerge**: History management and synchronization for local database
+- **Web backend status**: Experimental stubs only, gated by `PUBLIC_ENABLE_EXPERIMENTAL_WEB_BACKEND=true`
 - **Package Manager**: cargo
 - **Build Tool**: cargo
 - **Type Checking**: cargo check

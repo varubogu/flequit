@@ -72,6 +72,8 @@
 - ✅ **必ず `services/` 経由でアクセス**
 - ❌ **Storeへの直接書き込みは禁止**
 - ✅ **書き込みは必ずDomain Service経由**
+- ⚠️ **Web backend（`src/lib/infrastructure/backends/web`）は実験中でデフォルト無効**
+- ✅ **実験時のみ `PUBLIC_ENABLE_EXPERIMENTAL_WEB_BACKEND=true` を明示して有効化**
 
 ```typescript
 // ❌ NG: Infrastructure層への直接アクセス

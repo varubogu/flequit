@@ -10,8 +10,8 @@
   - データベース: SQLite
 - Webアプリケーション版
   - フロントエンド: SvelteKit (SSG+CSR)
-  - バックエンド: Supabase
-  - データベース: PostgreSQL
+  - バックエンド: 実験用Web backendスタブ（`src/lib/infrastructure/backends/web`）
+  - データベース: 本運用なし（将来方針）
 
 ### 1.2 主要コンポーネント
 
@@ -28,7 +28,7 @@
 - データアクセスレイヤー
   - AutoMergeをベースとしてデータ構造
   - ローカル（Tauriアプリ）ではSQLiteを追加し、データ検索はSQLiteのみ、データ更新はSQLite、Automergeの順で保存する
-  - WebではPostgreSQLを追加し、データ検索はPostgreSQLのみ、データ更新はPostgreSQL、Automergeの順で保存する
+  - Webは実験経路のみで、デフォルト無効（`PUBLIC_ENABLE_EXPERIMENTAL_WEB_BACKEND=true` で有効化）
   - クラウドストレージ（Automerge）の同期も対応
   - 将来的にはGitでも同期可能
 
@@ -70,29 +70,23 @@
   - 既存のプロジェクトデータを上書きしない。
 - このブートストラップは、起動時の読み取りコマンド（例: アカウント/プロジェクト読込）から実行されるため、ローカルDBが空でもタスク作成フローに到達できる。
 
-## 3. Webアプリケーション版アーキテクチャ
+## 3. Webアプリケーション版アーキテクチャ（実験中）
 
-### 3.1 SvelteKit+Supabaseアーキテクチャ
+### 3.1 現在の位置づけ
 
 - フロントエンド（SvelteKit）
   - 静的サイト生成
   - クライアントサイドレンダリング
-  - Cloudflare Pages hosting
-- バックエンド（Supabase）
-  - PostgreSQLデータベース
-  - リアルタイム更新
-  - Row Level Security
+  - このリポジトリではデフォルト実行経路ではない
+- バックエンド
+  - `src/lib/infrastructure/backends/web` 配下の実験用スタブ
+  - `PUBLIC_ENABLE_EXPERIMENTAL_WEB_BACKEND=true` のときのみ有効
+  - 既定はローカルファーストのTauri経路
 
-### 3.2 データフロー
+### 3.2 将来方針
 
-- リアルタイムデータ同期
-  - WebSocketsによる双方向通信
-  - 差分更新
-  - コンフリクト解決
-- キャッシュ戦略
-  - ブラウザキャッシュ
-  - CDNキャッシュ
-  - アプリケーションキャッシュ
+- Supabase等のクラウドバックエンドは将来候補として継続検討する。
+- 本運用のWeb backendが定義されるまでは、Web経路は機能を限定した実験扱いとする。
 
 ## 4. パフォーマンス最適化
 
