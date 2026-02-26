@@ -23,6 +23,7 @@
 - **Rust**: バックエンドロジック
 - **SQLite**: ローカルデータベース
 - **Automerge**: ローカルデータベースの履歴管理・同期用
+- **Web backendの状態**: 実験用スタブのみ（`PUBLIC_ENABLE_EXPERIMENTAL_WEB_BACKEND=true` で有効化）
 - **パッケージマネージャ**: cargo
 - **ビルドツール**: cargo
 - **型チェック**: cargo check

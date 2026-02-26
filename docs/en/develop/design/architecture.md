@@ -10,8 +10,8 @@
   - Database: SQLite
 - Web Application Version
   - Frontend: SvelteKit (SSG+CSR)
-  - Backend: Supabase
-  - Database: PostgreSQL
+  - Backend: Experimental Web backend stub (`src/lib/infrastructure/backends/web`)
+  - Database: Not in production use (future plan)
 
 ### 1.2 Main Components
 
@@ -28,7 +28,7 @@
 - Data Access Layer
   - Data structure based on AutoMerge
   - Local (Tauri app): SQLite is added, data search uses SQLite only, data updates are saved in order of SQLite, Automerge
-  - Web: PostgreSQL is added, data search uses PostgreSQL only, data updates are saved in order of PostgreSQL, Automerge
+  - Web: Experimental backend path only, disabled by default (requires `PUBLIC_ENABLE_EXPERIMENTAL_WEB_BACKEND=true`)
   - Cloud storage (Automerge) synchronization support
   - Future support for Git synchronization
 
@@ -70,29 +70,23 @@
   - Existing project data is not overwritten.
 - This bootstrap is triggered by startup read commands (e.g. account/project load) so an empty local DB can still reach task creation flow.
 
-## 3. Web Application Architecture
+## 3. Web Application Architecture (Experimental)
 
-### 3.1 SvelteKit+Supabase Architecture
+### 3.1 Current Position
 
 - Frontend (SvelteKit)
   - Static site generation
   - Client-side rendering
-  - Cloudflare Pages hosting
-- Backend (Supabase)
-  - PostgreSQL database
-  - Real-time updates
-  - Row Level Security
+  - Not the default runtime path in this repository
+- Backend
+  - Experimental web backend stubs under `src/lib/infrastructure/backends/web`
+  - Activated only when `PUBLIC_ENABLE_EXPERIMENTAL_WEB_BACKEND=true`
+  - Local-first Tauri path remains the default
 
-### 3.2 Data Flow
+### 3.2 Future Direction
 
-- Real-time data synchronization
-  - Bidirectional communication via WebSockets
-  - Differential updates
-  - Conflict resolution
-- Caching strategy
-  - Browser cache
-  - CDN cache
-  - Application cache
+- Potential cloud backend candidates (e.g., Supabase) remain future options.
+- Until a production web backend is defined, web path behavior is intentionally limited and marked as experimental.
 
 ## 4. Performance Optimization
 

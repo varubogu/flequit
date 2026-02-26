@@ -72,6 +72,8 @@ For details, refer to `docs/develop/design/frontend/layers.md`.
 - ✅ **Always access via `services/`**
 - ❌ **Direct writing to stores is prohibited**
 - ✅ **Writing must always go through Domain Service**
+- ⚠️ **Web backend (`src/lib/infrastructure/backends/web`) is experimental and disabled by default**
+- ✅ **If needed for experiments, enable `PUBLIC_ENABLE_EXPERIMENTAL_WEB_BACKEND=true` explicitly**
 
 ```typescript
 // ❌ NG: Direct access to Infrastructure layer
