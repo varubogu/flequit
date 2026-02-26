@@ -1,5 +1,5 @@
 use chrono::Utc;
-use flequit_infrastructure::InfrastructureRepositoriesTrait;
+use crate::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::task::TaskTree;
 use flequit_model::models::task_projects::task_list::{PartialTaskList, TaskList, TaskListTree};
 use flequit_model::models::task_projects::SubTaskTree;

@@ -1,4 +1,4 @@
-use flequit_infrastructure::InfrastructureRepositoriesTrait;
+use crate::InfrastructureRepositoriesTrait;
 use flequit_model::models::accounts::account::Account;
 use flequit_model::models::task_projects::project::{Project, ProjectTree};
 use flequit_model::models::users::user::User;

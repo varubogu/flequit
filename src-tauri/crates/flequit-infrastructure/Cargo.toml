@@ -7,6 +7,7 @@ edition = "2024"
 flequit-types = { path = "../flequit-types" }
 flequit-model = { path = "../flequit-model" }
 flequit-repository = { path = "../flequit-repository" }
+flequit-core = { path = "../flequit-core" }
 flequit-infrastructure-sqlite = { path = "../flequit-infrastructure-sqlite" }
 flequit-infrastructure-automerge = { path = "../flequit-infrastructure-automerge" }
 async-trait = "0.1"

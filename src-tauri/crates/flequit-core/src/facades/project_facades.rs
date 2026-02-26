@@ -1,6 +1,7 @@
 use crate::services::project_service;
+use crate::ports::infrastructure_repositories::*;
 use chrono::{DateTime, Utc};
-use flequit_infrastructure::InfrastructureRepositoriesTrait;
+use crate::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::project::{PartialProject, Project};
 use flequit_model::traits::TransactionManager;
 use flequit_model::types::id_types::{ProjectId, UserId};
@@ -61,7 +62,7 @@ where
     // 1. Automergeスナップショットを作成（ロールバック用）
     let snapshot = if let Some(automerge) = repositories.automerge_repositories() {
         let automerge_guard = automerge.read().await;
-        match automerge_guard.projects.create_snapshot(id).await {
+        match automerge_guard.projects_repo().create_snapshot(id).await {
             Ok(snap) => Some(snap),
             Err(e) => {
                 tracing::warn!("Failed to create Automerge snapshot: {:?}", e);
@@ -92,7 +93,7 @@ where
     let sqlite_repos_guard = sqlite_repos.read().await;
 
     // 1. プロジェクト内の全タスクを削除（内部でSubTask、TaskTag、TaskAssignment、TaskRecurrenceも削除される）
-    let task_ids = match sqlite_repos_guard.tasks.find_ids_by_project_id(id).await {
+    let task_ids = match sqlite_repos_guard.tasks_repo().find_ids_by_project_id(id).await {
         Ok(ids) => ids,
         Err(e) => {
             if let Err(rollback_err) = repositories.rollback(txn).await {
@@ -104,7 +105,7 @@ where
 
     for task_id in task_ids {
         // サブタスクを削除（内部でSubtaskTagsも削除される）
-        if let Err(e) = sqlite_repos_guard.sub_tasks.remove_all_by_task_id_with_txn(&txn, id, &task_id.to_string()).await {
+        if let Err(e) = sqlite_repos_guard.sub_tasks_repo().remove_all_by_task_id_with_txn(&txn, id, &task_id.to_string()).await {
             if let Err(rollback_err) = repositories.rollback(txn).await {
                 return Err(format!("Failed to delete subtasks for task {}: {:?} and rollback failed: {:?}", task_id, e, rollback_err));
             }
@@ -112,7 +113,7 @@ where
         }
 
         // タスクタグの関連付けを削除
-        if let Err(e) = sqlite_repos_guard.task_tags.remove_all_by_task_id_with_txn(&txn, id, &task_id).await {
+        if let Err(e) = sqlite_repos_guard.task_tags_repo().remove_all_by_task_id_with_txn(&txn, id, &task_id).await {
             if let Err(rollback_err) = repositories.rollback(txn).await {
                 return Err(format!("Failed to delete task tags for task {}: {:?} and rollback failed: {:?}", task_id, e, rollback_err));
             }
@@ -120,7 +121,7 @@ where
         }
 
         // タスク割り当てを削除
-        if let Err(e) = sqlite_repos_guard.task_assignments.remove_all_by_task_id_with_txn(&txn, &task_id).await {
+        if let Err(e) = sqlite_repos_guard.task_assignments_repo().remove_all_by_task_id_with_txn(&txn, &task_id).await {
             if let Err(rollback_err) = repositories.rollback(txn).await {
                 return Err(format!("Failed to delete task assignments for task {}: {:?} and rollback failed: {:?}", task_id, e, rollback_err));
             }
@@ -128,7 +129,7 @@ where
         }
 
         // タスク繰り返しルールを削除
-        if let Err(e) = sqlite_repos_guard.task_recurrences.remove_all_with_txn(&txn, id, &task_id).await {
+        if let Err(e) = sqlite_repos_guard.task_recurrences_repo().remove_all_with_txn(&txn, id, &task_id).await {
             if let Err(rollback_err) = repositories.rollback(txn).await {
                 return Err(format!("Failed to delete task recurrences for task {}: {:?} and rollback failed: {:?}", task_id, e, rollback_err));
             }
@@ -136,7 +137,7 @@ where
         }
 
         // タスク本体を削除
-        if let Err(e) = sqlite_repos_guard.tasks.delete_with_txn(&txn, id, &task_id).await {
+        if let Err(e) = sqlite_repos_guard.tasks_repo().delete_with_txn(&txn, id, &task_id).await {
             if let Err(rollback_err) = repositories.rollback(txn).await {
                 return Err(format!("Failed to delete task {}: {:?} and rollback failed: {:?}", task_id, e, rollback_err));
             }
@@ -145,7 +146,7 @@ where
     }
 
     // 2. プロジェクト内の全タグを削除（Tag削除でTagBookmark、TaskTag、SubtaskTagも削除される）
-    let tag_ids = match sqlite_repos_guard.tags.find_ids_by_project_id(id).await {
+    let tag_ids = match sqlite_repos_guard.tags_repo().find_ids_by_project_id(id).await {
         Ok(ids) => ids,
         Err(e) => {
             if let Err(rollback_err) = repositories.rollback(txn).await {
@@ -157,7 +158,7 @@ where
 
     for tag_id in tag_ids {
         // タグブックマークを削除
-        if let Err(e) = sqlite_repos_guard.tag_bookmarks.remove_all_by_tag_id_with_txn(&txn, id, &tag_id).await {
+        if let Err(e) = sqlite_repos_guard.tag_bookmarks_repo().remove_all_by_tag_id_with_txn(&txn, id, &tag_id).await {
             if let Err(rollback_err) = repositories.rollback(txn).await {
                 return Err(format!("Failed to delete tag bookmarks for tag {}: {:?} and rollback failed: {:?}", tag_id, e, rollback_err));
             }
@@ -165,7 +166,7 @@ where
         }
 
         // タスクタグの関連付けを削除（残っているものがあれば）
-        if let Err(e) = sqlite_repos_guard.task_tags.remove_all_by_tag_id_with_txn(&txn, id, &tag_id).await {
+        if let Err(e) = sqlite_repos_guard.task_tags_repo().remove_all_by_tag_id_with_txn(&txn, id, &tag_id).await {
             if let Err(rollback_err) = repositories.rollback(txn).await {
                 return Err(format!("Failed to delete task tags for tag {}: {:?} and rollback failed: {:?}", tag_id, e, rollback_err));
             }
@@ -173,7 +174,7 @@ where
         }
 
         // サブタスクタグの関連付けを削除（残っているものがあれば）
-        if let Err(e) = sqlite_repos_guard.subtask_tags.remove_all_by_tag_id_with_txn(&txn, &tag_id).await {
+        if let Err(e) = sqlite_repos_guard.subtask_tags_repo().remove_all_by_tag_id_with_txn(&txn, &tag_id).await {
             if let Err(rollback_err) = repositories.rollback(txn).await {
                 return Err(format!("Failed to delete subtask tags for tag {}: {:?} and rollback failed: {:?}", tag_id, e, rollback_err));
             }
@@ -181,7 +182,7 @@ where
         }
 
         // タグ本体を削除
-        if let Err(e) = sqlite_repos_guard.tags.delete_with_txn(&txn, id, &tag_id).await {
+        if let Err(e) = sqlite_repos_guard.tags_repo().delete_with_txn(&txn, id, &tag_id).await {
             if let Err(rollback_err) = repositories.rollback(txn).await {
                 return Err(format!("Failed to delete tag {}: {:?} and rollback failed: {:?}", tag_id, e, rollback_err));
             }
@@ -190,7 +191,7 @@ where
     }
 
     // 3. プロジェクト内の全TaskListを削除
-    if let Err(e) = sqlite_repos_guard.task_lists.remove_all_by_project_id_with_txn(&txn, id).await {
+    if let Err(e) = sqlite_repos_guard.task_lists_repo().remove_all_by_project_id_with_txn(&txn, id).await {
         if let Err(rollback_err) = repositories.rollback(txn).await {
             return Err(format!("Failed to delete task lists: {:?} and rollback failed: {:?}", e, rollback_err));
         }
@@ -198,7 +199,7 @@ where
     }
 
     // 4. プロジェクト本体を削除
-    if let Err(e) = sqlite_repos_guard.projects.delete_with_txn(&txn, id).await {
+    if let Err(e) = sqlite_repos_guard.projects_repo().delete_with_txn(&txn, id).await {
         if let Err(rollback_err) = repositories.rollback(txn).await {
             return Err(format!("Failed to delete project: {:?} and rollback failed: {:?}", e, rollback_err));
         }
@@ -212,10 +213,10 @@ where
         let automerge_guard = automerge.read().await;
 
         let automerge_result: Result<(), RepositoryError> = async {
-            automerge_guard.projects.mark_all_tasks_deleted(id, user_id, timestamp).await?;
-            automerge_guard.projects.mark_all_tags_deleted(id, user_id, timestamp).await?;
-            automerge_guard.projects.mark_all_task_lists_deleted(id, user_id, timestamp).await?;
-            automerge_guard.projects.mark_project_deleted(id, user_id, timestamp).await?;
+            automerge_guard.projects_repo().mark_all_tasks_deleted(id, user_id, timestamp).await?;
+            automerge_guard.projects_repo().mark_all_tags_deleted(id, user_id, timestamp).await?;
+            automerge_guard.projects_repo().mark_all_task_lists_deleted(id, user_id, timestamp).await?;
+            automerge_guard.projects_repo().mark_project_deleted(id, user_id, timestamp).await?;
             Ok(())
         }
         .await;
@@ -223,7 +224,7 @@ where
         if let Err(e) = automerge_result {
             // Automerge失敗 → スナップショットから復元
             if let Some(ref snap) = snapshot {
-                if let Err(re) = automerge_guard.projects.restore_from_snapshot(id, snap).await {
+                if let Err(re) = automerge_guard.projects_repo().restore_from_snapshot(id, snap).await {
                     tracing::error!(
                         "Failed to restore Automerge snapshot after deletion failure: {:?}",
                         re
@@ -246,7 +247,7 @@ where
         // SQLiteコミット失敗 → Automergeスナップショットから復元
         if let (Some(snap), Some(automerge)) = (snapshot, repositories.automerge_repositories()) {
             let automerge_guard = automerge.read().await;
-            if let Err(restore_err) = automerge_guard.projects.restore_from_snapshot(id, &snap).await {
+            if let Err(restore_err) = automerge_guard.projects_repo().restore_from_snapshot(id, &snap).await {
                 tracing::error!("Failed to restore Automerge snapshot after commit failure: {:?}", restore_err);
             }
         }
@@ -272,23 +273,23 @@ where
     let automerge_guard = automerge.read().await;
 
     // 1. Automergeから削除済みプロジェクトと子データを取得
-    let deleted_project = match automerge_guard.projects.get_deleted_project(id).await {
+    let deleted_project = match automerge_guard.projects_repo().get_deleted_project(id).await {
         Ok(Some(p)) => p,
         Ok(None) => return Err(format!("Project not found or not deleted: {}", id)),
         Err(e) => return Err(format!("Failed to get deleted project: {:?}", e)),
     };
 
-    let deleted_task_lists = match automerge_guard.projects.get_deleted_task_lists(id).await {
+    let deleted_task_lists = match automerge_guard.projects_repo().get_deleted_task_lists(id).await {
         Ok(lists) => lists,
         Err(e) => return Err(format!("Failed to get deleted task lists: {:?}", e)),
     };
 
-    let deleted_tags = match automerge_guard.projects.get_deleted_tags(id).await {
+    let deleted_tags = match automerge_guard.projects_repo().get_deleted_tags(id).await {
         Ok(tags) => tags,
         Err(e) => return Err(format!("Failed to get deleted tags: {:?}", e)),
     };
 
-    let deleted_tasks = match automerge_guard.projects.get_deleted_tasks(id).await {
+    let deleted_tasks = match automerge_guard.projects_repo().get_deleted_tasks(id).await {
         Ok(tasks) => tasks,
         Err(e) => return Err(format!("Failed to get deleted tasks: {:?}", e)),
     };
@@ -338,7 +339,7 @@ where
     }
 
     // 6. Automergeでプロジェクトを復元（deleted=false）
-    if let Err(e) = automerge_guard.projects.restore_project(id, user_id, timestamp).await {
+    if let Err(e) = automerge_guard.projects_repo().restore_project(id, user_id, timestamp).await {
         // Automerge復元失敗 → SQLiteから再削除してロールバック
         if let Err(del_err) = repositories.projects().delete(id).await {
             tracing::error!(
@@ -350,13 +351,13 @@ where
     }
 
     // 7. Automergeで子データを復元（エラーはウォーニングのみ）
-    if let Err(e) = automerge_guard.projects.restore_all_task_lists(id, user_id, timestamp).await {
+    if let Err(e) = automerge_guard.projects_repo().restore_all_task_lists(id, user_id, timestamp).await {
         tracing::warn!("Failed to restore task lists in Automerge (non-fatal): {:?}", e);
     }
-    if let Err(e) = automerge_guard.projects.restore_all_tags(id, user_id, timestamp).await {
+    if let Err(e) = automerge_guard.projects_repo().restore_all_tags(id, user_id, timestamp).await {
         tracing::warn!("Failed to restore tags in Automerge (non-fatal): {:?}", e);
     }
-    if let Err(e) = automerge_guard.projects.restore_all_tasks(id, user_id, timestamp).await {
+    if let Err(e) = automerge_guard.projects_repo().restore_all_tasks(id, user_id, timestamp).await {
         tracing::warn!("Failed to restore tasks in Automerge (non-fatal): {:?}", e);
     }
 

@@ -1,6 +1,7 @@
 use crate::services::tag_service;
+use crate::ports::infrastructure_repositories::*;
 use chrono::{DateTime, Utc};
-use flequit_infrastructure::InfrastructureRepositoriesTrait;
+use crate::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::tag::{PartialTag, Tag};
 use flequit_model::traits::TransactionManager;
 use flequit_model::types::id_types::{ProjectId, TagId, UserId};
@@ -70,7 +71,7 @@ where
     // 1. Automergeスナップショットを作成（ロールバック用）
     let snapshot = if let Some(automerge) = repositories.automerge_repositories() {
         let automerge_guard = automerge.read().await;
-        match automerge_guard.projects.create_snapshot(project_id).await {
+        match automerge_guard.projects_repo().create_snapshot(project_id).await {
             Ok(snap) => Some(snap),
             Err(e) => {
                 tracing::warn!("Failed to create Automerge snapshot: {:?}", e);
@@ -101,7 +102,7 @@ where
     let sqlite_repos_guard = sqlite_repos.read().await;
 
     // 1. タグブックマークを削除
-    if let Err(e) = sqlite_repos_guard.tag_bookmarks.remove_all_by_tag_id_with_txn(&txn, project_id, id).await {
+    if let Err(e) = sqlite_repos_guard.tag_bookmarks_repo().remove_all_by_tag_id_with_txn(&txn, project_id, id).await {
         if let Err(rollback_err) = repositories.rollback(txn).await {
             return Err(format!("Failed to delete tag bookmarks: {:?} and rollback failed: {:?}", e, rollback_err));
         }
@@ -109,7 +110,7 @@ where
     }
 
     // 2. タスクタグの関連付けを削除
-    if let Err(e) = sqlite_repos_guard.task_tags.remove_all_by_tag_id_with_txn(&txn, project_id, id).await {
+    if let Err(e) = sqlite_repos_guard.task_tags_repo().remove_all_by_tag_id_with_txn(&txn, project_id, id).await {
         if let Err(rollback_err) = repositories.rollback(txn).await {
             return Err(format!("Failed to delete task tags: {:?} and rollback failed: {:?}", e, rollback_err));
         }
@@ -117,7 +118,7 @@ where
     }
 
     // 3. サブタスクタグの関連付けを削除
-    if let Err(e) = sqlite_repos_guard.subtask_tags.remove_all_by_tag_id_with_txn(&txn, id).await {
+    if let Err(e) = sqlite_repos_guard.subtask_tags_repo().remove_all_by_tag_id_with_txn(&txn, id).await {
         if let Err(rollback_err) = repositories.rollback(txn).await {
             return Err(format!("Failed to delete subtask tags: {:?} and rollback failed: {:?}", e, rollback_err));
         }
@@ -125,7 +126,7 @@ where
     }
 
     // 4. タグ本体を削除
-    if let Err(e) = sqlite_repos_guard.tags.delete_with_txn(&txn, project_id, id).await {
+    if let Err(e) = sqlite_repos_guard.tags_repo().delete_with_txn(&txn, project_id, id).await {
         if let Err(rollback_err) = repositories.rollback(txn).await {
             return Err(format!("Failed to delete tag: {:?} and rollback failed: {:?}", e, rollback_err));
         }
@@ -138,10 +139,10 @@ where
     if let Some(automerge) = repositories.automerge_repositories() {
         let automerge_guard = automerge.read().await;
 
-        if let Err(e) = automerge_guard.projects.mark_tag_deleted(project_id, id, user_id, timestamp).await {
+        if let Err(e) = automerge_guard.projects_repo().mark_tag_deleted(project_id, id, user_id, timestamp).await {
             // Automerge失敗 → スナップショットから復元
             if let Some(ref snap) = snapshot {
-                if let Err(re) = automerge_guard.projects.restore_from_snapshot(project_id, snap).await {
+                if let Err(re) = automerge_guard.projects_repo().restore_from_snapshot(project_id, snap).await {
                     tracing::error!(
                         "Failed to restore Automerge snapshot after deletion failure: {:?}",
                         re
@@ -164,7 +165,7 @@ where
         // SQLiteコミット失敗 → Automergeスナップショットから復元
         if let (Some(snap), Some(automerge)) = (snapshot, repositories.automerge_repositories()) {
             let automerge_guard = automerge.read().await;
-            if let Err(restore_err) = automerge_guard.projects.restore_from_snapshot(project_id, &snap).await {
+            if let Err(restore_err) = automerge_guard.projects_repo().restore_from_snapshot(project_id, &snap).await {
                 tracing::error!("Failed to restore Automerge snapshot after commit failure: {:?}", restore_err);
             }
         }
@@ -191,7 +192,7 @@ where
     let automerge_guard = automerge.read().await;
 
     // 1. Automergeから削除済みタグを取得
-    let deleted_tag = match automerge_guard.projects.get_deleted_tag_by_id(project_id, id).await {
+    let deleted_tag = match automerge_guard.projects_repo().get_deleted_tag_by_id(project_id, id).await {
         Ok(Some(t)) => t,
         Ok(None) => return Err(format!("Tag not found or not deleted: {}", id)),
         Err(e) => return Err(format!("Failed to get deleted tag: {:?}", e)),
@@ -203,7 +204,7 @@ where
     }
 
     // 3. Automergeでタグを復元（deleted=false）
-    if let Err(e) = automerge_guard.projects.restore_tag(project_id, id, user_id, timestamp).await {
+    if let Err(e) = automerge_guard.projects_repo().restore_tag(project_id, id, user_id, timestamp).await {
         // Automerge復元失敗 → SQLiteから再削除してロールバック
         if let Err(del_err) = repositories.tags().delete(project_id, id).await {
             tracing::error!(

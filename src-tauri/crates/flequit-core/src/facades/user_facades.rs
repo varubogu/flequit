@@ -1,5 +1,5 @@
 use crate::services::user_service;
-use flequit_infrastructure::InfrastructureRepositoriesTrait;
+use crate::InfrastructureRepositoriesTrait;
 use flequit_model::models::users::user::User;
 use flequit_model::types::id_types::UserId;
 use flequit_types::errors::service_error::ServiceError;

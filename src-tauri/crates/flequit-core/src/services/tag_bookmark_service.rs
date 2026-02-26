@@ -1,5 +1,8 @@
 use chrono::Utc;
-use flequit_infrastructure::InfrastructureRepositoriesTrait;
+use crate::ports::infrastructure_repositories::{
+    TagBookmarkAutomergeRepositoryPort, TagBookmarkSqliteRepositoryPort,
+};
+use crate::InfrastructureRepositoriesTrait;
 use flequit_model::models::user_preferences::tag_bookmark::TagBookmark;
 use flequit_model::types::id_types::{ProjectId, TagBookmarkId, TagId, UserId};
 use flequit_types::errors::service_error::ServiceError;

@@ -4,84 +4,29 @@
 
 use crate::unified::*;
 use async_trait::async_trait;
+use flequit_core::ports::infrastructure_repositories::{
+    InfrastructureRepositoriesTrait, TagRepositoryExt,
+};
+use flequit_infrastructure_automerge::infrastructure::local_automerge_repositories::LocalAutomergeRepositories;
+use flequit_infrastructure_automerge::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalAutomergeRepository;
 use flequit_infrastructure_sqlite::infrastructure::local_sqlite_repositories::LocalSqliteRepositories;
 use flequit_infrastructure_sqlite::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalSqliteRepository;
-use flequit_infrastructure_automerge::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalAutomergeRepository;
+use flequit_model::types::id_types::{ProjectId, TagId};
 use flequit_model::traits::TransactionManager;
 use flequit_types::errors::repository_error::RepositoryError;
 use sea_orm::DatabaseTransaction;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-/// Infrastructure層統合リポジトリのトレイト定義
-///
-/// Service層からアクセスするためのリポジトリインターフェース。
-/// テストでのモック化やDIパターンに対応するため、トレイト化している。
 #[async_trait]
-pub trait InfrastructureRepositoriesTrait: Send + Sync + std::fmt::Debug {
-    /// アカウントリポジトリへのアクセス
-    fn accounts(&self) -> &AccountUnifiedRepository;
-
-    /// プロジェクトリポジトリへのアクセス
-    fn projects(&self) -> &ProjectUnifiedRepository;
-
-    /// タグリポジトリへのアクセス
-    fn tags(&self) -> &TagUnifiedRepository;
-
-    /// タスクリポジトリへのアクセス
-    fn tasks(&self) -> &TaskUnifiedRepository;
-
-    /// タスクリストリポジトリへのアクセス
-    fn task_lists(&self) -> &TaskListUnifiedRepository;
-
-    /// サブタスクリポジトリへのアクセス
-    fn sub_tasks(&self) -> &SubTaskUnifiedRepository;
-
-    /// ユーザーリポジトリへのアクセス
-    fn users(&self) -> &UserUnifiedRepository;
-
-    /// 繰り返しルールリポジトリへのアクセス
-    fn recurrence_rules(&self) -> &RecurrenceRuleUnifiedRepository;
-
-    /// タスクアサインリポジトリへのアクセス
-    fn task_assignments(&self) -> &TaskAssignmentUnifiedRepository;
-
-    /// サブタスクアサインリポジトリへのアクセス
-    fn subtask_assignments(&self) -> &SubTaskAssignmentUnifiedRepository;
-
-    /// タスクタグリポジトリへのアクセス
-    fn task_tags(&self) -> &TaskTagUnifiedRepository;
-
-    /// サブタスクタグリポジトリへのアクセス
-    fn subtask_tags(&self) -> &SubTaskTagUnifiedRepository;
-
-    /// タスク繰り返しルール関連付けリポジトリへのアクセス
-    fn task_recurrences(&self) -> &TaskRecurrenceUnifiedRepository;
-
-    /// サブタスク繰り返しルール関連付けリポジトリへのアクセス
-    fn subtask_recurrences(&self) -> &SubTaskRecurrenceUnifiedRepository;
-
-    /// TagBookmark SQLiteリポジトリへのアクセス
-    fn tag_bookmarks_sqlite(&self) -> &flequit_infrastructure_sqlite::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalSqliteRepository;
-
-    /// TagBookmark Automergeリポジトリへのアクセス
-    fn tag_bookmarks_automerge(&self) -> &flequit_infrastructure_automerge::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalAutomergeRepository;
-
-    /// SQLiteリポジトリ群へのアクセス
-    ///
-    /// トランザクション制御のために直接SQLiteリポジトリにアクセスする必要がある場合に使用します。
-    fn sqlite_repositories(&self) -> Option<&Arc<RwLock<LocalSqliteRepositories>>>;
-
-    /// Automergeリポジトリ群へのアクセス
-    ///
-    /// Automergeの論理削除などで直接Automergeリポジトリにアクセスする必要がある場合に使用します。
-    fn automerge_repositories(&self) -> Option<&Arc<RwLock<flequit_infrastructure_automerge::infrastructure::local_automerge_repositories::LocalAutomergeRepositories>>>;
-
-    /// リポジトリの初期化処理
-    async fn initialize(&mut self) -> Result<(), Box<dyn std::error::Error>>;
-
-    /// リソースのクリーンアップ処理
-    async fn cleanup(&mut self) -> Result<(), Box<dyn std::error::Error>>;
+impl TagRepositoryExt for TagUnifiedRepository {
+    async fn delete_with_relations(
+        &self,
+        project_id: &ProjectId,
+        tag_id: &TagId,
+    ) -> Result<(), RepositoryError> {
+        self.delete_with_relations(project_id, tag_id).await
+    }
 }
 
 /// Infrastructure層統合リポジトリ管理
@@ -264,67 +209,86 @@ impl Default for InfrastructureRepositories {
 
 #[async_trait]
 impl InfrastructureRepositoriesTrait for InfrastructureRepositories {
-    fn accounts(&self) -> &AccountUnifiedRepository {
+    type AccountsRepository = AccountUnifiedRepository;
+    type ProjectsRepository = ProjectUnifiedRepository;
+    type TagsRepository = TagUnifiedRepository;
+    type TasksRepository = TaskUnifiedRepository;
+    type TaskListsRepository = TaskListUnifiedRepository;
+    type SubTasksRepository = SubTaskUnifiedRepository;
+    type UsersRepository = UserUnifiedRepository;
+    type RecurrenceRulesRepository = RecurrenceRuleUnifiedRepository;
+    type TaskAssignmentsRepository = TaskAssignmentUnifiedRepository;
+    type SubtaskAssignmentsRepository = SubTaskAssignmentUnifiedRepository;
+    type TaskTagsRepository = TaskTagUnifiedRepository;
+    type SubtaskTagsRepository = SubTaskTagUnifiedRepository;
+    type TaskRecurrencesRepository = TaskRecurrenceUnifiedRepository;
+    type SubtaskRecurrencesRepository = SubTaskRecurrenceUnifiedRepository;
+    type TagBookmarksSqliteRepository = TagBookmarkLocalSqliteRepository;
+    type TagBookmarksAutomergeRepository = TagBookmarkLocalAutomergeRepository;
+    type SqliteRepositories = LocalSqliteRepositories;
+    type AutomergeRepositories = LocalAutomergeRepositories;
+
+    fn accounts(&self) -> &Self::AccountsRepository {
         &self.accounts
     }
 
-    fn projects(&self) -> &ProjectUnifiedRepository {
+    fn projects(&self) -> &Self::ProjectsRepository {
         &self.projects
     }
 
-    fn tags(&self) -> &TagUnifiedRepository {
+    fn tags(&self) -> &Self::TagsRepository {
         &self.tags
     }
 
-    fn tasks(&self) -> &TaskUnifiedRepository {
+    fn tasks(&self) -> &Self::TasksRepository {
         &self.tasks
     }
 
-    fn task_lists(&self) -> &TaskListUnifiedRepository {
+    fn task_lists(&self) -> &Self::TaskListsRepository {
         &self.task_lists
     }
 
-    fn sub_tasks(&self) -> &SubTaskUnifiedRepository {
+    fn sub_tasks(&self) -> &Self::SubTasksRepository {
         &self.sub_tasks
     }
 
-    fn users(&self) -> &UserUnifiedRepository {
+    fn users(&self) -> &Self::UsersRepository {
         &self.users
     }
 
-    fn recurrence_rules(&self) -> &RecurrenceRuleUnifiedRepository {
+    fn recurrence_rules(&self) -> &Self::RecurrenceRulesRepository {
         &self.recurrence_rules
     }
 
-    fn task_assignments(&self) -> &TaskAssignmentUnifiedRepository {
+    fn task_assignments(&self) -> &Self::TaskAssignmentsRepository {
         &self.task_assignments
     }
 
-    fn subtask_assignments(&self) -> &SubTaskAssignmentUnifiedRepository {
+    fn subtask_assignments(&self) -> &Self::SubtaskAssignmentsRepository {
         &self.subtask_assignments
     }
 
-    fn task_tags(&self) -> &TaskTagUnifiedRepository {
+    fn task_tags(&self) -> &Self::TaskTagsRepository {
         &self.task_tags
     }
 
-    fn subtask_tags(&self) -> &SubTaskTagUnifiedRepository {
+    fn subtask_tags(&self) -> &Self::SubtaskTagsRepository {
         &self.subtask_tags
     }
 
-    fn task_recurrences(&self) -> &TaskRecurrenceUnifiedRepository {
+    fn task_recurrences(&self) -> &Self::TaskRecurrencesRepository {
         &self.task_recurrences
     }
 
-    fn subtask_recurrences(&self) -> &SubTaskRecurrenceUnifiedRepository {
+    fn subtask_recurrences(&self) -> &Self::SubtaskRecurrencesRepository {
         &self.subtask_recurrences
     }
 
-    fn tag_bookmarks_sqlite(&self) -> &flequit_infrastructure_sqlite::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalSqliteRepository {
+    fn tag_bookmarks_sqlite(&self) -> &Self::TagBookmarksSqliteRepository {
         &self.tag_bookmarks_sqlite
     }
 
-    fn tag_bookmarks_automerge(&self) -> &flequit_infrastructure_automerge::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalAutomergeRepository {
+    fn tag_bookmarks_automerge(&self) -> &Self::TagBookmarksAutomergeRepository {
         &self.tag_bookmarks_automerge
     }
 
@@ -342,11 +306,11 @@ impl InfrastructureRepositoriesTrait for InfrastructureRepositories {
         Ok(())
     }
 
-    fn sqlite_repositories(&self) -> Option<&Arc<RwLock<LocalSqliteRepositories>>> {
+    fn sqlite_repositories(&self) -> Option<&Arc<RwLock<Self::SqliteRepositories>>> {
         self.unified_manager.sqlite_repositories()
     }
 
-    fn automerge_repositories(&self) -> Option<&Arc<RwLock<flequit_infrastructure_automerge::infrastructure::local_automerge_repositories::LocalAutomergeRepositories>>> {
+    fn automerge_repositories(&self) -> Option<&Arc<RwLock<Self::AutomergeRepositories>>> {
         self.unified_manager.automerge_repositories()
     }
 }
@@ -489,90 +453,109 @@ pub mod mock {
 
     #[async_trait]
     impl InfrastructureRepositoriesTrait for MockInfrastructureRepositories {
-        fn sqlite_repositories(&self) -> Option<&Arc<RwLock<LocalSqliteRepositories>>> {
+        type AccountsRepository = AccountUnifiedRepository;
+        type ProjectsRepository = ProjectUnifiedRepository;
+        type TagsRepository = TagUnifiedRepository;
+        type TasksRepository = TaskUnifiedRepository;
+        type TaskListsRepository = TaskListUnifiedRepository;
+        type SubTasksRepository = SubTaskUnifiedRepository;
+        type UsersRepository = UserUnifiedRepository;
+        type RecurrenceRulesRepository = RecurrenceRuleUnifiedRepository;
+        type TaskAssignmentsRepository = TaskAssignmentUnifiedRepository;
+        type SubtaskAssignmentsRepository = SubTaskAssignmentUnifiedRepository;
+        type TaskTagsRepository = TaskTagUnifiedRepository;
+        type SubtaskTagsRepository = SubTaskTagUnifiedRepository;
+        type TaskRecurrencesRepository = TaskRecurrenceUnifiedRepository;
+        type SubtaskRecurrencesRepository = SubTaskRecurrenceUnifiedRepository;
+        type TagBookmarksSqliteRepository = TagBookmarkLocalSqliteRepository;
+        type TagBookmarksAutomergeRepository = TagBookmarkLocalAutomergeRepository;
+        type SqliteRepositories = LocalSqliteRepositories;
+        type AutomergeRepositories = LocalAutomergeRepositories;
+
+        fn sqlite_repositories(&self) -> Option<&Arc<RwLock<Self::SqliteRepositories>>> {
             None
         }
 
-        fn automerge_repositories(&self) -> Option<&Arc<RwLock<flequit_infrastructure_automerge::infrastructure::local_automerge_repositories::LocalAutomergeRepositories>>> {
+        fn automerge_repositories(&self) -> Option<&Arc<RwLock<Self::AutomergeRepositories>>> {
             None
         }
 
-        fn accounts(&self) -> &AccountUnifiedRepository {
+        fn accounts(&self) -> &Self::AccountsRepository {
             self.log_call("accounts");
             &self.accounts
         }
 
-        fn projects(&self) -> &ProjectUnifiedRepository {
+        fn projects(&self) -> &Self::ProjectsRepository {
             self.log_call("projects");
             &self.projects
         }
 
-        fn tags(&self) -> &TagUnifiedRepository {
+        fn tags(&self) -> &Self::TagsRepository {
             self.log_call("tags");
             &self.tags
         }
 
-        fn tasks(&self) -> &TaskUnifiedRepository {
+        fn tasks(&self) -> &Self::TasksRepository {
             self.log_call("tasks");
             &self.tasks
         }
 
-        fn task_lists(&self) -> &TaskListUnifiedRepository {
+        fn task_lists(&self) -> &Self::TaskListsRepository {
             self.log_call("task_lists");
             &self.task_lists
         }
 
-        fn sub_tasks(&self) -> &SubTaskUnifiedRepository {
+        fn sub_tasks(&self) -> &Self::SubTasksRepository {
             self.log_call("sub_tasks");
             &self.sub_tasks
         }
 
-        fn users(&self) -> &UserUnifiedRepository {
+        fn users(&self) -> &Self::UsersRepository {
             self.log_call("users");
             &self.users
         }
 
-        fn recurrence_rules(&self) -> &RecurrenceRuleUnifiedRepository {
+        fn recurrence_rules(&self) -> &Self::RecurrenceRulesRepository {
             self.log_call("recurrence_rules");
             &self.recurrence_rules
         }
 
-        fn task_assignments(&self) -> &TaskAssignmentUnifiedRepository {
+        fn task_assignments(&self) -> &Self::TaskAssignmentsRepository {
             self.log_call("task_assignments");
             &self.task_assignments
         }
 
-        fn subtask_assignments(&self) -> &SubTaskAssignmentUnifiedRepository {
+        fn subtask_assignments(&self) -> &Self::SubtaskAssignmentsRepository {
             self.log_call("subtask_assignments");
             &self.subtask_assignments
         }
 
-        fn task_tags(&self) -> &TaskTagUnifiedRepository {
+        fn task_tags(&self) -> &Self::TaskTagsRepository {
             self.log_call("task_tags");
             &self.task_tags
         }
 
-        fn subtask_tags(&self) -> &SubTaskTagUnifiedRepository {
+        fn subtask_tags(&self) -> &Self::SubtaskTagsRepository {
             self.log_call("subtask_tags");
             &self.subtask_tags
         }
 
-        fn task_recurrences(&self) -> &TaskRecurrenceUnifiedRepository {
+        fn task_recurrences(&self) -> &Self::TaskRecurrencesRepository {
             self.log_call("task_recurrences");
             &self.task_recurrences
         }
 
-        fn subtask_recurrences(&self) -> &SubTaskRecurrenceUnifiedRepository {
+        fn subtask_recurrences(&self) -> &Self::SubtaskRecurrencesRepository {
             self.log_call("subtask_recurrences");
             &self.subtask_recurrences
         }
 
-        fn tag_bookmarks_sqlite(&self) -> &flequit_infrastructure_sqlite::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalSqliteRepository {
+        fn tag_bookmarks_sqlite(&self) -> &Self::TagBookmarksSqliteRepository {
             self.log_call("tag_bookmarks_sqlite");
             &self.tag_bookmarks_sqlite
         }
 
-        fn tag_bookmarks_automerge(&self) -> &flequit_infrastructure_automerge::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalAutomergeRepository {
+        fn tag_bookmarks_automerge(&self) -> &Self::TagBookmarksAutomergeRepository {
             self.log_call("tag_bookmarks_automerge");
             &self.tag_bookmarks_automerge
         }
@@ -642,14 +625,12 @@ mod tests {
 
     #[test]
     fn test_infrastructure_repositories_trait_object() {
-        // トレイトオブジェクトとして使用可能かテスト
+        fn assert_infra_trait_impl<T: InfrastructureRepositoriesTrait>(_repos: &T) {}
+
         let repos = InfrastructureRepositories::new();
-        let _trait_obj: &dyn InfrastructureRepositoriesTrait = &repos;
+        assert_infra_trait_impl(&repos);
 
         let mock_repos = MockInfrastructureRepositories::new();
-        let _mock_trait_obj: &dyn InfrastructureRepositoriesTrait = &mock_repos;
-
-        // どちらも同じトレイトとして扱えることを確認
-        // これにより依存性の注入やテストでの置き換えが可能になる
+        assert_infra_trait_impl(&mock_repos);
     }
 }

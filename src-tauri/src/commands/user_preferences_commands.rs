@@ -1,7 +1,7 @@
 use crate::models::user_preferences::TagBookmarkCommandModel;
 use crate::state::AppState;
 use flequit_core::services::tag_bookmark_service;
-use flequit_infrastructure::InfrastructureRepositoriesTrait;
+use flequit_core::InfrastructureRepositoriesTrait;
 use flequit_model::models::user_preferences::tag_bookmark::TagBookmark;
 use flequit_model::types::id_types::{ProjectId, TagBookmarkId, TagId, UserId};
 use tauri::State;
