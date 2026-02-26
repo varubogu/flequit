@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-imports -- TODO [計画02]: フロントエンド層方針の再定義と移行で対応予定。期限: 2026-04-30 */
 import { setMode, userPrefersMode } from 'mode-watcher';
 import { SettingsService } from '$lib/services/domain/settings';
 

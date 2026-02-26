@@ -203,9 +203,8 @@ export class RecurrenceRuleTauriService implements RecurrenceRuleService {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async search(
-    projectId: string,
+    _projectId: string,
     _condition: RecurrenceRuleSearchCondition
   ): Promise<RecurrenceRule[]> {
     try {

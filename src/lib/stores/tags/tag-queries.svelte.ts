@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-imports -- TODO [計画02]: フロントエンド層方針の再定義と移行で対応予定。期限: 2026-04-30 */
 import type { Tag } from '$lib/types/tag';
 import { tagStore as tagStoreInternal } from '$lib/stores/tags/tag-store.svelte';
 import { TagService } from '$lib/services/domain/tag';

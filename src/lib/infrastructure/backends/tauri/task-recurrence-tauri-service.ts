@@ -48,9 +48,8 @@ export class TaskRecurrenceTauriService implements TaskRecurrenceService {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async search(
-    projectId: string,
+    _projectId: string,
     _condition: TaskRecurrenceSearchCondition
   ): Promise<TaskRecurrence[]> {
     try {
