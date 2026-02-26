@@ -1,95 +1,68 @@
 # Tech Stack & Project Structure
 
-## Tech Stack & Architecture
+## Tech Stack
 
 ### Frontend
 
-- **SvelteKit**: Main framework (using Svelte 5 + runes)
-- **Adapter**: `@sveltejs/adapter-static` (SSG) - Static site generation for Tauri
-- **UI**: shadcn-svelte (bits-ui based) - Maintain originality as much as possible
-- **Styling**: Tailwind CSS v4 + custom CSS variables
-- **Internationalization**: Inlang Paraglide (English/Japanese support)
-- **Icons**: Lucide Svelte
-- **Package Manager**: bun
-- **Build Tool**: Vite
-- **Type Checking**: TypeScript + svelte-check
-- **Formatter**: Prettier
-- **Linter**: ESLint
-- **Testing**: Vitest (unit) + @testing-library/svelte (integration) + Playwright (E2E)
+- **Framework**: SvelteKit 2 (Svelte 5 runes)
+- **Adapter**: `@sveltejs/adapter-static` (SSG for Tauri)
+- **UI**: bits-ui based components
+- **Styling**: Tailwind CSS v4
+- **i18n**: Inlang Paraglide
+- **Package Manager**: Bun
+- **Type Check**: `bun check`
+- **Lint**: `bun run lint`
+- **Tests**: `bun run test`, `bun run test:e2e [file]`
 
-### Backend & Desktop
+### Backend / Desktop
 
-- **Tauri**: Desktop application framework
-- **Rust**: Backend logic
-- **SQLite**: Local database
-- **Automerge**: History management and synchronization for local database
-- **Web backend status**: Experimental stubs only, gated by `PUBLIC_ENABLE_EXPERIMENTAL_WEB_BACKEND=true`
-- **Package Manager**: cargo
-- **Build Tool**: cargo
-- **Type Checking**: cargo check
-- **Formatter**: rustfmt
-- **Linter**: clippy
-- **Testing**: cargo test
+- **Framework**: Tauri 2
+- **Language**: Rust
+- **Database**: SQLite (local-first)
+- **CRDT**: Automerge
+- **Package Manager**: Cargo
+- **Type Check**: `cargo check --quiet`
+- **Lint**: `cargo clippy`
+- **Tests**: `cargo test -j 4`
+
+## Rust Crate Composition
+
+Current workspace crates under `src-tauri/crates`:
+
+- `flequit-types`
+- `flequit-model`
+- `flequit-repository`
+- `flequit-core`
+- `flequit-infrastructure`
+- `flequit-infrastructure-sqlite`
+- `flequit-infrastructure-automerge`
+- `flequit-settings`
+- `flequit-testing`
+
+Dependency direction rule:
+
+`flequit-types -> flequit-model -> flequit-repository -> flequit-core -> flequit-infrastructure-* -> src-tauri/src/commands`
 
 ## Project Structure
 
-```
+```text
 (root)
-├── e2e/           # E2E tests
-│   ├── components/  # E2E tests for Svelte components
-├── src/          # Source code
-│   ├── lib/
-│   │   ├── components/          # Svelte components
-│   │   │   ├── ui/             # shadcn-svelte basic components (maintain originality)
-│   │   │   ├── shared/         # Common components
-│   │   │   └── [feature]/      # Feature-specific components
-│   │   ├── services/           # Business logic (API communication, data operations)
-│   │   ├── stores/             # Svelte 5 runes-based state management
-│   │   ├── types/              # TypeScript type definitions
-│   │   └── utils/              # Pure helper functions
-│   ├── routes/                 # SvelteKit routing
-│   ├── paraglide/              # Internationalization (auto-generated, not in Git)
-│   ├── app.css                 # Global styles + Tailwind configuration
-│   └── app.html                # HTML template
-├── src-tauri/                  # Tauri source code
-│   ├── capabilities/           # Tauri security configuration
-│   ├── icons/                  # App icons
-│   ├── crates/                 # Separated crates
-│   │   ├── flequit-storage/    # Storage layer crate
-│   │   │   ├── src/
-│   │   │   │   ├── errors/             # Error types
-│   │   │   │   ├── models/             # Data models
-│   │   │   │   │   ├── command/        # Command models
-│   │   │   │   │   └── sqlite/         # SQLite models
-│   │   │   │   ├── repositories/       # Repository implementations
-│   │   │   │   │   ├── cloud_automerge/ # Cloud Automerge
-│   │   │   │   │   ├── local_automerge/ # Local Automerge
-│   │   │   │   │   ├── local_sqlite/    # Local SQLite
-│   │   │   │   │   ├── web/             # Web server
-│   │   │   │   │   ├── unified/         # Unified layer
-│   │   │   │   │   └── *_trait.rs       # Repository trait definitions
-│   │   │   │   ├── types/              # Type definitions
-│   │   │   │   └── utils/              # Storage utilities
-│   │   │   ├── tests/              # Storage layer tests
-│   │   │   ├── build.rs            # Test database creation
-│   │   │   └── Cargo.toml
-│   │   └── flequit-core/           # Business logic layer crate
-│   │       ├── src/
-│   │       │   ├── facades/            # Facade layer
-│   │       │   └── services/           # Service layer
-│   │       └── Cargo.toml
-│   ├── src/                    # Main application
-│   │   ├── commands/           # Tauri commands (minimal configuration)
-│   │   ├── logger.rs           # Log configuration
-│   │   └── lib.rs              # Entry point
-│   ├── target/
-│   ├── build.rs
-│   ├── Cargo.lock
-│   ├── Cargo.toml
-│   └── tauri.conf.json
-├── tests/                    # Unit & integration tests (vitest)
-│   ├── test-data/            # Test data for unit & integration tests (vitest) (1 function = 1 test data generation)
-│   ├── integration/          # Integration tests
-│   ├── */                    # Unit tests
-│   └── vitest.setup.ts       # Vitest configuration
+├── src/                             # SvelteKit frontend
+│   └── lib/
+│       ├── components/              # UI components
+│       ├── services/                # domain/composite/ui services
+│       ├── stores/                  # state only
+│       ├── infrastructure/backends/ # tauri/web backend adapters
+│       └── types/
+├── src-tauri/                       # Tauri/Rust workspace
+│   ├── src/commands/                # Tauri commands
+│   └── crates/                      # Rust crates listed above
+├── tests/                           # Vitest unit/integration tests
+├── e2e/                             # Playwright tests
+└── docs/                            # Project documentation
 ```
+
+## Web Backend Status
+
+`src/lib/infrastructure/backends/web` is experimental and disabled by default.
+Enable only for experiments with `PUBLIC_ENABLE_EXPERIMENTAL_WEB_BACKEND=true`.

@@ -10,36 +10,43 @@ FlequitプロジェクトのTauri（Rust）部分における設計ガイドラ�
 
 ```
 メインクレート（flequit）
-├── アプリケーション層（commands, controllers, events）
+├── アプリケーション層（src-tauri/src/commands）
+    ↓
+flequit-infrastructure クレート
+├── インフラ統合層
+    ↓
+flequit-infrastructure-sqlite / flequit-infrastructure-automerge クレート
+├── 永続化の具体実装
     ↓
 flequit-core クレート
-├── ドメイン層（facadeが呼び出され、複数のserviceを呼び出し）
+├── ドメインロジック（facade / service）
     ↓
-flequit-storage クレート
-├── データアクセス層（repository, SQLite/Automergeなどの実体）
+flequit-repository -> flequit-model -> flequit-types
 ```
 
 ### クレート間アクセス制御ルール
 
-- **メインクレート（flequit）**: flequit-coreのみ参照可能
-- **flequit-core**: flequit-storageのみ参照可能
-- **flequit-storage**: 外部クレート参照なし（完全独立）
+- **メインクレート（flequit）**: `flequit-infrastructure`（必要に応じて settings/types）を参照
+- **インフラ系クレート**: `flequit-core`, `flequit-repository`, `flequit-model`, `flequit-types` に依存可能
+- **flequit-core**: `flequit-repository`, `flequit-model`, `flequit-types` に依存
+- **flequit-repository**: `flequit-model`, `flequit-types` に依存
+- **flequit-model**: `flequit-types` に依存
 
 ### 各クレート内部のアクセス制御ルール
 
 #### メインクレート（flequit）
 
-- **commands**: flequit-core::facadeはOK、直接service/repositoryはNG
+- **commands**: インフラFacade/サービス経由はOK、DBアダプタへの直接アクセスはNG
 
 #### flequit-core クレート
 
 - **facade**: serviceはOK、facade/commandsはNG
-- **service**: serviceとflequit-storage::repositoryはOK、facadeはNG
+- **service**: repositoryのtrait/契約参照はOK、commands/インフラ具体実装への依存はNG
 
-#### flequit-storage クレート
+#### インフラ系クレート
 
-- **repository**: repository内のみOK、外部参照はNG
-- **models**: 型定義のみ、ビジネスロジックはNG
+- **sqlite/automergeアダプタ**: 永続化実装の責務のみ。ドメインルール実装はNG
+- **統合インフラFacade**: 複数インフラ実装の合成のみ。UI/command責務はNG
 
 ## Option値の処理規約
 

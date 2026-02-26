@@ -42,9 +42,11 @@
   - Display in WebView
 - Backend (Tauri/Rust) - Crate separation architecture
   - **flequit (main crate)**: Tauri commands, system API integration, OS features
-  - **flequit-core (business logic)**: Service layer, facade layer
-  - **flequit-storage (storage layer)**: Repository, database operations, file I/O
-  - Each crate can be built and tested independently
+  - **flequit-core (business logic)**: Service layer and facade layer
+  - **flequit-repository (repository contracts)**: Repository interfaces and shared repository utilities
+  - **flequit-infrastructure-sqlite / flequit-infrastructure-automerge**: Concrete persistence implementations
+  - **flequit-infrastructure**: Unified infrastructure facade used from the app crate
+  - Dependency direction follows: `flequit-types -> flequit-model -> flequit-repository -> flequit-core -> flequit-infrastructure-* -> src-tauri/src/commands`
 
 ### 2.2 Data Flow
 

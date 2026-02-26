@@ -42,9 +42,11 @@
   - WebViewでの表示
 - バックエンド（Tauri/Rust）- クレート分割アーキテクチャ
   - **flequit（メインクレート）**: Tauriコマンド、システムAPI連携、OS機能
-  - **flequit-core（ビジネスロジック）**: サービス層、ファサード層
-  - **flequit-storage（ストレージ層）**: Repository、データベース操作、ファイルI/O
-  - 各クレートは独立してビルド・テスト可能
+  - **flequit-core（ビジネスロジック）**: サービス層とファサード層
+  - **flequit-repository（Repository契約）**: Repositoryインターフェースと共通ユーティリティ
+  - **flequit-infrastructure-sqlite / flequit-infrastructure-automerge**: 永続化の具体実装
+  - **flequit-infrastructure**: アプリクレートから利用する統合インフラFacade
+  - 依存方向は `flequit-types -> flequit-model -> flequit-repository -> flequit-core -> flequit-infrastructure-* -> src-tauri/src/commands` に従う
 
 ### 2.2 データフロー
 

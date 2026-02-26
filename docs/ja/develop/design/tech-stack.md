@@ -1,95 +1,68 @@
 # 技術スタック・プロジェクト構造
 
-## 技術スタック・アーキテクチャ
+## 技術スタック
 
 ### フロントエンド
 
-- **SvelteKit**: メインフレームワーク（Svelte 5 + runes使用）
-- **アダプター**: `@sveltejs/adapter-static` (SSG) - Tauriでの静的サイト生成
-- **UI**: shadcn-svelte（bits-uiベース）- 極力オリジナルを維持
-- **スタイリング**: Tailwind CSS v4 + カスタムCSS変数
-- **国際化**: Inlang Paraglide（英語・日本語対応）
-- **アイコン**: Lucide Svelte
-- **パッケージマネージャ**: bun
-- **ビルドツール**: Vite
-- **型チェック**: TypeScript + svelte-check
-- **フォーマッター**: Prettier
-- **リンター**: ESLint
-- **テスト**: Vitest(単体) + @testing-library/svelte(結合) + Playwright(E2E)
+- **フレームワーク**: SvelteKit 2（Svelte 5 runes）
+- **アダプター**: `@sveltejs/adapter-static`（Tauri向けSSG）
+- **UI**: bits-ui ベースのコンポーネント
+- **スタイル**: Tailwind CSS v4
+- **i18n**: Inlang Paraglide
+- **パッケージマネージャ**: Bun
+- **型チェック**: `bun check`
+- **Lint**: `bun run lint`
+- **テスト**: `bun run test`, `bun run test:e2e [file]`
 
-### バックエンド・デスクトップ
+### バックエンド / デスクトップ
 
-- **Tauri**: デスクトップアプリケーションフレームワーク
-- **Rust**: バックエンドロジック
-- **SQLite**: ローカルデータベース
-- **Automerge**: ローカルデータベースの履歴管理・同期用
-- **Web backendの状態**: 実験用スタブのみ（`PUBLIC_ENABLE_EXPERIMENTAL_WEB_BACKEND=true` で有効化）
-- **パッケージマネージャ**: cargo
-- **ビルドツール**: cargo
-- **型チェック**: cargo check
-- **フォーマッター**: rustfmt
-- **リンター**: clippy
-- **テスト**: cargo test
+- **フレームワーク**: Tauri 2
+- **言語**: Rust
+- **データベース**: SQLite（local-first）
+- **CRDT**: Automerge
+- **パッケージマネージャ**: Cargo
+- **型チェック**: `cargo check --quiet`
+- **Lint**: `cargo clippy`
+- **テスト**: `cargo test -j 4`
+
+## Rustクレート構成
+
+`src-tauri/crates` 配下の現行workspaceクレート:
+
+- `flequit-types`
+- `flequit-model`
+- `flequit-repository`
+- `flequit-core`
+- `flequit-infrastructure`
+- `flequit-infrastructure-sqlite`
+- `flequit-infrastructure-automerge`
+- `flequit-settings`
+- `flequit-testing`
+
+依存方向ルール:
+
+`flequit-types -> flequit-model -> flequit-repository -> flequit-core -> flequit-infrastructure-* -> src-tauri/src/commands`
 
 ## プロジェクト構造
 
-```
+```text
 (root)
-├── e2e/           # E2Eテスト
-│   ├── components/  # SvelteコンポーネントのE2Eテスト
-├── src/          # ソースコード
-│   ├── lib/
-│   │   ├── components/          # Svelteコンポーネント
-│   │   │   ├── ui/             # shadcn-svelte基本コンポーネント（オリジナル維持）
-│   │   │   ├── shared/         # 共通コンポーネント
-│   │   │   └── [機能別]/       # 特定用途のコンポーネント
-│   │   ├── services/           # ビジネスロジック（API通信、データ操作）
-│   │   ├── stores/             # Svelte 5 runesベースの状態管理
-│   │   ├── types/              # TypeScript型定義
-│   │   └── utils/              # 純粋なヘルパー関数
-│   ├── routes/                 # SvelteKitルーティング
-│   ├── paraglide/              # 国際化（自動生成、Git管理対象外）
-│   ├── app.css                 # グローバルスタイル + Tailwind設定
-│   └── app.html                # HTMLテンプレート
-├── src-tauri/                  # Tauri部分のソースコード
-│   ├── capabilities/           # Tauriセキュリティ設定
-│   ├── icons/                  # アプリアイコン
-│   ├── crates/                 # 分割されたクレート
-│   │   ├── flequit-storage/    # ストレージ層クレート
-│   │   │   ├── src/
-│   │   │   │   ├── errors/             # エラー型
-│   │   │   │   ├── models/             # データモデル
-│   │   │   │   │   ├── command/        # コマンド用モデル
-│   │   │   │   │   └── sqlite/         # SQLite用モデル
-│   │   │   │   ├── repositories/       # Repository実装
-│   │   │   │   │   ├── cloud_automerge/ # クラウドAutomerge
-│   │   │   │   │   ├── local_automerge/ # ローカルAutomerge
-│   │   │   │   │   ├── local_sqlite/    # ローカルSQLite
-│   │   │   │   │   ├── web/             # Webサーバー
-│   │   │   │   │   ├── unified/         # 統合レイヤー
-│   │   │   │   │   └── *_trait.rs       # Repository trait定義
-│   │   │   │   ├── types/              # 型定義
-│   │   │   │   └── utils/              # ストレージ用ユーティリティ
-│   │   │   ├── tests/              # ストレージ層テスト
-│   │   │   ├── build.rs            # テスト用DB作成
-│   │   │   └── Cargo.toml
-│   │   └── flequit-core/           # ビジネスロジック層クレート
-│   │       ├── src/
-│   │       │   ├── facades/            # ファサードレイヤー
-│   │       │   └── services/           # サービスレイヤー
-│   │       └── Cargo.toml
-│   ├── src/                    # メインアプリケーション
-│   │   ├── commands/           # Tauriコマンド（最小構成）
-│   │   ├── logger.rs           # ログ設定
-│   │   └── lib.rs              # エントリーポイント
-│   ├── target/
-│   ├── build.rs
-│   ├── Cargo.lock
-│   ├── Cargo.toml
-│   └── tauri.conf.json
-├── tests/                    # 単体・結合テスト(vitest)
-│   ├── test-data/            # 単体・結合テスト(vitest)で使用するテストデータ（1関数＝1テストデータ生成）
-│   ├── integration/          # 結合テスト
-│   ├── */                    # 単体テスト
-│   └── vitest.setup.ts       # Vitest設定
+├── src/                             # SvelteKitフロントエンド
+│   └── lib/
+│       ├── components/              # UIコンポーネント
+│       ├── services/                # domain/composite/uiサービス
+│       ├── stores/                  # 状態のみ
+│       ├── infrastructure/backends/ # tauri/webバックエンドアダプタ
+│       └── types/
+├── src-tauri/                       # Tauri/Rust workspace
+│   ├── src/commands/                # Tauriコマンド
+│   └── crates/                      # 上記Rustクレート
+├── tests/                           # Vitest単体/結合テスト
+├── e2e/                             # Playwrightテスト
+└── docs/                            # プロジェクトドキュメント
 ```
+
+## Webバックエンドの状態
+
+`src/lib/infrastructure/backends/web` は実験中で、既定では無効です。
+実験時のみ `PUBLIC_ENABLE_EXPERIMENTAL_WEB_BACKEND=true` で有効化してください。

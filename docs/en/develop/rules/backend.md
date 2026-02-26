@@ -29,4 +29,4 @@ Data Access Layer (repository, implemented as sqlite, automerge, etc.)
 
 ## Development Workflow
 
-For details, refer to `docs/develop/rules/workflow.md`.
+For details, refer to `docs/en/develop/rules/workflow.md`.

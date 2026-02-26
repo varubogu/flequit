@@ -29,4 +29,4 @@
 
 ## 開発ワークフロー
 
-詳細は `docs/develop/rules/workflow.md` を参照してください。
+詳細は `docs/ja/develop/rules/workflow.md` を参照してください。

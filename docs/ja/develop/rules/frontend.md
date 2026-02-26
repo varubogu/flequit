@@ -64,7 +64,7 @@
 
 ## レイヤーアーキテクチャ
 
-詳細は `docs/develop/design/frontend/layers.md` を参照してください。
+詳細は `docs/ja/develop/design/frontend/layers.md` を参照してください。
 
 **重要なルール**:
 
@@ -85,4 +85,4 @@ import { TaskService } from '$lib/services';
 
 ## 開発ワークフロー
 
-詳細は `docs/develop/rules/workflow.md` を参照してください。
+詳細は `docs/ja/develop/rules/workflow.md` を参照してください。

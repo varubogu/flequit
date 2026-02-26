@@ -24,8 +24,8 @@
 ### バックエンド（Rustクレート）
 
 - `cargo test -j 4` - 全クレートのテスト実行
-- `cargo test --lib -p flequit-storage -j 4` - ストレージ層のみ
-- `cargo test --lib -p flequit-core -j 4` - ビジネスロジック層のみ
+- `cargo test --lib -p flequit-infrastructure-sqlite -j 4` - SQLiteインフラ層のみ
+- `cargo test --lib -p flequit-core -j 4` - コアビジネスロジック層のみ
 
 ## テストファイル構成
 
@@ -45,18 +45,10 @@ tests/                 # 単体テスト、結合テスト（vitest）
 ### バックエンド
 
 ```
-src-tauri/crates/flequit-storage/tests/  # ストレージ層テスト
-├── integration/       # 統合テスト
-│   ├── local_sqlite/  # SQLiteリポジトリテスト
-│   └── local_automerge/ # Automergeリポジトリテスト
-├── test_utils.rs      # テストユーティリティ
-└── integration_tests.rs # テストエントリポイント
-
-src-tauri/crates/flequit-core/  # ビジネスロジック層（今後追加予定）
-└── tests/             # サービス・ファサードテスト
-
-src-tauri/src/         # メインクレート
-└── tests/             # Tauriコマンドテスト（今後追加予定）
+src-tauri/crates/flequit-infrastructure-sqlite/tests/      # SQLiteインフラテスト
+src-tauri/crates/flequit-infrastructure-automerge/tests/   # Automergeインフラテスト
+src-tauri/crates/flequit-repository/tests/                 # Repository層テスト
+src-tauri/crates/flequit-settings/tests/                   # Settings層テスト
 ```
 
 ## vitestのテストの書き方

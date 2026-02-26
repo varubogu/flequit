@@ -10,36 +10,43 @@ This document defines design guidelines for the Tauri (Rust) portion of the Fleq
 
 ```
 Main Crate (flequit)
-├── Application Layer (commands, controllers, events)
+├── Application Layer (src-tauri/src/commands)
+    ↓
+flequit-infrastructure Crate
+├── Infrastructure integration
+    ↓
+flequit-infrastructure-sqlite / flequit-infrastructure-automerge Crates
+├── Persistence implementations
     ↓
 flequit-core Crate
-├── Domain Layer (facade calls multiple services)
+├── Domain logic (facades/services)
     ↓
-flequit-storage Crate
-├── Data Access Layer (repository, SQLite/Automerge implementations)
+flequit-repository -> flequit-model -> flequit-types
 ```
 
 ### Inter-Crate Access Control Rules
 
-- **Main Crate (flequit)**: Can only reference flequit-core
-- **flequit-core**: Can only reference flequit-storage
-- **flequit-storage**: No external crate references (completely independent)
+- **Main Crate (flequit)**: References `flequit-infrastructure` (and settings/types as needed)
+- **Infrastructure crates**: Can depend on `flequit-core`, `flequit-repository`, `flequit-model`, `flequit-types`
+- **flequit-core**: Depends on `flequit-repository`, `flequit-model`, `flequit-types`
+- **flequit-repository**: Depends on `flequit-model`, `flequit-types`
+- **flequit-model**: Depends on `flequit-types`
 
 ### Intra-Crate Access Control Rules
 
 #### Main Crate (flequit)
 
-- **commands**: OK to reference flequit-core::facade, NG to directly reference service/repository
+- **commands**: OK to use infrastructure facade/services, NG to bypass infrastructure and call DB adapters directly
 
 #### flequit-core Crate
 
 - **facade**: OK to reference service, NG to reference facade/commands
-- **service**: OK to reference service and flequit-storage::repository, NG to reference facade
+- **service**: OK to reference repository traits/contracts, NG to reference commands/infrastructure concrete implementations
 
-#### flequit-storage Crate
+#### Infrastructure Crates
 
-- **repository**: OK to reference within repository only, NG to reference external
-- **models**: Type definitions only, NG to include business logic
+- **sqlite/automerge adapters**: Own persistence details only, NG to include domain rules
+- **integration facade**: Compose infra implementations, NG to include UI/command concerns
 
 ## Option Value Processing Conventions
 

@@ -18,15 +18,15 @@
 ### バックエンド
 
 - **単体テスト**:
-  - コマンド: cargo test
+  - コマンド: cargo test -j 4
   - テストフレームワーク: cargo test
   - 作成先： 同一ソースコード内のテストブロック
 - **結合テスト**:
-  - コマンド: cargo test
+  - コマンド: cargo test -j 4
   - テストフレームワーク: cargo test
   - 作成先： src-tauri/tests/integration
 - **システムテスト**:
-  - コマンド: cargo test
+  - コマンド: cargo test -j 4
   - テストフレームワーク: cargo test
   - 作成先： src-tauri/tests/system
 
@@ -53,8 +53,8 @@
 
 #### バックエンド
 
-- `cargo test` - cargo全テスト実行
-- `cargo test [ファイル名]` - cargo個別ファイルテスト
+- `cargo test -j 4` - cargo全テスト実行
+- `cargo test -j 4 <test_name>` - cargo対象テスト実行
 
 ## テスト設計原則
 
@@ -81,7 +81,7 @@
 
 ### 国際化システムのテスト
 
-- 詳細は`docs/develop/design/testing.md`の「翻訳システムのテスト」セクションを参照
+- 詳細は`docs/ja/develop/design/testing.md`の「翻訳システムのテスト」セクションを参照
 
 ### エラーハンドリングのテスト
 

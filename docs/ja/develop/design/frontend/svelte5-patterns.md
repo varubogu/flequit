@@ -6,8 +6,8 @@
 
 関連ドキュメント:
 
-- component-patterns: docs/develop/design/frontend/component-patterns.md
-- anti-patterns: docs/develop/design/frontend/anti-patterns.md
+- component-patterns: docs/ja/develop/design/frontend/component-patterns.md
+- anti-patterns: docs/ja/develop/design/frontend/anti-patterns.md
 
 禁止事項（要約）:
 

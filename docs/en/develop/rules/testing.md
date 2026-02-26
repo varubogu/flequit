@@ -18,15 +18,15 @@
 ### Backend
 
 - **Unit Tests**:
-  - Command: cargo test
+  - Command: cargo test -j 4
   - Test Framework: cargo test
   - Location: Test blocks within same source code
 - **Integration Tests**:
-  - Command: cargo test
+  - Command: cargo test -j 4
   - Test Framework: cargo test
   - Location: src-tauri/tests/integration
 - **System Tests**:
-  - Command: cargo test
+  - Command: cargo test -j 4
   - Test Framework: cargo test
   - Location: src-tauri/tests/system
 
@@ -53,8 +53,8 @@
 
 #### Backend
 
-- `cargo test` - Run all cargo tests
-- `cargo test [filename]` - Run individual cargo file tests
+- `cargo test -j 4` - Run all cargo tests
+- `cargo test -j 4 <test_name>` - Run targeted cargo tests
 
 ## Test Design Principles
 
@@ -81,7 +81,7 @@
 
 ### Internationalization System Testing
 
-- For details, refer to the "Translation System Testing" section in `docs/develop/design/testing.md`
+- For details, refer to the "Translation System Testing" section in `docs/en/develop/design/testing.md`
 
 ### Error Handling Tests
 

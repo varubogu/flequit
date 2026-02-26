@@ -64,7 +64,7 @@ Reasons:
 
 ## Layer Architecture
 
-For details, refer to `docs/develop/design/frontend/layers.md`.
+For details, refer to `docs/en/develop/design/frontend/layers.md`.
 
 **Important Rules**:
 
@@ -85,4 +85,4 @@ import { TaskService } from '$lib/services';
 
 ## Development Workflow
 
-For details, refer to `docs/develop/rules/workflow.md`.
+For details, refer to `docs/en/develop/rules/workflow.md`.

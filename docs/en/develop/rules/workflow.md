@@ -27,7 +27,7 @@ If errors occur during the process, proceed to the next step after resolution
 
 ###### 1. Code Editing
 
-- **Confirm implementation approach**: Check related design documents (`docs/develop/design/frontend/`)
+- **Confirm implementation approach**: Check related design documents (`docs/en/develop/design/frontend/`)
 - **Analyze existing code**: Understand structure of files to be modified and related files
 - **Implement incrementally**: Implement in small units and verify operation each time
 - **Ensure type safety**: Implement with TypeScript type checking in mind
@@ -77,16 +77,16 @@ If errors occur during the process, proceed to the next step after resolution
 3. `cargo check` - Check for warnings
 4. `cargo clippy` - Run linter
 5. `cargo fmt --all` - Run formatter
-6. `cargo test [unit test filename]` - Run cargo unit tests
+6. `cargo test -j 4 <unit test name>` - Run targeted cargo unit tests
 7. Create cargo integration test cases
-8. `cargo test [integration test filename]` - Run cargo integration tests
-9. `cargo test` - Run all cargo tests
+8. `cargo test -j 4 --test <integration test name>` - Run targeted cargo integration tests
+9. `cargo test -j 4` - Run all cargo tests
 
 ##### Detailed Procedures
 
 ###### 1. Code Editing
 
-- **Check design documents**: Check related documents in `docs/develop/design/backend-tauri/`
+- **Check design documents**: Check related documents in `docs/en/develop/design/backend-tauri/`
 - **Analyze existing code**: Understand dependencies and structure of modules to be modified
 - **Focus on error handling**: Implement safely using Rust's type system
 - **Ensure memory safety**: Implement with ownership system in mind

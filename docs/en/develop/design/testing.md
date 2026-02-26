@@ -24,8 +24,8 @@
 ### Backend (Rust Crates)
 
 - `cargo test -j 4` - Run all crate tests
-- `cargo test --lib -p flequit-storage -j 4` - Storage layer only
-- `cargo test --lib -p flequit-core -j 4` - Business logic layer only
+- `cargo test --lib -p flequit-infrastructure-sqlite -j 4` - SQLite infrastructure layer only
+- `cargo test --lib -p flequit-core -j 4` - Core business logic layer only
 
 ## Test File Structure
 
@@ -45,18 +45,10 @@ tests/                 # Unit tests, integration tests (vitest)
 ### Backend
 
 ```
-src-tauri/crates/flequit-storage/tests/  # Storage layer tests
-├── integration/       # Integration tests
-│   ├── local_sqlite/  # SQLite repository tests
-│   └── local_automerge/ # Automerge repository tests
-├── test_utils.rs      # Test utilities
-└── integration_tests.rs # Test entry point
-
-src-tauri/crates/flequit-core/  # Business logic layer (to be added)
-└── tests/             # Service and facade tests
-
-src-tauri/src/         # Main crate
-└── tests/             # Tauri command tests (to be added)
+src-tauri/crates/flequit-infrastructure-sqlite/tests/      # SQLite infrastructure tests
+src-tauri/crates/flequit-infrastructure-automerge/tests/   # Automerge infrastructure tests
+src-tauri/crates/flequit-repository/tests/                 # Repository layer tests
+src-tauri/crates/flequit-settings/tests/                   # Settings layer tests
 ```
 
 ## Writing Vitest Tests

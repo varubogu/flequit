@@ -2,9 +2,10 @@
 
 ## Data Structure
 
-Refer to the following file:
+Refer to the following implementation files:
 
-- `docs/develop/design/database/schema_users/tables/datetime_formats.md` in project root
+- `src/lib/types/datetime-format.ts` (domain types)
+- `src/lib/stores/datetime-format.svelte.ts` (store state and persistence behavior)
 
 ## Format Application Targets
 

@@ -2,9 +2,10 @@
 
 ## データ構造
 
-下記ファイルを参照すること
+下記の実装ファイルを参照すること
 
-- プロジェクトルートの `docs/develop/design/database/schema_users/tables/datetime_formats.md` を参照
+- `src/lib/types/datetime-format.ts`（ドメイン型）
+- `src/lib/stores/datetime-format.svelte.ts`（ストア状態と永続化挙動）
 
 ## フォーマット適用先
 

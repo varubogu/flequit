@@ -27,7 +27,7 @@ PR運用の基本ルール:
 
 ###### 1. コード編集
 
-- **実装方針確認**: 関連する設計ドキュメント（`docs/develop/design/frontend/`）を確認
+- **実装方針確認**: 関連する設計ドキュメント（`docs/ja/develop/design/frontend/`）を確認
 - **既存コード分析**: 修正対象ファイルと関連ファイルの構造を把握
 - **段階的実装**: 小さな単位で実装し、都度動作確認
 - **型安全性確保**: TypeScriptの型チェックを意識した実装
@@ -77,16 +77,16 @@ PR運用の基本ルール:
 3. `cargo check` - 警告がないかチェック
 4. `cargo clippy` - リンター実行
 5. `cargo fmt --all` - フォーマッター実行
-6. `cargo test [単体テストファイル名]` - cargo単体テスト実行
+6. `cargo test -j 4 <unit test name>` - cargo単体テスト（対象指定）実行
 7. cargo結合テストケース作成
-8. `cargo test [結合テストファイル名]` - cargo結合テスト実行
-9. `cargo test` - cargo全テスト実行
+8. `cargo test -j 4 --test <integration test name>` - cargo結合テスト（対象指定）実行
+9. `cargo test -j 4` - cargo全テスト実行
 
 ##### 詳細手順
 
 ###### 1. コード編集
 
-- **設計ドキュメント確認**: `docs/develop/design/backend-tauri/` の関連ドキュメントを確認
+- **設計ドキュメント確認**: `docs/ja/develop/design/backend-tauri/` の関連ドキュメントを確認
 - **既存コード分析**: 修正対象モジュールの依存関係と構造を把握
 - **エラーハンドリング重視**: Rustの型システムを活用した安全な実装
 - **メモリ安全性確保**: 所有権システムを意識した実装

@@ -6,8 +6,8 @@ This document defines the design patterns and best practices for Svelte 5 adopte
 
 Related documents:
 
-- component-patterns: docs/develop/design/frontend/component-patterns.md
-- anti-patterns: docs/develop/design/frontend/anti-patterns.md
+- component-patterns: docs/en/develop/design/frontend/component-patterns.md
+- anti-patterns: docs/en/develop/design/frontend/anti-patterns.md
 
 Prohibited items (summary):
 
