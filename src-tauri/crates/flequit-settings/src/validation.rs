@@ -47,7 +47,7 @@ impl SettingsValidator {
             "ja" | "en" | "ko" | "zh" | "es" | "fr" | "de" | "it" | "pt" | "ru" => Ok(()),
             _ => {
                 // 警告はログに出すが、エラーにはしない（将来の言語対応のため）
-                log::warn!("未知の言語コードです: {}", language);
+                tracing::warn!("未知の言語コードです: {}", language);
                 Ok(())
             }
         }
@@ -89,7 +89,7 @@ impl SettingsValidator {
 
         // 基本的なタイムゾーン形式をチェック
         if !timezone.contains('/') && !timezone.starts_with("UTC") && timezone != "GMT" {
-            log::warn!(
+            tracing::warn!(
                 "タイムゾーン形式が一般的でない可能性があります: {}",
                 timezone
             );

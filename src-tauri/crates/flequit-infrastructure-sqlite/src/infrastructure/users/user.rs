@@ -12,7 +12,7 @@ use flequit_model::types::id_types::UserId;
 use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_repository::users::UserRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
-use log::info;
+use tracing::info;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
     QuerySelect,

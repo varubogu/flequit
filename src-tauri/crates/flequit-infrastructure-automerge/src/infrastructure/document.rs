@@ -38,7 +38,7 @@ impl Document {
         {
             let json_value = serde_json::to_value(value)
                 .map_err(|e| AutomergeError::SerializationError(e.to_string()))?;
-            log::debug!(
+            tracing::debug!(
                 "Automerge save - doc_type: {:?}, key: {} -> JSON: {}",
                 self.doc_type,
                 key,
@@ -90,7 +90,7 @@ impl Document {
             #[cfg(debug_assertions)]
             {
                 let path_str = path.join("/");
-                log::debug!(
+                tracing::debug!(
                     "Automerge save - path: {} -> JSON: {}",
                     path_str,
                     serde_json::to_string_pretty(&json_value)
@@ -115,7 +115,7 @@ impl Document {
             match &result {
                 Ok(Some(data)) => {
                     if let Ok(json_value) = serde_json::to_value(data) {
-                        log::debug!(
+                        tracing::debug!(
                             "Automerge load - doc_type: {:?}, key: {} <- JSON: {}",
                             self.doc_type,
                             key,
@@ -125,14 +125,14 @@ impl Document {
                     }
                 }
                 Ok(None) => {
-                    log::debug!(
+                    tracing::debug!(
                         "Automerge load - doc_type: {:?}, key: {} <- NOT FOUND",
                         self.doc_type,
                         key
                     );
                 }
                 Err(e) => {
-                    log::debug!(
+                    tracing::debug!(
                         "Automerge load - doc_type: {:?}, key: {} <- ERROR: {:?}",
                         self.doc_type,
                         key,
@@ -176,7 +176,7 @@ impl Document {
                             #[cfg(debug_assertions)]
                             {
                                 let path_str = path.join("/");
-                                log::debug!(
+                                tracing::debug!(
                                     "Automerge load - path: {} <- JSON: {}",
                                     path_str,
                                     serde_json::to_string_pretty(&json_value)
@@ -196,7 +196,7 @@ impl Document {
                         #[cfg(debug_assertions)]
                         {
                             let path_str = path.join("/");
-                            log::debug!("Automerge load - path: {} <- NOT FOUND", path_str);
+                            tracing::debug!("Automerge load - path: {} <- NOT FOUND", path_str);
                         }
                         return Ok(None);
                     }
@@ -204,7 +204,7 @@ impl Document {
                         #[cfg(debug_assertions)]
                         {
                             let path_str = path.join("/");
-                            log::debug!("Automerge load - path: {} <- ERROR", path_str);
+                            tracing::debug!("Automerge load - path: {} <- ERROR", path_str);
                         }
                         return Ok(None);
                     }

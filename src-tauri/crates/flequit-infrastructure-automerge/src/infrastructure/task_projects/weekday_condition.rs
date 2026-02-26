@@ -93,9 +93,9 @@ impl WeekdayConditionLocalAutomergeRepository {
         project_id: &ProjectId,
         weekday_condition: &WeekdayCondition,
     ) -> Result<(), RepositoryError> {
-        log::info!("set_weekday_condition - 開始: {:?}", weekday_condition.id);
+        tracing::info!("set_weekday_condition - 開始: {:?}", weekday_condition.id);
         let mut weekday_conditions = self.list_weekday_conditions(project_id).await?;
-        log::info!(
+        tracing::info!(
             "set_weekday_condition - 現在の曜日条件数: {}",
             weekday_conditions.len()
         );
@@ -105,13 +105,13 @@ impl WeekdayConditionLocalAutomergeRepository {
             .iter_mut()
             .find(|w| w.id == weekday_condition.id)
         {
-            log::info!(
+            tracing::info!(
                 "set_weekday_condition - 既存曜日条件を更新: {:?}",
                 weekday_condition.id
             );
             *existing = weekday_condition.clone();
         } else {
-            log::info!(
+            tracing::info!(
                 "set_weekday_condition - 新規曜日条件追加: {:?}",
                 weekday_condition.id
             );
@@ -119,17 +119,17 @@ impl WeekdayConditionLocalAutomergeRepository {
         }
 
         let document = self.get_or_create_document(project_id).await?;
-        log::info!("set_weekday_condition - Document取得完了");
+        tracing::info!("set_weekday_condition - Document取得完了");
         let result = document
             .save_data("weekday_conditions", &weekday_conditions)
             .await;
         match result {
             Ok(_) => {
-                log::info!("set_weekday_condition - Automergeドキュメント保存完了");
+                tracing::info!("set_weekday_condition - Automergeドキュメント保存完了");
                 Ok(())
             }
             Err(e) => {
-                log::error!(
+                tracing::error!(
                     "set_weekday_condition - Automergeドキュメント保存エラー: {:?}",
                     e
                 );
@@ -175,18 +175,18 @@ impl ProjectRepository<WeekdayCondition, WeekdayConditionId>
         _user_id: &UserId,
         _timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
-        log::info!(
+        tracing::info!(
             "WeekdayConditionLocalAutomergeRepository::save - 開始: {:?}",
             entity.id
         );
         let result = self.set_weekday_condition(project_id, entity).await;
         if result.is_ok() {
-            log::info!(
+            tracing::info!(
                 "WeekdayConditionLocalAutomergeRepository::save - 完了: {:?}",
                 entity.id
             );
         } else {
-            log::error!(
+            tracing::error!(
                 "WeekdayConditionLocalAutomergeRepository::save - エラー: {:?}",
                 result
             );

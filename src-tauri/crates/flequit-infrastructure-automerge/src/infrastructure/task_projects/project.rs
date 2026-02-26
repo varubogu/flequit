@@ -286,11 +286,11 @@ impl ProjectLocalAutomergeRepository {
 
     /// プロジェクトを作成または更新（基本情報のみ）
     pub async fn set_project(&self, project: &Project) -> Result<(), RepositoryError> {
-        log::info!("set_project - 開始: {:?}", project.id);
+        tracing::info!("set_project - 開始: {:?}", project.id);
 
         // プロジェクトドキュメントが存在するか確認
         if let Some(mut document) = self.get_project_document(&project.id).await? {
-            log::info!(
+            tracing::info!(
                 "set_project - 既存プロジェクトドキュメントを更新: {:?}",
                 project.id
             );
@@ -308,7 +308,7 @@ impl ProjectLocalAutomergeRepository {
 
             self.save_project_document(&project.id, &document).await
         } else {
-            log::info!(
+            tracing::info!(
                 "set_project - 新規プロジェクトドキュメント作成: {:?}",
                 project.id
             );
@@ -1093,7 +1093,7 @@ impl ProjectLocalAutomergeRepository {
 #[async_trait]
 impl Repository<Project, ProjectId> for ProjectLocalAutomergeRepository {
     async fn save(&self, entity: &Project, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
-        log::info!(
+        tracing::info!(
             "ProjectLocalAutomergeRepository::save - 開始: {:?}",
             entity.id
         );
@@ -1105,12 +1105,12 @@ impl Repository<Project, ProjectId> for ProjectLocalAutomergeRepository {
 
         let result = self.set_project(&updated_entity).await;
         if result.is_ok() {
-            log::info!(
+            tracing::info!(
                 "ProjectLocalAutomergeRepository::save - 完了: {:?}",
                 entity.id
             );
         } else {
-            log::error!(
+            tracing::error!(
                 "ProjectLocalAutomergeRepository::save - エラー: {:?}",
                 result
             );

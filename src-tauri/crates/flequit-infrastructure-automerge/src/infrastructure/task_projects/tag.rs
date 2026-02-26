@@ -96,29 +96,29 @@ impl TagLocalAutomergeRepository {
 
     /// タグを作成または更新
     pub async fn set_tag(&self, project_id: &ProjectId, tag: &Tag) -> Result<(), RepositoryError> {
-        log::info!("set_tag - 開始: {:?}", tag.id);
+        tracing::info!("set_tag - 開始: {:?}", tag.id);
         let mut tags = self.list_all_tags_raw(project_id).await?;
-        log::info!("set_tag - 現在のタグ数: {}", tags.len());
+        tracing::info!("set_tag - 現在のタグ数: {}", tags.len());
 
         // 既存のタグを更新、または新規追加
         if let Some(existing) = tags.iter_mut().find(|t| t.id == tag.id) {
-            log::info!("set_tag - 既存タグを更新: {:?}", tag.id);
+            tracing::info!("set_tag - 既存タグを更新: {:?}", tag.id);
             *existing = tag.clone();
         } else {
-            log::info!("set_tag - 新規タグ追加: {:?}", tag.id);
+            tracing::info!("set_tag - 新規タグ追加: {:?}", tag.id);
             tags.push(tag.clone());
         }
 
         let document = self.get_or_create_document(project_id).await?;
-        log::info!("set_tag - Document取得完了");
+        tracing::info!("set_tag - Document取得完了");
         let result = document.save_data("tags", &tags).await;
         match result {
             Ok(_) => {
-                log::info!("set_tag - Automergeドキュメント保存完了");
+                tracing::info!("set_tag - Automergeドキュメント保存完了");
                 Ok(())
             }
             Err(e) => {
-                log::error!("set_tag - Automergeドキュメント保存エラー: {:?}", e);
+                tracing::error!("set_tag - Automergeドキュメント保存エラー: {:?}", e);
                 Err(RepositoryError::AutomergeError(e.to_string()))
             }
         }
@@ -151,12 +151,12 @@ impl TagRepositoryTrait for TagLocalAutomergeRepository {}
 #[async_trait]
 impl ProjectRepository<Tag, TagId> for TagLocalAutomergeRepository {
     async fn save(&self, project_id: &ProjectId, entity: &Tag, _user_id: &UserId, _timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
-        log::info!("TagLocalAutomergeRepository::save - 開始: {:?}", entity.id);
+        tracing::info!("TagLocalAutomergeRepository::save - 開始: {:?}", entity.id);
         let result = self.set_tag(project_id, entity).await;
         if result.is_ok() {
-            log::info!("TagLocalAutomergeRepository::save - 完了: {:?}", entity.id);
+            tracing::info!("TagLocalAutomergeRepository::save - 完了: {:?}", entity.id);
         } else {
-            log::error!("TagLocalAutomergeRepository::save - エラー: {:?}", result);
+            tracing::error!("TagLocalAutomergeRepository::save - エラー: {:?}", result);
         }
         result
     }

@@ -112,7 +112,7 @@ impl SubtaskTagLocalSqliteRepository {
                 updated_by: Set(project_id.to_string()),
             };
 
-            log::info!(
+            tracing::info!(
                 "SQLite SubtaskTag INSERT - project: {}, subtask: {}, tag: {}",
                 project_id,
                 subtask_id,

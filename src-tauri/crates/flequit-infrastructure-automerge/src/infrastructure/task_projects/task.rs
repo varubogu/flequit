@@ -101,29 +101,29 @@ impl TaskLocalAutomergeRepository {
         project_id: &ProjectId,
         task: &Task,
     ) -> Result<(), RepositoryError> {
-        log::info!("set_task - 開始: {:?}", task.id);
+        tracing::info!("set_task - 開始: {:?}", task.id);
         let mut tasks = self.list_all_tasks_raw(project_id).await?;
-        log::info!("set_task - 現在のタスク数: {}", tasks.len());
+        tracing::info!("set_task - 現在のタスク数: {}", tasks.len());
 
         // 既存のタスクを更新、または新規追加
         if let Some(existing) = tasks.iter_mut().find(|t| t.id == task.id) {
-            log::info!("set_task - 既存タスクを更新: {:?}", task.id);
+            tracing::info!("set_task - 既存タスクを更新: {:?}", task.id);
             *existing = task.clone();
         } else {
-            log::info!("set_task - 新規タスク追加: {:?}", task.id);
+            tracing::info!("set_task - 新規タスク追加: {:?}", task.id);
             tasks.push(task.clone());
         }
 
         let document = self.get_or_create_document(project_id).await?;
-        log::info!("set_task - Document取得完了");
+        tracing::info!("set_task - Document取得完了");
         let result = document.save_data("tasks", &tasks).await;
         match result {
             Ok(_) => {
-                log::info!("set_task - Automergeドキュメント保存完了");
+                tracing::info!("set_task - Automergeドキュメント保存完了");
                 Ok(())
             }
             Err(e) => {
-                log::error!("set_task - Automergeドキュメント保存エラー: {:?}", e);
+                tracing::error!("set_task - Automergeドキュメント保存エラー: {:?}", e);
                 Err(RepositoryError::AutomergeError(e.to_string()))
             }
         }
@@ -158,12 +158,12 @@ impl ProjectPatchable<Task, TaskId> for TaskLocalAutomergeRepository {}
 #[async_trait]
 impl ProjectRepository<Task, TaskId> for TaskLocalAutomergeRepository {
     async fn save(&self, project_id: &ProjectId, entity: &Task, _user_id: &UserId, _timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
-        log::info!("TaskLocalAutomergeRepository::save - 開始: {:?}", entity.id);
+        tracing::info!("TaskLocalAutomergeRepository::save - 開始: {:?}", entity.id);
         let result = self.set_task(project_id, entity).await;
         if result.is_ok() {
-            log::info!("TaskLocalAutomergeRepository::save - 完了: {:?}", entity.id);
+            tracing::info!("TaskLocalAutomergeRepository::save - 完了: {:?}", entity.id);
         } else {
-            log::error!("TaskLocalAutomergeRepository::save - エラー: {:?}", result);
+            tracing::error!("TaskLocalAutomergeRepository::save - エラー: {:?}", result);
         }
         result
     }

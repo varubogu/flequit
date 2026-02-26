@@ -2,7 +2,7 @@
 
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use log::info;
+use tracing::info;
 
 use flequit_infrastructure_automerge::infrastructure::task_projects::subtask_assignments::SubtaskAssignmentLocalAutomergeRepository;
 use flequit_infrastructure_sqlite::infrastructure::task_projects::subtask_assignments::SubtaskAssignmentLocalSqliteRepository;

@@ -115,7 +115,7 @@ impl DocumentManager {
         let repo = automerge_repo::Repo::new(None, Box::new((*file_storage_clone).clone()));
         let repo_handle = repo.run();
 
-        log::info!("DocumentManager initialized without mapping files");
+        tracing::info!("DocumentManager initialized without mapping files");
 
         Ok(Self {
             base_path,
@@ -136,27 +136,27 @@ impl DocumentManager {
         &mut self,
         doc_type: &DocumentType,
     ) -> Result<Document, AutomergeError> {
-        log::debug!("get_or_create called for document type: {:?}", doc_type);
+        tracing::debug!("get_or_create called for document type: {:?}", doc_type);
 
         // キャッシュから取得
         if let Some(doc) = self.documents.get(doc_type) {
-            log::debug!("Document found in cache for type: {:?}", doc_type);
+            tracing::debug!("Document found in cache for type: {:?}", doc_type);
             return Ok(doc.clone());
         }
 
         // ファイルの存在確認
         let file_path = self.base_path.join(doc_type.filename());
-        log::debug!("Checking if file exists: {:?}", file_path);
+        tracing::debug!("Checking if file exists: {:?}", file_path);
         let doc_handle = if file_path.exists() {
             // 既存ファイルをロード
-            log::info!("Loading existing document from file: {:?}", file_path);
+            tracing::info!("Loading existing document from file: {:?}", file_path);
             let doc_id = self.file_storage.get_document_id_by_filename(&doc_type.filename())?;
-            log::debug!("Retrieved DocumentId {} for filename {}", doc_id, doc_type.filename());
+            tracing::debug!("Retrieved DocumentId {} for filename {}", doc_id, doc_type.filename());
             self.repo_handle
                 .request_document(doc_id)
                 .await
                 .map_err(|e| {
-                    log::error!("Failed to load document from {:?}: {:?}", file_path, e);
+                    tracing::error!("Failed to load document from {:?}: {:?}", file_path, e);
                     AutomergeError::AutomergeError(format!(
                         "Failed to load document from {:?}: {:?}",
                         file_path, e
@@ -164,14 +164,14 @@ impl DocumentManager {
                 })?
         } else {
             // 新しいドキュメントを作成
-            log::info!("Creating new document for {:?} at {:?}", doc_type, file_path);
+            tracing::info!("Creating new document for {:?} at {:?}", doc_type, file_path);
             let handle = self.repo_handle.new_document();
             let doc_id = handle.document_id();
 
             // ファイル名をDocumentIdに紐付け（メモリ内のみ）
             let desired_filename = doc_type.filename().replace(".automerge", "");
             self.file_storage.set_mapping(doc_id.clone(), desired_filename.clone());
-            log::info!(
+            tracing::info!(
                 "Mapped filename '{}' to document ID {} (in memory)",
                 desired_filename,
                 doc_id
@@ -358,7 +358,7 @@ impl DocumentManager {
         std::fs::write(&meta_path, meta_json)
             .map_err(|e| AutomergeError::IOError(format!("Failed to write metadata file: {}", e)))?;
         
-        log::info!("Moved to .deleted folder: {:?} -> {:?} (with metadata)", source_path, dest_path);
+        tracing::info!("Moved to .deleted folder: {:?} -> {:?} (with metadata)", source_path, dest_path);
         
         Ok(())
     }

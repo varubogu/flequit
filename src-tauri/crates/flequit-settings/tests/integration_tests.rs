@@ -2,7 +2,7 @@
 
 use flequit_settings::{PartialSettings, Settings, SettingsManager};
 use flequit_testing::TestPathGenerator;
-use log::info;
+use tracing::info;
 use std::env;
 
 #[test]

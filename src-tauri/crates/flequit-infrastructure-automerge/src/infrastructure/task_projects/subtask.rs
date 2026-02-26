@@ -97,29 +97,29 @@ impl SubTaskLocalAutomergeRepository {
         project_id: &ProjectId,
         subtask: &SubTask,
     ) -> Result<(), RepositoryError> {
-        log::info!("set_subtask - 開始: {:?}", subtask.id);
+        tracing::info!("set_subtask - 開始: {:?}", subtask.id);
         let mut subtasks = self.list_subtasks(project_id).await?;
-        log::info!("set_subtask - 現在のサブタスク数: {}", subtasks.len());
+        tracing::info!("set_subtask - 現在のサブタスク数: {}", subtasks.len());
 
         // 既存のサブタスクを更新、または新規追加
         if let Some(existing) = subtasks.iter_mut().find(|st| st.id == subtask.id) {
-            log::info!("set_subtask - 既存サブタスクを更新: {:?}", subtask.id);
+            tracing::info!("set_subtask - 既存サブタスクを更新: {:?}", subtask.id);
             *existing = subtask.clone();
         } else {
-            log::info!("set_subtask - 新規サブタスク追加: {:?}", subtask.id);
+            tracing::info!("set_subtask - 新規サブタスク追加: {:?}", subtask.id);
             subtasks.push(subtask.clone());
         }
 
         let document = self.get_or_create_document(project_id).await?;
-        log::info!("set_subtask - Document取得完了");
+        tracing::info!("set_subtask - Document取得完了");
         let result = document.save_data("subtasks", &subtasks).await;
         match result {
             Ok(_) => {
-                log::info!("set_subtask - Automergeドキュメント保存完了");
+                tracing::info!("set_subtask - Automergeドキュメント保存完了");
                 Ok(())
             }
             Err(e) => {
-                log::error!("set_subtask - Automergeドキュメント保存エラー: {:?}", e);
+                tracing::error!("set_subtask - Automergeドキュメント保存エラー: {:?}", e);
                 Err(RepositoryError::AutomergeError(e.to_string()))
             }
         }
@@ -152,18 +152,18 @@ impl SubTaskRepositoryTrait for SubTaskLocalAutomergeRepository {}
 #[async_trait]
 impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalAutomergeRepository {
     async fn save(&self, project_id: &ProjectId, entity: &SubTask, _user_id: &UserId, _timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
-        log::info!(
+        tracing::info!(
             "SubTaskLocalAutomergeRepository::save - 開始: {:?}",
             entity.id
         );
         let result = self.set_subtask(project_id, entity).await;
         if result.is_ok() {
-            log::info!(
+            tracing::info!(
                 "SubTaskLocalAutomergeRepository::save - 完了: {:?}",
                 entity.id
             );
         } else {
-            log::error!(
+            tracing::error!(
                 "SubTaskLocalAutomergeRepository::save - エラー: {:?}",
                 result
             );

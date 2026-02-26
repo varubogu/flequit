@@ -93,9 +93,9 @@ impl DateConditionLocalAutomergeRepository {
         project_id: &ProjectId,
         date_condition: &DateCondition,
     ) -> Result<(), RepositoryError> {
-        log::info!("set_date_condition - 開始: {:?}", date_condition.id);
+        tracing::info!("set_date_condition - 開始: {:?}", date_condition.id);
         let mut date_conditions = self.list_date_conditions(project_id).await?;
-        log::info!(
+        tracing::info!(
             "set_date_condition - 現在の日付条件数: {}",
             date_conditions.len()
         );
@@ -105,13 +105,13 @@ impl DateConditionLocalAutomergeRepository {
             .iter_mut()
             .find(|d| d.id == date_condition.id)
         {
-            log::info!(
+            tracing::info!(
                 "set_date_condition - 既存日付条件を更新: {:?}",
                 date_condition.id
             );
             *existing = date_condition.clone();
         } else {
-            log::info!(
+            tracing::info!(
                 "set_date_condition - 新規日付条件追加: {:?}",
                 date_condition.id
             );
@@ -119,17 +119,17 @@ impl DateConditionLocalAutomergeRepository {
         }
 
         let document = self.get_or_create_document(project_id).await?;
-        log::info!("set_date_condition - Document取得完了");
+        tracing::info!("set_date_condition - Document取得完了");
         let result = document
             .save_data("date_conditions", &date_conditions)
             .await;
         match result {
             Ok(_) => {
-                log::info!("set_date_condition - Automergeドキュメント保存完了");
+                tracing::info!("set_date_condition - Automergeドキュメント保存完了");
                 Ok(())
             }
             Err(e) => {
-                log::error!(
+                tracing::error!(
                     "set_date_condition - Automergeドキュメント保存エラー: {:?}",
                     e
                 );
@@ -173,18 +173,18 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalAut
         _user_id: &UserId,
         _timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
-        log::info!(
+        tracing::info!(
             "DateConditionLocalAutomergeRepository::save - 開始: {:?}",
             entity.id
         );
         let result = self.set_date_condition(project_id, entity).await;
         if result.is_ok() {
-            log::info!(
+            tracing::info!(
                 "DateConditionLocalAutomergeRepository::save - 完了: {:?}",
                 entity.id
             );
         } else {
-            log::error!(
+            tracing::error!(
                 "DateConditionLocalAutomergeRepository::save - エラー: {:?}",
                 result
             );

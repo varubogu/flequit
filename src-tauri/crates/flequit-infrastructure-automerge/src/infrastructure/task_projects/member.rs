@@ -91,29 +91,29 @@ impl MemberLocalAutomergeRepository {
         project_id: &ProjectId,
         member: &Member,
     ) -> Result<(), RepositoryError> {
-        log::info!("set_member - 開始: {:?}", member.id);
+        tracing::info!("set_member - 開始: {:?}", member.id);
         let mut members = self.list_members(project_id).await?;
-        log::info!("set_member - 現在のメンバー数: {}", members.len());
+        tracing::info!("set_member - 現在のメンバー数: {}", members.len());
 
         // 既存のメンバーを更新、または新規追加
         if let Some(existing) = members.iter_mut().find(|m| m.id == member.id) {
-            log::info!("set_member - 既存メンバーを更新: {:?}", member.id);
+            tracing::info!("set_member - 既存メンバーを更新: {:?}", member.id);
             *existing = member.clone();
         } else {
-            log::info!("set_member - 新規メンバー追加: {:?}", member.id);
+            tracing::info!("set_member - 新規メンバー追加: {:?}", member.id);
             members.push(member.clone());
         }
 
         let document = self.get_or_create_document(project_id).await?;
-        log::info!("set_member - Document取得完了");
+        tracing::info!("set_member - Document取得完了");
         let result = document.save_data("members", &members).await;
         match result {
             Ok(_) => {
-                log::info!("set_member - Automergeドキュメント保存完了");
+                tracing::info!("set_member - Automergeドキュメント保存完了");
                 Ok(())
             }
             Err(e) => {
-                log::error!("set_member - Automergeドキュメント保存エラー: {:?}", e);
+                tracing::error!("set_member - Automergeドキュメント保存エラー: {:?}", e);
                 Err(RepositoryError::AutomergeError(e.to_string()))
             }
         }
@@ -146,18 +146,18 @@ impl MemberRepositoryTrait for MemberLocalAutomergeRepository {}
 #[async_trait]
 impl ProjectRepository<Member, UserId> for MemberLocalAutomergeRepository {
     async fn save(&self, project_id: &ProjectId, entity: &Member, _user_id: &UserId, _timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
-        log::info!(
+        tracing::info!(
             "MemberLocalAutomergeRepository::save - 開始: {:?}",
             entity.id
         );
         let result = self.set_member(project_id, entity).await;
         if result.is_ok() {
-            log::info!(
+            tracing::info!(
                 "MemberLocalAutomergeRepository::save - 完了: {:?}",
                 entity.id
             );
         } else {
-            log::error!(
+            tracing::error!(
                 "MemberLocalAutomergeRepository::save - エラー: {:?}",
                 result
             );

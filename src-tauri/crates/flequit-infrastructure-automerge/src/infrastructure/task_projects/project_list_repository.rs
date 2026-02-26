@@ -57,23 +57,23 @@ impl ProjectListLocalAutomergeRepository {
 
     /// プロジェクトをプロジェクト一覧に追加または更新
     pub async fn add_or_update_project(&self, project: &Project) -> Result<(), RepositoryError> {
-        log::info!("add_or_update_project - 開始: {:?}", project.id);
+        tracing::info!("add_or_update_project - 開始: {:?}", project.id);
 
         let mut projects = self.list_all_projects_raw().await?;
-        log::info!(
+        tracing::info!(
             "add_or_update_project - 現在のプロジェクト数: {}",
             projects.len()
         );
 
         // 既存のプロジェクトを更新、または新規追加
         if let Some(existing) = projects.iter_mut().find(|p| p.id == project.id) {
-            log::info!(
+            tracing::info!(
                 "add_or_update_project - 既存プロジェクト更新: {:?}",
                 project.id
             );
             *existing = project.clone();
         } else {
-            log::info!(
+            tracing::info!(
                 "add_or_update_project - 新規プロジェクト追加: {:?}",
                 project.id
             );
@@ -81,16 +81,16 @@ impl ProjectListLocalAutomergeRepository {
         }
 
         let document = self.get_or_create_settings_document().await?;
-        log::info!("add_or_update_project - Settings文書取得完了");
+        tracing::info!("add_or_update_project - Settings文書取得完了");
 
         let result = document.save_data("projects", &projects).await;
         match result {
             Ok(_) => {
-                log::info!("add_or_update_project - Settings文書保存完了");
+                tracing::info!("add_or_update_project - Settings文書保存完了");
                 Ok(())
             }
             Err(e) => {
-                log::error!("add_or_update_project - Settings文書保存エラー: {:?}", e);
+                tracing::error!("add_or_update_project - Settings文書保存エラー: {:?}", e);
                 Err(RepositoryError::AutomergeError(e.to_string()))
             }
         }

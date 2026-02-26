@@ -1,4 +1,4 @@
-use log::info;
+use tracing::info;
 
 use crate::services::{tag_service, task_service, task_tag_service};
 use crate::ports::infrastructure_repositories::*;

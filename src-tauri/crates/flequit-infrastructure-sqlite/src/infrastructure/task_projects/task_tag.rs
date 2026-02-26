@@ -116,7 +116,7 @@ impl TaskTagLocalSqliteRepository {
                 updated_by: Set(project_id.to_string()),
             };
 
-            log::info!(
+            tracing::info!(
                 "SQLite TaskTag INSERT - project: {}, task: {}, tag: {}",
                 project_id,
                 task_id,

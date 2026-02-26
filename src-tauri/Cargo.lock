@@ -1410,7 +1410,6 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "chrono",
- "flequit-infrastructure",
  "flequit-model",
  "flequit-repository",
  "flequit-types",
@@ -1431,6 +1430,7 @@ dependencies = [
  "async-trait",
  "chrono",
  "dirs 5.0.1",
+ "flequit-core",
  "flequit-infrastructure-automerge",
  "flequit-infrastructure-sqlite",
  "flequit-model",
@@ -1453,6 +1453,7 @@ dependencies = [
  "automerge_repo",
  "chrono",
  "dirs 6.0.0",
+ "flequit-core",
  "flequit-model",
  "flequit-repository",
  "flequit-testing",
@@ -1476,6 +1477,7 @@ dependencies = [
  "async-trait",
  "chrono",
  "dirs 6.0.0",
+ "flequit-core",
  "flequit-model",
  "flequit-repository",
  "flequit-testing",
@@ -1547,6 +1549,7 @@ dependencies = [
  "tempfile",
  "thiserror 1.0.69",
  "tokio",
+ "tracing",
 ]
 
 [[package]]

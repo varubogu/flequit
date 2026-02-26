@@ -2,7 +2,7 @@
 
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use log::{error, info};
+use tracing::{error, info};
 
 use flequit_infrastructure_automerge::infrastructure::task_projects::task::TaskLocalAutomergeRepository;
 use flequit_infrastructure_sqlite::infrastructure::task_projects::task::TaskLocalSqliteRepository;

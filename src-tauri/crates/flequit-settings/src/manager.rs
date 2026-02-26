@@ -6,7 +6,7 @@ use crate::errors::{SettingsError, SettingsResult};
 use crate::models::settings::{PartialSettings, Settings};
 use crate::paths::SettingsPaths;
 use crate::validation::SettingsValidator;
-use log::{debug, info, warn};
+use tracing::{debug, info, warn};
 use std::path::PathBuf;
 
 /// 設定マネージャー

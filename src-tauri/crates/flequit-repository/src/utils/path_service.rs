@@ -144,10 +144,10 @@ impl PathService {
         fs::create_dir_all(&backup_dir).await?;
         fs::create_dir_all(&export_dir).await?;
 
-        log::info!("Created directories:");
-        log::info!("  Data: {:?}", data_dir);
-        log::info!("  Backup: {:?}", backup_dir);
-        log::info!("  Export: {:?}", export_dir);
+        tracing::info!("Created directories:");
+        tracing::info!("  Data: {:?}", data_dir);
+        tracing::info!("  Backup: {:?}", backup_dir);
+        tracing::info!("  Export: {:?}", export_dir);
 
         Ok(())
     }
@@ -160,7 +160,7 @@ impl PathService {
         }
         let json = serde_json::to_string_pretty(&self.config)?;
         fs::write(&config_file, json).await?;
-        log::info!("Saved path configuration to: {:?}", config_file);
+        tracing::info!("Saved path configuration to: {:?}", config_file);
         Ok(())
     }
 
@@ -170,10 +170,10 @@ impl PathService {
         if config_file.exists() {
             let content = fs::read_to_string(&config_file).await?;
             let config: PathConfig = serde_json::from_str(&content)?;
-            log::info!("Loaded path configuration from: {:?}", config_file);
+            tracing::info!("Loaded path configuration from: {:?}", config_file);
             Ok(config)
         } else {
-            log::info!("No path configuration found, using defaults");
+            tracing::info!("No path configuration found, using defaults");
             Ok(PathConfig::default())
         }
     }
