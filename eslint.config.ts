@@ -212,7 +212,8 @@ export default tseslint.config(
             },
             {
               group: ['$lib/services/composite/**', '**/services/composite/**'],
-              message: '❌ Domain ServicesからComposite Servicesへの参照は禁止です（下位層→上位層）。'
+              message:
+                '❌ Domain ServicesからComposite Servicesへの参照は禁止です（下位層→上位層）。'
             },
             {
               group: [
