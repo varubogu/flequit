@@ -388,6 +388,7 @@ pub enum IsolationLevel {
 ### 7.1 Minimize Transaction Duration
 
 **Good example**:
+
 ```rust
 // Preparation outside transaction
 let validation_result = validate_tag_data(tag)?;
@@ -402,6 +403,7 @@ tx_manager.commit(txn).await?;
 ```
 
 **Bad example**:
+
 ```rust
 let txn = tx_manager.begin().await?;
 
@@ -592,10 +594,10 @@ async fn test_tag_deletion_rollback_on_error() {
 ### 11.1 Completed Features
 
 #### Phase 1: Foundation (✅ Completed)
+
 - **TransactionManager Trait** ([flequit-model/src/traits/transaction.rs](../../../../../../src-tauri/crates/flequit-model/src/traits/transaction.rs))
   - Abstract interface for transaction management
   - `begin()`, `commit()`, `rollback()` methods
-  
 - **SQLite Implementation** ([flequit-infrastructure-sqlite/src/infrastructure/database_manager.rs](../../../../../../src-tauri/crates/flequit-infrastructure-sqlite/src/infrastructure/database_manager.rs))
   - DatabaseManager implements TransactionManager
   - Uses Sea-ORM's DatabaseTransaction
@@ -605,6 +607,7 @@ async fn test_tag_deletion_rollback_on_error() {
   - Provides access to SQLite repositories via `sqlite_repositories()`
 
 #### Phase 2: Pilot Implementation - Tag Deletion (✅ Completed)
+
 - **Repository Layer**
   - `TagLocalSqliteRepository::delete_with_txn()` - Delete tag with transaction
   - `TaskTagLocalSqliteRepository::remove_all_by_tag_id_with_txn()` - Delete task-tag relations
@@ -619,6 +622,7 @@ async fn test_tag_deletion_rollback_on_error() {
 #### Phase 3: Other Entities - Deletion (✅ Completed)
 
 ##### Task Deletion
+
 - **Repository Layer** ([flequit-infrastructure-sqlite/src/infrastructure/task_projects/](../../../../../../src-tauri/crates/flequit-infrastructure-sqlite/src/infrastructure/task_projects/))
   - `TaskLocalSqliteRepository::delete_with_txn()` - Delete task with transaction
   - `TaskLocalSqliteRepository::find_ids_by_project_id()` - Helper for cascade deletion
@@ -634,6 +638,7 @@ async fn test_tag_deletion_rollback_on_error() {
   - Automerge deletion outside transaction
 
 ##### Project Deletion
+
 - **Repository Layer** ([flequit-infrastructure-sqlite/src/infrastructure/task_projects/](../../../../../../src-tauri/crates/flequit-infrastructure-sqlite/src/infrastructure/task_projects/))
   - `ProjectLocalSqliteRepository::delete_with_txn()` - Delete project with transaction
   - `TaskListLocalSqliteRepository::delete_with_txn()` - Delete task list with transaction
@@ -650,9 +655,9 @@ async fn test_tag_deletion_rollback_on_error() {
   - Automerge deletion outside transaction
 
 #### Phase 4: Repository Layer Cleanup (✅ Completed)
+
 - **Removed Methods**
   - `TagLocalSqliteRepository::delete_with_relations()` - Deprecated, functionality moved to Facade layer
-  
 - **Updated Methods**
   - `TaskLocalSqliteRepository::delete()` - Removed internal transaction handling, marked as deprecated
   - Unified layer updated to use simple `delete()` instead of deprecated `delete_with_relations()`
@@ -663,11 +668,13 @@ async fn test_tag_deletion_rollback_on_error() {
 ### 11.2 Implementation Progress
 
 #### Tag Create/Update (✅ Analysis Completed)
+
 - **Decision**: No transaction control needed
 - **Reason**: Single-entity operations without cascade relationships
 - **Status**: Existing implementation maintained as-is
 
 #### Pending Implementation
+
 - **Task Create/Update**: Transaction control for task creation and updates with tag relations
 - **SubTask Create/Update**: Transaction control for subtask operations with tag relations
 - **Project Create/Update**: Transaction control for project operations
@@ -679,6 +686,7 @@ async fn test_tag_deletion_rollback_on_error() {
 When implementing transaction control for new entities:
 
 1. **Add `_with_txn` methods to Repository layer**
+
    ```rust
    pub async fn delete_with_txn(
        &self,
@@ -689,6 +697,7 @@ When implementing transaction control for new entities:
    ```
 
 2. **Update Facade layer with transaction control**
+
    ```rust
    pub async fn delete_entity<R>(
        repositories: &R,
@@ -711,7 +720,7 @@ When implementing transaction control for new entities:
 
 ## 12. Change History
 
-| Date | Version | Changes | Author |
-|------|---------|---------|--------|
-| 2025-11-23 | 1.1 | Added implementation status section | - |
-| 2025-11-22 | 1.0 | Initial version | - |
+| Date       | Version | Changes                             | Author |
+| ---------- | ------- | ----------------------------------- | ------ |
+| 2025-11-23 | 1.1     | Added implementation status section | -      |
+| 2025-11-22 | 1.0     | Initial version                     | -      |

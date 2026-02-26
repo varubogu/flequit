@@ -15,12 +15,14 @@
 ## Execution Commands
 
 ### Frontend (Vitest)
+
 - `bun run test` - Run all Vitest tests
 - `bun run test [filename]` - Run individual Vitest file tests
 - `bun run test:watch` - Vitest watch mode
 - `bun run test:e2e [filename]` - Playwright E2E tests (individual files only, headless)
 
 ### Backend (Rust Crates)
+
 - `cargo test -j 4` - Run all crate tests
 - `cargo test --lib -p flequit-storage -j 4` - Storage layer only
 - `cargo test --lib -p flequit-core -j 4` - Business logic layer only
@@ -28,6 +30,7 @@
 ## Test File Structure
 
 ### Frontend
+
 ```
 e2e/                   # E2E tests (Playwright)
 ├── components/        # Svelte component tests
@@ -40,6 +43,7 @@ tests/                 # Unit tests, integration tests (vitest)
 ```
 
 ### Backend
+
 ```
 src-tauri/crates/flequit-storage/tests/  # Storage layer tests
 ├── integration/       # Integration tests

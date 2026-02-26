@@ -55,17 +55,20 @@ src/lib/
 ### Stores Layer (`stores/*.svelte.ts`)
 
 **Responsibilities**:
+
 - Reactive state management using Svelte runes (`$state`, `$derived`)
 - Global state maintenance for entire application
 - Calculation and provision of data necessary for UI display
 - **Focus only on state management** (delegate persistence to Services layer)
 
 **Features**:
+
 - `.svelte.ts` extension (required for Svelte runes)
 - No persistence or business logic (all delegated to services)
 - Pure reactive state maintenance only
 
 **Dependency Rules**:
+
 - ✅ **OK to reference utils/types**
   - Example: Date formatting functions, type definitions
 - ❌ **Prohibited to reference services (domain/ui/composite)**
@@ -78,6 +81,7 @@ src/lib/
   - If necessary, clarify dependency direction (unidirectional only)
 
 **Example**:
+
 ```typescript
 // stores/tasks.svelte.ts
 class TaskStore {
@@ -90,7 +94,7 @@ class TaskStore {
   }
 
   updateTask(taskId: string, updates: Partial<Task>) {
-    const index = this.tasks.findIndex(t => t.id === taskId);
+    const index = this.tasks.findIndex((t) => t.id === taskId);
     if (index !== -1) {
       this.tasks[index] = { ...this.tasks[index], ...updates };
     }
@@ -109,22 +113,26 @@ export const taskStore = new TaskStore();
 ### Infrastructure Layer (`infrastructure/backends/`)
 
 **Responsibilities**:
+
 - Provide **implementation** of backend communication
 - Absorb environment differences between Tauri/Web/Cloud, etc.
 - Data persistence and retrieval
 - Handle only pure backend communication (no business logic)
 
 **Features**:
+
 - Interface definition + implementation
 - Folder separation by environment (`tauri/`, `web/`, `cloud/`, etc.)
 - Select BackendService based on environment in `index.ts`
 
 **Access Restrictions**:
+
 - ❌ **Prohibited direct invocation from Components layer**
 - ❌ **Prohibited direct invocation from Stores layer**
 - ✅ **OK to invoke directly from Services layer** (only access point)
 
 **Dependency Rules**:
+
 - ❌ **Prohibited to reference Services**
   - Reason: Infrastructure layer is bottom layer, should not depend on upper layers
 - ❌ **Prohibited to reference Stores**
@@ -137,11 +145,13 @@ export const taskStore = new TaskStore();
 ### Application Layer - Domain Services (`services/domain/`)
 
 **Responsibilities**:
+
 - Business logic for single entities
 - Bridge between Infrastructure and Store
 - Implementation of complex operations and validation logic
 
 **Pattern**:
+
 ```typescript
 // services/domain/task.ts
 import { taskStore } from '$lib/stores/tasks.svelte';
@@ -167,6 +177,7 @@ export class TaskService {
 ```
 
 **Dependency Rules**:
+
 - ✅ **OK to invoke from Components layer**
 - ✅ **OK to use Infrastructure layer**
   - Reason: Services layer bridges Infrastructure and Store
@@ -190,6 +201,7 @@ export class TaskService {
   - Reason: Services layer handles only business logic, should not depend on UI components
 
 **Notes**:
+
 - Services layer operating both Infrastructure and Store makes responsibilities clear
 - Functions as bridge between Store and Infrastructure even when no business logic exists
 - **Important**: Domain Services operate only domain model Stores, do NOT depend on UI state Stores
@@ -200,11 +212,13 @@ export class TaskService {
 ### Application Layer - Composite Services (`services/composite/`)
 
 **Responsibilities**:
+
 - Coordinated operations across multiple entities
 - Transaction-like processing
 - Combine and use Domain Services
 
 **Example**:
+
 ```typescript
 // services/composite/task-composite.ts
 import { TaskService } from '$lib/services/domain/task';
@@ -214,11 +228,7 @@ export class TaskCompositeService {
   /**
    * Create task and subtasks in batch
    */
-  static async createTaskWithSubTasks(
-    listId: string,
-    task: Task,
-    subTasks: SubTask[]
-  ) {
+  static async createTaskWithSubTasks(listId: string, task: Task, subTasks: SubTask[]) {
     // Combine Domain Services
     const createdTask = await TaskService.createTask(listId, task);
 
@@ -232,6 +242,7 @@ export class TaskCompositeService {
 ```
 
 **Dependency Rules**:
+
 - ✅ **OK to invoke from Components layer**
 - ✅ **OK to use Infrastructure layer**
   - Reason: Services layer bridges Infrastructure and Store
@@ -251,6 +262,7 @@ export class TaskCompositeService {
 **Important**: The UI Services layer is **deprecated**. Please follow the new design principles below:
 
 **New Design Principles**:
+
 - **UI Logic**: Implement in Components layer
 - **UI State Management**: Manage with local state in Components layer or dedicated Stores (selection-store, etc.)
 - **Business Logic**: Centralize in Domain Services layer
@@ -260,6 +272,7 @@ The UI Services layer had unclear responsibilities and actually functioned as an
 A clear 3-layer architecture (Components → Domain Services → Backend/Store) clarifies the responsibilities of each layer.
 
 **Migration Path**:
+
 ```typescript
 // ❌ Old: Via UI Services
 TaskDetailService.openTaskDetail(taskId); // UI state + business logic mixed
@@ -281,6 +294,7 @@ async function openTaskDetail(taskId: string) {
 ```
 
 **Important Principles**:
+
 - ❌ **Domain Services should NOT reference UI state stores (selection-store, etc.)**
   - Reason: Domain layer handles only business logic, should not depend on UI state
 - ✅ **Components layer coordinates UI state and business logic**
@@ -340,17 +354,18 @@ async function openTaskDetail(taskId: string) {
 
 ### Detailed Dependency Rules
 
-| From → To | Infrastructure | Domain Services | Composite Services | UI Services | Stores | Utils/Types | Components |
-|-----------|---------------|-----------------|-------------------|-------------|--------|-------------|------------|
-| **Components** | ❌ Prohibited | ✅ Invoke OK | ✅ Invoke OK | ✅ Invoke OK | ✅ Read only | ✅ OK | - |
-| **Stores** | ❌ Prohibited | ❌ Prohibited | ❌ Prohibited | ❌ Prohibited | ⚠️ Minimal | ✅ OK | ❌ Prohibited |
-| **UI Services** | ✅ OK | ✅ OK | ✅ OK | ⚠️ Same level caution | ✅ OK | ✅ OK | ❌ Prohibited |
-| **Composite Services** | ✅ OK | ✅ OK | ⚠️ Same level caution | ❌ Prohibited | ✅ OK | ✅ OK | ❌ Prohibited |
-| **Domain Services** | ✅ OK | ⚠️ Same level caution | ❌ Prohibited | ❌ Prohibited | ✅ OK | ✅ OK | ❌ Prohibited |
-| **Utils/Types** | ❌ Prohibited | ❌ Prohibited | ❌ Prohibited | ❌ Prohibited | ❌ Prohibited | - | ❌ Prohibited |
-| **Infrastructure** | - | ❌ Prohibited | ❌ Prohibited | ❌ Prohibited | ❌ Prohibited | ✅ OK | ❌ Prohibited |
+| From → To              | Infrastructure | Domain Services       | Composite Services    | UI Services           | Stores        | Utils/Types | Components    |
+| ---------------------- | -------------- | --------------------- | --------------------- | --------------------- | ------------- | ----------- | ------------- |
+| **Components**         | ❌ Prohibited  | ✅ Invoke OK          | ✅ Invoke OK          | ✅ Invoke OK          | ✅ Read only  | ✅ OK       | -             |
+| **Stores**             | ❌ Prohibited  | ❌ Prohibited         | ❌ Prohibited         | ❌ Prohibited         | ⚠️ Minimal    | ✅ OK       | ❌ Prohibited |
+| **UI Services**        | ✅ OK          | ✅ OK                 | ✅ OK                 | ⚠️ Same level caution | ✅ OK         | ✅ OK       | ❌ Prohibited |
+| **Composite Services** | ✅ OK          | ✅ OK                 | ⚠️ Same level caution | ❌ Prohibited         | ✅ OK         | ✅ OK       | ❌ Prohibited |
+| **Domain Services**    | ✅ OK          | ⚠️ Same level caution | ❌ Prohibited         | ❌ Prohibited         | ✅ OK         | ✅ OK       | ❌ Prohibited |
+| **Utils/Types**        | ❌ Prohibited  | ❌ Prohibited         | ❌ Prohibited         | ❌ Prohibited         | ❌ Prohibited | -           | ❌ Prohibited |
+| **Infrastructure**     | -              | ❌ Prohibited         | ❌ Prohibited         | ❌ Prohibited         | ❌ Prohibited | ✅ OK       | ❌ Prohibited |
 
 #### Legend
+
 - ✅ OK: Recommended dependencies
 - ⚠️ Caution: Allowed but be careful (watch for circular dependencies)
 - ❌ Prohibited: ESLint violation detection
@@ -358,6 +373,7 @@ async function openTaskDetail(taskId: string) {
 ### Circular Dependency Prevention Rules
 
 **🔴 Absolutely Prohibited (Circular Dependencies & Responsibility Separation)**:
+
 - ❌ `stores` → `services (domain/ui/composite)`
   - Reason: Circular dependency since services reference stores
 - ❌ `stores` → `infrastructure`
@@ -382,6 +398,7 @@ async function openTaskDetail(taskId: string) {
   - Reason: Pure function/type definition layer should not depend on other layers
 
 **🟡 Svelte 5 Special Allowable Patterns**:
+
 - ✅ `services (domain/ui/composite)` → `stores` (Allowed due to Svelte runes constraints)
   - Reason: `$state` works only in `.svelte.ts`, so state is centralized in stores
   - Condition: **No reverse dependency (stores → services) exists**
@@ -390,6 +407,7 @@ async function openTaskDetail(taskId: string) {
   - Restriction: **Store method calls prohibited, value reading only**
 
 **⚠️ Patterns Requiring Caution**:
+
 - ⚠️ Mutual references between `stores`
   - Allowed: When clear dependency direction exists (e.g., `task-store` → `project-store`)
   - Prohibited: When mutually referencing (circular dependency)
@@ -398,12 +416,14 @@ async function openTaskDetail(taskId: string) {
   - Prohibited: When mutually referencing (circular dependency)
 
 **🟢 Recommended Patterns (Clear Responsibility Separation)**:
+
 - ✅ `components` → `services` → `infrastructure` (persistence)
 - ✅ `components` → `services` → `stores` (state updates)
 - ✅ `components` → `stores` (read only)
 - ✅ `services (ui → composite → domain)` (hierarchy compliance)
 
 **Data Flow**:
+
 ```
 Component
     ↓ Invoke
@@ -767,7 +787,9 @@ export async function getBackendService(): Promise<BackendService> {
 There are strict rules between Components layer (`src/lib/components/`) and Store (`src/lib/stores/`):
 
 ### Store Reading
+
 - ✅ **OK to read directly from Components layer**
+
   ```typescript
   // ✅ OK: Value reading
   import { taskStore } from '$lib/stores/tasks.svelte';
@@ -777,8 +799,10 @@ There are strict rules between Components layer (`src/lib/components/`) and Stor
   ```
 
 ### Store Method Calls
+
 - ❌ **Prohibited to call Store methods from Components layer**
 - ✅ **Must go through Services**
+
   ```typescript
   // ❌ NG: Direct Store method calls from Components layer
   await taskStore.updateTask(taskId, updates);
@@ -789,11 +813,13 @@ There are strict rules between Components layer (`src/lib/components/`) and Stor
   ```
 
 **Reason**:
+
 - Business rules and validation may be needed in Store update logic, centralized in Services layer
 - Easy to adapt to future changes via Services layer
 - Improved testability (easy to mock Services layer)
 
 **Note**:
+
 - ESLint cannot distinguish between Store method calls and value reading, so code review is needed
 - Using Services even for simple operations ensures consistent code
 

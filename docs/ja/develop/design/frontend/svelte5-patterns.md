@@ -5,10 +5,12 @@
 本文書では、Flequitアプリケーションで採用するSvelte 5の設計パターンとベストプラクティスを定義します。Svelte 5の新機能であるrunesを中心とした設計指針を示します。
 
 関連ドキュメント:
+
 - component-patterns: docs/develop/design/frontend/component-patterns.md
 - anti-patterns: docs/develop/design/frontend/anti-patterns.md
 
 禁止事項（要約）:
+
 - -logic.svelte.ts形式のロジッククラス新規追加
 - プロキシのみのサービス層増設（UI→Store→Backendから逸脱）
 - 同一概念の型二重定義と変換関数の乱立
@@ -24,15 +26,15 @@
 export class TaskStore {
   private tasks = $state<Task[]>([]);
   private loading = $state<boolean>(false);
-  
+
   get allTasks() {
     return this.tasks;
   }
-  
+
   get isLoading() {
     return this.loading;
   }
-  
+
   addTask(task: Task) {
     this.tasks.push(task);
   }
@@ -47,19 +49,13 @@ export class TaskStore {
 // stores/task.svelte.ts
 export class TaskStore {
   private tasks = $state<Task[]>([]);
-  
+
   get completedTasks() {
-    return $derived(
-      this.tasks.filter(task => task.status === 'completed')
-    );
+    return $derived(this.tasks.filter((task) => task.status === 'completed'));
   }
-  
+
   get progress() {
-    return $derived(
-      this.tasks.length > 0 
-        ? this.completedTasks.length / this.tasks.length 
-        : 0
-    );
+    return $derived(this.tasks.length > 0 ? this.completedTasks.length / this.tasks.length : 0);
   }
 }
 ```
@@ -72,18 +68,18 @@ export class TaskStore {
 // components/task-list.svelte
 <script lang="ts">
   import { taskStore } from '$lib/stores/task.svelte';
-  
+
   // タスク変更時にローカルストレージに保存
   $effect(() => {
     localStorage.setItem('tasks', JSON.stringify(taskStore.allTasks));
   });
-  
+
   // クリーンアップが必要な場合
   $effect(() => {
     const interval = setInterval(() => {
       console.log('Current tasks:', taskStore.allTasks.length);
     }, 5000);
-    
+
     return () => clearInterval(interval);
   });
 </script>
@@ -102,36 +98,34 @@ export class ProjectStore {
   private currentProject = $state<Project | null>(null);
   private loading = $state<boolean>(false);
   private error = $state<string | null>(null);
-  
+
   // ゲッター
   get allProjects() {
     return this.projects;
   }
-  
+
   get current() {
     return this.currentProject;
   }
-  
+
   get isLoading() {
     return this.loading;
   }
-  
+
   get hasError() {
     return this.error !== null;
   }
-  
+
   // 派生状態
   get activeProjects() {
-    return $derived(
-      this.projects.filter(project => !project.isArchived)
-    );
+    return $derived(this.projects.filter((project) => !project.isArchived));
   }
-  
+
   // アクション
   async loadProjects() {
     this.loading = true;
     this.error = null;
-    
+
     try {
       const projects = await invoke<Project[]>('get_projects');
       this.projects = projects;
@@ -141,24 +135,24 @@ export class ProjectStore {
       this.loading = false;
     }
   }
-  
+
   selectProject(projectId: string) {
-    this.currentProject = this.projects.find(p => p.id === projectId) || null;
+    this.currentProject = this.projects.find((p) => p.id === projectId) || null;
   }
-  
+
   addProject(project: Project) {
     this.projects.push(project);
   }
-  
+
   updateProject(updatedProject: Project) {
-    const index = this.projects.findIndex(p => p.id === updatedProject.id);
+    const index = this.projects.findIndex((p) => p.id === updatedProject.id);
     if (index !== -1) {
       this.projects[index] = updatedProject;
     }
   }
-  
+
   deleteProject(projectId: string) {
-    this.projects = this.projects.filter(p => p.id !== projectId);
+    this.projects = this.projects.filter((p) => p.id !== projectId);
     if (this.currentProject?.id === projectId) {
       this.currentProject = null;
     }
@@ -181,28 +175,28 @@ Svelte 5のprops定義パターンを使用します。
 // components/task-item.svelte
 <script lang="ts">
   import type { Task } from '$lib/types';
-  
+
   interface Props {
     task: Task;
     readonly?: boolean;
     onUpdate?: (task: Task) => void;
     onDelete?: (taskId: string) => void;
   }
-  
-  let { 
-    task, 
-    readonly = false, 
-    onUpdate = () => {}, 
-    onDelete = () => {} 
+
+  let {
+    task,
+    readonly = false,
+    onUpdate = () => {},
+    onDelete = () => {}
   }: Props = $props();
-  
+
   // ローカル状態
   let isEditing = $state<boolean>(false);
   let editedTitle = $state<string>(task.title);
-  
+
   // 派生状態
   const canEdit = $derived(!readonly && !task.isCompleted);
-  
+
   function handleSave() {
     if (editedTitle.trim()) {
       onUpdate({ ...task, title: editedTitle.trim() });
@@ -223,7 +217,7 @@ Svelte 5のprops定義パターンを使用します。
     onTaskComplete: (taskId: string) => void;
     onTaskEdit: (task: Task) => void;
   }
-  
+
   let { onTaskComplete, onTaskEdit }: Props = $props();
 </script>
 
@@ -234,11 +228,11 @@ Svelte 5のprops定義パターンを使用します。
 <!-- 必要時のみCustomEvent -->
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  
+
   const dispatch = createEventDispatcher<{
     taskUpdated: { task: Task; changes: Partial<Task> };
   }>();
-  
+
   function handleUpdate(changes: Partial<Task>) {
     const updatedTask = { ...task, ...changes };
     dispatch('taskUpdated', { task: updatedTask, changes });
@@ -254,7 +248,7 @@ Svelte 5のprops定義パターンを使用します。
 // components/modal.svelte
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  
+
   interface Props {
     title: string;
     isOpen: boolean;
@@ -262,7 +256,7 @@ Svelte 5のprops定義パターンを使用します。
     children: Snippet;
     actions?: Snippet;
   }
-  
+
   let { title, isOpen, onClose, children, actions }: Props = $props();
 </script>
 
@@ -273,11 +267,11 @@ Svelte 5のprops定義パターンを使用します。
         <h2>{title}</h2>
         <button onclick={onClose}>×</button>
       </header>
-      
+
       <main class="modal-body">
         {@render children()}
       </main>
-      
+
       {#if actions}
         <footer class="modal-actions">
           {@render actions()}
@@ -289,14 +283,11 @@ Svelte 5のprops定義パターンを使用します。
 ```
 
 使用例：
+
 ```svelte
-<Modal 
-  title="Edit Task" 
-  isOpen={isModalOpen} 
-  onClose={() => isModalOpen = false}
->
+<Modal title="Edit Task" isOpen={isModalOpen} onClose={() => (isModalOpen = false)}>
   <TaskForm task={selectedTask} onSave={handleSave} />
-  
+
   {#snippet actions()}
     <button onclick={handleCancel}>Cancel</button>
     <button onclick={handleSave}>Save</button>
@@ -314,13 +305,13 @@ Svelte 5のprops定義パターンを使用します。
 // 良い例
 class TaskStore {
   private tasks = $state<Task[]>([]);
-  
+
   get completedTasks() {
-    return $derived(this.tasks.filter(t => t.status === 'completed'));
+    return $derived(this.tasks.filter((t) => t.status === 'completed'));
   }
-  
+
   get pendingTasks() {
-    return $derived(this.tasks.filter(t => t.status === 'pending'));
+    return $derived(this.tasks.filter((t) => t.status === 'pending'));
   }
 }
 
@@ -329,7 +320,7 @@ class TaskStore {
   private tasks = $state<Task[]>([]);
   private completedTasks = $state<Task[]>([]);
   private pendingTasks = $state<Task[]>([]);
-  
+
   // 手動で同期が必要 - バグの原因となりやすい
   addTask(task: Task) {
     this.tasks.push(task);
@@ -380,9 +371,9 @@ $effect(() => {
       closeModal();
     }
   };
-  
+
   document.addEventListener('keydown', eventListener);
-  
+
   // クリーンアップ
   return () => {
     document.removeEventListener('keydown', eventListener);
@@ -399,13 +390,13 @@ $effect(() => {
 ```typescript
 class DataStore {
   private rawData = $state<DataItem[]>([]);
-  
+
   // 重い計算はメモ化される
   get processedData() {
     return $derived(
       this.rawData
-        .filter(item => item.isActive)
-        .map(item => ({
+        .filter((item) => item.isActive)
+        .map((item) => ({
           ...item,
           computed: heavyComputation(item)
         }))
@@ -448,11 +439,11 @@ class ApiStore {
   private data = $state<any[]>([]);
   private error = $state<string | null>(null);
   private loading = $state<boolean>(false);
-  
+
   async fetchData() {
     this.loading = true;
     this.error = null;
-    
+
     try {
       const result = await api.getData();
       this.data = result;
@@ -463,7 +454,7 @@ class ApiStore {
       this.loading = false;
     }
   }
-  
+
   clearError() {
     this.error = null;
   }
@@ -475,7 +466,7 @@ class ApiStore {
 ```svelte
 <script lang="ts">
   import { apiStore } from '$lib/stores/api.svelte';
-  
+
   $effect(() => {
     apiStore.fetchData();
   });
@@ -484,10 +475,10 @@ class ApiStore {
 {#if apiStore.isLoading}
   <LoadingSpinner />
 {:else if apiStore.hasError}
-  <ErrorMessage 
-    message={apiStore.error} 
-    onRetry={() => apiStore.fetchData()} 
-    onDismiss={() => apiStore.clearError()} 
+  <ErrorMessage
+    message={apiStore.error}
+    onRetry={() => apiStore.fetchData()}
+    onDismiss={() => apiStore.clearError()}
   />
 {:else}
   <DataList items={apiStore.data} />

@@ -58,21 +58,27 @@ Each entity file is described in the following unified format:
 # Entity Name (Japanese Name) - Table Name
 
 ## Overview
+
 Description of the entity's role and purpose
 
 ## Field Definitions
+
 Field definition table (logical name, physical name, type, constraints, etc.)
 
 ## Constraints
+
 Primary keys, foreign keys, constraint information
 
 ## Indexes
+
 Index definitions for performance optimization
 
 ## Related Tables
+
 Relationships with other tables
 
 ## Notes
+
 Design considerations and special notes
 ```
 

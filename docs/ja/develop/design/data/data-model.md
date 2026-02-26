@@ -10,21 +10,21 @@ Flequitアプリケーションで使用されるデータモデルの定義と�
 
 Flequitでは異なる層間で型変換を行います。以下の変換表に従って各データ型を管理します：
 
-| Rust内部型 | TypeScript/フロントエンド | SQLite | PostgreSQL | Automerge JSON | 説明 |
-|-----------|-------------------------|--------|------------|----------------|------|
-| `ProjectId` | `string` | `TEXT` | `UUID` | `string` | プロジェクト一意識別子（UUID v4） |
-| `AccountId` | `string` | `TEXT` | `UUID` | `string` | アカウント内部識別子（UUID v4・非公開） |
-| `UserId` | `string` | `TEXT` | `UUID` | `string` | ユーザー識別子（UUID v4・公開用） |
-| `TaskId` | `string` | `TEXT` | `UUID` | `string` | タスク一意識別子（UUID v4） |
-| `TaskListId` | `string` | `TEXT` | `UUID` | `string` | タスクリスト一意識別子（UUID v4） |
-| `TagId` | `string` | `TEXT` | `UUID` | `string` | タグ一意識別子（UUID v4） |
-| `SubTaskId` | `string` | `TEXT` | `UUID` | `string` | サブタスク一意識別子（UUID v4） |
-| `DateTime<Utc>` | `string` | `TEXT` | `TIMESTAMPTZ` | `string` | ISO 8601形式日時文字列 |
-| `Option<T>` | `T \| null` | `NULL` | `NULL` | `null` | Optional値 |
-| `String` | `string` | `TEXT` | `TEXT` | `string` | 文字列 |
-| `i32` | `number` | `INTEGER` | `INTEGER` | `number` | 32bit整数 |
-| `bool` | `boolean` | `INTEGER` | `BOOLEAN` | `boolean` | 真偽値（SQLiteは0/1） |
-| Enum型 | `string` | `TEXT` | `TEXT` | `string` | 列挙型（文字列として保存） |
+| Rust内部型      | TypeScript/フロントエンド | SQLite    | PostgreSQL    | Automerge JSON | 説明                                    |
+| --------------- | ------------------------- | --------- | ------------- | -------------- | --------------------------------------- |
+| `ProjectId`     | `string`                  | `TEXT`    | `UUID`        | `string`       | プロジェクト一意識別子（UUID v4）       |
+| `AccountId`     | `string`                  | `TEXT`    | `UUID`        | `string`       | アカウント内部識別子（UUID v4・非公開） |
+| `UserId`        | `string`                  | `TEXT`    | `UUID`        | `string`       | ユーザー識別子（UUID v4・公開用）       |
+| `TaskId`        | `string`                  | `TEXT`    | `UUID`        | `string`       | タスク一意識別子（UUID v4）             |
+| `TaskListId`    | `string`                  | `TEXT`    | `UUID`        | `string`       | タスクリスト一意識別子（UUID v4）       |
+| `TagId`         | `string`                  | `TEXT`    | `UUID`        | `string`       | タグ一意識別子（UUID v4）               |
+| `SubTaskId`     | `string`                  | `TEXT`    | `UUID`        | `string`       | サブタスク一意識別子（UUID v4）         |
+| `DateTime<Utc>` | `string`                  | `TEXT`    | `TIMESTAMPTZ` | `string`       | ISO 8601形式日時文字列                  |
+| `Option<T>`     | `T \| null`               | `NULL`    | `NULL`        | `null`         | Optional値                              |
+| `String`        | `string`                  | `TEXT`    | `TEXT`        | `string`       | 文字列                                  |
+| `i32`           | `number`                  | `INTEGER` | `INTEGER`     | `number`       | 32bit整数                               |
+| `bool`          | `boolean`                 | `INTEGER` | `BOOLEAN`     | `boolean`      | 真偽値（SQLiteは0/1）                   |
+| Enum型          | `string`                  | `TEXT`    | `TEXT`        | `string`       | 列挙型（文字列として保存）              |
 
 ### 注意点
 

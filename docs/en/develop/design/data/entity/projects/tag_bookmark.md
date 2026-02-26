@@ -1,24 +1,27 @@
 # Tag Bookmark (タグブックマーク) - tag_bookmarks
 
 ## Overview
+
 Entity for managing tags fixed in the sidebar. Managed with (project_id, tag_id) pairs to display bookmarked tags across projects in a list.
 
 ## Field Definitions
 
-| Logical Name | Physical Name | Rust Type | Description | PK | UK | NN | Default Value | Foreign Key | PostgreSQL Type | SQLite Type | TypeScript Type |
-|--------------|---------------|-----------|-------------|----|----|----|---------------|-------------|-----------------|-------------|-----------------|
-| Project ID | project_id | ProjectId | Tag's associated project ID | ✓ | - | ✓ | - | projects.id | UUID | TEXT | string |
-| Tag ID | tag_id | TagId | Tag ID to bookmark | ✓ | - | ✓ | - | tags.id | UUID | TEXT | string |
-| Display Order | order_index | i32 | Display order within sidebar | - | - | ✓ | 0 | - | INTEGER | INTEGER | number |
-| Created At | created_at | DateTime<Utc> | Bookmark addition timestamp (ISO 8601) | - | - | ✓ | - | - | TIMESTAMPTZ | TEXT | string |
+| Logical Name  | Physical Name | Rust Type     | Description                            | PK  | UK  | NN  | Default Value | Foreign Key | PostgreSQL Type | SQLite Type | TypeScript Type |
+| ------------- | ------------- | ------------- | -------------------------------------- | --- | --- | --- | ------------- | ----------- | --------------- | ----------- | --------------- |
+| Project ID    | project_id    | ProjectId     | Tag's associated project ID            | ✓   | -   | ✓   | -             | projects.id | UUID            | TEXT        | string          |
+| Tag ID        | tag_id        | TagId         | Tag ID to bookmark                     | ✓   | -   | ✓   | -             | tags.id     | UUID            | TEXT        | string          |
+| Display Order | order_index   | i32           | Display order within sidebar           | -   | -   | ✓   | 0             | -           | INTEGER         | INTEGER     | number          |
+| Created At    | created_at    | DateTime<Utc> | Bookmark addition timestamp (ISO 8601) | -   | -   | ✓   | -             | -           | TIMESTAMPTZ     | TEXT        | string          |
 
 ## Constraints
+
 - PRIMARY KEY: (project_id, tag_id) - Composite primary key
 - FOREIGN KEY: project_id → projects.id
 - FOREIGN KEY: tag_id → tags.id
 - NOT NULL: project_id, tag_id, order_index, created_at
 
 ## Indexes
+
 ```sql
 -- Automatically created by composite primary key: (project_id, tag_id)
 CREATE INDEX IF NOT EXISTS idx_tag_bookmarks_order_index ON tag_bookmarks(order_index);
@@ -26,6 +29,7 @@ CREATE INDEX IF NOT EXISTS idx_tag_bookmarks_created_at ON tag_bookmarks(created
 ```
 
 ## Related Tables
+
 - projects: Project to which the tag belongs
 - tags: Tag to be bookmarked
 
@@ -56,8 +60,8 @@ CREATE INDEX IF NOT EXISTS idx_tag_bookmarks_created_at ON tag_bookmarks(created
 
 ```typescript
 interface TagBookmark {
-  projectId: string;  // Required
-  tagId: string;      // Required
+  projectId: string; // Required
+  tagId: string; // Required
   orderIndex: number;
   createdAt: Date;
 }
@@ -106,11 +110,13 @@ async deleteTag(projectId: string, tagId: string, onDelete?: (tagId: string) => 
 **For all operations requiring ID-type parameters (taskListId, taskId, subTaskId, tagId, associations), projectId is also required as a set**
 
 Reasons:
+
 1. All entities belong to projects
 2. Prevents ID collisions when handling data across projects
 3. projectId can be obtained from tasks (reverse lookup possible)
 
 Applied to:
+
 - Tag CRUD operations
 - Tag bookmarking
 - Task tagging
@@ -118,4 +124,5 @@ Applied to:
 - All other entity operations
 
 Exceptions:
+
 - Reverse lookup from project ID: `getProjectIdByTagId(tagId)` etc. are exceptions where projectId is not required

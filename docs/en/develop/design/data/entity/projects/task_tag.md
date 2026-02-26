@@ -1,18 +1,20 @@
 # TaskTag (タスクタグ関連付け) - task_tags
 
 ## Overview
+
 Entity for managing associations between tasks and tags. Managed with composite primary key including project_id for cross-project data management.
 
 ## Field Definitions
 
-| Logical Name | Physical Name | Rust Type | Description | PK | UK | NN | Default Value | Foreign Key | PostgreSQL Type | SQLite Type | TypeScript Type |
-|--------------|---------------|-----------|-------------|----|----|----|---------------|-------------|-----------------|-------------|-----------------|
-| Project ID | project_id | ProjectId | Project ID | ✓ | - | ✓ | - | projects.id | UUID | TEXT | string |
-| Task ID | task_id | TaskId | Tagged task ID | ✓ | - | ✓ | - | tasks.id | UUID | TEXT | string |
-| Tag ID | tag_id | TagId | Applied tag ID | ✓ | - | ✓ | - | tags.id | UUID | TEXT | string |
-| Association Created At | created_at | DateTime<Utc> | Association creation timestamp (ISO 8601) | - | - | ✓ | - | - | TIMESTAMPTZ | TEXT | string |
+| Logical Name           | Physical Name | Rust Type     | Description                               | PK  | UK  | NN  | Default Value | Foreign Key | PostgreSQL Type | SQLite Type | TypeScript Type |
+| ---------------------- | ------------- | ------------- | ----------------------------------------- | --- | --- | --- | ------------- | ----------- | --------------- | ----------- | --------------- |
+| Project ID             | project_id    | ProjectId     | Project ID                                | ✓   | -   | ✓   | -             | projects.id | UUID            | TEXT        | string          |
+| Task ID                | task_id       | TaskId        | Tagged task ID                            | ✓   | -   | ✓   | -             | tasks.id    | UUID            | TEXT        | string          |
+| Tag ID                 | tag_id        | TagId         | Applied tag ID                            | ✓   | -   | ✓   | -             | tags.id     | UUID            | TEXT        | string          |
+| Association Created At | created_at    | DateTime<Utc> | Association creation timestamp (ISO 8601) | -   | -   | ✓   | -             | -           | TIMESTAMPTZ     | TEXT        | string          |
 
 ## Constraints
+
 - PRIMARY KEY: (project_id, task_id, tag_id)
 - FOREIGN KEY: project_id → projects.id
 - FOREIGN KEY: task_id → tasks.id
@@ -20,6 +22,7 @@ Entity for managing associations between tasks and tags. Managed with composite 
 - NOT NULL: project_id, task_id, tag_id, created_at
 
 ## Indexes
+
 ```sql
 CREATE INDEX IF NOT EXISTS idx_task_tags_project_id ON task_tags(project_id);
 CREATE INDEX IF NOT EXISTS idx_task_tags_task_id ON task_tags(task_id);
@@ -28,6 +31,7 @@ CREATE INDEX IF NOT EXISTS idx_task_tags_created_at ON task_tags(created_at);
 ```
 
 ## Related Tables
+
 - projects: Associated project
 - tasks: Tagged task
 - tags: Applied tag
@@ -53,9 +57,9 @@ CREATE INDEX IF NOT EXISTS idx_task_tags_created_at ON task_tags(created_at);
 
 ```typescript
 interface TaskTag {
-  projectId: string;  // Required
-  taskId: string;     // Required
-  tagId: string;      // Required
+  projectId: string; // Required
+  taskId: string; // Required
+  tagId: string; // Required
   createdAt: Date;
 }
 ```
@@ -70,4 +74,5 @@ async getTagsByTask(projectId: string, taskId: string): Promise<Tag[]>
 ```
 
 ## Notes
+
 Manages many-to-many relationship between tasks and tags. Prevents duplicates with composite primary key (project_id, task_id, tag_id) and enables cross-project data management.

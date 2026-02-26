@@ -9,12 +9,14 @@ This document establishes coding standards to maintain unified code style and qu
 ### File Structure
 
 #### Single Responsibility Principle
+
 - **One file, one function**: Each file has a single responsibility
 - **Appropriate separation**: Split appropriately when functionality becomes complex
 - **Clear naming**: Functionality should be inferable from file names
 - **Store vs UI Service**: Reactive stores (`src/lib/stores/…`) must keep pure state; side effects and orchestration belong in UI services (`src/lib/services/ui/…`). Store files should not import infrastructure/services directly.
 
 #### File Size Standards
+
 - **Over 200 lines**: Mandatory split target (excluding test code)
 - **Over 100 lines**: Consider splitting
 - **Exceptions**: Configuration files and data definitions are excluded
@@ -23,6 +25,7 @@ This document establishes coding standards to maintain unified code style and qu
 ### Naming Conventions
 
 #### Directory & File Names
+
 ```
 components/
 ├── ui/                    # shadcn-svelte basic components
@@ -36,6 +39,7 @@ types.ts                  # Type definition files
 ```
 
 #### Variable & Function Names
+
 ```typescript
 // TypeScript/JavaScript
 const userName = 'john';              // camelCase
@@ -125,12 +129,9 @@ async saveSettings(settings: Settings): Promise<boolean> {
 
 ```typescript
 // Unified error handling pattern
-async function tauriServiceMethod<T>(
-  command: string,
-  params?: object
-): Promise<T | null> {
+async function tauriServiceMethod<T>(command: string, params?: object): Promise<T | null> {
   try {
-    const result = await invoke(command, params) as T;
+    const result = (await invoke(command, params)) as T;
     return result;
   } catch (error) {
     console.error(`Failed to execute ${command}:`, error);
@@ -139,10 +140,7 @@ async function tauriServiceMethod<T>(
 }
 
 // For boolean returns
-async function tauriBooleanMethod(
-  command: string,
-  params?: object
-): Promise<boolean> {
+async function tauriBooleanMethod(command: string, params?: object): Promise<boolean> {
   try {
     await invoke(command, params);
     return true;
@@ -156,6 +154,7 @@ async function tauriBooleanMethod(
 #### Implementation Checklist
 
 **JavaScript/TypeScript Implementation**:
+
 - [ ] Write parameter names in `camelCase`
 - [ ] Correspond to Rust side `snake_case` function parameters
 - [ ] Return `true` on success, `false` on failure for void return commands
@@ -163,6 +162,7 @@ async function tauriBooleanMethod(
 - [ ] Output error content in console logs
 
 **Rust Implementation**:
+
 - [ ] Write function parameters in `snake_case`
 - [ ] Correspond to JavaScript side `camelCase` parameters
 - [ ] Handle errors with `Result<T, String>`
@@ -180,6 +180,7 @@ async function tauriBooleanMethod(
 ### Type Definitions
 
 #### Strict Type Specification
+
 ```typescript
 // Good example
 interface Task {
@@ -199,25 +200,27 @@ interface Task {
 ```
 
 #### Optional vs Required
+
 ```typescript
 // Clear distinction
 interface CreateTaskRequest {
-  title: string;           // Required
-  description?: string;    // Optional
-  dueDate?: Date;         // Optional
+  title: string; // Required
+  description?: string; // Optional
+  dueDate?: Date; // Optional
 }
 
 interface Task {
-  id: string;             // Required after creation
-  title: string;          // Required
-  description: string;    // Required after creation (even if empty string)
-  dueDate?: Date;        // Always optional
+  id: string; // Required after creation
+  title: string; // Required
+  description: string; // Required after creation (even if empty string)
+  dueDate?: Date; // Always optional
 }
 ```
 
 ### Functions & Methods
 
 #### Pure Function Recommendation
+
 ```typescript
 // Good example - pure function
 function calculateProgress(completedTasks: number, totalTasks: number): number {
@@ -240,6 +243,7 @@ function calculateProgressAndUpdate(completedTasks: number, totalTasks: number):
 ```
 
 #### Error Handling
+
 ```typescript
 // Good example - explicit error handling
 async function fetchTasks(): Promise<Task[] | null> {
@@ -253,9 +257,7 @@ async function fetchTasks(): Promise<Task[] | null> {
 }
 
 // Error handling using Result type
-type Result<T, E = Error> =
-  | { success: true; data: T }
-  | { success: false; error: E };
+type Result<T, E = Error> = { success: true; data: T } | { success: false; error: E };
 
 async function fetchTasksWithResult(): Promise<Result<Task[]>> {
   try {
@@ -270,6 +272,7 @@ async function fetchTasksWithResult(): Promise<Result<Task[]>> {
 ### Svelte Components
 
 #### Props Definition
+
 ```typescript
 // Good example - clear Props interface
 <script lang="ts">
@@ -290,6 +293,7 @@ async function fetchTasksWithResult(): Promise<Result<Task[]>> {
 ```
 
 #### State Management
+
 ```typescript
 // Good example - appropriate $state usage
 let isEditing = $state<boolean>(false);
@@ -299,9 +303,7 @@ let formData = $state<CreateTaskRequest>({
 });
 
 // Good example - use $derived for derived state
-const isFormValid = $derived(
-  formData.title.trim().length > 0
-);
+const isFormValid = $derived(formData.title.trim().length > 0);
 
 // Bad example - manual state synchronization
 let isFormValid = $state<boolean>(false);
@@ -313,6 +315,7 @@ $effect(() => {
 ### Import/Export
 
 #### Import Order
+
 ```typescript
 // 1. Node modules
 import { invoke } from '@tauri-apps/api/tauri';
@@ -328,10 +331,12 @@ import './component.css';
 ```
 
 #### Svelte Component Imports
+
 - Use aliases (e.g., `$lib/components/textbox`) instead of relative paths when importing Svelte components located under aliasable directories such as `src/lib/components`.
 - Relative imports of `.svelte` files are permitted only when the target folder has no alias mapping (e.g., local helper components within `src/routes`). Document the reason when disabling the ESLint rule for exceptional cases.
 
 #### Export Standards
+
 ```typescript
 // Prefer named exports
 export { TaskManager } from './task-manager';
@@ -348,6 +353,7 @@ export default class TaskService {
 ### Struct & Enum Definitions
 
 #### Structs
+
 ```rust
 // Good example - clear struct definition
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -395,6 +401,7 @@ impl TaskBuilder {
 ```
 
 #### Enum Definitions
+
 ```rust
 // Good example - clear Enum definition
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -425,6 +432,7 @@ impl TaskStatus {
 ### Error Handling
 
 #### Custom Error Types
+
 ```rust
 // Good example - structured error definition
 #[derive(Debug, thiserror::Error)]
@@ -471,6 +479,7 @@ pub async fn update_task_status(
 ### Option/Result Processing Standards
 
 #### Option Value Extraction
+
 ```rust
 // Use if let Some for single case
 if let Some(user) = user_repository.find_by_id(&user_id).await? {
@@ -492,6 +501,7 @@ process_task_assignment(&user, &project, &task).await?;
 ```
 
 #### Error Chaining
+
 ```rust
 // Good example - adding error context
 use anyhow::{Context, Result};
@@ -520,6 +530,7 @@ pub async fn create_project_with_tasks(
 ### Test Writing
 
 #### Unit Test Structure
+
 ```rust
 #[cfg(test)]
 mod tests {
@@ -587,7 +598,8 @@ describe('TaskService', () => {
 ### Documentation
 
 #### Code Comments
-```rust
+
+````rust
 /// Calculates task progress
 ///
 /// # Arguments
@@ -611,9 +623,9 @@ pub fn calculate_progress(completed_tasks: usize, total_tasks: usize) -> u8 {
     }
     ((completed_tasks * 100) / total_tasks) as u8
 }
-```
+````
 
-```typescript
+````typescript
 /**
  * Retrieves user's task list
  *
@@ -626,19 +638,17 @@ pub fn calculate_progress(completed_tasks: usize, total_tasks: usize) -> u8 {
  * const tasks = await getUserTasks('user-123', { includeCompleted: false });
  * ```
  */
-export async function getUserTasks(
-  userId: string,
-  options: GetTasksOptions = {}
-): Promise<Task[]> {
+export async function getUserTasks(userId: string, options: GetTasksOptions = {}): Promise<Task[]> {
   // Implementation
 }
-```
+````
 
 ## Performance Standards
 
 ### Frontend
 
 #### Appropriate Reactivity Usage
+
 ```typescript
 // Good example - minimal state management
 class TaskStore {
@@ -646,7 +656,7 @@ class TaskStore {
 
   // Use derived state
   get completedTasks() {
-    return $derived(this.tasks.filter(t => t.status === 'completed'));
+    return $derived(this.tasks.filter((t) => t.status === 'completed'));
   }
 }
 
@@ -666,6 +676,7 @@ class TaskStore {
 ### Backend
 
 #### Efficient Database Access
+
 ```rust
 // Good example - batch processing
 pub async fn get_tasks_with_assignees(

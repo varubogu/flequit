@@ -81,13 +81,9 @@ const msg_save_button = reactiveMessage(m.save_button());
 
 ```typescript
 // Using parameterized messages
-const msg_welcome = reactiveMessage(() =>
-  m.welcome_user({ username: user.displayName })
-);
+const msg_welcome = reactiveMessage(() => m.welcome_user({ username: user.displayName }));
 
-const msg_task_count = reactiveMessage(() =>
-  m.task_count({ count: remainingTasks.length })
-);
+const msg_task_count = reactiveMessage(() => m.task_count({ count: remainingTasks.length }));
 ```
 
 ### 3. Complex Translation Patterns
@@ -97,10 +93,14 @@ const msg_task_count = reactiveMessage(() =>
 const getStatusMessage = (status: TaskStatus) =>
   reactiveMessage(() => {
     switch (status) {
-      case 'todo': return m.status_todo();
-      case 'in_progress': return m.status_in_progress();
-      case 'completed': return m.status_completed();
-      default: return m.status_unknown();
+      case 'todo':
+        return m.status_todo();
+      case 'in_progress':
+        return m.status_in_progress();
+      case 'completed':
+        return m.status_completed();
+      default:
+        return m.status_unknown();
     }
   });
 
@@ -171,7 +171,7 @@ export function reactiveMessage<T extends (...args: any[]) => string>(
     const newValue = messageFunction();
     if (newValue !== currentValue) {
       currentValue = newValue;
-      subscribers.forEach(callback => callback(newValue));
+      subscribers.forEach((callback) => callback(newValue));
     }
   });
 
@@ -233,7 +233,7 @@ import { vi } from 'vitest';
 vi.mock('$paraglide/messages', () => ({
   task_title: () => 'Task Title',
   save_button: () => 'Save',
-  welcome_user: ({ username }: { username: string }) => `Welcome, ${username}!`,
+  welcome_user: ({ username }: { username: string }) => `Welcome, ${username}!`
   // Add necessary messages
 }));
 
@@ -379,8 +379,7 @@ const commonMessages = {
 };
 
 // Create specific messages only when needed
-const getSpecificMessage = (key: string) =>
-  reactiveMessage(() => m[key]());
+const getSpecificMessage = (key: string) => reactiveMessage(() => m[key]());
 ```
 
 This system enables building a user-friendly and maintainable multilingual application.

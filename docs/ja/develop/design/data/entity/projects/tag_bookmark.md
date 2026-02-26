@@ -1,24 +1,27 @@
 # Tag Bookmark (タグブックマーク) - tag_bookmarks
 
 ## 概要
+
 サイドバーに固定表示するタグの管理エンティティ。プロジェクトを横断してブックマークされたタグを一覧表示するために、(project_id, tag_id) のペアで管理する。
 
 ## フィールド定義
 
-| 論理名 | 物理名 | Rustでの型 | 説明 | PK | UK | NN | デフォルト値 | 外部キー | PostgreSQL型 | SQLite型 | TypeScript型 |
-|--------|--------|-----------|------|----|----|----|-----------|---------|-----------|---------|-----------|
-| プロジェクトID | project_id | ProjectId | タグの所属プロジェクトID | ✓ | - | ✓ | - | projects.id | UUID | TEXT | string |
-| タグID | tag_id | TagId | ブックマークするタグID | ✓ | - | ✓ | - | tags.id | UUID | TEXT | string |
-| 表示順序 | order_index | i32 | サイドバー内での表示順序 | - | - | ✓ | 0 | - | INTEGER | INTEGER | number |
-| 作成日時 | created_at | DateTime<Utc> | ブックマーク追加日時（ISO 8601） | - | - | ✓ | - | - | TIMESTAMPTZ | TEXT | string |
+| 論理名         | 物理名      | Rustでの型    | 説明                             | PK  | UK  | NN  | デフォルト値 | 外部キー    | PostgreSQL型 | SQLite型 | TypeScript型 |
+| -------------- | ----------- | ------------- | -------------------------------- | --- | --- | --- | ------------ | ----------- | ------------ | -------- | ------------ |
+| プロジェクトID | project_id  | ProjectId     | タグの所属プロジェクトID         | ✓   | -   | ✓   | -            | projects.id | UUID         | TEXT     | string       |
+| タグID         | tag_id      | TagId         | ブックマークするタグID           | ✓   | -   | ✓   | -            | tags.id     | UUID         | TEXT     | string       |
+| 表示順序       | order_index | i32           | サイドバー内での表示順序         | -   | -   | ✓   | 0            | -           | INTEGER      | INTEGER  | number       |
+| 作成日時       | created_at  | DateTime<Utc> | ブックマーク追加日時（ISO 8601） | -   | -   | ✓   | -            | -           | TIMESTAMPTZ  | TEXT     | string       |
 
 ## 制約
+
 - PRIMARY KEY: (project_id, tag_id) - 複合主キー
 - FOREIGN KEY: project_id → projects.id
 - FOREIGN KEY: tag_id → tags.id
 - NOT NULL: project_id, tag_id, order_index, created_at
 
 ## インデックス
+
 ```sql
 -- 複合主キーで自動作成: (project_id, tag_id)
 CREATE INDEX IF NOT EXISTS idx_tag_bookmarks_order_index ON tag_bookmarks(order_index);
@@ -26,6 +29,7 @@ CREATE INDEX IF NOT EXISTS idx_tag_bookmarks_created_at ON tag_bookmarks(created
 ```
 
 ## 関連テーブル
+
 - projects: タグが所属するプロジェクト
 - tags: ブックマークされるタグ
 
@@ -55,8 +59,8 @@ CREATE INDEX IF NOT EXISTS idx_tag_bookmarks_created_at ON tag_bookmarks(created
 
 ```typescript
 interface TagBookmark {
-  projectId: string;  // 必須
-  tagId: string;      // 必須
+  projectId: string; // 必須
+  tagId: string; // 必須
   orderIndex: number;
   createdAt: Date;
 }
@@ -105,11 +109,13 @@ async deleteTag(projectId: string, tagId: string, onDelete?: (tagId: string) => 
 **すべてのID系パラメータ（taskListId, taskId, subTaskId, tagId、関連付け系）が必要な処理では、projectId もセットで必要**
 
 理由:
+
 1. すべてのエンティティはプロジェクトに所属する
 2. プロジェクト横断でデータを扱う場合、ID衝突を防ぐ
 3. タスクから projectId が取得できる（逆引き可能）
 
 適用箇所:
+
 - タグのCRUD操作
 - タグのブックマーク
 - タスクのタグ付け
@@ -117,4 +123,5 @@ async deleteTag(projectId: string, tagId: string, onDelete?: (tagId: string) => 
 - その他すべてのエンティティ操作
 
 例外:
+
 - プロジェクトIDからの逆引き: `getProjectIdByTagId(tagId)` などは例外的に projectId 不要

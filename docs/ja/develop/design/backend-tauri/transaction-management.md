@@ -388,6 +388,7 @@ pub enum IsolationLevel {
 ### 7.1 トランザクション期間の最小化
 
 **良い例**:
+
 ```rust
 // トランザクション外で準備
 let validation_result = validate_tag_data(tag)?;
@@ -402,6 +403,7 @@ tx_manager.commit(txn).await?;
 ```
 
 **悪い例**:
+
 ```rust
 let txn = tx_manager.begin().await?;
 
@@ -592,10 +594,10 @@ async fn test_tag_deletion_rollback_on_error() {
 ### 11.1 完了済み機能
 
 #### Phase 1: 基盤実装 (✅ 完了)
+
 - **TransactionManagerトレイト** ([flequit-model/src/traits/transaction.rs](../../../../../../src-tauri/crates/flequit-model/src/traits/transaction.rs))
   - トランザクション管理の抽象インターフェース
   - `begin()`, `commit()`, `rollback()` メソッド
-  
 - **SQLite実装** ([flequit-infrastructure-sqlite/src/infrastructure/database_manager.rs](../../../../../../src-tauri/crates/flequit-infrastructure-sqlite/src/infrastructure/database_manager.rs))
   - DatabaseManagerがTransactionManagerを実装
   - Sea-ORMのDatabaseTransactionを使用
@@ -605,6 +607,7 @@ async fn test_tag_deletion_rollback_on_error() {
   - `sqlite_repositories()`でSQLiteリポジトリへのアクセスを提供
 
 #### Phase 2: パイロット実装 - タグ削除 (✅ 完了)
+
 - **Repository層**
   - `TagLocalSqliteRepository::delete_with_txn()` - トランザクション付きタグ削除
   - `TaskTagLocalSqliteRepository::remove_all_by_tag_id_with_txn()` - タスクタグ関連削除
@@ -619,6 +622,7 @@ async fn test_tag_deletion_rollback_on_error() {
 #### Phase 3: その他のエンティティ - 削除処理 (✅ 完了)
 
 ##### タスク削除
+
 - **Repository層** ([flequit-infrastructure-sqlite/src/infrastructure/task_projects/](../../../../../../src-tauri/crates/flequit-infrastructure-sqlite/src/infrastructure/task_projects/))
   - `TaskLocalSqliteRepository::delete_with_txn()` - トランザクション付きタスク削除
   - `TaskLocalSqliteRepository::find_ids_by_project_id()` - カスケード削除用ヘルパー
@@ -634,6 +638,7 @@ async fn test_tag_deletion_rollback_on_error() {
   - Automerge削除はトランザクション外で実行
 
 ##### プロジェクト削除
+
 - **Repository層** ([flequit-infrastructure-sqlite/src/infrastructure/task_projects/](../../../../../../src-tauri/crates/flequit-infrastructure-sqlite/src/infrastructure/task_projects/))
   - `ProjectLocalSqliteRepository::delete_with_txn()` - トランザクション付きプロジェクト削除
   - `TaskListLocalSqliteRepository::delete_with_txn()` - トランザクション付きタスクリスト削除
@@ -650,9 +655,9 @@ async fn test_tag_deletion_rollback_on_error() {
   - Automerge削除はトランザクション外で実行
 
 #### Phase 4: Repository層のクリーンアップ (✅ 完了)
+
 - **削除されたメソッド**
   - `TagLocalSqliteRepository::delete_with_relations()` - 非推奨化、機能はFacade層に移行
-  
 - **更新されたメソッド**
   - `TaskLocalSqliteRepository::delete()` - 内部トランザクション処理を削除、非推奨マーク付与
   - Unified層を更新して非推奨の`delete_with_relations()`の代わりにシンプルな`delete()`を使用
@@ -663,11 +668,13 @@ async fn test_tag_deletion_rollback_on_error() {
 ### 11.2 実装進捗状況
 
 #### タグの作成・更新 (✅ 分析完了)
+
 - **判断**: トランザクション制御は不要
 - **理由**: カスケード関係のない単一エンティティ操作
 - **状態**: 既存実装をそのまま維持
 
 #### 実装予定
+
 - **タスクの作成・更新**: タグ関連を含むタスク作成・更新のトランザクション制御
 - **サブタスクの作成・更新**: タグ関連を含むサブタスク操作のトランザクション制御
 - **プロジェクトの作成・更新**: プロジェクト操作のトランザクション制御
@@ -679,6 +686,7 @@ async fn test_tag_deletion_rollback_on_error() {
 新しいエンティティにトランザクション制御を実装する際の手順：
 
 1. **Repository層に`_with_txn`メソッドを追加**
+
    ```rust
    pub async fn delete_with_txn(
        &self,
@@ -689,6 +697,7 @@ async fn test_tag_deletion_rollback_on_error() {
    ```
 
 2. **Facade層でトランザクション制御を実装**
+
    ```rust
    pub async fn delete_entity<R>(
        repositories: &R,
@@ -711,7 +720,7 @@ async fn test_tag_deletion_rollback_on_error() {
 
 ## 12. 変更履歴
 
-| 日付 | バージョン | 変更内容 | 著者 |
-|------|-----------|---------|------|
-| 2025-11-23 | 1.1 | 実装状況セクションを追加 | - |
-| 2025-11-22 | 1.0 | 初版作成 | - |
+| 日付       | バージョン | 変更内容                 | 著者 |
+| ---------- | ---------- | ------------------------ | ---- |
+| 2025-11-23 | 1.1        | 実装状況セクションを追加 | -    |
+| 2025-11-22 | 1.0        | 初版作成                 | -    |

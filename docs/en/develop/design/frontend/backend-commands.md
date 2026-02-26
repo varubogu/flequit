@@ -10,16 +10,19 @@ Backend communication layers that interact with external systems for data saving
 **Location**: `src/lib/infrastructure/backends/`
 
 **Responsibilities**:
+
 - Provide backend communication implementation
 - Absorb environment differences between Tauri/Web/Cloud, etc.
 - Data persistence and retrieval
 
 **Features**:
+
 - Interface definition + implementation
 - Folder separation by environment (`tauri/`, `web/`, `cloud/`, etc.)
 - Select BackendService based on environment in `index.ts`
 
 **Access Restrictions**:
+
 - ❌ **Direct invocation from components prohibited**
 - ❌ **Direct invocation from stores prohibited**
 - ✅ **Access only from Services layer (`services/domain/`)**
@@ -51,15 +54,18 @@ src/lib/infrastructure/backends/
 ## infrastructure/backends/tauri/, infrastructure/backends/web/
 
 **Location**:
+
 - `src/lib/infrastructure/backends/tauri/`
 - `src/lib/infrastructure/backends/web/`
 
 **Implementation Content**:
+
 - **Tauri**: Communicate with Rust backend via Tauri commands
 - **Web**: Communicate with WebAPI like Supabase
 - **Future**: Cloud sync, Git sync implementations can also be added
 
 **Current State**:
+
 - Only Tauri implemented
 - Web implementation planned for later
 
@@ -98,6 +104,7 @@ export interface BackendService {
 Each entity's Backend provides the following CRUD operations:
 
 #### Create (Create)
+
 - **Parameters**: Object
 - **Return Value**: `boolean` (registration success/failure)
 - **Naming Convention**: `createProject`, `createTask`, etc.
@@ -107,6 +114,7 @@ async create(projectId: string, entity: Project): Promise<boolean>
 ```
 
 #### Update (Update)
+
 - **Parameters**: ID + update content (partial object)
 - **Return Value**: `boolean` (update success/failure)
 - **Naming Convention**: `updateProject`, `updateTask`, etc.
@@ -116,6 +124,7 @@ async update(projectId: string, id: string, updates: Partial<Project>): Promise<
 ```
 
 #### Delete (Delete)
+
 - **Parameters**: ID
 - **Return Value**: `boolean` (deletion success/failure)
 - **Naming Convention**: `deleteProject`, `deleteTask`, etc.
@@ -125,6 +134,7 @@ async delete(projectId: string, id: string): Promise<boolean>
 ```
 
 #### Search (Single) (Read - Single)
+
 - **Parameters**: ID
 - **Return Value**: Entity object (null if not found)
 - **Naming Convention**: `getProject`, `getTask`, etc.
@@ -134,6 +144,7 @@ async get(projectId: string, id: string): Promise<Project | null>
 ```
 
 #### Search (Multiple) (Read - Multiple)
+
 - **Parameters**: Search condition object (optional)
 - **Return Value**: Array of entity objects
 - **Naming Convention**: `getAllProjects`, `getAllTasks`, etc.
@@ -143,6 +154,7 @@ async getAll(projectId: string, conditions?: SearchConditions): Promise<Project[
 ```
 
 **Note**:
+
 - `project`, `tasklist`, `task`, `subtask`, `tag`: Provide **both** single and multiple search
 - `settings`, `account`: Provide single search only
 

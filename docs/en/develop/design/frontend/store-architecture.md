@@ -15,11 +15,11 @@
 
 ## Store Categories and Responsibilities
 
-| Category | Responsibilities | Allowed Dependencies |
-| --- | --- | --- |
-| Domain Store | Cache domain data and expose derived values. No side effects. | Domain utilities (`utils`, `types`) |
-| UI Store | Manage view-specific state (selection, filters, dialogs, etc.). | Domain Stores (one-way) |
-| Infrastructure Store (optional) | Hold environment details (backend kind, connectivity). No business logic. | May be read by other layers |
+| Category                        | Responsibilities                                                          | Allowed Dependencies                |
+| ------------------------------- | ------------------------------------------------------------------------- | ----------------------------------- |
+| Domain Store                    | Cache domain data and expose derived values. No side effects.             | Domain utilities (`utils`, `types`) |
+| UI Store                        | Manage view-specific state (selection, filters, dialogs, etc.).           | Domain Stores (one-way)             |
+| Infrastructure Store (optional) | Hold environment details (backend kind, connectivity). No business logic. | May be read by other layers         |
 
 ## Initialization Rules
 

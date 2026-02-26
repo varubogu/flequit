@@ -12,15 +12,15 @@ Entity for managing tags pinned to the sidebar. Managed as **user settings** and
 
 ## Field Definitions
 
-| Logical Name | Physical Name | Rust Type | Description | PK | UK | NN | Default | Foreign Key | PostgreSQL | SQLite | TypeScript |
-|-------------|--------------|-----------|-------------|----|----|----|---------|-----------  |-----------|---------|-----------|
-| ID | id | TagBookmarkId | Bookmark ID | ✓ | - | ✓ | UUID | - | UUID | TEXT | string |
-| User ID | user_id | UserId | User ID (currently fixed) | - | ✓ | ✓ | "local_user" | - | UUID | TEXT | string |
-| Project ID | project_id | ProjectId | Project the tag belongs to | - | ✓ | ✓ | - | projects.id | UUID | TEXT | string |
-| Tag ID | tag_id | TagId | Tag to bookmark | - | ✓ | ✓ | - | tags.id | UUID | TEXT | string |
-| Display Order | order_index | i32 | Display order in sidebar | - | - | ✓ | 0 | - | INTEGER | INTEGER | number |
-| Created At | created_at | DateTime<Utc> | Bookmark creation time (ISO 8601) | - | - | ✓ | - | - | TIMESTAMPTZ | TEXT | Date |
-| Updated At | updated_at | DateTime<Utc> | Bookmark update time (ISO 8601) | - | - | ✓ | - | - | TIMESTAMPTZ | TEXT | Date |
+| Logical Name  | Physical Name | Rust Type     | Description                       | PK  | UK  | NN  | Default      | Foreign Key | PostgreSQL  | SQLite  | TypeScript |
+| ------------- | ------------- | ------------- | --------------------------------- | --- | --- | --- | ------------ | ----------- | ----------- | ------- | ---------- |
+| ID            | id            | TagBookmarkId | Bookmark ID                       | ✓   | -   | ✓   | UUID         | -           | UUID        | TEXT    | string     |
+| User ID       | user_id       | UserId        | User ID (currently fixed)         | -   | ✓   | ✓   | "local_user" | -           | UUID        | TEXT    | string     |
+| Project ID    | project_id    | ProjectId     | Project the tag belongs to        | -   | ✓   | ✓   | -            | projects.id | UUID        | TEXT    | string     |
+| Tag ID        | tag_id        | TagId         | Tag to bookmark                   | -   | ✓   | ✓   | -            | tags.id     | UUID        | TEXT    | string     |
+| Display Order | order_index   | i32           | Display order in sidebar          | -   | -   | ✓   | 0            | -           | INTEGER     | INTEGER | number     |
+| Created At    | created_at    | DateTime<Utc> | Bookmark creation time (ISO 8601) | -   | -   | ✓   | -            | -           | TIMESTAMPTZ | TEXT    | Date       |
+| Updated At    | updated_at    | DateTime<Utc> | Bookmark update time (ISO 8601)   | -   | -   | ✓   | -            | -           | TIMESTAMPTZ | TEXT    | Date       |
 
 ## Constraints
 
@@ -110,7 +110,7 @@ CREATE INDEX idx_user_tag_bookmarks_tag
 interface Tag {
   id: string;
   name: string;
-  isBookmarked: boolean;  // This is personal setting
+  isBookmarked: boolean; // This is personal setting
 }
 ```
 
@@ -191,15 +191,13 @@ class TagBookmarkStore {
   // Filter by project ID
   getByProject(projectId: string): TagBookmark[] {
     return this.bookmarks
-      .filter(b => b.projectId === projectId)
+      .filter((b) => b.projectId === projectId)
       .sort((a, b) => a.orderIndex - b.orderIndex);
   }
 
   // Check if tag is bookmarked
   isBookmarked(projectId: string, tagId: string): boolean {
-    return this.bookmarks.some(
-      b => b.projectId === projectId && b.tagId === tagId
-    );
+    return this.bookmarks.some((b) => b.projectId === projectId && b.tagId === tagId);
   }
 }
 ```
@@ -259,11 +257,7 @@ class TagBookmarkService {
   }
 
   // Reorder
-  async reorderBookmarks(
-    projectId: string,
-    fromIndex: number,
-    toIndex: number
-  ): Promise<void> {
+  async reorderBookmarks(projectId: string, fromIndex: number, toIndex: number): Promise<void> {
     const bookmarks = tagBookmarkStore.getByProject(projectId);
     const reordered = reorderBookmark(bookmarks, fromIndex, toIndex);
 
@@ -412,9 +406,7 @@ describe('TagBookmarkService', () => {
     const service = new TagBookmarkService();
     await service.addBookmark('proj1', 'tag1');
 
-    await expect(
-      service.addBookmark('proj1', 'tag1')
-    ).rejects.toThrow('Already exists');
+    await expect(service.addBookmark('proj1', 'tag1')).rejects.toThrow('Already exists');
   });
 
   it('should reorder bookmarks', async () => {

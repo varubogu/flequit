@@ -131,17 +131,17 @@ Clicking buttons inputs "@今日", "@明日", "@今週", etc. into search text b
 Displays task list filtered by search text box results
 ※All ignore time units (if "今日" was displayed at 12:00 on 1st, display tasks due until 23:59:59 on 1st)
 
-| Filter | Description | Search Reflection |
-|--------|-------------|-------------------|
-| Overdue | Tasks past due date | @期限切れ |
-| Today | Due today | @今日 |
-| Tomorrow | Due today and tomorrow | @明日 |
-| 3 Days | Due today, tomorrow, day after tomorrow | @3日 |
-| This Week | Due within 7 days | @今週 |
-| This Month | Due within 30 days | @今月 |
-| This Quarter | Due within 90 days | @今期 |
-| This Year | Due within 365 days | @今年 |
-| This Fiscal Year | Due within 365 days | @今年度 |
+| Filter           | Description                             | Search Reflection |
+| ---------------- | --------------------------------------- | ----------------- |
+| Overdue          | Tasks past due date                     | @期限切れ         |
+| Today            | Due today                               | @今日             |
+| Tomorrow         | Due today and tomorrow                  | @明日             |
+| 3 Days           | Due today, tomorrow, day after tomorrow | @3日              |
+| This Week        | Due within 7 days                       | @今週             |
+| This Month       | Due within 30 days                      | @今月             |
+| This Quarter     | Due within 90 days                      | @今期             |
+| This Year        | Due within 365 days                     | @今年             |
+| This Fiscal Year | Due within 365 days                     | @今年度           |
 
 ### <Project Name>
 

@@ -7,14 +7,18 @@
 ## 要件
 
 ### 1. サブタスククリック時のナビゲーション
+
 ユーザーがタスク詳細（タスクビュー）でサブタスクをクリックした時：
+
 1. タスク一覧でサブタスクを選択する
 2. タスク詳細ビューにサブタスクを表示する
 3. 親タスクが折りたたまれている場合は展開する
 4. （オプション）サブタスクがビューポート外にある場合はスクロールする
 
 ### 2. 親タスクへ移動ボタンのナビゲーション
+
 ユーザーがタスク詳細（サブタスクビュー）で「親タスクへ移動」ボタンをクリックした時：
+
 1. タスク一覧で親タスクを選択する
 2. タスク詳細ビューに親タスクを表示する
 3. 親タスクが別のタスクのサブタスクである場合は、そのタスクを展開する
@@ -25,11 +29,13 @@
 ### 状態管理
 
 #### 現在の実装
+
 - `showSubTasks`状態は各`task-item.svelte`コンポーネント内でローカルに管理されている
 - コンポーネント外部から展開状態を制御する方法がない
 - 選択状態は`selectionStore`で管理されている
 
 #### 新しい実装
+
 タスク一覧のUI状態（アコーディオンの展開状態を含む）を管理する新しいストアを作成します。
 
 ```typescript
@@ -95,6 +101,7 @@ export const taskListUIState = new TaskListUIState();
 ### コンポーネントの更新
 
 #### task-item.svelte
+
 ローカルの`showSubTasks`状態をストアベースの状態に置き換えます：
 
 ```typescript
@@ -204,13 +211,13 @@ handleGoToParentTask()
 // ❌ 不正解 - thisコンテキストが失われる
 const domainActions: TaskDetailDomainActions = {
   selectTask: selectionStore.selectTask,
-  selectSubTask: selectionStore.selectSubTask,
+  selectSubTask: selectionStore.selectSubTask
 };
 
 // ✅ 正解 - アロー関数でラップ
 const domainActions: TaskDetailDomainActions = {
   selectTask: (taskId: string | null) => selectionStore.selectTask(taskId),
-  selectSubTask: (subTaskId: string | null) => selectionStore.selectSubTask(subTaskId),
+  selectSubTask: (subTaskId: string | null) => selectionStore.selectSubTask(subTaskId)
 };
 ```
 
@@ -271,12 +278,15 @@ TaskDetailActions (サービス)
 ## 移行に関する注意事項
 
 ### 破壊的変更
+
 なし - これは純粋に機能の追加です。
 
 ### 非推奨
+
 なし
 
 ### 後方互換性
+
 完全に後方互換性があります。UI状態ストアは新しい追加であり、既存のAPIを変更しません。
 
 ## パフォーマンスに関する考慮事項

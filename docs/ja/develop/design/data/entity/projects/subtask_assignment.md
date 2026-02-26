@@ -1,18 +1,20 @@
 # SubtaskAssignment (サブタスク担当者関連付け) - subtask_assignments
 
 ## 概要
+
 サブタスクと担当ユーザーの関連付けを管理するエンティティ。プロジェクト横断でのデータ管理のため、project_id を含む複合主キーで管理する。
 
 ## フィールド定義
 
-| 論理名 | 物理名 | Rustでの型 | 説明 | PK | UK | NN | デフォルト値 | 外部キー | PostgreSQL型 | SQLite型 | TypeScript型 |
-|--------|--------|-----------|------|----|----|----|-----------|---------|-----------|---------|-----------|----- |
-| プロジェクトID | project_id | ProjectId | プロジェクトID | ✓ | - | ✓ | - | projects.id | UUID | TEXT | string |
-| サブタスクID | subtask_id | SubTaskId | 担当サブタスクID | ✓ | - | ✓ | - | subtasks.id | UUID | TEXT | string |
-| ユーザーID | user_id | UserId | 担当ユーザーID | ✓ | - | ✓ | - | users.id | UUID | TEXT | string |
-| 関連付け作成日時 | created_at | DateTime<Utc> | 関連付け作成日時（ISO 8601） | - | - | ✓ | - | - | TIMESTAMPTZ | TEXT | string |
+| 論理名           | 物理名     | Rustでの型    | 説明                         | PK  | UK  | NN  | デフォルト値 | 外部キー    | PostgreSQL型 | SQLite型 | TypeScript型 |
+| ---------------- | ---------- | ------------- | ---------------------------- | --- | --- | --- | ------------ | ----------- | ------------ | -------- | ------------ |
+| プロジェクトID   | project_id | ProjectId     | プロジェクトID               | ✓   | -   | ✓   | -            | projects.id | UUID         | TEXT     | string       |
+| サブタスクID     | subtask_id | SubTaskId     | 担当サブタスクID             | ✓   | -   | ✓   | -            | subtasks.id | UUID         | TEXT     | string       |
+| ユーザーID       | user_id    | UserId        | 担当ユーザーID               | ✓   | -   | ✓   | -            | users.id    | UUID         | TEXT     | string       |
+| 関連付け作成日時 | created_at | DateTime<Utc> | 関連付け作成日時（ISO 8601） | -   | -   | ✓   | -            | -           | TIMESTAMPTZ  | TEXT     | string       |
 
 ## 制約
+
 - PRIMARY KEY: (project_id, subtask_id, user_id)
 - FOREIGN KEY: project_id → projects.id
 - FOREIGN KEY: subtask_id → subtasks.id
@@ -20,6 +22,7 @@
 - NOT NULL: project_id, subtask_id, user_id, created_at
 
 ## インデックス
+
 ```sql
 CREATE INDEX IF NOT EXISTS idx_subtask_assignments_project_id ON subtask_assignments(project_id);
 CREATE INDEX IF NOT EXISTS idx_subtask_assignments_subtask_id ON subtask_assignments(subtask_id);
@@ -28,6 +31,7 @@ CREATE INDEX IF NOT EXISTS idx_subtask_assignments_created_at ON subtask_assignm
 ```
 
 ## 関連テーブル
+
 - projects: 所属プロジェクト
 - subtasks: 担当サブタスク
 - users: 担当ユーザー
@@ -53,9 +57,9 @@ CREATE INDEX IF NOT EXISTS idx_subtask_assignments_created_at ON subtask_assignm
 
 ```typescript
 interface SubtaskAssignment {
-  projectId: string;  // 必須
-  subtaskId: string;  // 必須
-  userId: string;     // 必須
+  projectId: string; // 必須
+  subtaskId: string; // 必須
+  userId: string; // 必須
   createdAt: Date;
 }
 ```
@@ -70,4 +74,5 @@ async getUsersBySubtask(projectId: string, subtaskId: string): Promise<User[]>
 ```
 
 ## 備考
+
 サブタスクとユーザーの多対多関係を管理。(project_id, subtask_id, user_id) の複合主キーで重複を防止し、プロジェクト横断でのデータ管理を可能にする。

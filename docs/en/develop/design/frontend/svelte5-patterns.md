@@ -5,10 +5,12 @@
 This document defines the design patterns and best practices for Svelte 5 adopted in the Flequit application. It focuses on design guidelines centered around Svelte 5's new features, particularly runes.
 
 Related documents:
+
 - component-patterns: docs/develop/design/frontend/component-patterns.md
 - anti-patterns: docs/develop/design/frontend/anti-patterns.md
 
 Prohibited items (summary):
+
 - No new -logic.svelte.ts format logic classes
 - No proliferation of proxy-only service layers (deviating from UI→Store→Backend)
 - No type duplication and proliferation of conversion functions for same concepts
@@ -49,17 +51,11 @@ export class TaskStore {
   private tasks = $state<Task[]>([]);
 
   get completedTasks() {
-    return $derived(
-      this.tasks.filter(task => task.status === 'completed')
-    );
+    return $derived(this.tasks.filter((task) => task.status === 'completed'));
   }
 
   get progress() {
-    return $derived(
-      this.tasks.length > 0
-        ? this.completedTasks.length / this.tasks.length
-        : 0
-    );
+    return $derived(this.tasks.length > 0 ? this.completedTasks.length / this.tasks.length : 0);
   }
 }
 ```
@@ -122,9 +118,7 @@ export class ProjectStore {
 
   // Derived state
   get activeProjects() {
-    return $derived(
-      this.projects.filter(project => !project.isArchived)
-    );
+    return $derived(this.projects.filter((project) => !project.isArchived));
   }
 
   // Actions
@@ -143,7 +137,7 @@ export class ProjectStore {
   }
 
   selectProject(projectId: string) {
-    this.currentProject = this.projects.find(p => p.id === projectId) || null;
+    this.currentProject = this.projects.find((p) => p.id === projectId) || null;
   }
 
   addProject(project: Project) {
@@ -151,14 +145,14 @@ export class ProjectStore {
   }
 
   updateProject(updatedProject: Project) {
-    const index = this.projects.findIndex(p => p.id === updatedProject.id);
+    const index = this.projects.findIndex((p) => p.id === updatedProject.id);
     if (index !== -1) {
       this.projects[index] = updatedProject;
     }
   }
 
   deleteProject(projectId: string) {
-    this.projects = this.projects.filter(p => p.id !== projectId);
+    this.projects = this.projects.filter((p) => p.id !== projectId);
     if (this.currentProject?.id === projectId) {
       this.currentProject = null;
     }
@@ -289,12 +283,9 @@ Use Snippet type for passing child content.
 ```
 
 Usage example:
+
 ```svelte
-<Modal
-  title="Edit Task"
-  isOpen={isModalOpen}
-  onClose={() => isModalOpen = false}
->
+<Modal title="Edit Task" isOpen={isModalOpen} onClose={() => (isModalOpen = false)}>
   <TaskForm task={selectedTask} onSave={handleSave} />
 
   {#snippet actions()}
@@ -316,11 +307,11 @@ class TaskStore {
   private tasks = $state<Task[]>([]);
 
   get completedTasks() {
-    return $derived(this.tasks.filter(t => t.status === 'completed'));
+    return $derived(this.tasks.filter((t) => t.status === 'completed'));
   }
 
   get pendingTasks() {
-    return $derived(this.tasks.filter(t => t.status === 'pending'));
+    return $derived(this.tasks.filter((t) => t.status === 'pending'));
   }
 }
 
@@ -404,8 +395,8 @@ class DataStore {
   get processedData() {
     return $derived(
       this.rawData
-        .filter(item => item.isActive)
-        .map(item => ({
+        .filter((item) => item.isActive)
+        .map((item) => ({
           ...item,
           computed: heavyComputation(item)
         }))

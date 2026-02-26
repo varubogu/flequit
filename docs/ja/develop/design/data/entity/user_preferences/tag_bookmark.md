@@ -12,15 +12,15 @@
 
 ## フィールド定義
 
-| 論理名 | 物理名 | Rustでの型 | 説明 | PK | UK | NN | デフォルト値 | 外部キー | PostgreSQL型 | SQLite型 | TypeScript型 |
-|--------|--------|-----------|------|----|----|----|-----------|---------|-----------|---------|-----------
-| ID | id | TagBookmarkId | ブックマークID | ✓ | - | ✓ | UUID生成 | - | UUID | TEXT | string |
-| ユーザーID | user_id | UserId | ユーザーID（現在は固定値） | - | ✓ | ✓ | "local_user" | - | UUID | TEXT | string |
-| プロジェクトID | project_id | ProjectId | タグの所属プロジェクトID | - | ✓ | ✓ | - | projects.id | UUID | TEXT | string |
-| タグID | tag_id | TagId | ブックマークするタグID | - | ✓ | ✓ | - | tags.id | UUID | TEXT | string |
-| 表示順序 | order_index | i32 | サイドバー内での表示順序 | - | - | ✓ | 0 | - | INTEGER | INTEGER | number |
-| 作成日時 | created_at | DateTime<Utc> | ブックマーク追加日時（ISO 8601） | - | - | ✓ | - | - | TIMESTAMPTZ | TEXT | Date |
-| 更新日時 | updated_at | DateTime<Utc> | ブックマーク更新日時（ISO 8601） | - | - | ✓ | - | - | TIMESTAMPTZ | TEXT | Date |
+| 論理名         | 物理名      | Rustでの型    | 説明                             | PK  | UK  | NN  | デフォルト値 | 外部キー    | PostgreSQL型 | SQLite型 | TypeScript型 |
+| -------------- | ----------- | ------------- | -------------------------------- | --- | --- | --- | ------------ | ----------- | ------------ | -------- | ------------ |
+| ID             | id          | TagBookmarkId | ブックマークID                   | ✓   | -   | ✓   | UUID生成     | -           | UUID         | TEXT     | string       |
+| ユーザーID     | user_id     | UserId        | ユーザーID（現在は固定値）       | -   | ✓   | ✓   | "local_user" | -           | UUID         | TEXT     | string       |
+| プロジェクトID | project_id  | ProjectId     | タグの所属プロジェクトID         | -   | ✓   | ✓   | -            | projects.id | UUID         | TEXT     | string       |
+| タグID         | tag_id      | TagId         | ブックマークするタグID           | -   | ✓   | ✓   | -            | tags.id     | UUID         | TEXT     | string       |
+| 表示順序       | order_index | i32           | サイドバー内での表示順序         | -   | -   | ✓   | 0            | -           | INTEGER      | INTEGER  | number       |
+| 作成日時       | created_at  | DateTime<Utc> | ブックマーク追加日時（ISO 8601） | -   | -   | ✓   | -            | -           | TIMESTAMPTZ  | TEXT     | Date         |
+| 更新日時       | updated_at  | DateTime<Utc> | ブックマーク更新日時（ISO 8601） | -   | -   | ✓   | -            | -           | TIMESTAMPTZ  | TEXT     | Date         |
 
 ## 制約
 
@@ -110,7 +110,7 @@ CREATE INDEX idx_user_tag_bookmarks_tag
 interface Tag {
   id: string;
   name: string;
-  isBookmarked: boolean;  // これは個人設定
+  isBookmarked: boolean; // これは個人設定
 }
 ```
 
@@ -191,15 +191,13 @@ class TagBookmarkStore {
   // プロジェクトIDでフィルタリング
   getByProject(projectId: string): TagBookmark[] {
     return this.bookmarks
-      .filter(b => b.projectId === projectId)
+      .filter((b) => b.projectId === projectId)
       .sort((a, b) => a.orderIndex - b.orderIndex);
   }
 
   // タグがブックマーク済みか確認
   isBookmarked(projectId: string, tagId: string): boolean {
-    return this.bookmarks.some(
-      b => b.projectId === projectId && b.tagId === tagId
-    );
+    return this.bookmarks.some((b) => b.projectId === projectId && b.tagId === tagId);
   }
 }
 ```
@@ -259,11 +257,7 @@ class TagBookmarkService {
   }
 
   // 並び替え
-  async reorderBookmarks(
-    projectId: string,
-    fromIndex: number,
-    toIndex: number
-  ): Promise<void> {
+  async reorderBookmarks(projectId: string, fromIndex: number, toIndex: number): Promise<void> {
     const bookmarks = tagBookmarkStore.getByProject(projectId);
     const reordered = reorderBookmark(bookmarks, fromIndex, toIndex);
 
@@ -412,9 +406,7 @@ describe('TagBookmarkService', () => {
     const service = new TagBookmarkService();
     await service.addBookmark('proj1', 'tag1');
 
-    await expect(
-      service.addBookmark('proj1', 'tag1')
-    ).rejects.toThrow('Already exists');
+    await expect(service.addBookmark('proj1', 'tag1')).rejects.toThrow('Already exists');
   });
 
   it('should reorder bookmarks', async () => {

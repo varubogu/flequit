@@ -394,6 +394,7 @@ This ensures deleted documents are never loaded by the application.
 The following features can be implemented in the future:
 
 #### Restore Function
+
 ```rust
 /// Restore file from .deleted/ folder to original location
 pub fn restore(&mut self, filename: &str) -> Result<(), AutomergeError>
@@ -407,6 +408,7 @@ pub fn restore(&mut self, filename: &str) -> Result<(), AutomergeError>
 #### Permanent Deletion Function (Platform-specific)
 
 **Desktop Environments (Windows/macOS/Linux)**:
+
 ```rust
 /// Move file from .deleted/ folder to OS trash
 /// Uses trash crate
@@ -414,12 +416,14 @@ pub fn permanent_delete(&mut self, filename: &str) -> Result<(), AutomergeError>
 ```
 
 **Mobile Environments (iOS/Android)**:
+
 ```rust
 /// Permanently delete from .deleted/ folder
 pub fn permanent_delete_mobile(&mut self, filename: &str) -> Result<(), AutomergeError>
 ```
 
 #### Auto-Cleanup Function
+
 ```rust
 /// Automatically delete files that have been deleted for specified number of days
 pub fn cleanup_old_deleted_files(&mut self, days: u32) -> Result<(), AutomergeError>

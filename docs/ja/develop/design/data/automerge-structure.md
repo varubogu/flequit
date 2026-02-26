@@ -43,7 +43,6 @@ Project Documents (project_id毎)
 └── メンバー (Member[])
 ```
 
-
 ## データアクセスパターン
 
 ### 基本的な読み書き操作
@@ -127,7 +126,7 @@ const updatedProfile: User = await invoke('update_user_profile', {
   userProfile: {
     id: 'public-user-uuid-1',
     username: 'new_username',
-    display_name: '新しい表示名',
+    display_name: '新しい表示名'
     // ... other fields
   }
 });
@@ -145,17 +144,20 @@ const updatedProfile: User = await invoke('update_user_profile', {
 User Documentは他のドキュメントと異なり、以下の特別な制約があります：
 
 #### データ操作制約
+
 - **追加**: 新しいユーザープロフィールの追加は常に可能
 - **更新**: 既存のユーザープロフィールの更新は可能
 - **削除**: ユーザープロフィールの削除は不可（情報蓄積方式）
 - **編集権限**: 自分のAccount.user_idにマッチするプロフィールのみ編集可能
 
 #### データ特性
+
 - **公開情報**: 全てのユーザープロフィールは他のユーザーから参照可能
 - **情報蓄積**: プロジェクト参加者や担当者の情報を継続的に蓄積
 - **プロフィール管理**: 自分と他人の公開プロフィール情報として機能
 
 #### 実装における注意点
+
 ```rust
 // 編集可能なプロフィールの判定例
 fn can_edit_user_profile(current_account: &Account, target_user_id: &UserId) -> bool {

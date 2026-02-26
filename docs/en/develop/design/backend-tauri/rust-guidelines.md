@@ -28,13 +28,16 @@ flequit-storage Crate
 ### Intra-Crate Access Control Rules
 
 #### Main Crate (flequit)
+
 - **commands**: OK to reference flequit-core::facade, NG to directly reference service/repository
 
 #### flequit-core Crate
+
 - **facade**: OK to reference service, NG to reference facade/commands
 - **service**: OK to reference service and flequit-storage::repository, NG to reference facade
 
 #### flequit-storage Crate
+
 - **repository**: OK to reference within repository only, NG to reference external
 - **models**: Type definitions only, NG to include business logic
 
@@ -457,6 +460,7 @@ For database transaction management, see the dedicated [Transaction Management D
    - Never start nested transactions
 
 2. **Repository Layer Pattern**
+
    ```rust
    // Accept transaction from Facade layer
    pub async fn delete_with_txn(
@@ -473,6 +477,7 @@ For database transaction management, see the dedicated [Transaction Management D
    ```
 
 3. **Facade Layer Pattern**
+
    ```rust
    pub async fn delete_entity<R>(
        repositories: &R,
@@ -484,28 +489,29 @@ For database transaction management, see the dedicated [Transaction Management D
    {
        // 1. Begin transaction
        let txn = repositories.begin().await?;
-       
+
        let sqlite_repos_guard = repositories.sqlite_repositories()?.read().await;
-       
+
        // 2. Execute operations within transaction
        sqlite_repos_guard.related_entity
            .delete_related_with_txn(&txn, project_id, id).await?;
        sqlite_repos_guard.entity
            .delete_with_txn(&txn, project_id, id).await?;
-       
+
        drop(sqlite_repos_guard);
-       
+
        // 3. Commit transaction
        repositories.commit(txn).await?;
-       
+
        // 4. Automerge operations (outside transaction)
        repositories.entity().delete(project_id, id).await?;
-       
+
        Ok(true)
    }
    ```
 
 4. **Error Handling with Rollback**
+
    ```rust
    // If operation fails, rollback is automatic (transaction dropped)
    // For explicit error handling:
@@ -523,11 +529,13 @@ For database transaction management, see the dedicated [Transaction Management D
    - See [Implementation Status](transaction-management.md#11-implementation-status) for details
 
 **When to Use Transactions:**
+
 - Multiple related entities must be modified atomically
 - Cascade deletion across multiple tables
 - Data consistency requirements across operations
 
 **When NOT to Use Transactions:**
+
 - Single entity operations without relationships
 - Read-only queries
 - Automerge operations (CRDT-based, no transactions needed)

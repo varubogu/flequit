@@ -25,6 +25,7 @@ Services (ビジネスロジック)
 ### Layer 1: Stores (状態管理)
 
 **責務**:
+
 - アプリケーション状態の保持
 - リアクティブな状態の提供
 - 状態の読み取り専用操作
@@ -37,7 +38,7 @@ Services (ビジネスロジック)
 export class TaskCoreStore {
   projects = $state<ProjectTree[]>([]);
 
-  // 状態の読み取り 
+  // 状態の読み取り
   getTaskById(taskId: string): TaskWithSubTasks | null {
     // プロジェクトツリーから検索
   }
@@ -52,6 +53,7 @@ export class TaskCoreStore {
 ### Layer 2: Services - Operations (ビジネスロジック)
 
 **責務**:
+
 - ビジネスルールの実装
 - 楽観的更新 (Optimistic Update)
 - エラーハンドリング
@@ -61,7 +63,10 @@ export class TaskCoreStore {
 
 ```typescript
 export class TaskOperations {
-  async addTask(listId: string, taskData: Partial<TaskWithSubTasks>): Promise<TaskWithSubTasks | null> {
+  async addTask(
+    listId: string,
+    taskData: Partial<TaskWithSubTasks>
+  ): Promise<TaskWithSubTasks | null> {
     // 1. ローカル状態に楽観的に追加
     const inserted = taskCoreStore.insertTask(listId, newTask);
 
@@ -82,6 +87,7 @@ export class TaskOperations {
 ### Layer 3: Services - Backend (バックエンド通信)
 
 **責務**:
+
 - バックエンドAPIの呼び出し
 - データの永続化
 - バックエンドエラーのハンドリング
@@ -97,7 +103,7 @@ export const TaskBackend = {
     await backend.task.create(projectId, newTask, getCurrentUserId());
     return newTask;
   }
-}
+};
 ```
 
 ## 具体例: タスク管理
@@ -258,9 +264,9 @@ async function operation() {
 
 ```typescript
 export class TaskStore {
-  #entities: TaskEntitiesStore;   // エンティティ管理
+  #entities: TaskEntitiesStore; // エンティティ管理
   #selection: TaskSelectionStore; // 選択状態
-  #draft: TaskDraftStore;         // ドラフト状態
+  #draft: TaskDraftStore; // ドラフト状態
 
   // 公開APIは内部ストアに委譲
   get projects(): ProjectTree[] {
@@ -282,8 +288,12 @@ UI層特有の複雑な操作は、`services/ui/` に配置することができ
 ```typescript
 export class TaskInteractionsService {
   // 新規タスクモードの開始/キャンセル
-  startNewTaskMode(listId: string): void { /* ... */ }
-  cancelNewTaskMode(): void { /* ... */ }
+  startNewTaskMode(listId: string): void {
+    /* ... */
+  }
+  cancelNewTaskMode(): void {
+    /* ... */
+  }
 
   // ドラフトタスクの保存
   async saveNewTask(): Promise<string | null> {
@@ -299,12 +309,14 @@ export class TaskInteractionsService {
 ### ✅ 推奨
 
 1. **UIから直接 Operations を呼び出す**
+
    ```typescript
    import { taskOperations } from '$lib/services/domain/task';
    await taskOperations.addTask(listId, taskData);
    ```
 
 2. **Store は状態管理のみ**
+
    ```typescript
    // ✅ 良い例
    class TaskCoreStore {
@@ -321,12 +333,13 @@ export class TaskInteractionsService {
      async createTask(listId: string, task: Task) {
        // バックエンドAPIを呼ぶだけ
      }
-   }
+   };
    ```
 
 ### ❌ 非推奨
 
 1. **Store からバックエンドを呼ぶ**
+
    ```typescript
    // ❌ 悪い例
    class TaskStore {
@@ -338,6 +351,7 @@ export class TaskInteractionsService {
    ```
 
 2. **Backend から Store を操作する**
+
    ```typescript
    // ❌ 悪い例
    const TaskBackend = {

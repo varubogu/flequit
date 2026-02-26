@@ -30,6 +30,7 @@ The program retrieves data from SQLite rather than directly from Automerge, refl
 This ensures optimized performance through SQLite even when Automerge documents become large.
 
 For project data:
+
 - In the app and database: All data must have a project ID as a key since multiple projects are integrated.
 - In Automerge documents: Since there is one document per project, project IDs do not need to be stored in each table.
 

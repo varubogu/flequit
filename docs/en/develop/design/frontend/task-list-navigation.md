@@ -7,14 +7,18 @@ Design document for implementing navigation between tasks and subtasks from the 
 ## Requirements
 
 ### 1. Subtask Click Navigation
+
 When a user clicks a subtask in the task detail (task view):
+
 1. Select the subtask in the task list
 2. Display the subtask in the task detail view
 3. Expand the parent task in the task list if it's collapsed
 4. (Optional) Scroll to the subtask if it's outside the viewport
 
 ### 2. Go to Parent Task Navigation
+
 When a user clicks "Go to Parent Task" button in the task detail (subtask view):
+
 1. Select the parent task in the task list
 2. Display the parent task in the task detail view
 3. If the parent task is a subtask of another task, expand that task
@@ -25,11 +29,13 @@ When a user clicks "Go to Parent Task" button in the task detail (subtask view):
 ### State Management
 
 #### Current Implementation
+
 - `showSubTasks` state is managed locally in each `task-item.svelte` component
 - No way to control the expansion state from outside the component
 - Selection state is managed in `selectionStore`
 
 #### New Implementation
+
 Create a new store to manage task list UI state, including accordion expansion states.
 
 ```typescript
@@ -95,6 +101,7 @@ export const taskListUIState = new TaskListUIState();
 ### Component Updates
 
 #### task-item.svelte
+
 Replace local `showSubTasks` state with store-based state:
 
 ```typescript
@@ -204,13 +211,13 @@ When passing store methods to domain actions, **do not pass methods directly** a
 // ❌ INCORRECT - this context will be lost
 const domainActions: TaskDetailDomainActions = {
   selectTask: selectionStore.selectTask,
-  selectSubTask: selectionStore.selectSubTask,
+  selectSubTask: selectionStore.selectSubTask
 };
 
 // ✅ CORRECT - wrap in arrow functions
 const domainActions: TaskDetailDomainActions = {
   selectTask: (taskId: string | null) => selectionStore.selectTask(taskId),
-  selectSubTask: (subTaskId: string | null) => selectionStore.selectSubTask(subTaskId),
+  selectSubTask: (subTaskId: string | null) => selectionStore.selectSubTask(subTaskId)
 };
 ```
 
@@ -271,12 +278,15 @@ TaskDetailActions (service)
 ## Migration Notes
 
 ### Breaking Changes
+
 None - this is a pure addition of functionality.
 
 ### Deprecations
+
 None
 
 ### Backward Compatibility
+
 Fully backward compatible. The UI state store is a new addition and doesn't change existing APIs.
 
 ## Performance Considerations

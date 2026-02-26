@@ -13,25 +13,27 @@ Flequitタスク管理アプリケーションにおける包括的なデータ�
 
 #### 内部ID vs 公開ID
 
-| 種別 | 用途 | セキュリティレベル | 使用場面 |
-|------|------|-------------------|----------|
-| **内部ID (id)** | システム内部識別 | 機密情報 | データベース主キー、内部処理 |
-| **公開ID (user_id)** | 外部参照・共有 | 公開情報 | プロジェクト参加、タスク割り当て |
+| 種別                 | 用途             | セキュリティレベル | 使用場面                         |
+| -------------------- | ---------------- | ------------------ | -------------------------------- |
+| **内部ID (id)**      | システム内部識別 | 機密情報           | データベース主キー、内部処理     |
+| **公開ID (user_id)** | 外部参照・共有   | 公開情報           | プロジェクト参加、タスク割り当て |
 
 #### Account構造
+
 ```json
 {
-  "id": "account-internal-uuid",     // 内部ID - 絶対秘匿
-  "user_id": "user-public-uuid",     // 公開ID - 外部参照用
+  "id": "account-internal-uuid", // 内部ID - 絶対秘匿
+  "user_id": "user-public-uuid", // 公開ID - 外部参照用
   "email": "user@example.com",
   "provider": "local"
 }
 ```
 
-#### User構造  
+#### User構造
+
 ```json
 {
-  "id": "user-public-uuid",          // 公開ID - 外部参照用（全情報が公開想定）
+  "id": "user-public-uuid", // 公開ID - 外部参照用（全情報が公開想定）
   "username": "username",
   "display_name": "表示名"
 }
@@ -47,14 +49,16 @@ Flequitタスク管理アプリケーションにおける包括的なデータ�
 ### 1.3 実装ガイドライン
 
 #### 開発時の注意点
+
 - APIレスポンスに内部IDを含めない（Account.idのみ）
 - ログ出力時は公開IDのみ記録（Account.user_id、User.id）
 - エラーメッセージで内部IDを表示しない
 - フロントエンド処理では公開IDのみ扱う（Account.user_id、User.id）
 
 #### データベース設計
+
 - Account参照：`Account.user_id`（公開ID）を使用
-- User参照：`User.id`（公開ID）を使用  
+- User参照：`User.id`（公開ID）を使用
 - JOINクエリ実行時は内部処理でID変換（Account.idのみ）
 - インデックス設定：Account両方のID、UserはID単一
 

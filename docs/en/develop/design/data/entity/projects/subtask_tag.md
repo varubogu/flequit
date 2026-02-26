@@ -1,18 +1,20 @@
 # SubtaskTag (サブタスクタグ関連付け) - subtask_tags
 
 ## Overview
+
 Entity for managing associations between subtasks and tags. Managed with composite primary key including project_id for cross-project data management.
 
 ## Field Definitions
 
-| Logical Name | Physical Name | Rust Type | Description | PK | UK | NN | Default Value | Foreign Key | PostgreSQL Type | SQLite Type | TypeScript Type |
-|--------------|---------------|-----------|-------------|----|----|----|---------------|-------------|-----------------|-------------|-----------------|
-| Project ID | project_id | ProjectId | Project ID | ✓ | - | ✓ | - | projects.id | UUID | TEXT | string |
-| SubTask ID | subtask_id | SubTaskId | Tagged subtask ID | ✓ | - | ✓ | - | subtasks.id | UUID | TEXT | string |
-| Tag ID | tag_id | TagId | Applied tag ID | ✓ | - | ✓ | - | tags.id | UUID | TEXT | string |
-| Association Created At | created_at | DateTime<Utc> | Association creation timestamp (ISO 8601) | - | - | ✓ | - | - | TIMESTAMPTZ | TEXT | string |
+| Logical Name           | Physical Name | Rust Type     | Description                               | PK  | UK  | NN  | Default Value | Foreign Key | PostgreSQL Type | SQLite Type | TypeScript Type |
+| ---------------------- | ------------- | ------------- | ----------------------------------------- | --- | --- | --- | ------------- | ----------- | --------------- | ----------- | --------------- |
+| Project ID             | project_id    | ProjectId     | Project ID                                | ✓   | -   | ✓   | -             | projects.id | UUID            | TEXT        | string          |
+| SubTask ID             | subtask_id    | SubTaskId     | Tagged subtask ID                         | ✓   | -   | ✓   | -             | subtasks.id | UUID            | TEXT        | string          |
+| Tag ID                 | tag_id        | TagId         | Applied tag ID                            | ✓   | -   | ✓   | -             | tags.id     | UUID            | TEXT        | string          |
+| Association Created At | created_at    | DateTime<Utc> | Association creation timestamp (ISO 8601) | -   | -   | ✓   | -             | -           | TIMESTAMPTZ     | TEXT        | string          |
 
 ## Constraints
+
 - PRIMARY KEY: (project_id, subtask_id, tag_id)
 - FOREIGN KEY: project_id → projects.id
 - FOREIGN KEY: subtask_id → subtasks.id
@@ -20,6 +22,7 @@ Entity for managing associations between subtasks and tags. Managed with composi
 - NOT NULL: project_id, subtask_id, tag_id, created_at
 
 ## Indexes
+
 ```sql
 CREATE INDEX IF NOT EXISTS idx_subtask_tags_project_id ON subtask_tags(project_id);
 CREATE INDEX IF NOT EXISTS idx_subtask_tags_subtask_id ON subtask_tags(subtask_id);
@@ -28,6 +31,7 @@ CREATE INDEX IF NOT EXISTS idx_subtask_tags_created_at ON subtask_tags(created_a
 ```
 
 ## Related Tables
+
 - projects: Associated project
 - subtasks: Tagged subtask
 - tags: Applied tag
@@ -53,9 +57,9 @@ CREATE INDEX IF NOT EXISTS idx_subtask_tags_created_at ON subtask_tags(created_a
 
 ```typescript
 interface SubtaskTag {
-  projectId: string;  // Required
-  subtaskId: string;  // Required
-  tagId: string;      // Required
+  projectId: string; // Required
+  subtaskId: string; // Required
+  tagId: string; // Required
   createdAt: Date;
 }
 ```
@@ -70,4 +74,5 @@ async getTagsBySubtask(projectId: string, subtaskId: string): Promise<Tag[]>
 ```
 
 ## Notes
+
 Manages many-to-many relationship between subtasks and tags. Prevents duplicates with composite primary key (project_id, subtask_id, tag_id) and enables cross-project data management.

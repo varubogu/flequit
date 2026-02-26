@@ -8,11 +8,11 @@
 
 ### データカテゴリの分類
 
-| カテゴリ | 目的 | 同期対象 | Automerge | 例 |
-|---------|------|---------|-----------|-----|
-| `accounts` | 認証情報 | - | なし | ユーザープロフィール |
-| `user_preferences` | 個人作業環境 | 同じユーザーの他端末 | あり | タグブックマーク、UI設定 |
-| `projects` | プロジェクトデータ | チームメンバー全員 | あり | タスク、タグ、プロジェクト |
+| カテゴリ           | 目的               | 同期対象             | Automerge | 例                         |
+| ------------------ | ------------------ | -------------------- | --------- | -------------------------- |
+| `accounts`         | 認証情報           | -                    | なし      | ユーザープロフィール       |
+| `user_preferences` | 個人作業環境       | 同じユーザーの他端末 | あり      | タグブックマーク、UI設定   |
+| `projects`         | プロジェクトデータ | チームメンバー全員   | あり      | タスク、タグ、プロジェクト |
 
 ### user_preferences の特徴
 
@@ -62,9 +62,11 @@
 詳細は [tag_bookmark.md](./entity/user_preferences/tag_bookmark.md) を参照。
 
 #### 概要
+
 サイドバーに固定表示するタグの管理。
 
 #### 主要フィールド
+
 - `project_id`: タグの所属プロジェクト
 - `tag_id`: ブックマークするタグ
 - `order_index`: 表示順序
@@ -98,40 +100,48 @@ SQLite更新 + Automergeドキュメント更新
 ## user_idの扱い
 
 ### 現在の実装
+
 - `user_id`は固定値: `"local_user"`
 - 単一ユーザー環境を想定
 
 ### 将来の拡張
+
 複数デバイスで同じユーザーを識別するため、以下を検討：
+
 - デバイスIDベースの識別
 - クラウド認証との連携
 
 ## 設計原則
 
 ### 1. プロジェクト依存の設定
+
 多くの設定はプロジェクトIDをキーとして管理：
+
 ```typescript
 // 良い例
 interface TagBookmark {
-  projectId: string;  // 必須
+  projectId: string; // 必須
   tagId: string;
   orderIndex: number;
 }
 
 // 悪い例（プロジェクト情報がない）
 interface TagBookmark {
-  tagId: string;  // どのプロジェクトのタグか不明
+  tagId: string; // どのプロジェクトのタグか不明
   orderIndex: number;
 }
 ```
 
 ### 2. Automergeパスの一貫性
+
 階層構造を保つ：
+
 ```
 /user_preferences/{user_id}/{category}/{project_id}/{entity_id}
 ```
 
 ### 3. SQLiteとAutomergeの整合性
+
 - 両方に同じデータを保存
 - SQLiteは読み取り最適化
 - Automergeは同期最適化
@@ -139,14 +149,17 @@ interface TagBookmark {
 ## 拡張計画
 
 ### 優先度: 高
+
 - **タグブックマーク**: 実装済み
 - **サイドバー状態**: 開閉状態、幅
 
 ### 優先度: 中
+
 - **ビュー設定**: カラム幅、ソート順、フィルター
 - **UI設定**: テーマ、言語
 
 ### 優先度: 低
+
 - **キーボードショートカット**: カスタマイズ
 - **通知設定**: 通知ON/OFF
 
@@ -159,6 +172,7 @@ interface TagBookmark {
    - `docs/en/develop/design/data/entity/user_preferences/{entity_name}.md`
 
 2. **Rustモデル作成**
+
    ```
    src-tauri/crates/
      ├── flequit-model/src/models/user_preferences/{entity_name}.rs
@@ -167,6 +181,7 @@ interface TagBookmark {
    ```
 
 3. **TypeScript型定義**
+
    ```
    src/lib/types/user-preferences/{entity-name}.ts
    ```

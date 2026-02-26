@@ -3,10 +3,12 @@
 ## File Structure
 
 ### Basic Principles
+
 - **Single Responsibility Principle**: One function per file
 - **File Size**: Mandatory split when exceeding 200 lines, consider splitting at 100 lines
 
 ### Naming Conventions
+
 - **Components**: Kebab-case (`task-item.svelte`)
 - **Others**: Follow TypeScript standard conventions
 
@@ -17,6 +19,7 @@
 - Messages always use internationalization with Inlang Paraglide
 
 ### Usage
+
 ```typescript
 import * as m from '$paraglide/messages';
 import { reactiveMessage } from '$lib/stores/locale.svelte';

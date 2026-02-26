@@ -8,11 +8,11 @@ A category for managing user's personal workspace settings. Independent from pro
 
 ### Data Category Classification
 
-| Category | Purpose | Sync Target | Automerge | Examples |
-|---------|---------|------------|-----------|----------|
-| `accounts` | Authentication | - | No | User profile |
-| `user_preferences` | Personal workspace | Same user's other devices | Yes | Tag bookmarks, UI settings |
-| `projects` | Project data | All team members | Yes | Tasks, tags, projects |
+| Category           | Purpose            | Sync Target               | Automerge | Examples                   |
+| ------------------ | ------------------ | ------------------------- | --------- | -------------------------- |
+| `accounts`         | Authentication     | -                         | No        | User profile               |
+| `user_preferences` | Personal workspace | Same user's other devices | Yes       | Tag bookmarks, UI settings |
+| `projects`         | Project data       | All team members          | Yes       | Tasks, tags, projects      |
 
 ### Characteristics of user_preferences
 
@@ -62,9 +62,11 @@ A category for managing user's personal workspace settings. Independent from pro
 See [tag_bookmark.md](./entity/user_preferences/tag_bookmark.md) for details.
 
 #### Overview
+
 Management of tags pinned to the sidebar.
 
 #### Key Fields
+
 - `project_id`: Project the tag belongs to
 - `tag_id`: Tag to bookmark
 - `order_index`: Display order
@@ -98,40 +100,48 @@ Sync server (future)
 ## Handling of user_id
 
 ### Current Implementation
+
 - `user_id` is a fixed value: `"local_user"`
 - Assumes single-user environment
 
 ### Future Extensions
+
 To identify the same user across multiple devices:
+
 - Device ID-based identification
 - Integration with cloud authentication
 
 ## Design Principles
 
 ### 1. Project-Dependent Settings
+
 Most settings are managed by project ID as a key:
+
 ```typescript
 // Good example
 interface TagBookmark {
-  projectId: string;  // Required
+  projectId: string; // Required
   tagId: string;
   orderIndex: number;
 }
 
 // Bad example (no project information)
 interface TagBookmark {
-  tagId: string;  // Which project's tag?
+  tagId: string; // Which project's tag?
   orderIndex: number;
 }
 ```
 
 ### 2. Consistency of Automerge Paths
+
 Maintain hierarchical structure:
+
 ```
 /user_preferences/{user_id}/{category}/{project_id}/{entity_id}
 ```
 
 ### 3. SQLite and Automerge Consistency
+
 - Store same data in both
 - SQLite optimized for reads
 - Automerge optimized for sync
@@ -139,14 +149,17 @@ Maintain hierarchical structure:
 ## Extension Plan
 
 ### Priority: High
+
 - **Tag Bookmarks**: Implemented
 - **Sidebar State**: Collapsed state, width
 
 ### Priority: Medium
+
 - **View Settings**: Column widths, sort order, filters
 - **UI Settings**: Theme, language
 
 ### Priority: Low
+
 - **Keyboard Shortcuts**: Customization
 - **Notification Settings**: ON/OFF
 
@@ -159,6 +172,7 @@ Maintain hierarchical structure:
    - `docs/en/develop/design/data/entity/user_preferences/{entity_name}.md`
 
 2. **Create Rust Models**
+
    ```
    src-tauri/crates/
      ├── flequit-model/src/models/user_preferences/{entity_name}.rs
@@ -167,6 +181,7 @@ Maintain hierarchical structure:
    ```
 
 3. **TypeScript Type Definitions**
+
    ```
    src/lib/types/user-preferences/{entity-name}.ts
    ```

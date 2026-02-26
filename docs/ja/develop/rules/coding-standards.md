@@ -9,12 +9,14 @@ Flequitプロジェクトで統一されたコードスタイルと品質を保�
 ### ファイル構成
 
 #### 単一責任原則
+
 - **1ファイル1機能**: 各ファイルは単一の責任を持つ
 - **適切な分割**: 機能が複雑になった場合は適切に分割
 - **明確な命名**: ファイル名から機能が推測できること
 - **StoreとUIサービスの分離**: ストア（`src/lib/stores/…`）では状態キャッシュと同期のみを扱い、副作用・インフラ呼び出し・複数ストアの調停は UI サービス（`src/lib/services/ui/…`）側で実装すること。
 
 #### ファイルサイズ規約
+
 - **200行超過**: 必須分割対象（テストコード除く）
 - **100行超過**: 分割を検討
 - **例外**: 設定ファイルやデータ定義は除く
@@ -23,6 +25,7 @@ Flequitプロジェクトで統一されたコードスタイルと品質を保�
 ### 命名規則
 
 #### ディレクトリ・ファイル名
+
 ```
 components/
 ├── ui/                    # shadcn-svelte基本コンポーネント
@@ -36,6 +39,7 @@ types.ts                  # 型定義ファイル
 ```
 
 #### 変数・関数名
+
 ```typescript
 // TypeScript/JavaScript
 const userName = 'john';              // camelCase
@@ -62,9 +66,9 @@ TauriはJavaScriptの`camelCase`パラメータをRustの`snake_case`に自動�
 
 ```typescript
 // JavaScript/TypeScript側 - camelCaseを使用
-await invoke('update_task', { 
+await invoke('update_task', {
   projectId: 'project-123',        // Rust側: project_id
-  taskId: 'task-456',             // Rust側: task_id  
+  taskId: 'task-456',             // Rust側: task_id
   partialSettings: {...}          // Rust側: partial_settings
 });
 
@@ -81,7 +85,7 @@ await invoke('create_task_assignment', {
 #[tauri::command]
 pub async fn update_task(
     project_id: String,           // JavaScript側: projectId
-    task_id: String,              // JavaScript側: taskId  
+    task_id: String,              // JavaScript側: taskId
     partial_settings: PartialSettings // JavaScript側: partialSettings
 ) -> Result<bool, String> {
     // 実装
@@ -125,12 +129,9 @@ async saveSettings(settings: Settings): Promise<boolean> {
 
 ```typescript
 // 統一されたエラーハンドリングパターン
-async function tauriServiceMethod<T>(
-  command: string, 
-  params?: object
-): Promise<T | null> {
+async function tauriServiceMethod<T>(command: string, params?: object): Promise<T | null> {
   try {
-    const result = await invoke(command, params) as T;
+    const result = (await invoke(command, params)) as T;
     return result;
   } catch (error) {
     console.error(`Failed to execute ${command}:`, error);
@@ -139,10 +140,7 @@ async function tauriServiceMethod<T>(
 }
 
 // boolean返却の場合
-async function tauriBooleanMethod(
-  command: string, 
-  params?: object
-): Promise<boolean> {
+async function tauriBooleanMethod(command: string, params?: object): Promise<boolean> {
   try {
     await invoke(command, params);
     return true;
@@ -156,6 +154,7 @@ async function tauriBooleanMethod(
 #### 実装チェックリスト
 
 **JavaScript/TypeScript実装時**:
+
 - [ ] パラメータ名は`camelCase`で記述
 - [ ] Rust側の`snake_case`関数パラメータに対応させる
 - [ ] void返却コマンドは成功時`true`、失敗時`false`を返す
@@ -163,7 +162,8 @@ async function tauriBooleanMethod(
 - [ ] コンソールログでエラー内容を出力
 
 **Rust実装時**:
-- [ ] 関数パラメータは`snake_case`で記述  
+
+- [ ] 関数パラメータは`snake_case`で記述
 - [ ] JavaScript側の`camelCase`パラメータに対応
 - [ ] `Result<T, String>`でエラーハンドリング
 - [ ] 適切なエラーメッセージを提供
@@ -180,6 +180,7 @@ async function tauriBooleanMethod(
 ### 型定義
 
 #### 厳密な型指定
+
 ```typescript
 // 良い例
 interface Task {
@@ -199,25 +200,27 @@ interface Task {
 ```
 
 #### Optional vs Required
+
 ```typescript
 // 明確な区別
 interface CreateTaskRequest {
-  title: string;           // 必須
-  description?: string;    // オプション
-  dueDate?: Date;         // オプション
+  title: string; // 必須
+  description?: string; // オプション
+  dueDate?: Date; // オプション
 }
 
 interface Task {
-  id: string;             // 作成後は必須
-  title: string;          // 必須
-  description: string;    // 作成後は空文字でも必須
-  dueDate?: Date;        // 常にオプション
+  id: string; // 作成後は必須
+  title: string; // 必須
+  description: string; // 作成後は空文字でも必須
+  dueDate?: Date; // 常にオプション
 }
 ```
 
 ### 関数・メソッド
 
 #### 純粋関数の推奨
+
 ```typescript
 // 良い例 - 純粋関数
 function calculateProgress(completedTasks: number, totalTasks: number): number {
@@ -240,6 +243,7 @@ function calculateProgressAndUpdate(completedTasks: number, totalTasks: number):
 ```
 
 #### エラーハンドリング
+
 ```typescript
 // 良い例 - 明示的なエラーハンドリング
 async function fetchTasks(): Promise<Task[] | null> {
@@ -253,9 +257,7 @@ async function fetchTasks(): Promise<Task[] | null> {
 }
 
 // Result型を使用したエラーハンドリング
-type Result<T, E = Error> = 
-  | { success: true; data: T }
-  | { success: false; error: E };
+type Result<T, E = Error> = { success: true; data: T } | { success: false; error: E };
 
 async function fetchTasksWithResult(): Promise<Result<Task[]>> {
   try {
@@ -270,6 +272,7 @@ async function fetchTasksWithResult(): Promise<Result<Task[]>> {
 ### Svelte コンポーネント
 
 #### Props定義
+
 ```typescript
 // 良い例 - 明確なPropsインターフェース
 <script lang="ts">
@@ -279,17 +282,18 @@ async function fetchTasksWithResult(): Promise<Result<Task[]>> {
     onUpdate?: (task: Task) => void;
     onDelete?: (taskId: string) => void;
   }
-  
-  let { 
-    task, 
-    readonly = false, 
-    onUpdate = () => {}, 
-    onDelete = () => {} 
+
+  let {
+    task,
+    readonly = false,
+    onUpdate = () => {},
+    onDelete = () => {}
   }: Props = $props();
 </script>
 ```
 
 #### 状態管理
+
 ```typescript
 // 良い例 - 適切な$state使用
 let isEditing = $state<boolean>(false);
@@ -299,9 +303,7 @@ let formData = $state<CreateTaskRequest>({
 });
 
 // 良い例 - 派生状態は$derived使用
-const isFormValid = $derived(
-  formData.title.trim().length > 0
-);
+const isFormValid = $derived(formData.title.trim().length > 0);
 
 // 悪い例 - 手動で状態を同期
 let isFormValid = $state<boolean>(false);
@@ -313,6 +315,7 @@ $effect(() => {
 ### Import/Export
 
 #### Import順序
+
 ```typescript
 // 1. Node modules
 import { invoke } from '@tauri-apps/api/tauri';
@@ -328,10 +331,12 @@ import './component.css';
 ```
 
 #### Svelteコンポーネントのインポート
+
 - `src/lib/components` などエイリアスで参照できるディレクトリにある `.svelte` ファイルを import する際は、`$lib/components/textbox` のように必ずエイリアスを使用してください。
 - エイリアスが効かない（例: `src/routes` 配下のローカル補助コンポーネント）など、エイリアス未定義のフォルダを参照する場合のみ相対パスによる `.svelte` import を許可します。やむを得ず ESLint ルールを無効化する場合は理由をコメントで明記してください。
 
 #### Export規約
+
 ```typescript
 // Named exportを優先
 export { TaskManager } from './task-manager';
@@ -348,6 +353,7 @@ export default class TaskService {
 ### 構造体・Enum定義
 
 #### 構造体
+
 ```rust
 // 良い例 - 明確な構造体定義
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -379,7 +385,7 @@ impl TaskBuilder {
         self.title = Some(title.into());
         self
     }
-    
+
     pub fn build(self) -> Result<Task, String> {
         let title = self.title.ok_or("Title is required")?;
         Ok(Task {
@@ -395,6 +401,7 @@ impl TaskBuilder {
 ```
 
 #### Enum定義
+
 ```rust
 // 良い例 - 明確なEnum定義
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -410,7 +417,7 @@ impl TaskStatus {
     pub fn is_active(&self) -> bool {
         matches!(self, TaskStatus::Todo | TaskStatus::InProgress)
     }
-    
+
     pub fn can_transition_to(&self, target: TaskStatus) -> bool {
         match (self, target) {
             (TaskStatus::Todo, TaskStatus::InProgress) => true,
@@ -425,19 +432,20 @@ impl TaskStatus {
 ### エラーハンドリング
 
 #### カスタムエラー型
+
 ```rust
 // 良い例 - 構造化されたエラー定義
 #[derive(Debug, thiserror::Error)]
 pub enum TaskError {
     #[error("Task not found: {id}")]
     NotFound { id: TaskId },
-    
+
     #[error("Invalid task status transition from {from:?} to {to:?}")]
     InvalidStatusTransition { from: TaskStatus, to: TaskStatus },
-    
+
     #[error("Repository error: {0}")]
     Repository(#[from] RepositoryError),
-    
+
     #[error("Validation error: {message}")]
     Validation { message: String },
 }
@@ -447,22 +455,22 @@ pub type TaskResult<T> = Result<T, TaskError>;
 
 // 使用例
 pub async fn update_task_status(
-    id: &TaskId, 
+    id: &TaskId,
     new_status: TaskStatus
 ) -> TaskResult<Task> {
     let mut task = repository.find_by_id(id).await?
         .ok_or_else(|| TaskError::NotFound { id: *id })?;
-    
+
     if !task.status.can_transition_to(new_status) {
         return Err(TaskError::InvalidStatusTransition {
             from: task.status,
             to: new_status,
         });
     }
-    
+
     task.status = new_status;
     task.updated_at = Utc::now();
-    
+
     repository.save(&task).await?;
     Ok(task)
 }
@@ -471,6 +479,7 @@ pub async fn update_task_status(
 ### Option/Result処理規約
 
 #### Option値の取り出し
+
 ```rust
 // 1つだけならif let Someを使用
 if let Some(user) = user_repository.find_by_id(&user_id).await? {
@@ -492,6 +501,7 @@ process_task_assignment(&user, &project, &task).await?;
 ```
 
 #### エラーチェーン
+
 ```rust
 // 良い例 - エラーコンテキストの追加
 use anyhow::{Context, Result};
@@ -503,14 +513,14 @@ pub async fn create_project_with_tasks(
         .create_project(project_data.project)
         .await
         .context("Failed to create project")?;
-    
+
     for task_data in project_data.tasks {
         task_service
             .create_task(&project.id, task_data)
             .await
             .with_context(|| format!("Failed to create task: {}", task_data.title))?;
     }
-    
+
     Ok(project)
 }
 ```
@@ -520,33 +530,34 @@ pub async fn create_project_with_tasks(
 ### テスト記述
 
 #### 単体テストの構造
+
 ```rust
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_task_status_transition_valid() {
         // Arrange
         let status = TaskStatus::Todo;
         let target = TaskStatus::InProgress;
-        
+
         // Act
         let result = status.can_transition_to(target);
-        
+
         // Assert
         assert!(result);
     }
-    
+
     #[test]
     fn test_task_status_transition_invalid() {
         // Arrange
         let status = TaskStatus::Completed;
         let target = TaskStatus::Todo;
-        
+
         // Act
         let result = status.can_transition_to(target);
-        
+
         // Assert
         assert!(!result);
     }
@@ -561,22 +572,22 @@ describe('TaskService', () => {
       // Arrange
       const completedTasks = 0;
       const totalTasks = 0;
-      
+
       // Act
       const result = calculateProgress(completedTasks, totalTasks);
-      
+
       // Assert
       expect(result).toBe(0);
     });
-    
+
     it('should calculate correct percentage', () => {
       // Arrange
       const completedTasks = 3;
       const totalTasks = 10;
-      
+
       // Act
       const result = calculateProgress(completedTasks, totalTasks);
-      
+
       // Assert
       expect(result).toBe(30);
     });
@@ -587,20 +598,21 @@ describe('TaskService', () => {
 ### ドキュメンテーション
 
 #### コードコメント
-```rust
+
+````rust
 /// タスクの進捗状況を計算します
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `completed_tasks` - 完了したタスク数
 /// * `total_tasks` - 全タスク数
-/// 
+///
 /// # Returns
-/// 
+///
 /// 進捗のパーセンテージ（0-100）
-/// 
+///
 /// # Examples
-/// 
+///
 /// ```
 /// let progress = calculate_progress(3, 10);
 /// assert_eq!(progress, 30);
@@ -611,42 +623,40 @@ pub fn calculate_progress(completed_tasks: usize, total_tasks: usize) -> u8 {
     }
     ((completed_tasks * 100) / total_tasks) as u8
 }
-```
+````
 
-```typescript
+````typescript
 /**
  * ユーザーのタスク一覧を取得します
- * 
+ *
  * @param userId - 対象ユーザーのID
  * @param options - 取得オプション
  * @returns Promise<Task[]> - タスク一覧
- * 
+ *
  * @example
  * ```typescript
  * const tasks = await getUserTasks('user-123', { includeCompleted: false });
  * ```
  */
-export async function getUserTasks(
-  userId: string, 
-  options: GetTasksOptions = {}
-): Promise<Task[]> {
+export async function getUserTasks(userId: string, options: GetTasksOptions = {}): Promise<Task[]> {
   // 実装
 }
-```
+````
 
 ## パフォーマンス規約
 
 ### フロントエンド
 
 #### 適切なリアクティビティ使用
+
 ```typescript
 // 良い例 - 必要最小限の状態管理
 class TaskStore {
   private tasks = $state<Task[]>([]);
-  
+
   // 派生状態を使用
   get completedTasks() {
-    return $derived(this.tasks.filter(t => t.status === 'completed'));
+    return $derived(this.tasks.filter((t) => t.status === 'completed'));
   }
 }
 
@@ -654,7 +664,7 @@ class TaskStore {
 class TaskStore {
   private tasks = $state<Task[]>([]);
   private completedTasks = $state<Task[]>([]); // 冗長
-  
+
   addTask(task: Task) {
     this.tasks.push(task);
     // 手動同期が必要 - バグの原因
@@ -666,6 +676,7 @@ class TaskStore {
 ### バックエンド
 
 #### 効率的なデータベースアクセス
+
 ```rust
 // 良い例 - バッチ処理
 pub async fn get_tasks_with_assignees(
@@ -678,7 +689,7 @@ pub async fn get_tasks_with_assignees(
         LEFT JOIN users u ON t.assignee_id = u.id
         WHERE t.project_id = ?
     "#;
-    
+
     database.query(query, &[project_id]).await
 }
 
@@ -687,7 +698,7 @@ pub async fn get_tasks_with_assignees_slow(
     project_id: &ProjectId
 ) -> Result<Vec<TaskWithAssignee>> {
     let tasks = task_repository.find_by_project(project_id).await?;
-    
+
     let mut result = Vec::new();
     for task in tasks {
         // 各タスクごとにクエリ実行 - N+1問題
@@ -698,7 +709,7 @@ pub async fn get_tasks_with_assignees_slow(
         };
         result.push(TaskWithAssignee { task, assignee });
     }
-    
+
     Ok(result)
 }
 ```

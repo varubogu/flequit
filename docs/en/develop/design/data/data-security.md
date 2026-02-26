@@ -13,25 +13,27 @@ For security enhancement, account and user information adopt a dual ID structure
 
 #### Internal ID vs Public ID
 
-| Type | Purpose | Security Level | Usage Scenarios |
-|------|---------|----------------|-----------------|
-| **Internal ID (id)** | System internal identification | Confidential information | Database primary key, internal processing |
-| **Public ID (user_id)** | External reference and sharing | Public information | Project participation, task assignment |
+| Type                    | Purpose                        | Security Level           | Usage Scenarios                           |
+| ----------------------- | ------------------------------ | ------------------------ | ----------------------------------------- |
+| **Internal ID (id)**    | System internal identification | Confidential information | Database primary key, internal processing |
+| **Public ID (user_id)** | External reference and sharing | Public information       | Project participation, task assignment    |
 
 #### Account Structure
+
 ```json
 {
-  "id": "account-internal-uuid",     // Internal ID - absolutely confidential
-  "user_id": "user-public-uuid",     // Public ID - for external reference
+  "id": "account-internal-uuid", // Internal ID - absolutely confidential
+  "user_id": "user-public-uuid", // Public ID - for external reference
   "email": "user@example.com",
   "provider": "local"
 }
 ```
 
 #### User Structure
+
 ```json
 {
-  "id": "user-public-uuid",          // Public ID - for external reference (all information is public)
+  "id": "user-public-uuid", // Public ID - for external reference (all information is public)
   "username": "username",
   "display_name": "Display Name"
 }
@@ -47,12 +49,14 @@ For security enhancement, account and user information adopt a dual ID structure
 ### 1.3 Implementation Guidelines
 
 #### Development Considerations
+
 - Do not include internal IDs in API responses (Account.id only)
 - Record only public IDs in logs (Account.user_id, User.id)
 - Do not display internal IDs in error messages
 - Handle only public IDs in frontend processing (Account.user_id, User.id)
 
 #### Database Design
+
 - Account reference: Use `Account.user_id` (public ID)
 - User reference: Use `User.id` (public ID)
 - ID conversion for JOIN queries (internal processing only)
@@ -248,18 +252,18 @@ sequenceDiagram
 
 ### 7.2 Permission Matrix
 
-| Operation | Owner | Editor | Viewer | Commenter |
-|-----------|-------|--------|--------|-----------|
-| Delete Project | ✓ | ✗ | ✗ | ✗ |
-| Invite Members | ✓ | ✗ | ✗ | ✗ |
-| Remove Members | ✓ | ✗ | ✗ | ✗ |
-| Change Permissions | ✓ | ✗ | ✗ | ✗ |
-| Create/Edit Tasks | ✓ | ✓ | ✗ | ✗ |
-| Delete Tasks | ✓ | ✓ | ✗ | ✗ |
-| View Tasks | ✓ | ✓ | ✓ | ✓ |
-| Post Comments | ✓ | ✓ | ✗ | ✓ |
-| Attach Files | ✓ | ✓ | ✗ | ✓ |
-| Export | ✓ | ✓ | ✓ | ✗ |
+| Operation          | Owner | Editor | Viewer | Commenter |
+| ------------------ | ----- | ------ | ------ | --------- |
+| Delete Project     | ✓     | ✗      | ✗      | ✗         |
+| Invite Members     | ✓     | ✗      | ✗      | ✗         |
+| Remove Members     | ✓     | ✗      | ✗      | ✗         |
+| Change Permissions | ✓     | ✗      | ✗      | ✗         |
+| Create/Edit Tasks  | ✓     | ✓      | ✗      | ✗         |
+| Delete Tasks       | ✓     | ✓      | ✗      | ✗         |
+| View Tasks         | ✓     | ✓      | ✓      | ✓         |
+| Post Comments      | ✓     | ✓      | ✗      | ✓         |
+| Attach Files       | ✓     | ✓      | ✗      | ✓         |
+| Export             | ✓     | ✓      | ✓      | ✗         |
 
 ### 7.3 Security Boundaries
 

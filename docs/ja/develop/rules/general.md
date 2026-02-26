@@ -3,10 +3,12 @@
 ## ファイル構成
 
 ### 基本原則
+
 - **単一責任原則**: 1ファイル1機能
 - **ファイルサイズ**: 200行超過で必須分割、100行でも分割検討
 
 ### 命名規則
+
 - **コンポーネント**: ケバブケース（`task-item.svelte`）
 - **その他**: TypeScript標準規約に準拠
 
@@ -17,6 +19,7 @@
 - メッセージはInlang Paraglideを使用して常に国際化対応
 
 ### 使用方法
+
 ```typescript
 import * as m from '$paraglide/messages';
 import { reactiveMessage } from '$lib/stores/locale.svelte';

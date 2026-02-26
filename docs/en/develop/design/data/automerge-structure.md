@@ -126,7 +126,7 @@ const updatedProfile: User = await invoke('update_user_profile', {
   userProfile: {
     id: 'public-user-uuid-1',
     username: 'new_username',
-    display_name: 'New Display Name',
+    display_name: 'New Display Name'
     // ... other fields
   }
 });
@@ -144,17 +144,20 @@ const updatedProfile: User = await invoke('update_user_profile', {
 The User Document has special constraints different from other documents:
 
 #### Data Operation Constraints
+
 - **Add**: Adding new user profiles is always possible
 - **Update**: Updating existing user profiles is possible
 - **Delete**: User profile deletion is not allowed (information accumulation method)
 - **Edit Permission**: Only profiles matching the current Account.user_id can be edited
 
 #### Data Characteristics
+
 - **Public Information**: All user profiles are accessible by other users
 - **Information Accumulation**: Continuously accumulate information about project participants and assignees
 - **Profile Management**: Functions as public profile information for self and others
 
 #### Implementation Considerations
+
 ```rust
 // Example of determining editable profiles
 fn can_edit_user_profile(current_account: &Account, target_user_id: &UserId) -> bool {

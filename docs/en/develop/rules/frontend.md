@@ -3,12 +3,14 @@
 ## Svelte 5 Design Patterns
 
 ### State Management
+
 - **$state**: Reactive state
 - **$derived**: Derived state (computed properties)
 - **$effect**: Side effect processing
 - **Class-based stores**: Used for complex state management
 
 ### Component Design
+
 - **props**: `let { prop }: Props = $props()`
 - **Events**: Prioritize callback functions, use CustomEvent only when necessary
 - **Snippets**: Use `Snippet` type for passing child content
@@ -26,6 +28,7 @@
 **Use of `-logic.svelte.ts` pattern is prohibited in new development.**
 
 Reasons:
+
 - Svelte 5 runes are designed to be used directly within components
 - Class-based logic creates excessive abstraction and reduces readability
 - Props binding becomes complex and worsens maintainability
@@ -55,6 +58,7 @@ Reasons:
 ```
 
 **Handling Existing Code**:
+
 - Existing `-logic.svelte.ts` files will be gradually migrated
 - Use the recommended pattern above when adding new features
 
@@ -63,6 +67,7 @@ Reasons:
 For details, refer to `docs/develop/design/frontend/layers.md`.
 
 **Important Rules**:
+
 - ❌ **Direct access from components to `infrastructure/` is prohibited**
 - ✅ **Always access via `services/`**
 - ❌ **Direct writing to stores is prohibited**

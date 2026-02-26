@@ -54,7 +54,7 @@ const msg_save_button = reactiveMessage(m.save_button());
 <script lang="ts">
   import * as m from '$paraglide/messages';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
-  
+
   const msg_task_title = reactiveMessage(m.task_title());
   const msg_save_button = reactiveMessage(m.save_button());
 </script>
@@ -81,33 +81,33 @@ const msg_save_button = reactiveMessage(m.save_button());
 
 ```typescript
 // パラメーター付きメッセージの使用
-const msg_welcome = reactiveMessage(() => 
-  m.welcome_user({ username: user.displayName })
-);
+const msg_welcome = reactiveMessage(() => m.welcome_user({ username: user.displayName }));
 
-const msg_task_count = reactiveMessage(() => 
-  m.task_count({ count: remainingTasks.length })
-);
+const msg_task_count = reactiveMessage(() => m.task_count({ count: remainingTasks.length }));
 ```
 
 ### 3. 複雑な翻訳パターン
 
 ```typescript
 // 条件に基づく翻訳
-const getStatusMessage = (status: TaskStatus) => 
+const getStatusMessage = (status: TaskStatus) =>
   reactiveMessage(() => {
     switch (status) {
-      case 'todo': return m.status_todo();
-      case 'in_progress': return m.status_in_progress();
-      case 'completed': return m.status_completed();
-      default: return m.status_unknown();
+      case 'todo':
+        return m.status_todo();
+      case 'in_progress':
+        return m.status_in_progress();
+      case 'completed':
+        return m.status_completed();
+      default:
+        return m.status_unknown();
     }
   });
 
 // 数値フォーマット付き翻訳
-const msg_progress = reactiveMessage(() => 
-  m.progress_percentage({ 
-    percentage: Math.round(progress * 100) 
+const msg_progress = reactiveMessage(() =>
+  m.progress_percentage({
+    percentage: Math.round(progress * 100)
   })
 );
 ```
@@ -123,15 +123,15 @@ import type { AvailableLanguageTag } from '$paraglide/runtime';
 
 class LocaleStore {
   private _currentLocale = $state<AvailableLanguageTag>(languageTag());
-  
+
   get currentLocale() {
     return this._currentLocale;
   }
-  
+
   get availableLocales() {
     return availableLanguageTags;
   }
-  
+
   get currentLocaleName() {
     const localeNames = {
       en: 'English',
@@ -139,7 +139,7 @@ class LocaleStore {
     };
     return localeNames[this._currentLocale] || this._currentLocale;
   }
-  
+
   setLocale(locale: AvailableLanguageTag) {
     this._currentLocale = locale;
     // ローカルストレージに保存
@@ -147,7 +147,7 @@ class LocaleStore {
     // HTMLのlang属性も更新
     document.documentElement.lang = locale;
   }
-  
+
   // 保存された言語設定を読み込み
   loadSavedLocale() {
     const saved = localStorage.getItem('preferred-language') as AvailableLanguageTag;
@@ -165,21 +165,21 @@ export function reactiveMessage<T extends (...args: any[]) => string>(
 ): { subscribe: (callback: (value: string) => void) => () => void } {
   let currentValue = messageFunction();
   const subscribers = new Set<(value: string) => void>();
-  
+
   // 言語変更を監視
   $effect(() => {
     const newValue = messageFunction();
     if (newValue !== currentValue) {
       currentValue = newValue;
-      subscribers.forEach(callback => callback(newValue));
+      subscribers.forEach((callback) => callback(newValue));
     }
   });
-  
+
   return {
     subscribe: (callback: (value: string) => void) => {
       subscribers.add(callback);
       callback(currentValue); // 初期値を即座に送信
-      
+
       return () => {
         subscribers.delete(callback);
       };
@@ -196,9 +196,9 @@ export function reactiveMessage<T extends (...args: any[]) => string>(
   import { localeStore } from '$lib/stores/locale.svelte';
   import * as m from '$paraglide/messages';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
-  
+
   const msg_language_label = reactiveMessage(m.language_label());
-  
+
   const languageOptions = [
     { code: 'en', name: 'English' },
     { code: 'ja', name: '日本語' }
@@ -207,7 +207,7 @@ export function reactiveMessage<T extends (...args: any[]) => string>(
 
 <div class="language-selector">
   <label for="language-select">{$msg_language_label}</label>
-  <select 
+  <select
     id="language-select"
     bind:value={localeStore.currentLocale}
     onchange={(e) => localeStore.setLocale(e.target.value)}
@@ -233,7 +233,7 @@ import { vi } from 'vitest';
 vi.mock('$paraglide/messages', () => ({
   task_title: () => 'Task Title',
   save_button: () => 'Save',
-  welcome_user: ({ username }: { username: string }) => `Welcome, ${username}!`,
+  welcome_user: ({ username }: { username: string }) => `Welcome, ${username}!`
   // 必要なメッセージを追加
 }));
 
@@ -266,9 +266,9 @@ describe('TaskItem', () => {
       title: 'Test Task',
       status: 'todo'
     };
-    
+
     render(TaskItem, { task });
-    
+
     // 翻訳されたテキストが表示されることを確認
     expect(screen.getByText('Task Title')).toBeInTheDocument();
   });
@@ -300,7 +300,7 @@ describe('TaskItem', () => {
 <script lang="ts">
   import * as m from '$paraglide/messages';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
-  
+
   // このコンポーネントで使用するメッセージをまとめて定義
   const messages = {
     title: reactiveMessage(m.label_task_title()),
@@ -314,15 +314,15 @@ describe('TaskItem', () => {
 
 <form>
   <label for="title">{$messages.title}</label>
-  <input 
-    id="title" 
+  <input
+    id="title"
     placeholder={$messages.placeholder_title}
-    required 
+    required
   />
-  
+
   <label for="description">{$messages.description}</label>
   <textarea id="description"></textarea>
-  
+
   <div class="actions">
     <button type="button">{$messages.cancel}</button>
     <button type="submit">{$messages.save}</button>
@@ -334,13 +334,13 @@ describe('TaskItem', () => {
 
 ```typescript
 // 動的にメッセージを生成する場合
-const getTaskStatusMessage = (task: Task) => 
+const getTaskStatusMessage = (task: Task) =>
   reactiveMessage(() => {
     const params = {
       taskName: task.title,
       assignee: task.assignee?.name || 'Unassigned'
     };
-    
+
     switch (task.status) {
       case 'completed':
         return m.task_completed_message(params);
@@ -360,7 +360,7 @@ const getTaskStatusMessage = (task: Task) =>
 // app.svelte - アプリケーション起動時
 <script lang="ts">
   import { localeStore } from '$lib/stores/locale.svelte';
-  
+
   // 保存された言語設定を復元
   $effect(() => {
     localeStore.loadSavedLocale();
@@ -379,8 +379,7 @@ const commonMessages = {
 };
 
 // 使用頻度の低いメッセージは必要時のみ作成
-const getSpecificMessage = (key: string) => 
-  reactiveMessage(() => m[key]());
+const getSpecificMessage = (key: string) => reactiveMessage(() => m[key]());
 ```
 
 このシステムにより、ユーザーフレンドリーで保守性の高い多言語対応アプリケーションを実現できます。

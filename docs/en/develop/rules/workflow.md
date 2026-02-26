@@ -3,6 +3,7 @@
 ### Recommended Procedures
 
 Basic rules for PR operations:
+
 - Include documentation changes when related to design decisions for changes (mark N/A if not applicable)
 - Describe "Applied patterns/Avoided anti-patterns" in PR description (refer to PR template)
 - Meet review checklist requirements (refer to component-patterns / anti-patterns)
@@ -25,6 +26,7 @@ If errors occur during the process, proceed to the next step after resolution
 ##### Detailed Procedures
 
 ###### 1. Code Editing
+
 - **Confirm implementation approach**: Check related design documents (`docs/develop/design/frontend/`)
 - **Analyze existing code**: Understand structure of files to be modified and related files
 - **Implement incrementally**: Implement in small units and verify operation each time
@@ -36,6 +38,7 @@ If errors occur during the process, proceed to the next step after resolution
   - Check impact scope by running related existing tests
 
 ###### 2. Create vitest Unit Test Cases
+
 - **Identify test targets**: List public interfaces of functions and components created/modified
 - **Design test cases**:
   - Normal cases: Confirm correct output for expected input
@@ -48,6 +51,7 @@ If errors occur during the process, proceed to the next step after resolution
   - UI component testing → Rendering tests with Testing Library
 
 ###### 6. Create vitest Integration Test Cases
+
 - **Identify integration test targets**: Confirm coordination between multiple components, integration with stores, etc.
 - **Scenario-based tests**: Design test cases following user operation flows
 - **Data flow tests**: Confirm series of processes from input to output
@@ -57,6 +61,7 @@ If errors occur during the process, proceed to the next step after resolution
   - Complex state management → Implement test initial state reset functionality
 
 ###### 9. Create Playwright (E2E) Test Cases
+
 - **Determine E2E test targets**: Limit to important UI features and main user operation flows
 - **Scenario design**: Test design close to actual user operations
 - **Test data preparation**: Prepare mock data and test environment
@@ -80,6 +85,7 @@ If errors occur during the process, proceed to the next step after resolution
 ##### Detailed Procedures
 
 ###### 1. Code Editing
+
 - **Check design documents**: Check related documents in `docs/develop/design/backend-tauri/`
 - **Analyze existing code**: Understand dependencies and structure of modules to be modified
 - **Focus on error handling**: Implement safely using Rust's type system
@@ -92,6 +98,7 @@ If errors occur during the process, proceed to the next step after resolution
   - Refer to related documents and Rust official documentation
 
 ###### 6. Create cargo Unit Test Cases
+
 - **Identify test targets**: Confirm operation of functions and methods created/modified
 - **Design test cases**:
   - Normal cases: Correct output for expected input
@@ -103,6 +110,7 @@ If errors occur during the process, proceed to the next step after resolution
   - File I/O → Use tempfile crate for temporary files
 
 ###### 7. Create cargo Integration Test Cases
+
 - **Identify integration test targets**: Coordination between modules, integration with databases, etc.
 - **Design test scenarios**: Test cases following actual usage patterns
 - **Build test environment**: Prepare test databases, configuration files, etc.

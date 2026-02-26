@@ -395,6 +395,7 @@ Automergeドキュメントの削除は、物理削除ではなく **`.deleted/`
 以下の機能は将来的に実装可能です：
 
 #### 復元機能
+
 ```rust
 /// .deleted/ フォルダから元の場所にファイルを復元
 pub fn restore(&mut self, filename: &str) -> Result<(), AutomergeError>
@@ -408,6 +409,7 @@ pub fn restore(&mut self, filename: &str) -> Result<(), AutomergeError>
 #### 完全削除機能（プラットフォーム別）
 
 **デスクトップ環境（Windows/macOS/Linux）**:
+
 ```rust
 /// .deleted/ フォルダからOSのゴミ箱にファイルを移動
 /// trash クレートを使用
@@ -415,12 +417,14 @@ pub fn permanent_delete(&mut self, filename: &str) -> Result<(), AutomergeError>
 ```
 
 **モバイル環境（iOS/Android）**:
+
 ```rust
 /// .deleted/ フォルダから完全に削除
 pub fn permanent_delete_mobile(&mut self, filename: &str) -> Result<(), AutomergeError>
 ```
 
 #### 自動クリーンアップ機能
+
 ```rust
 /// 指定日数経過した削除ファイルを自動削除
 pub fn cleanup_old_deleted_files(&mut self, days: u32) -> Result<(), AutomergeError>

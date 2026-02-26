@@ -1,18 +1,20 @@
 # TaskAssignment (タスク担当者関連付け) - task_assignments
 
 ## Overview
+
 Entity for managing associations between tasks and assigned users. Managed with composite primary key including project_id for cross-project data management.
 
 ## Field Definitions
 
-| Logical Name | Physical Name | Rust Type | Description | PK | UK | NN | Default Value | Foreign Key | PostgreSQL Type | SQLite Type | TypeScript Type |
-|--------------|---------------|-----------|-------------|----|----|----|---------------|-------------|-----------------|-------------|-----------------|
-| Project ID | project_id | ProjectId | Project ID | ✓ | - | ✓ | - | projects.id | UUID | TEXT | string |
-| Task ID | task_id | TaskId | Assigned task ID | ✓ | - | ✓ | - | tasks.id | UUID | TEXT | string |
-| User ID | user_id | UserId | Assigned user ID | ✓ | - | ✓ | - | users.id | UUID | TEXT | string |
-| Association Created At | created_at | DateTime<Utc> | Association creation timestamp (ISO 8601) | - | - | ✓ | - | - | TIMESTAMPTZ | TEXT | string |
+| Logical Name           | Physical Name | Rust Type     | Description                               | PK  | UK  | NN  | Default Value | Foreign Key | PostgreSQL Type | SQLite Type | TypeScript Type |
+| ---------------------- | ------------- | ------------- | ----------------------------------------- | --- | --- | --- | ------------- | ----------- | --------------- | ----------- | --------------- |
+| Project ID             | project_id    | ProjectId     | Project ID                                | ✓   | -   | ✓   | -             | projects.id | UUID            | TEXT        | string          |
+| Task ID                | task_id       | TaskId        | Assigned task ID                          | ✓   | -   | ✓   | -             | tasks.id    | UUID            | TEXT        | string          |
+| User ID                | user_id       | UserId        | Assigned user ID                          | ✓   | -   | ✓   | -             | users.id    | UUID            | TEXT        | string          |
+| Association Created At | created_at    | DateTime<Utc> | Association creation timestamp (ISO 8601) | -   | -   | ✓   | -             | -           | TIMESTAMPTZ     | TEXT        | string          |
 
 ## Constraints
+
 - PRIMARY KEY: (project_id, task_id, user_id)
 - FOREIGN KEY: project_id → projects.id
 - FOREIGN KEY: task_id → tasks.id
@@ -20,6 +22,7 @@ Entity for managing associations between tasks and assigned users. Managed with 
 - NOT NULL: project_id, task_id, user_id, created_at
 
 ## Indexes
+
 ```sql
 CREATE INDEX IF NOT EXISTS idx_task_assignments_project_id ON task_assignments(project_id);
 CREATE INDEX IF NOT EXISTS idx_task_assignments_task_id ON task_assignments(task_id);
@@ -28,6 +31,7 @@ CREATE INDEX IF NOT EXISTS idx_task_assignments_created_at ON task_assignments(c
 ```
 
 ## Related Tables
+
 - projects: Associated project
 - tasks: Assigned task
 - users: Assigned user
@@ -53,9 +57,9 @@ CREATE INDEX IF NOT EXISTS idx_task_assignments_created_at ON task_assignments(c
 
 ```typescript
 interface TaskAssignment {
-  projectId: string;  // Required
-  taskId: string;     // Required
-  userId: string;     // Required
+  projectId: string; // Required
+  taskId: string; // Required
+  userId: string; // Required
   createdAt: Date;
 }
 ```
@@ -70,4 +74,5 @@ async getUsersByTask(projectId: string, taskId: string): Promise<User[]>
 ```
 
 ## Notes
+
 Manages many-to-many relationship between tasks and users. Prevents duplicates with composite primary key (project_id, task_id, user_id) and enables cross-project data management.

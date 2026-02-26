@@ -29,18 +29,19 @@
 
 ### 3.1 部分更新ライブラリ比較
 
-| アプローチ | データ転送量 | 実装コスト | 保守性 | 型安全性 | AutoMerge親和性 |
-|-----------|------------|-----------|--------|----------|-----------------|
-| **Patch Update (partially)** | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
-| Field Specific Commands | ⭐⭐⭐ | ⭐ | ⭐ | ⭐⭐⭐ | ⭐⭐ |
-| Generic Field Update | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐ | ⭐ | ⭐⭐ |
-| 現状維持 | ⭐ | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
+| アプローチ                   | データ転送量 | 実装コスト | 保守性   | 型安全性 | AutoMerge親和性 |
+| ---------------------------- | ------------ | ---------- | -------- | -------- | --------------- |
+| **Patch Update (partially)** | ⭐⭐⭐       | ⭐⭐⭐⭐   | ⭐⭐⭐⭐ | ⭐⭐⭐   | ⭐⭐⭐          |
+| Field Specific Commands      | ⭐⭐⭐       | ⭐         | ⭐       | ⭐⭐⭐   | ⭐⭐            |
+| Generic Field Update         | ⭐⭐⭐       | ⭐⭐⭐     | ⭐⭐     | ⭐       | ⭐⭐            |
+| 現状維持                     | ⭐           | ⭐⭐⭐     | ⭐⭐⭐   | ⭐⭐⭐   | ⭐⭐⭐          |
 
 ### 3.2 採用ライブラリ
 
 **`partially`クレート**を採用
 
 **採用理由**:
+
 - ✅ 成熟したAPI設計と豊富なドキュメント
 - ✅ `apply_some()`による部分適用と変更検知機能
 - ✅ フィールドレベルでの詳細制御（`#[partially(omit)]`等）
@@ -124,7 +125,7 @@ pub async fn update_task_status(id: String, status: TaskStatus) -> Result<bool, 
 // facades/task_facades.rs
 
 pub async fn update_task_patch(
-    task_id: &TaskId, 
+    task_id: &TaskId,
     patch: &TaskPartial
 ) -> Result<bool, String> {
     match task_service::update_task_patch(task_id, patch).await {
@@ -141,11 +142,11 @@ pub async fn update_task_patch(
 // services/task_service.rs
 
 pub async fn update_task_patch(
-    task_id: &TaskId, 
+    task_id: &TaskId,
     patch: &TaskPartial
 ) -> Result<bool, ServiceError> {
     let repository = Repositories::new().await?;
-    
+
     if let Some(mut task) = repository.tasks.find_by_id(task_id).await? {
         let changed = task.apply_some(patch.clone());
         if changed {
@@ -194,7 +195,7 @@ export async function updateTaskStatus(id: string, status: TaskStatus): Promise<
 // Svelte 5 runesベースの変更検知
 export function createTaskPatch(original: Task, current: Task): TaskPatch {
   const patch: TaskPatch = {};
-  
+
   if (original.title !== current.title) patch.title = current.title;
   if (original.status !== current.status) patch.status = current.status;
   if (original.description !== current.description) patch.description = current.description;
@@ -206,7 +207,7 @@ export function createTaskPatch(original: Task, current: Task): TaskPatch {
   if (JSON.stringify(original.tags) !== JSON.stringify(current.tags)) {
     patch.tags = current.tags;
   }
-  
+
   return patch;
 }
 ```
@@ -217,6 +218,7 @@ export function createTaskPatch(original: Task, current: Task): TaskPatch {
 
 **課題**: 部分更新時の整合性チェック
 **対策**:
+
 - フィールドレベルバリデーション
 - 既存データとの組み合わせバリデーション
 - Service層でのビジネスルール適用
@@ -225,6 +227,7 @@ export function createTaskPatch(original: Task, current: Task): TaskPatch {
 
 **課題**: 頻繁な部分更新による性能影響
 **対策**:
+
 - フロントエンドでのデバウンス実装
 - バッチ更新の検討
 - Repository層でのSQL最適化
@@ -233,6 +236,7 @@ export function createTaskPatch(original: Task, current: Task): TaskPatch {
 
 **課題**: AutoMergeとSQLiteの2層構造での整合性
 **対策**:
+
 - 部分更新はSQLite側で効率実行
 - AutoMerge側は従来のsave()で全体保存
 - 同期時の自動整合性確保
@@ -240,47 +244,56 @@ export function createTaskPatch(original: Task, current: Task): TaskPatch {
 ## 6. 段階的導入計画
 
 ### Phase 1: 基盤実装
+
 - `partially`クレートの依存関係追加
 - `Task`構造体への`Partial`derive追加
 - 基本的なパッチ更新コマンドの実装
 
 ### Phase 2: 機能拡張
+
 - よく使用されるフィールドの専用コマンド追加
 - フロントエンド側での変更検知システム実装
 - エラーハンドリングとバリデーション強化
 
 ### Phase 3: 最適化
+
 - パフォーマンス測定と調整
 - Repository層でのSQL最適化
 - AutoMerge同期の効率化
 
 ### Phase 4: 他エンティティ展開
+
 - Project、Subtask、Tag等への適用
 - 統一的なパッチ更新パターンの確立
 
 ## 7. テスト戦略
 
 ### 7.1 単体テスト
+
 - パッチ適用ロジックのテスト
 - 変更検知機能のテスト
 - バリデーションルールのテスト
 
 ### 7.2 結合テスト
+
 - Command層からRepository層までの統合テスト
 - AutoMergeとSQLiteの整合性テスト
 
 ### 7.3 E2Eテスト
+
 - フロントエンドからバックエンドまでの完全なフロー
 - リアルタイム更新の動作確認
 
 ## 8. パフォーマンス考慮事項
 
 ### 8.1 フロントエンド最適化
+
 - **デバウンス実装**: 頻繁なフィールド変更のバッチ処理
 - **変更検知最適化**: Svelte 5 runesでの効率的な差分検知
 - **キャッシュ戦略**: パッチ適用前のローカル状態管理
 
 ### 8.2 バックエンド最適化
+
 - **SQL最適化**: 部分更新用の効率的なUPDATE文
 - **メモリ管理**: 部分更新時の一時オブジェクト最小化
 - **同期処理**: AutoMergeとSQLiteの効率的な整合性管理
@@ -288,6 +301,7 @@ export function createTaskPatch(original: Task, current: Task): TaskPatch {
 ## 9. 実装チェックリスト
 
 ### Phase 1 実装チェックポイント
+
 - [ ] `partially`クレートのCargo.toml追加
 - [ ] Task構造体への`#[derive(Partial)]`追加
 - [ ] `update_task_patch`コマンド実装
@@ -296,6 +310,7 @@ export function createTaskPatch(original: Task, current: Task): TaskPatch {
 - [ ] フロントエンドTaskPatch型定義
 
 ### Phase 2 機能拡張チェックポイント
+
 - [ ] 頑繁フィールドの専用コマンド追加
 - [ ] フロントエンド変更検知ユーティリティ
 - [ ] バリデーションルール強化

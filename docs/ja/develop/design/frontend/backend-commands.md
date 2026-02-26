@@ -10,16 +10,19 @@
 **配置**: `src/lib/infrastructure/backends/`
 
 **責務**:
+
 - バックエンド通信の実装を提供
 - Tauri/Web/Cloud等の環境差異を吸収
 - データの永続化・取得
 
 **特徴**:
+
 - インターフェース定義 + 実装
 - 環境ごとにフォルダ分け（`tauri/`, `web/`, `cloud/`等）
 - `index.ts` で環境に応じたBackendServiceを選択
 
 **アクセス制限**:
+
 - ❌ **コンポーネントから直接呼び出し禁止**
 - ❌ **Storeから直接呼び出し禁止**
 - ✅ **Services層（`services/domain/`）からのみアクセス可能**
@@ -51,15 +54,18 @@ src/lib/infrastructure/backends/
 ## infrastructure/backends/tauri/, infrastructure/backends/web/
 
 **配置**:
+
 - `src/lib/infrastructure/backends/tauri/`
 - `src/lib/infrastructure/backends/web/`
 
 **実装内容**:
+
 - **Tauri**: Tauriコマンド経由でRustバックエンドと通信
 - **Web**: Supabase等のWebAPIと通信
 - **将来**: Cloud同期、Git同期等の実装も追加可能
 
 **現状**:
+
 - Tauriのみ実装済み
 - Webは後で実装予定
 
@@ -98,6 +104,7 @@ export interface BackendService {
 各エンティティのBackendは以下のCRUD操作を提供します:
 
 #### 新規作成 (Create)
+
 - **引数**: オブジェクト
 - **戻り値**: `boolean`（登録成功・失敗）
 - **命名規則**: `createProject`, `createTask`等
@@ -107,6 +114,7 @@ async create(projectId: string, entity: Project): Promise<boolean>
 ```
 
 #### 更新 (Update)
+
 - **引数**: ID + 更新内容（部分オブジェクト）
 - **戻り値**: `boolean`（更新成功・失敗）
 - **命名規則**: `updateProject`, `updateTask`等
@@ -116,6 +124,7 @@ async update(projectId: string, id: string, updates: Partial<Project>): Promise<
 ```
 
 #### 削除 (Delete)
+
 - **引数**: ID
 - **戻り値**: `boolean`（削除成功・失敗）
 - **命名規則**: `deleteProject`, `deleteTask`等
@@ -125,6 +134,7 @@ async delete(projectId: string, id: string): Promise<boolean>
 ```
 
 #### 検索（1件）(Read - Single)
+
 - **引数**: ID
 - **戻り値**: エンティティオブジェクト（見つからない場合は`null`）
 - **命名規則**: `getProject`, `getTask`等
@@ -134,6 +144,7 @@ async get(projectId: string, id: string): Promise<Project | null>
 ```
 
 #### 検索（複数件）(Read - Multiple)
+
 - **引数**: 検索条件オブジェクト（オプション）
 - **戻り値**: エンティティオブジェクトの配列
 - **命名規則**: `getAllProjects`, `getAllTasks`等
@@ -143,6 +154,7 @@ async getAll(projectId: string, conditions?: SearchConditions): Promise<Project[
 ```
 
 **注意**:
+
 - `project`, `tasklist`, `task`, `subtask`, `tag`: 1件検索と複数件検索の**両方**を用意
 - `settings`, `account`: 1件検索のみ用意
 

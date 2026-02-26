@@ -29,18 +29,19 @@ This design document details the implementation of a **field-level partial updat
 
 ### 3.1 Partial Update Library Comparison
 
-| Approach | Data Transfer | Implementation Cost | Maintainability | Type Safety | AutoMerge Compatibility |
-|----------|---------------|-------------------|-----------------|-------------|------------------------|
-| **Patch Update (partially)** | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
-| Field Specific Commands | ⭐⭐⭐ | ⭐ | ⭐ | ⭐⭐⭐ | ⭐⭐ |
-| Generic Field Update | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐ | ⭐ | ⭐⭐ |
-| Current State | ⭐ | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
+| Approach                     | Data Transfer | Implementation Cost | Maintainability | Type Safety | AutoMerge Compatibility |
+| ---------------------------- | ------------- | ------------------- | --------------- | ----------- | ----------------------- |
+| **Patch Update (partially)** | ⭐⭐⭐        | ⭐⭐⭐⭐            | ⭐⭐⭐⭐        | ⭐⭐⭐      | ⭐⭐⭐                  |
+| Field Specific Commands      | ⭐⭐⭐        | ⭐                  | ⭐              | ⭐⭐⭐      | ⭐⭐                    |
+| Generic Field Update         | ⭐⭐⭐        | ⭐⭐⭐              | ⭐⭐            | ⭐          | ⭐⭐                    |
+| Current State                | ⭐            | ⭐⭐⭐              | ⭐⭐⭐          | ⭐⭐⭐      | ⭐⭐⭐                  |
 
 ### 3.2 Adopted Library
 
 **`partially` crate** is adopted
 
 **Adoption Reasons**:
+
 - ✅ Mature API design and rich documentation
 - ✅ `apply_some()` for partial application and change detection
 - ✅ Detailed field-level control (`#[partially(omit)]` etc.)
@@ -217,6 +218,7 @@ export function createTaskPatch(original: Task, current: Task): TaskPatch {
 
 **Issue**: Consistency checking during partial updates
 **Countermeasures**:
+
 - Field-level validation
 - Combination validation with existing data
 - Business rule application in Service layer
@@ -225,6 +227,7 @@ export function createTaskPatch(original: Task, current: Task): TaskPatch {
 
 **Issue**: Performance impact from frequent partial updates
 **Countermeasures**:
+
 - Debounce implementation in frontend
 - Consider batch updates
 - SQL optimization in Repository layer
@@ -233,6 +236,7 @@ export function createTaskPatch(original: Task, current: Task): TaskPatch {
 
 **Issue**: Consistency between AutoMerge and SQLite two-layer structure
 **Countermeasures**:
+
 - Partial updates executed efficiently on SQLite side
 - AutoMerge side uses traditional save() for full storage
 - Automatic consistency during synchronization
@@ -240,47 +244,56 @@ export function createTaskPatch(original: Task, current: Task): TaskPatch {
 ## 6. Gradual Introduction Plan
 
 ### Phase 1: Foundation Implementation
+
 - Add `partially` crate dependency
 - Add `Partial` derive to `Task` struct
 - Implement basic patch update commands
 
 ### Phase 2: Feature Extension
+
 - Add dedicated commands for frequently used fields
 - Implement change detection system in frontend
 - Strengthen error handling and validation
 
 ### Phase 3: Optimization
+
 - Performance measurement and adjustment
 - SQL optimization in Repository layer
 - AutoMerge synchronization efficiency
 
 ### Phase 4: Other Entity Expansion
+
 - Apply to Project, Subtask, Tag, etc.
 - Establish unified patch update patterns
 
 ## 7. Testing Strategy
 
 ### 7.1 Unit Tests
+
 - Test patch application logic
 - Test change detection functionality
 - Test validation rules
 
 ### 7.2 Integration Tests
+
 - Integration tests from Command layer to Repository layer
 - AutoMerge and SQLite consistency tests
 
 ### 7.3 E2E Tests
+
 - Complete flow from frontend to backend
 - Real-time update behavior confirmation
 
 ## 8. Performance Considerations
 
 ### 8.1 Frontend Optimization
+
 - **Debounce Implementation**: Batch processing of frequent field changes
 - **Change Detection Optimization**: Efficient diff detection with Svelte 5 runes
 - **Cache Strategy**: Local state management before patch application
 
 ### 8.2 Backend Optimization
+
 - **SQL Optimization**: Efficient UPDATE statements for partial updates
 - **Memory Management**: Minimize temporary objects during partial updates
 - **Sync Processing**: Efficient consistency management between AutoMerge and SQLite
@@ -288,6 +301,7 @@ export function createTaskPatch(original: Task, current: Task): TaskPatch {
 ## 9. Implementation Checklist
 
 ### Phase 1 Implementation Checkpoints
+
 - [ ] Add `partially` crate to Cargo.toml
 - [ ] Add `#[derive(Partial)]` to Task struct
 - [ ] Implement `update_task_patch` command
@@ -296,6 +310,7 @@ export function createTaskPatch(original: Task, current: Task): TaskPatch {
 - [ ] Frontend TaskPatch type definition
 
 ### Phase 2 Feature Extension Checkpoints
+
 - [ ] Add dedicated commands for frequent fields
 - [ ] Frontend change detection utility
 - [ ] Strengthen validation rules
