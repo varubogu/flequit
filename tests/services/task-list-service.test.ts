@@ -80,15 +80,20 @@ vi.mock('$lib/stores/error-handler.svelte', () => ({
   errorHandler: errorHandlerMock
 }));
 
-const projectStoreMock = {
-  projects: [] as ProjectTree[],
-  getProjectById: vi.fn(
-    (id: string) => projectStoreMock.projects.find((project) => project.id === id) ?? null
-  )
-};
+const projectStoreMock = vi.hoisted(() => {
+  const mock = {
+    projects: [] as any[],
+    getProjectById: vi.fn((id: string) => mock.projects.find((p: any) => p.id === id) ?? null)
+  };
+  return mock;
+});
 
-vi.mock('$lib/stores/project-store.svelte', () => ({
-  projectStore: projectStoreMock
+const resolveProjectStoreMock = vi.hoisted(() => vi.fn(() => projectStoreMock));
+
+vi.mock('$lib/stores/providers/project-store-provider', () => ({
+  resolveProjectStore: resolveProjectStoreMock,
+  provideProjectStore: vi.fn(),
+  resetProjectStoreOverride: vi.fn()
 }));
 
 const selectionState = {
@@ -161,6 +166,7 @@ beforeEach(() => {
   selectionState.selectedProjectId = null;
   addTaskMock.mockClear();
   errorHandlerMock.addSyncError.mockClear();
+  resolveProjectStoreMock.mockReturnValue(projectStoreMock);
 });
 
 describe('TaskListService', () => {
