@@ -8,9 +8,24 @@ import type { TaskDetailViewStore } from '$lib/stores/task-detail-view-store.sve
 import type { TaskStatus } from '$lib/types/task';
 import type { TaskInteractionsService } from '$lib/services/ui/task/task-interactions';
 import { isSubTask } from './task-detail-guards';
-import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
-import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
-import { taskListUIState } from '$lib/stores/task-list/task-list-ui-state.svelte';
+import {
+  handleRecurrenceDialogCloseImpl,
+  handleRecurrenceDialogOpenImpl,
+  handleRecurrenceChangeImpl
+} from './task-detail-recurrence-handlers';
+import {
+  handleDueDateClickImpl,
+  handleDateChangeImpl,
+  handleDateClearImpl,
+  handleDatePickerCloseImpl
+} from './task-detail-date-handlers';
+import {
+  handleSubTaskToggleImpl,
+  handleSubTaskClickImpl,
+  handleAddSubTaskImpl,
+  handleSubTaskAddedImpl,
+  handleSubTaskAddCancelImpl
+} from './task-detail-subtask-handlers';
 
 export type TaskDetailActionsDependencies = {
   store: TaskDetailViewStore;
@@ -71,45 +86,14 @@ export class TaskDetailActionsService {
     this.#domain.changeTaskStatus(current.id, status);
   };
 
-  handleDueDateClick = (event?: Event) => {
-    event?.preventDefault();
-    event?.stopPropagation();
+  handleDueDateClick = (event?: Event) => handleDueDateClickImpl(this.#store, event);
 
-    const rect = event?.target
-      ? (event.target as HTMLElement).getBoundingClientRect()
-      : { left: 0, bottom: 0 };
+  handleDateChange = async (data: DateChangePayload) =>
+    handleDateChangeImpl(this.#store, data, this.handleRecurrenceChange);
 
-    const position = {
-      x: Math.min(rect.left, window.innerWidth - 300),
-      y: rect.bottom + 8
-    };
+  handleDateClear = () => handleDateClearImpl(this.#store);
 
-    this.#store.dialogs.openDatePicker(position);
-  };
-
-  handleDateChange = async (data: DateChangePayload) => {
-    const { dateTime, range, isRangeDate, recurrenceRule } = data;
-
-    if (isRangeDate && range) {
-      this.#store.form.updateDates({ start: range.start, end: range.end, isRange: true });
-    } else {
-      this.#store.form.updateDates({ end: dateTime, isRange: false });
-    }
-
-    if (recurrenceRule !== undefined) {
-      const nextRule = recurrenceRule ?? null;
-      this.#store.form.updateRecurrence(nextRule);
-      await this.handleRecurrenceChange(nextRule);
-    }
-  };
-
-  handleDateClear = () => {
-    this.#store.form.clearDates();
-  };
-
-  handleDatePickerClose = () => {
-    this.#store.dialogs.closeDatePicker();
-  };
+  handleDatePickerClose = () => handleDatePickerCloseImpl(this.#store);
 
   handleDelete = () => {
     const current = this.#store.currentItem;
@@ -133,42 +117,17 @@ export class TaskDetailActionsService {
     }
   };
 
-  handleSubTaskToggle = (subTaskId: string) => {
-    const task = this.#store.task;
-    if (!task) return;
-    this.#domain.toggleSubTaskStatus(task, subTaskId);
-  };
+  handleSubTaskToggle = (subTaskId: string) =>
+    handleSubTaskToggleImpl(this.#store, this.#domain, subTaskId);
 
-  handleSubTaskClick = (subTaskId: string) => {
-    // Get parent task ID to expand it in task list
-    const parentTaskId = subTaskStore.getTaskIdBySubTaskId(subTaskId);
-    if (parentTaskId) {
-      // Expand parent task in task list so subtask is visible
-      taskListUIState.expandTask(parentTaskId);
-    }
+  handleSubTaskClick = (subTaskId: string) => handleSubTaskClickImpl(this.#domain, subTaskId);
 
-    // Select subtask
-    this.#domain.selectSubTask(subTaskId);
-  };
+  handleAddSubTask = () => handleAddSubTaskImpl(this.#store);
 
-  handleAddSubTask = () => {
-    this.#store.dialogs.toggleSubTaskAddForm();
-  };
+  handleSubTaskAdded = async (title: string) =>
+    handleSubTaskAddedImpl(this.#store, this.#domain, title);
 
-  handleSubTaskAdded = async (title: string) => {
-    const task = this.#store.task;
-    if (!task || !title.trim()) return;
-
-    const newSubTask = await this.#domain.addSubTask(task.id, { title: title.trim() });
-
-    if (newSubTask) {
-      this.#store.dialogs.closeSubTaskAddForm();
-    }
-  };
-
-  handleSubTaskAddCancel = () => {
-    this.#store.dialogs.closeSubTaskAddForm();
-  };
+  handleSubTaskAddCancel = () => handleSubTaskAddCancelImpl(this.#store);
 
   handleGoToParentTask = () => {
     const current = this.#store.currentItem;
@@ -221,69 +180,14 @@ export class TaskDetailActionsService {
     this.#store.dialogs.cancelDelete();
   };
 
-  handleRecurrenceDialogClose = (open?: boolean) => {
-    if (typeof open === 'boolean') {
-      if (open) {
-        this.#store.dialogs.openRecurrenceDialog();
-      } else {
-        this.#store.dialogs.closeRecurrenceDialog();
-      }
-      return;
-    }
+  handleRecurrenceDialogClose = (open?: boolean) =>
+    handleRecurrenceDialogCloseImpl(this.#store, open);
 
-    this.#store.dialogs.closeRecurrenceDialog();
-  };
-
-  handleRecurrenceDialogOpen = () => {
-    this.#store.dialogs.openRecurrenceDialog();
-  };
+  handleRecurrenceDialogOpen = () => handleRecurrenceDialogOpenImpl(this.#store);
 
   handleRecurrenceChange = async (
     rule: Parameters<TaskDetailRecurrenceActions['save']>[0]['rule']
-  ) => {
-    const current = this.#store.currentItem;
-    if (!current || this.#store.isNewTaskMode) {
-      return;
-    }
-
-    const projectInfo = this.#store.projectInfo;
-    const projectId = projectInfo?.project.id;
-
-    if (!projectId) {
-      console.error('Failed to get projectId for recurrence rule');
-      return;
-    }
-
-    const userId = current.updatedBy;
-    if (!userId) {
-      console.error('Failed to get userId for recurrence rule');
-      return;
-    }
-
-    try {
-      await this.#recurrence.save({
-        projectId,
-        itemId: current.id,
-        isSubTask: isSubTask(current),
-        rule,
-        userId
-      });
-
-      // Successfully saved, update local store with new recurrence rule
-      if (isSubTask(current)) {
-        await subTaskStore.updateSubTask(current.id, { recurrenceRule: rule ?? undefined });
-      } else {
-        taskCoreStore.updateTask(current.id, { recurrenceRule: rule ?? undefined });
-      }
-
-      // Close dialog
-      this.#store.dialogs.closeRecurrenceDialog();
-    } catch (error) {
-      console.error('Failed to save recurrence rule:', error);
-      // Keep dialog open so user can retry or review the error
-      console.error('Recurrence dialog remains open for user to retry');
-    }
-  };
+  ) => handleRecurrenceChangeImpl(this.#store, this.#recurrence, rule);
 }
 
 export function createTaskDetailActions(deps: TaskDetailActionsDependencies) {

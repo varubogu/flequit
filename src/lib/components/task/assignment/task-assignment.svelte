@@ -5,9 +5,10 @@
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask } from '$lib/types/sub-task';
   import type { User } from '$lib/types/user';
-  import Button from '$lib/components/ui/button/button.svelte';
-  import { UserPlus, UserMinus, Users } from 'lucide-svelte';
+  import { Users } from 'lucide-svelte';
   import { AssignmentService } from '$lib/services/domain/assignment';
+  import TaskAssignmentList from './task-assignment-list.svelte';
+  import TaskAssignmentForm from './task-assignment-form.svelte';
 
   interface Props {
     task?: TaskWithSubTasks | null;
@@ -25,8 +26,10 @@
   let assignedUserIds = $derived(currentItem?.assignedUserIds || []);
   let isLoading = $state(false);
 
-  // Translation messages
-  const assignedUsers = translationService.getMessage('assigned_users');
+  const assignedUsersLabel = translationService.getMessage('assigned_users');
+
+  let computedAssignedUsers = $derived(availableUsers.filter((user) => assignedUserIds.includes(user.id)));
+  let computedUnassignedUsers = $derived(availableUsers.filter((user) => !assignedUserIds.includes(user.id)));
 
   async function handleUserAssign(userId: string) {
     if (!currentItem || isLoading) return;
@@ -36,54 +39,28 @@
       const projectId = selectionStore.selectedProjectId;
 
       if (!projectId) {
-        errorHandler.addError({
-          type: 'general',
-          message: 'プロジェクトが選択されていません',
-          retryable: false
-        });
+        errorHandler.addError({ type: 'general', message: 'プロジェクトが選択されていません', retryable: false });
         return;
       }
 
       if (isSubTask) {
-        const success = await AssignmentService.createSubtaskAssignment(
-          projectId,
-          currentItem.id,
-          userId
-        );
+        const success = await AssignmentService.createSubtaskAssignment(projectId, currentItem.id, userId);
         if (success) {
-          const updatedIds = [...assignedUserIds, userId];
-          onAssignmentUpdated?.(currentItem.id, updatedIds);
+          onAssignmentUpdated?.(currentItem.id, [...assignedUserIds, userId]);
         } else {
-          errorHandler.addError({
-            type: 'general',
-            message: 'サブタスクへのユーザー割り当てに失敗しました',
-            retryable: false
-          });
+          errorHandler.addError({ type: 'general', message: 'サブタスクへのユーザー割り当てに失敗しました', retryable: false });
         }
       } else {
-        const success = await AssignmentService.createTaskAssignment(
-          projectId,
-          currentItem.id,
-          userId
-        );
+        const success = await AssignmentService.createTaskAssignment(projectId, currentItem.id, userId);
         if (success) {
-          const updatedIds = [...assignedUserIds, userId];
-          onAssignmentUpdated?.(currentItem.id, updatedIds);
+          onAssignmentUpdated?.(currentItem.id, [...assignedUserIds, userId]);
         } else {
-          errorHandler.addError({
-            type: 'general',
-            message: 'タスクへのユーザー割り当てに失敗しました',
-            retryable: false
-          });
+          errorHandler.addError({ type: 'general', message: 'タスクへのユーザー割り当てに失敗しました', retryable: false });
         }
       }
     } catch (error) {
       console.error('Failed to assign user:', error);
-      errorHandler.addError({
-        type: 'general',
-        message: 'ユーザー割り当て中にエラーが発生しました',
-        retryable: false
-      });
+      errorHandler.addError({ type: 'general', message: 'ユーザー割り当て中にエラーが発生しました', retryable: false });
     } finally {
       isLoading = false;
     }
@@ -97,79 +74,31 @@
       const projectId = selectionStore.selectedProjectId;
 
       if (!projectId) {
-        errorHandler.addError({
-          type: 'general',
-          message: 'プロジェクトが選択されていません',
-          retryable: false
-        });
+        errorHandler.addError({ type: 'general', message: 'プロジェクトが選択されていません', retryable: false });
         return;
       }
 
       if (isSubTask) {
-        const success = await AssignmentService.deleteSubtaskAssignment(
-          projectId,
-          currentItem.id,
-          userId
-        );
+        const success = await AssignmentService.deleteSubtaskAssignment(projectId, currentItem.id, userId);
         if (success) {
-          const updatedIds = assignedUserIds.filter((id: string) => id !== userId);
-          onAssignmentUpdated?.(currentItem.id, updatedIds);
+          onAssignmentUpdated?.(currentItem.id, assignedUserIds.filter((id: string) => id !== userId));
         } else {
-          errorHandler.addError({
-            type: 'general',
-            message: 'サブタスクからのユーザー割り当て解除に失敗しました',
-            retryable: false
-          });
+          errorHandler.addError({ type: 'general', message: 'サブタスクからのユーザー割り当て解除に失敗しました', retryable: false });
         }
       } else {
-        const success = await AssignmentService.deleteTaskAssignment(
-          projectId,
-          currentItem.id,
-          userId
-        );
+        const success = await AssignmentService.deleteTaskAssignment(projectId, currentItem.id, userId);
         if (success) {
-          const updatedIds = assignedUserIds.filter((id: string) => id !== userId);
-          onAssignmentUpdated?.(currentItem.id, updatedIds);
+          onAssignmentUpdated?.(currentItem.id, assignedUserIds.filter((id: string) => id !== userId));
         } else {
-          errorHandler.addError({
-            type: 'general',
-            message: 'タスクからのユーザー割り当て解除に失敗しました',
-            retryable: false
-          });
+          errorHandler.addError({ type: 'general', message: 'タスクからのユーザー割り当て解除に失敗しました', retryable: false });
         }
       }
     } catch (error) {
       console.error('Failed to unassign user:', error);
-      errorHandler.addError({
-        type: 'general',
-        message: 'ユーザー割り当て解除中にエラーが発生しました',
-        retryable: false
-      });
+      errorHandler.addError({ type: 'general', message: 'ユーザー割り当て解除中にエラーが発生しました', retryable: false });
     } finally {
       isLoading = false;
     }
-  }
-
-  function getAssignedUsers(): User[] {
-    return availableUsers.filter((user) => assignedUserIds.includes(user.id));
-  }
-
-  function getUnassignedUsers(): User[] {
-    return availableUsers.filter((user) => !assignedUserIds.includes(user.id));
-  }
-
-  function getUserDisplayName(user: User): string {
-    return user.displayName || user.handleId;
-  }
-
-  function getUserInitials(user: User): string {
-    const name = getUserDisplayName(user);
-    return name
-      .split(' ')
-      .map((word) => word.charAt(0))
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
   }
 </script>
 
@@ -177,80 +106,19 @@
   <div class="space-y-3">
     <h3 class="flex items-center gap-2 text-sm font-medium">
       <Users class="h-4 w-4" />
-      {assignedUsers()}
+      {assignedUsersLabel()}
     </h3>
 
-    <!-- 割り当て済みユーザー -->
-    {#if getAssignedUsers().length > 0}
-      <div class="flex flex-wrap gap-2">
-        {#each getAssignedUsers() as user (user.id)}
-          <div class="flex items-center gap-2 rounded-md border px-2 py-1 text-sm">
-            <!-- ユーザーアバター -->
-            <div
-              class="bg-primary text-primary-foreground flex h-6 w-6 items-center justify-center rounded-full text-xs"
-            >
-              {#if user.avatarUrl}
-                <img
-                  src={user.avatarUrl}
-                  alt={getUserDisplayName(user)}
-                  class="h-full w-full rounded-full object-cover"
-                />
-              {:else}
-                {getUserInitials(user)}
-              {/if}
-            </div>
+    <TaskAssignmentList
+      assignedUsers={computedAssignedUsers}
+      {isLoading}
+      onUnassign={handleUserUnassign}
+    />
 
-            <span>{getUserDisplayName(user)}</span>
-
-            <!-- 割り当て解除ボタン -->
-            <Button
-              variant="ghost"
-              size="sm"
-              class="text-muted-foreground hover:text-destructive h-auto p-0"
-              onclick={() => handleUserUnassign(user.id)}
-              disabled={isLoading}
-            >
-              <UserMinus class="h-3 w-3" />
-            </Button>
-          </div>
-        {/each}
-      </div>
-    {:else}
-      <p class="text-muted-foreground text-sm">まだユーザーが割り当てられていません</p>
-    {/if}
-
-    <!-- ユーザー追加 -->
-    {#if getUnassignedUsers().length > 0}
-      <div class="space-y-2">
-        <h4 class="text-muted-foreground text-xs font-medium">ユーザーを追加</h4>
-        <div class="flex flex-wrap gap-2">
-          {#each getUnassignedUsers() as user (user.id)}
-            <Button
-              variant="outline"
-              size="sm"
-              class="h-auto px-2 py-1 text-sm"
-              onclick={() => handleUserAssign(user.id)}
-              disabled={isLoading}
-            >
-              <UserPlus class="mr-1 h-3 w-3" />
-              <div class="flex items-center gap-1">
-                <div class="bg-muted flex h-4 w-4 items-center justify-center rounded-full text-xs">
-                  {#if user.avatarUrl}
-                    <img
-                      src={user.avatarUrl}
-                      alt={getUserDisplayName(user)}
-                      class="h-full w-full rounded-full object-cover"
-                    />
-                  {:else}
-                    {getUserInitials(user)}
-                  {/if}
-                </div>
-                <span>{getUserDisplayName(user)}</span>
-              </div>
-            </Button>
-          {/each}
-        </div>
-      </div>
-    {/if}
+    <TaskAssignmentForm
+      unassignedUsers={computedUnassignedUsers}
+      {isLoading}
+      onAssign={handleUserAssign}
+    />
   </div>
 {/if}

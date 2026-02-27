@@ -1,5 +1,5 @@
 import type { IProjectStore } from '$lib/types/store-interfaces';
-import type { Project, ProjectTree } from '$lib/types/project';
+import type { ProjectTree } from '$lib/types/project';
 import type { ISelectionStore } from '$lib/types/store-interfaces';
 import { selectionStore } from '$lib/stores/selection-store.svelte';
 import { tagStore } from '$lib/stores/tags.svelte';
@@ -9,6 +9,12 @@ import {
   resolveCurrentUserIdProvider,
   type CurrentUserIdProvider
 } from '$lib/dependencies/current-user-id';
+import {
+  reorderProjectsArray,
+  createNewProject,
+  buildProjectUpdate,
+  toProjectResult
+} from './project-store-helpers';
 
 /**
  * プロジェクト管理ストア
@@ -99,20 +105,7 @@ export class ProjectStore implements IProjectStore {
       return [] as ProjectTree[];
     }
 
-    const [movedProject] = this.projects.splice(fromIndex, 1);
-    this.projects.splice(toIndex, 0, movedProject);
-
-    const updated: ProjectTree[] = [];
-    for (let index = 0; index < this.projects.length; index++) {
-      const project = this.projects[index];
-      if (project.orderIndex !== index) {
-        project.orderIndex = index;
-        project.updatedAt = new SvelteDate();
-        updated.push(project);
-      }
-    }
-
-    return updated;
+    return reorderProjectsArray(this.projects, fromIndex, toIndex);
   }
 
   moveProjectToPositionInStore(projectId: string, targetIndex: number) {
@@ -126,21 +119,7 @@ export class ProjectStore implements IProjectStore {
 
   // 互換API（段階的移行用）
   async addProject(project: { name: string; description?: string; color?: string }) {
-    const newProject: ProjectTree = {
-      id: crypto.randomUUID(),
-      name: project.name,
-      description: project.description,
-      color: project.color,
-      orderIndex: this.projects.length,
-      isArchived: false,
-      createdAt: new SvelteDate(),
-      updatedAt: new SvelteDate(),
-      deleted: false,
-      updatedBy: this.getCurrentUserId(),
-      taskLists: [],
-      allTags: []
-    };
-
+    const newProject = createNewProject(this.projects.length, this.getCurrentUserId, project);
     return this.addProjectToStore(newProject);
   }
 
@@ -159,32 +138,12 @@ export class ProjectStore implements IProjectStore {
       return null;
     }
 
-    const updated = this.updateProjectInStore(projectId, {
-      name: updates.name ?? current.name,
-      description: updates.description ?? current.description,
-      color: updates.color ?? current.color,
-      orderIndex: updates.order_index ?? current.orderIndex,
-      isArchived: updates.is_archived ?? current.isArchived
-    });
-
+    const updated = this.updateProjectInStore(projectId, buildProjectUpdate(current, updates));
     if (!updated) {
       return null;
     }
 
-    const result: Project = {
-      id: updated.id,
-      name: updated.name,
-      description: updated.description,
-      color: updated.color,
-      orderIndex: updated.orderIndex,
-      isArchived: updated.isArchived,
-      createdAt: updated.createdAt,
-      updatedAt: updated.updatedAt,
-      deleted: updated.deleted,
-      updatedBy: updated.updatedBy
-    };
-
-    return result;
+    return toProjectResult(updated);
   }
 
   async deleteProject(projectId: string) {
@@ -206,18 +165,12 @@ export class ProjectStore implements IProjectStore {
 
   // データロード
   loadProjects(projects: ProjectTree[]) {
-    // data-loaderを使用してプロジェクトデータを読み込み・変換
     const loadedData = loadProjects(projects);
-
-    // 変換済みプロジェクトデータを設定
     this.projects = loadedData.projects;
-
-    // タグストアにタグを登録し、初期ブックマークを設定
     registerTagsToStore(tagStore, loadedData);
   }
 
   setProjects(projects: ProjectTree[]) {
-    // 既に変換済みのプロジェクトデータを設定（タグ変換は不要）
     this.projects = projects;
   }
 
