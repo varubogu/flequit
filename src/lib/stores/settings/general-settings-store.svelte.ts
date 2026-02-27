@@ -3,6 +3,7 @@ import { getLocale } from '$paraglide/runtime';
 import { DEFAULT_SETTINGS } from './defaults';
 import { getDefaultDateFormatForLocale } from './date-format-helpers';
 import { SettingsPersistence } from './settings-persistence';
+import { errorHandler } from '$lib/stores/error-handler.svelte';
 
 type PersistenceLike = Pick<SettingsPersistence, 'load' | 'markInitialized' | 'save'>;
 
@@ -129,7 +130,12 @@ export class GeneralSettingsStore {
     }
 
     this.persistence.save(partial).catch((error) => {
-      console.error(errorMessage, error);
+      errorHandler.addError({
+        type: 'sync',
+        message: errorMessage,
+        details: error instanceof Error ? error.message : String(error),
+        retryable: true
+      });
     });
   }
 
@@ -150,5 +156,10 @@ export class GeneralSettingsStore {
 export const generalSettingsStore = new GeneralSettingsStore();
 
 generalSettingsStore.init().catch((error) => {
-  console.error('Failed to initialize general settings store:', error);
+  errorHandler.addError({
+    type: 'general',
+    message: '一般設定ストアの初期化に失敗しました',
+    details: error instanceof Error ? error.message : String(error),
+    retryable: true
+  });
 });

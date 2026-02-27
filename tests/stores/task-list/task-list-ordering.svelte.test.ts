@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TaskListOrdering } from '$lib/stores/task-list/task-list-ordering.svelte';
 import type { IProjectStore } from '$lib/types/store-interfaces';
 import type { ProjectTree } from '$lib/types/project';
@@ -102,11 +102,9 @@ describe('TaskListOrdering', () => {
   let ordering: TaskListOrdering;
   let mockUpdateTaskList: ReturnType<typeof vi.fn>;
   let mockAddSyncError: ReturnType<typeof vi.fn>;
-  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     projectStore = createMockProjectStore();
     ordering = new TaskListOrdering(projectStore);
@@ -117,10 +115,6 @@ describe('TaskListOrdering', () => {
     mockAddSyncError = vi.mocked(errorHandler.addSyncError);
 
     mockUpdateTaskList.mockResolvedValue(null);
-  });
-
-  afterEach(() => {
-    consoleErrorSpy.mockRestore();
   });
 
   describe('reorderTaskLists', () => {
@@ -186,10 +180,6 @@ describe('TaskListOrdering', () => {
 
       await ordering.reorderTaskLists('project-1', 0, 2);
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Failed to sync task list order to backends:',
-        error
-      );
       expect(mockAddSyncError).toHaveBeenCalledWith(
         'タスクリスト順序更新',
         'tasklist',
@@ -207,7 +197,7 @@ describe('TaskListOrdering', () => {
       await ordering.reorderTaskLists('project-1', 0, 2);
 
       expect(mockUpdateTaskList).toHaveBeenCalledTimes(3);
-      expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
+      expect(mockAddSyncError).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -305,10 +295,6 @@ describe('TaskListOrdering', () => {
 
       await ordering.moveTaskListToProject('list-1', 'project-2');
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Failed to sync source project task list order to backends:',
-        error
-      );
       expect(mockAddSyncError).toHaveBeenCalledWith(
         'タスクリスト順序更新（移動元）',
         'tasklist',
@@ -326,10 +312,6 @@ describe('TaskListOrdering', () => {
 
       await ordering.moveTaskListToProject('list-1', 'project-2');
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Failed to sync target project task list order to backends:',
-        error
-      );
       expect(mockAddSyncError).toHaveBeenCalledWith(
         'タスクリスト順序更新（移動先）',
         'tasklist',

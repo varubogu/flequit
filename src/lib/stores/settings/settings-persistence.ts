@@ -42,8 +42,8 @@ export class SettingsPersistence {
         this.persistToLocalStorage();
         return;
       }
-    } catch (error) {
-      console.error('Failed to load settings from backends:', error);
+    } catch {
+      // バックエンドの読み込み失敗時はlocalStorageフォールバックへ
     }
 
     this.restoreFromLocalStorage();
@@ -62,8 +62,8 @@ export class SettingsPersistence {
     try {
       const parsed = JSON.parse(stored) as Partial<Settings>;
       applySettingsPatch(this.state, parsed);
-    } catch (error) {
-      console.error('Failed to parse settings from localStorage:', error);
+    } catch {
+      // 壊れたJSONは破棄してデフォルト状態を維持
     }
   }
 

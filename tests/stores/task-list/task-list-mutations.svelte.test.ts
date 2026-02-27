@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TaskListMutations } from '$lib/stores/task-list/task-list-mutations.svelte';
 import { TaskListQueries } from '$lib/stores/task-list/task-list-queries.svelte';
 import type { IProjectStore, ISelectionStore } from '$lib/types/store-interfaces';
@@ -115,11 +115,9 @@ describe('TaskListMutations', () => {
   let mockCreateTaskList: ReturnType<typeof vi.fn>;
   let mockUpdateTaskList: ReturnType<typeof vi.fn>;
   let mockDeleteTaskList: ReturnType<typeof vi.fn>;
-  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     projectStore = createMockProjectStore();
     selectionStore = createMockSelectionStore();
@@ -130,10 +128,6 @@ describe('TaskListMutations', () => {
     mockCreateTaskList = vi.mocked(TaskListService.createTaskListWithTasks);
     mockUpdateTaskList = vi.mocked(TaskListService.updateTaskList);
     mockDeleteTaskList = vi.mocked(TaskListService.deleteTaskList);
-  });
-
-  afterEach(() => {
-    consoleErrorSpy.mockRestore();
   });
 
   describe('addTaskList', () => {
@@ -219,7 +213,6 @@ describe('TaskListMutations', () => {
       });
 
       expect(result).toBeNull();
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to create task list:', error);
     });
 
     it('order_indexが正しく設定される', async () => {
@@ -279,12 +272,6 @@ describe('TaskListMutations', () => {
 
       expect(mockUpdateTaskList).not.toHaveBeenCalled();
       expect(result).toBeNull();
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Failed to update task list:',
-        expect.objectContaining({
-          message: expect.stringContaining('に対応するプロジェクトが見つかりません')
-        })
-      );
     });
 
     it('サービスエラー時にnullを返す', async () => {
@@ -296,7 +283,6 @@ describe('TaskListMutations', () => {
       });
 
       expect(result).toBeNull();
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to update task list:', error);
     });
 
     it('サービスがnullを返した場合にnullを返す', async () => {
@@ -370,12 +356,6 @@ describe('TaskListMutations', () => {
 
       expect(mockDeleteTaskList).not.toHaveBeenCalled();
       expect(result).toBe(false);
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Failed to delete task list:',
-        expect.objectContaining({
-          message: expect.stringContaining('に対応するプロジェクトが見つかりません')
-        })
-      );
     });
 
     it('サービスエラー時にfalseを返す', async () => {
@@ -385,7 +365,6 @@ describe('TaskListMutations', () => {
       const result = await mutations.deleteTaskList('list-1');
 
       expect(result).toBe(false);
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to delete task list:', error);
     });
 
     it('サービスがfalseを返した場合に削除されない', async () => {

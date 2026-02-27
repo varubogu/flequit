@@ -30,7 +30,6 @@ export class TaskCrudOperations {
     const { taskListStore, taskCoreStore, errorHandler } = this.#deps;
     const projectId = taskListStore.getProjectIdByListId(listId);
     if (!projectId) {
-      console.error('Failed to find project for list:', listId);
       return null;
     }
 
@@ -74,7 +73,6 @@ export class TaskCrudOperations {
       await TaskBackend.createTaskWithSubTasks(listId, inserted);
       return inserted;
     } catch (error) {
-      console.error('Failed to sync new task to backends:', error);
       // ロールバック: ローカル状態から削除
       taskCoreStore.removeTask(inserted.id);
       errorHandler.addSyncError('タスク作成', 'task', inserted.id, error);
@@ -95,13 +93,11 @@ export class TaskCrudOperations {
     const { taskStore, taskCoreStore, errorHandler } = this.#deps;
     const context = taskStore.getTaskProjectAndList(taskId);
     if (!context) {
-      console.error('Failed to find task:', taskId);
       return;
     }
 
     const currentTask = taskStore.getTaskById(taskId);
     if (!currentTask) {
-      console.error('Failed to find task for update:', taskId);
       return;
     }
 
@@ -113,7 +109,6 @@ export class TaskCrudOperations {
       Object.assign(task, updates);
     });
     if (!applied) {
-      console.error('Failed to apply task update:', taskId);
       return;
     }
 
@@ -125,7 +120,6 @@ export class TaskCrudOperations {
         updates as Partial<TaskWithSubTasks>
       );
     } catch (error) {
-      console.error('Failed to sync task update to backends:', error);
       // ロールバック: スナップショットから復元
       taskCoreStore.applyTaskUpdate(taskId, (task) => {
         Object.assign(task, snapshot);
@@ -184,7 +178,6 @@ export class TaskCrudOperations {
       // バックエンドに永続化
       await TaskBackend.deleteTaskWithSubTasks(removal.project.id, taskId);
     } catch (error) {
-      console.error('Failed to sync task deletion to backends:', error);
       // ロールバック: ローカル状態を復元
       taskCoreStore.restoreTask(removal);
       errorHandler.addSyncError('タスク削除', 'task', taskId, error);

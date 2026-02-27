@@ -2,6 +2,7 @@ import { getTranslationService } from '$lib/stores/locale.svelte';
 import { resolveSettingsInitGateway, type SettingsInitGateway } from '$lib/dependencies/settings';
 import type { Setting } from '$lib/types/settings';
 import { SvelteDate, SvelteMap, SvelteSet } from 'svelte/reactivity';
+import { errorHandler } from '$lib/stores/error-handler.svelte';
 
 const translationService = getTranslationService();
 
@@ -139,7 +140,12 @@ export class ViewsVisibilityStore {
         this._configuration = { viewItems: [...DEFAULT_VIEW_ITEMS] };
       }
     } catch (error) {
-      console.error('Failed to load views configuration from backends:', error);
+      errorHandler.addError({
+        type: 'sync',
+        message: 'ビュー表示設定の読み込みに失敗しました',
+        details: error instanceof Error ? error.message : String(error),
+        retryable: true
+      });
 
       // フォールバックとしてlocalStorageから読み込み
       if (typeof window !== 'undefined') {
@@ -194,7 +200,12 @@ export class ViewsVisibilityStore {
 
       await this.settingsInitGateway.updateSetting(setting);
     } catch (error) {
-      console.error('Failed to save views visibility to backends:', error);
+      errorHandler.addError({
+        type: 'sync',
+        message: 'ビュー表示設定の保存に失敗しました',
+        details: error instanceof Error ? error.message : String(error),
+        retryable: true
+      });
 
       // フォールバックとしてlocalStorageに保存
       if (typeof window !== 'undefined') {
@@ -222,5 +233,10 @@ export const viewsVisibilityStore = new ViewsVisibilityStore();
 
 // 初期化の実行
 viewsVisibilityStore.init().catch((error) => {
-  console.error('Failed to initialize views visibility store:', error);
+  errorHandler.addError({
+    type: 'general',
+    message: 'ビュー表示ストアの初期化に失敗しました',
+    details: error instanceof Error ? error.message : String(error),
+    retryable: true
+  });
 });

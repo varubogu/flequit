@@ -154,21 +154,11 @@ describe('SubTaskMutations', () => {
     });
 
     it('存在しないタスクへの追加はnullを返す', async () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
       const result = await mutations.addSubTask('non-existent', {
         title: 'New SubTask'
       });
 
       expect(result).toBeNull();
-
-      // エラーログが出力されたことを検証
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Failed to find task for subtask creation:',
-        'non-existent'
-      );
-
-      consoleErrorSpy.mockRestore();
     });
   });
 

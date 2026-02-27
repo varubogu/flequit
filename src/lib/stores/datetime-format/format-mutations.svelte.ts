@@ -44,25 +44,20 @@ export class FormatMutations {
       format
     };
 
-    try {
-      const savedFormat = await this.customDateFormatGateway.create(newFormatForTauri);
-      if (savedFormat) {
-        const newFormat: CustomDateTimeFormat = {
-          id: savedFormat.id,
-          name: savedFormat.name,
-          format: savedFormat.format,
-          group: 'カスタムフォーマット',
-          order: this.customFormatsRef().length
-        };
-        this.customFormatsRef().push(newFormat);
-        return finalUuid;
-      } else {
-        throw new Error('Failed to save custom format to Tauri');
-      }
-    } catch (error) {
-      console.error('Failed to add custom format:', error);
-      throw error;
+    const savedFormat = await this.customDateFormatGateway.create(newFormatForTauri);
+    if (savedFormat) {
+      const newFormat: CustomDateTimeFormat = {
+        id: savedFormat.id,
+        name: savedFormat.name,
+        format: savedFormat.format,
+        group: 'カスタムフォーマット',
+        order: this.customFormatsRef().length
+      };
+      this.customFormatsRef().push(newFormat);
+      return finalUuid;
     }
+
+    throw new Error('Failed to save custom format to Tauri');
   }
 
   /**
@@ -84,17 +79,13 @@ export class FormatMutations {
       format: updates.format ?? currentFormat.format
     };
 
-    try {
-      const savedFormat = await this.customDateFormatGateway.update(updatedFormatForTauri);
-      if (savedFormat) {
-        this.customFormatsRef()[index] = { ...this.customFormatsRef()[index], ...updates };
-      } else {
-        throw new Error('Failed to update custom format in Tauri');
-      }
-    } catch (error) {
-      console.error('Failed to update custom format:', error);
-      throw error;
+    const savedFormat = await this.customDateFormatGateway.update(updatedFormatForTauri);
+    if (savedFormat) {
+      this.customFormatsRef()[index] = { ...this.customFormatsRef()[index], ...updates };
+      return;
     }
+
+    throw new Error('Failed to update custom format in Tauri');
   }
 
   /**
@@ -106,17 +97,13 @@ export class FormatMutations {
       throw new Error(`Format with id ${id} not found`);
     }
 
-    try {
-      const success = await this.customDateFormatGateway.delete(id);
-      if (success) {
-        this.customFormatsRef().splice(index, 1);
-      } else {
-        throw new Error('Failed to delete custom format from Tauri');
-      }
-    } catch (error) {
-      console.error('Failed to remove custom format:', error);
-      throw error;
+    const success = await this.customDateFormatGateway.delete(id);
+    if (success) {
+      this.customFormatsRef().splice(index, 1);
+      return;
     }
+
+    throw new Error('Failed to delete custom format from Tauri');
   }
 
   /**

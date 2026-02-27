@@ -44,8 +44,7 @@ export class TaskListMutations {
         project.taskLists.push(newTaskList);
       }
       return newTaskList;
-    } catch (error) {
-      console.error('Failed to create task list:', error);
+    } catch {
       return null;
     }
   }
@@ -83,8 +82,7 @@ export class TaskListMutations {
         }
       }
       return null;
-    } catch (error) {
-      console.error('Failed to update task list:', error);
+    } catch {
       return null;
     }
   }
@@ -117,8 +115,7 @@ export class TaskListMutations {
         }
       }
       return success;
-    } catch (error) {
-      console.error('Failed to delete task list:', error);
+    } catch {
       return false;
     }
   }

@@ -42,7 +42,6 @@ export const TaskBackend = {
       await backend.task.create(projectId, newTask, getCurrentUserId());
       return newTask;
     } catch (error) {
-      console.error('Failed to create task:', error);
       errorHandler.addSyncError('タスク作成', 'task', newTask.id, error);
       throw error;
     }
@@ -95,7 +94,6 @@ export const TaskBackend = {
       }
       return await backend.task.get(projectId, taskId, getCurrentUserId());
     } catch (error) {
-      console.error('Failed to update task:', error);
       errorHandler.addSyncError('タスク更新', 'task', taskId, error);
       throw error;
     }
@@ -109,7 +107,6 @@ export const TaskBackend = {
       const backend = await resolveBackend();
       return await backend.task.delete(projectId, taskId, getCurrentUserId());
     } catch (error) {
-      console.error('Failed to delete task:', error);
       errorHandler.addSyncError('タスク削除', 'task', taskId, error);
       throw error;
     }
@@ -148,7 +145,6 @@ export const TaskBackend = {
       const backend = await resolveBackend();
       return await backend.task.restore(projectId, taskId, getCurrentUserId());
     } catch (error) {
-      console.error('Failed to restore task:', error);
       errorHandler.addSyncError('タスク復元', 'task', taskId, error);
       throw error;
     }

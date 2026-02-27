@@ -51,7 +51,6 @@ export class TaskListOrdering {
           orderIndex: index
         } as Partial<TaskList>);
       } catch (error) {
-        console.error('Failed to sync task list order to backends:', error);
         errorHandler.addSyncError('タスクリスト順序更新', 'tasklist', taskList.id, error);
       }
     }
@@ -86,7 +85,6 @@ export class TaskListOrdering {
               orderIndex: index
             } as Partial<TaskList>);
           } catch (error) {
-            console.error('Failed to sync source project task list order to backends:', error);
             errorHandler.addSyncError('タスクリスト順序更新（移動元）', 'tasklist', tl.id, error);
           }
         }
@@ -134,7 +132,6 @@ export class TaskListOrdering {
           orderIndex: index
         } as Partial<TaskList>);
       } catch (error) {
-        console.error('Failed to sync target project task list order to backends:', error);
         errorHandler.addSyncError('タスクリスト順序更新（移動先）', 'tasklist', tl.id, error);
       }
     }

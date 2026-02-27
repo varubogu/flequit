@@ -1,4 +1,5 @@
 import { resolveSettingsGateway, type SettingsGateway } from '$lib/dependencies/settings';
+import { errorHandler } from '$lib/stores/error-handler.svelte';
 
 export interface AppearanceSettings {
   font: string;
@@ -66,7 +67,12 @@ class AppearanceStore {
         throw new Error('Failed to update settings');
       }
     } catch (error) {
-      console.error('Failed to save appearance settings:', error);
+      errorHandler.addError({
+        type: 'sync',
+        message: '外観設定の保存に失敗しました',
+        details: error instanceof Error ? error.message : String(error),
+        retryable: true
+      });
       // フォールバックとしてlocalStorageに保存
       if (typeof localStorage !== 'undefined') {
         localStorage.setItem('flequit-appearance', JSON.stringify(this._settings));
@@ -95,7 +101,12 @@ class AppearanceStore {
         }
       }
     } catch (error) {
-      console.error('Failed to load appearance settings:', error);
+      errorHandler.addError({
+        type: 'sync',
+        message: '外観設定の読み込みに失敗しました',
+        details: error instanceof Error ? error.message : String(error),
+        retryable: true
+      });
 
       // フォールバックとしてlocalStorageから読み込み
       if (typeof localStorage !== 'undefined') {
@@ -106,7 +117,12 @@ class AppearanceStore {
             this._settings = { ...this._settings, ...parsed };
             console.warn('Appearance settings loaded from localStorage fallback');
           } catch (error) {
-            console.error('Failed to parse appearance settings:', error);
+            errorHandler.addError({
+              type: 'general',
+              message: '外観設定の復元に失敗しました',
+              details: error instanceof Error ? error.message : String(error),
+              retryable: false
+            });
           }
         }
       }
@@ -123,5 +139,10 @@ export const appearanceStore = new AppearanceStore();
 
 // 初期化の実行
 appearanceStore.init().catch((error) => {
-  console.error('Failed to initialize appearance store:', error);
+  errorHandler.addError({
+    type: 'general',
+    message: '外観ストアの初期化に失敗しました',
+    details: error instanceof Error ? error.message : String(error),
+    retryable: true
+  });
 });

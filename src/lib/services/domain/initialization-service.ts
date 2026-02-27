@@ -18,7 +18,6 @@ export const InitializationService = {
       const backend = await resolveBackend();
       return await backend.initialization.loadProjectData();
     } catch (error) {
-      console.error('Failed to load project data:', error);
       errorHandler.addSyncError(
         'プロジェクトデータ読み込み',
         'initialization',
@@ -37,7 +36,6 @@ export const InitializationService = {
       const backend = await resolveBackend();
       return await backend.initialization.initializeAll();
     } catch (error) {
-      console.error('Failed to initialize all:', error);
       errorHandler.addSyncError('完全初期化', 'initialization', 'all', error);
       throw error;
     }

@@ -46,7 +46,6 @@ export class TaskCoreMutations {
   addTask(listId: string, taskData: Partial<Task>): TaskWithSubTasks | null {
     const taskList = ProjectTreeTraverser.findTaskList(this.projectsRef(), listId);
     if (!taskList) {
-      console.error(`Task list not found: ${listId}`);
       return null;
     }
 
@@ -81,13 +80,11 @@ export class TaskCoreMutations {
    */
   createRecurringTask(taskData: Partial<Task>): void {
     if (!taskData.listId) {
-      console.error('listId is required for recurring task');
       return;
     }
 
     const taskList = ProjectTreeTraverser.findTaskList(this.projectsRef(), taskData.listId);
     if (!taskList) {
-      console.error(`Task list not found: ${taskData.listId}`);
       return;
     }
 
@@ -128,13 +125,11 @@ export class TaskCoreMutations {
   ): TaskWithSubTasks | null {
     const taskList = ProjectTreeTraverser.findTaskList(this.projectsRef(), listId);
     if (!taskList) {
-      console.error(`Task list not found: ${listId}`);
       return null;
     }
 
     const project = ProjectTreeTraverser.findProject(this.projectsRef(), taskList.projectId);
     if (!project) {
-      console.error(`Project not found for task list: ${listId}`);
       return null;
     }
 

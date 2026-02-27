@@ -27,7 +27,6 @@ export class TaskStatusOperations {
   async toggleTaskStatus(taskId: string): Promise<void> {
     const task = this.#taskStore.getTaskById(taskId);
     if (!task) {
-      console.error('Failed to find task:', taskId);
       return;
     }
 

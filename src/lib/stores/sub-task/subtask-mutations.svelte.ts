@@ -44,7 +44,6 @@ export class SubTaskMutations {
     }
 
     if (!targetProjectId || !targetTask) {
-      console.error('Failed to find task for subtask creation:', taskId);
       return null;
     }
 
@@ -54,7 +53,6 @@ export class SubTaskMutations {
       targetTask.subTasks.push(subTaskWithTags);
       return newSubTask;
     } catch (error) {
-      console.error('Failed to create subtask:', error);
       errorHandler.addSyncError('サブタスク作成', 'task', taskId, error);
       return null;
     }
@@ -80,7 +78,6 @@ export class SubTaskMutations {
             try {
               await this.subTaskGateway.updateSubTask(projectId, subTaskId, updates);
             } catch (error) {
-              console.error('Failed to sync subtask update to backends:', error);
               errorHandler.addSyncError('サブタスク更新', 'task', subTaskId, error);
             }
             return;
@@ -113,7 +110,6 @@ export class SubTaskMutations {
             try {
               await this.subTaskGateway.deleteSubTask(projectId, subTaskId);
             } catch (error) {
-              console.error('Failed to sync subtask deletion to backends:', error);
               errorHandler.addSyncError('サブタスク削除', 'task', subTaskId, error);
               // エラーが発生した場合はローカル状態を復元
               task.subTasks.splice(subTaskIndex, 0, deletedSubTask);

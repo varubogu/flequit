@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { TaskCoreOperations } from '$lib/stores/task-core/task-core-operations.svelte';
 import type { ProjectTree } from '$lib/types/project';
 import {
@@ -52,16 +52,10 @@ const createMockProjects = (): ProjectTree[] => {
 describe('TaskCoreOperations', () => {
   let projects: ProjectTree[];
   let operations: TaskCoreOperations;
-  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     projects = createMockProjects();
     operations = new TaskCoreOperations(() => projects);
-    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    consoleErrorSpy.mockRestore();
   });
 
   describe('removeTask', () => {
@@ -88,7 +82,6 @@ describe('TaskCoreOperations', () => {
       const context = operations.removeTask('non-existent');
 
       expect(context).toBeNull();
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Task not found: non-existent');
     });
 
     it('2番目のタスクを削除できる', () => {
@@ -156,14 +149,12 @@ describe('TaskCoreOperations', () => {
       const context = operations.moveTaskBetweenLists('non-existent', 'list-2');
 
       expect(context).toBeNull();
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Task not found for move: non-existent');
     });
 
     it('存在しないリストへの移動はnullを返す', () => {
       const context = operations.moveTaskBetweenLists('task-1', 'non-existent');
 
       expect(context).toBeNull();
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Target task list not found: non-existent');
     });
 
     it('移動コンテキストに正しい情報が含まれる', () => {

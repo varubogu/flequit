@@ -28,8 +28,7 @@ export const ProjectCompositeService = {
       const newProjectTree = await ProjectBackend.createProjectTree(projectData);
       resolveProjectStore().addProjectToStore(newProjectTree);
       return newProjectTree;
-    } catch (error) {
-      console.error('Failed to create project:', error);
+    } catch {
       return null;
     }
   },
@@ -60,8 +59,7 @@ export const ProjectCompositeService = {
         updatedAt: updatedProject.updatedAt
       });
       return updatedProject;
-    } catch (error) {
-      console.error('Failed to update project:', error);
+    } catch {
       return null;
     }
   },
@@ -76,8 +74,7 @@ export const ProjectCompositeService = {
         resolveProjectStore().removeProjectFromStore(projectId);
       }
       return success;
-    } catch (error) {
-      console.error('Failed to delete project:', error);
+    } catch {
       return false;
     }
   },

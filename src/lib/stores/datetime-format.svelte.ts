@@ -7,6 +7,7 @@ import {
 } from './datetime-format/format-presets';
 import { FormatMutations } from '$lib/stores/datetime-format/format-mutations.svelte';
 import { FormatStorage } from './datetime-format/format-storage';
+import { errorHandler } from '$lib/stores/error-handler.svelte';
 
 /**
  * DateTimeFormatStore - 日時フォーマット管理のFacadeストア
@@ -30,7 +31,14 @@ class DateTimeFormatStore {
 
     // 初期化
     this.loadFromStorage();
-    this.loadCustomFormatsFromTauri().catch(console.error);
+    this.loadCustomFormatsFromTauri().catch((error) => {
+      errorHandler.addError({
+        type: 'general',
+        message: '日時フォーマット設定の初期化に失敗しました',
+        details: error instanceof Error ? error.message : String(error),
+        retryable: true
+      });
+    });
   }
 
   // 全フォーマットの統合リスト（$derived）

@@ -53,8 +53,8 @@ export class FormatStorage {
           if (data.currentFormat) {
             return data.currentFormat;
           }
-        } catch (error) {
-          console.error('Failed to load datetime format settings:', error);
+        } catch {
+          // localStorageが壊れている場合はデフォルトフォーマットへフォールバック
         }
       }
     }
@@ -68,8 +68,7 @@ export class FormatStorage {
     try {
       const tauriFormats = await this.customDateFormatGateway.getAll();
       return tauriFormats.map((f) => this.convertFromTauri(f));
-    } catch (error) {
-      console.error('Failed to load custom formats from Tauri:', error);
+    } catch {
       return [];
     }
   }

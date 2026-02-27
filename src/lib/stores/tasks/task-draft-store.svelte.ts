@@ -26,7 +26,6 @@ export class TaskDraftStore {
       this.#deps.taskListStore.getProjectIdByListId(listId) ??
       this.#deps.selection.selectedProjectId;
     if (!projectId) {
-      console.error('Failed to determine project for list:', listId);
       this.cancel();
       return;
     }

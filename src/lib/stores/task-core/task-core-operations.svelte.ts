@@ -45,7 +45,6 @@ export class TaskCoreOperations {
   ): TaskMoveContext | null {
     const targetTaskList = ProjectTreeTraverser.findTaskList(this.projectsRef(), newTaskListId);
     if (!targetTaskList) {
-      console.error(`Target task list not found: ${newTaskListId}`);
       return null;
     }
 
@@ -54,13 +53,11 @@ export class TaskCoreOperations {
       targetTaskList.projectId
     );
     if (!targetProject) {
-      console.error(`Target project not found for task list: ${newTaskListId}`);
       return null;
     }
 
     const sourceContext = ProjectTreeTraverser.findTaskContext(this.projectsRef(), taskId);
     if (!sourceContext) {
-      console.error(`Task not found for move: ${taskId}`);
       return null;
     }
 
@@ -100,7 +97,6 @@ export class TaskCoreOperations {
   removeTask(taskId: string): TaskRemovalContext | null {
     const context = ProjectTreeTraverser.findTaskContext(this.projectsRef(), taskId);
     if (!context) {
-      console.error(`Task not found: ${taskId}`);
       return null;
     }
 

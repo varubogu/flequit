@@ -102,8 +102,6 @@ describe('FormatStorage', () => {
     });
 
     it('Tauriエラー時は空配列を返す', async () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
       // エラーを返すカスタムサービスでストレージを作成
       const errorService: CustomDateFormatService = {
         create: vi.fn(async (_format: CustomDateFormat) => null),
@@ -119,14 +117,6 @@ describe('FormatStorage', () => {
       const formats = await errorStorage.loadCustomFormatsFromTauri();
 
       expect(formats).toEqual([]);
-
-      // エラーログが出力されたことを検証
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Failed to load custom formats from Tauri:',
-        expect.any(Error)
-      );
-
-      consoleErrorSpy.mockRestore();
     });
   });
 });

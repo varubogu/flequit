@@ -40,7 +40,6 @@ export class TagBookmarkOperations {
   async toggleBookmark(tagId: string) {
     const projectId = await this.tagGateway.getProjectIdByTagId(tagId);
     if (!projectId) {
-      console.error('Project ID not found for tag:', tagId);
       return;
     }
     await this.tagBookmarkGateway.toggleBookmark(projectId, tagId);
@@ -59,7 +58,6 @@ export class TagBookmarkOperations {
   async addBookmark(tagId: string) {
     const projectId = await this.tagGateway.getProjectIdByTagId(tagId);
     if (!projectId) {
-      console.error('Project ID not found for tag:', tagId);
       return;
     }
     await this.tagBookmarkGateway.create(projectId, tagId);
@@ -83,7 +81,6 @@ export class TagBookmarkOperations {
   async removeBookmark(tagId: string) {
     const bookmark = this.bookmarkStore.findBookmarkByTagId(tagId);
     if (!bookmark) {
-      console.error('Bookmark not found for tag:', tagId);
       return;
     }
     await this.tagBookmarkGateway.delete(bookmark.id, tagId);

@@ -170,9 +170,7 @@ describe('TagStoreFacade (Integration)', () => {
 
     it('ブックマークを削除できる', () => {
       store.removeBookmark('tag-1');
-
-      // ブックマークが見つからないためエラーログが出力される
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Bookmark not found for tag:', 'tag-1');
+      expect(store.isBookmarked('tag-1')).toBe(false);
     });
   });
 

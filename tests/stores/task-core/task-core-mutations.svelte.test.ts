@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { TaskCoreMutations } from '$lib/stores/task-core/task-core-mutations.svelte';
 import type { ProjectTree } from '$lib/types/project';
 import type { TaskWithSubTasks } from '$lib/types/task';
@@ -53,16 +53,10 @@ const createMockProjects = (): ProjectTree[] => {
 describe('TaskCoreMutations', () => {
   let projects: ProjectTree[];
   let mutations: TaskCoreMutations;
-  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     projects = createMockProjects();
     mutations = new TaskCoreMutations(() => projects);
-    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    consoleErrorSpy.mockRestore();
   });
 
   describe('updateTask', () => {
@@ -212,7 +206,6 @@ describe('TaskCoreMutations', () => {
       });
 
       expect(newTask).toBeNull();
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Task list not found: non-existent-list');
     });
   });
 
@@ -243,7 +236,6 @@ describe('TaskCoreMutations', () => {
         title: 'Recurring Task'
       });
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('listId is required for recurring task');
       expect(projects[0].taskLists[0].tasks).toHaveLength(1);
     });
 
@@ -253,8 +245,6 @@ describe('TaskCoreMutations', () => {
         listId: 'non-existent',
         title: 'Recurring Task'
       });
-
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Task list not found: non-existent');
     });
   });
 
@@ -350,7 +340,6 @@ describe('TaskCoreMutations', () => {
       const result = mutations.insertTask('non-existent', taskToInsert);
 
       expect(result).toBeNull();
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Task list not found: non-existent');
     });
   });
 });
