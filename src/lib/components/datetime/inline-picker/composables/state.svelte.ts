@@ -2,37 +2,61 @@ import { SvelteDate } from 'svelte/reactivity';
 import { formatDate1, formatTime1 } from '$lib/utils/datetime/formatting';
 import type { InlineDatePickerState, UseInlineDatePickerOptions } from './types';
 
+function readCurrentDate(options: UseInlineDatePickerOptions): string | undefined {
+  return options.getCurrentDate?.() ?? options.currentDate;
+}
+
+function readCurrentStartDate(options: UseInlineDatePickerOptions): string | undefined {
+  return options.getCurrentStartDate?.() ?? options.currentStartDate;
+}
+
+function readIsRangeDate(options: UseInlineDatePickerOptions): boolean {
+  return options.getIsRangeDate?.() ?? options.isRangeDate ?? false;
+}
+
+function readRecurrenceRule(options: UseInlineDatePickerOptions) {
+  return options.getRecurrenceRule?.() ?? options.recurrenceRule ?? null;
+}
+
 export function createInlineDatePickerState(
   options: UseInlineDatePickerOptions
 ): InlineDatePickerState {
+  const isRangeDate = readIsRangeDate(options);
+  const recurrenceRule = readRecurrenceRule(options);
+
   const state = $state<InlineDatePickerState>({
     endDate: '',
     endTime: '00:00:00',
     startDate: '',
     startTime: '00:00:00',
-    useRangeMode: options.isRangeDate ?? false,
+    useRangeMode: isRangeDate ?? false,
     recurrenceDialogOpen: false,
-    currentRecurrenceRule: options.recurrenceRule ?? null,
-    lastSyncedRangeMode: options.isRangeDate ?? false,
-    lastSyncedRecurrenceRule: options.recurrenceRule ?? null
+    currentRecurrenceRule: recurrenceRule ?? null,
+    lastSyncedRangeMode: isRangeDate ?? false,
+    lastSyncedRecurrenceRule: recurrenceRule ?? null
   });
   return state;
 }
 
 export function initializeState(state: InlineDatePickerState, options: UseInlineDatePickerOptions) {
-  state.endDate = options.currentDate ? formatDate1(new SvelteDate(options.currentDate)) : '';
-  state.endTime = options.currentDate
-    ? formatTime1(new SvelteDate(options.currentDate))
+  const currentDate = readCurrentDate(options);
+  const currentStartDate = readCurrentStartDate(options);
+  const isRangeDate = readIsRangeDate(options);
+  const recurrenceRule = readRecurrenceRule(options);
+
+  state.endDate = currentDate ? formatDate1(new SvelteDate(currentDate)) : '';
+  state.endTime = currentDate
+    ? formatTime1(new SvelteDate(currentDate))
     : '00:00:00';
-  state.useRangeMode = options.isRangeDate || false;
+  state.useRangeMode = isRangeDate || false;
   state.lastSyncedRangeMode = state.useRangeMode;
-  state.startDate = options.currentStartDate
-    ? formatDate1(new SvelteDate(options.currentStartDate))
+  state.startDate = currentStartDate
+    ? formatDate1(new SvelteDate(currentStartDate))
     : '';
-  state.startTime = options.currentStartDate
-    ? formatTime1(new SvelteDate(options.currentStartDate))
+  state.startTime = currentStartDate
+    ? formatTime1(new SvelteDate(currentStartDate))
     : '00:00:00';
-  state.currentRecurrenceRule = options.recurrenceRule || null;
+  state.currentRecurrenceRule = recurrenceRule || null;
   state.lastSyncedRecurrenceRule = state.currentRecurrenceRule;
 }
 

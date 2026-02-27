@@ -10,7 +10,7 @@
 
   let { task }: Props = $props();
 
-  const controller = useTaskDatePickerController(task);
+  const controller = useTaskDatePickerController(() => task);
 
   // Export handlers for parent component
   export function handleDueDateClick(event: MouseEvent) {

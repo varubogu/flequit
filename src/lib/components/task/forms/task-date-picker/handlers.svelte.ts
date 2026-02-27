@@ -50,7 +50,7 @@ function calculatePickerPosition(event: MouseEvent): { x: number; y: number } {
  * タスク日付ピッカーのハンドラーを作成する
  */
 export function createTaskDatePickerHandlers(
-  task: TaskWithSubTasks,
+  getTask: () => TaskWithSubTasks,
   mainState: DatePickerState,
   subTaskState: SubTaskDatePickerState
 ) {
@@ -73,6 +73,7 @@ export function createTaskDatePickerHandlers(
     isRangeDate: boolean;
     recurrenceRule?: RecurrenceRule | null;
   }) {
+    const task = getTask();
     const { dateTime, range, isRangeDate, recurrenceRule } = data;
 
     // 更新データを準備
@@ -126,6 +127,7 @@ export function createTaskDatePickerHandlers(
   }
 
   async function handleDateClear() {
+    const task = getTask();
     await taskOperations.updateTask(task.id, {
       ...task,
       planStartDate: undefined,
@@ -159,6 +161,7 @@ export function createTaskDatePickerHandlers(
   }) {
     if (!subTaskState.editingSubTaskId) return;
 
+    const task = getTask();
     const { dateTime, range, isRangeDate, recurrenceRule } = data;
     const subTaskIndex = task.subTasks.findIndex((st) => st.id === subTaskState.editingSubTaskId);
     if (subTaskIndex === -1) return;
@@ -236,6 +239,7 @@ export function createTaskDatePickerHandlers(
   // Getter for SubTask data
   function getEditingSubTask() {
     if (!subTaskState.editingSubTaskId) return null;
+    const task = getTask();
     return task.subTasks.find((st) => st.id === subTaskState.editingSubTaskId);
   }
 

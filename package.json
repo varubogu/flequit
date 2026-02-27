@@ -4,6 +4,7 @@
   "description": "",
   "type": "module",
   "scripts": {
+    "paraglide:compile": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide --strategy cookie preferredLanguage baseLocale",
     "dev": "vite dev --host",
     "dev:e2e": "vite dev --port 10000 --host",
     "build": "vite build",
@@ -11,8 +12,8 @@
     "lint": "eslint .",
     "lint:arch": "eslint src/lib",
     "format": "prettier --write .",
-    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "check": "bun run paraglide:compile && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "bun run paraglide:compile && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:ui": "vitest --ui",

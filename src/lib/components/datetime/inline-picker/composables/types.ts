@@ -9,10 +9,15 @@ export interface DateChangeData {
 }
 
 export interface UseInlineDatePickerOptions {
-  show: boolean;
+  getShow?: () => boolean;
+  show?: boolean;
+  getCurrentDate?: () => string | undefined;
   currentDate?: string;
+  getCurrentStartDate?: () => string | undefined;
   currentStartDate?: string;
+  getIsRangeDate?: () => boolean | undefined;
   isRangeDate?: boolean;
+  getRecurrenceRule?: () => RecurrenceRule | null | undefined;
   recurrenceRule?: RecurrenceRule | null;
   onChange?: (data: DateChangeData) => void;
   onClose?: () => void;

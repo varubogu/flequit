@@ -17,13 +17,18 @@ export interface SubTaskDatePickerState extends DatePickerState {
 /**
  * タスク日付ピッカーの状態を作成する
  */
-export function createTaskDatePickerState(task: TaskWithSubTasks) {
+export function createTaskDatePickerState(getTask: () => TaskWithSubTasks) {
   // Task state
-  const taskState = $state<TaskDatePickerState>({ taskId: task.id });
+  const taskState = $state<TaskDatePickerState>({ taskId: getTask().id });
+
+  // task prop の差し替え時に追従
+  $effect(() => {
+    taskState.taskId = getTask().id;
+  });
 
   // 最新の task を取得（リアクティブ）
   const currentTask = $derived.by(() => {
-    return taskCoreStore.getTaskById(taskState.taskId) || task;
+    return taskCoreStore.getTaskById(taskState.taskId) || getTask();
   });
 
   // Main task date picker state

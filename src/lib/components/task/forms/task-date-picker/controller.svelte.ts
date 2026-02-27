@@ -7,9 +7,9 @@ import { createTaskDatePickerHandlers } from '$lib/components/task/forms/task-da
  *
  * state.svelte.ts と handlers.svelte.ts を組み合わせた統合インターフェース
  */
-export function useTaskDatePickerController(task: TaskWithSubTasks) {
-  const state = createTaskDatePickerState(task);
-  const handlers = createTaskDatePickerHandlers(task, state.mainState, state.subTaskState);
+export function useTaskDatePickerController(getTask: () => TaskWithSubTasks) {
+  const state = createTaskDatePickerState(getTask);
+  const handlers = createTaskDatePickerHandlers(getTask, state.mainState, state.subTaskState);
 
   return {
     // Current task (リアクティブにストアから取得)

@@ -48,11 +48,11 @@
     handleRecurrenceSave,
     handleRecurrenceDialogClose
   } = useInlineDatePicker({
-    show,
-    currentDate,
-    currentStartDate,
-    isRangeDate,
-    recurrenceRule,
+    getShow: () => show,
+    getCurrentDate: () => currentDate,
+    getCurrentStartDate: () => currentStartDate,
+    getIsRangeDate: () => isRangeDate,
+    getRecurrenceRule: () => recurrenceRule,
     onChange: onchange,
     onClose: onclose
   });
