@@ -39,10 +39,18 @@ export default defineConfig({
         'src/lib/**/*.d.ts'
       ],
       thresholds: {
-        lines: 60,
-        functions: 60,
-        branches: 60,
-        statements: 60
+        // Baseline from 2026-02-27 local run
+        lines: 80,
+        functions: 72,
+        branches: 87,
+        statements: 80,
+        // Services coverage will be raised toward 90% after Issue 01 completion
+        'src/lib/services/**/*.{ts,svelte}': {
+          lines: 75,
+          functions: 82,
+          branches: 86,
+          statements: 75
+        }
       }
     }
   }
