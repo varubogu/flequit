@@ -79,6 +79,130 @@ export interface YearlyRecurrencePattern {
 }
 
 /**
+ * 月内の第N曜日指定
+ */
+export interface WeekdayInMonthPattern {
+  /** 週番号（1-5） */
+  week: number;
+  /** 曜日 */
+  dayOfWeek: DayOfWeek;
+}
+
+/**
+ * 期間内の第N曜日指定
+ */
+export interface WeekdayInPeriodPattern {
+  /** 週番号（1始まり） */
+  week: number;
+  /** 曜日 */
+  dayOfWeek: DayOfWeek;
+}
+
+/**
+ * 拡張週次パターン
+ */
+export interface ExtendedWeeklyPattern {
+  /** 複数曜日指定 */
+  daysOfWeek: DayOfWeek[];
+  /** パターン単位の補正（将来用） */
+  perPatternAdjustment?: RecurrenceAdjustment;
+}
+
+/**
+ * 拡張月次パターン
+ */
+export interface ExtendedMonthlyPattern {
+  /** 複数日付指定（1-31） */
+  daysOfMonth?: number[];
+  /** 複数の第N曜日指定 */
+  weeksOfMonth?: WeekdayInMonthPattern[];
+  /** パターン単位の補正（将来用） */
+  perPatternAdjustment?: RecurrenceAdjustment;
+}
+
+/**
+ * 拡張四半期パターン
+ */
+export interface ExtendedQuarterlyPattern {
+  /** 四半期開始月からのオフセット（0-2） */
+  offsetMonths?: number[];
+  /** 対象月の日付指定（1-31） */
+  daysOfMonth?: number[];
+  /** 四半期開始週基準の第N曜日指定 */
+  weeksOfQuarter?: WeekdayInPeriodPattern[];
+  /** パターン単位の補正（将来用） */
+  perPatternAdjustment?: RecurrenceAdjustment;
+}
+
+/**
+ * 拡張半期パターン
+ */
+export interface ExtendedHalfyearPattern {
+  /** 半期開始月からのオフセット（0-5） */
+  offsetMonths?: number[];
+  /** 対象月の日付指定（1-31） */
+  daysOfMonth?: number[];
+  /** 半期開始週基準の第N曜日指定 */
+  weeksOfHalfyear?: WeekdayInPeriodPattern[];
+  /** パターン単位の補正（将来用） */
+  perPatternAdjustment?: RecurrenceAdjustment;
+}
+
+/**
+ * 拡張年次の月指定
+ */
+export interface ExtendedYearlyMonthPattern {
+  /** 月（1-12） */
+  month: number;
+  /** 対象月の日付指定（1-31） */
+  daysOfMonth?: number[];
+  /** 対象月の第N曜日指定 */
+  weeksOfMonth?: WeekdayInMonthPattern[];
+}
+
+/**
+ * 拡張年次パターン
+ */
+export interface ExtendedYearlyPattern {
+  /** 複数月指定 */
+  months?: ExtendedYearlyMonthPattern[];
+  /** パターン単位の補正（将来用） */
+  perPatternAdjustment?: RecurrenceAdjustment;
+}
+
+/**
+ * 拡張会計年度の月指定（将来用）
+ */
+export interface ExtendedFiscalYearMonthPattern {
+  /** 会計年度開始月からのオフセット */
+  offset: number;
+  /** 対象月の日付指定（1-31） */
+  daysOfMonth?: number[];
+  /** 対象月の第N曜日指定 */
+  weeksOfMonth?: WeekdayInMonthPattern[];
+}
+
+/**
+ * 拡張会計年度パターン（将来用）
+ */
+export interface ExtendedFiscalYearPattern {
+  months?: ExtendedFiscalYearMonthPattern[];
+  perPatternAdjustment?: RecurrenceAdjustment;
+}
+
+/**
+ * 拡張パターン
+ */
+export interface ExtendedRecurrencePattern {
+  weekly?: ExtendedWeeklyPattern;
+  monthly?: ExtendedMonthlyPattern;
+  quarterly?: ExtendedQuarterlyPattern;
+  halfyear?: ExtendedHalfyearPattern;
+  yearly?: ExtendedYearlyPattern;
+  fiscalYear?: ExtendedFiscalYearPattern;
+}
+
+/**
  * 繰り返しパターン（月次・年次の詳細設定）
  */
 export interface RecurrencePattern {
@@ -86,6 +210,8 @@ export interface RecurrencePattern {
   monthly?: MonthlyRecurrencePattern;
   /** 年次パターン */
   yearly?: YearlyRecurrencePattern;
+  /** 拡張パターン */
+  extended?: ExtendedRecurrencePattern;
 }
 
 // ========================================

@@ -168,6 +168,107 @@ describe('RecurrenceDateCalculator', () => {
       expect(nextDate?.toISOString().split('T')[0]).toBe('2025-01-01');
     });
 
+    it('拡張週次パターン（複数曜日指定）', () => {
+      const baseDate = new Date('2024-01-01'); // 月曜日
+      const rule: RecurrenceRule = {
+        unit: 'week',
+        interval: 1,
+        pattern: {
+          extended: {
+            weekly: {
+              daysOfWeek: ['monday', 'thursday']
+            }
+          }
+        }
+      };
+
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
+      expect(nextDate?.toISOString().split('T')[0]).toBe('2024-01-04');
+    });
+
+    it('拡張月次パターン（複数日付指定）', () => {
+      const baseDate = new Date('2024-01-01');
+      const rule: RecurrenceRule = {
+        unit: 'month',
+        interval: 1,
+        pattern: {
+          extended: {
+            monthly: {
+              daysOfMonth: [1, 15, 28]
+            }
+          }
+        }
+      };
+
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
+      expect(nextDate?.toISOString().split('T')[0]).toBe('2024-01-15');
+    });
+
+    it('拡張四半期パターン（offsetMonths + daysOfMonth）', () => {
+      const baseDate = new Date('2024-01-01');
+      const rule: RecurrenceRule = {
+        unit: 'quarter',
+        interval: 1,
+        pattern: {
+          extended: {
+            quarterly: {
+              offsetMonths: [0, 2],
+              daysOfMonth: [1, 15]
+            }
+          }
+        }
+      };
+
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
+      expect(nextDate?.toISOString().split('T')[0]).toBe('2024-01-15');
+    });
+
+    it('拡張半期パターン（offsetMonths + daysOfMonth）', () => {
+      const baseDate = new Date('2024-01-10');
+      const rule: RecurrenceRule = {
+        unit: 'halfyear',
+        interval: 1,
+        pattern: {
+          extended: {
+            halfyear: {
+              offsetMonths: [0, 5],
+              daysOfMonth: [1, 20]
+            }
+          }
+        }
+      };
+
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
+      expect(nextDate?.toISOString().split('T')[0]).toBe('2024-01-20');
+    });
+
+    it('拡張年次パターン（複数月指定）', () => {
+      const baseDate = new Date('2024-01-10');
+      const rule: RecurrenceRule = {
+        unit: 'year',
+        interval: 1,
+        pattern: {
+          extended: {
+            yearly: {
+              months: [
+                {
+                  month: 3,
+                  daysOfMonth: [15]
+                },
+                {
+                  month: 9,
+                  daysOfMonth: [1]
+                }
+              ]
+            }
+          }
+        }
+      };
+
+      const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
+      expect(nextDate?.toISOString().split('T')[0]).toBe('2024-03-15');
+    });
+
     it('終了日設定ありで終了条件を満たす場合', () => {
       const baseDate = new Date('2024-12-01');
       const rule: RecurrenceRule = {

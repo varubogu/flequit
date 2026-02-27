@@ -2,6 +2,13 @@ import type { RecurrenceRule } from '$lib/types/datetime-calendar';
 import { calculateWeeklyNext } from './calculators/weekly';
 import { calculateMonthlyNext } from './calculators/monthly';
 import { calculateYearlyNext } from './calculators/yearly';
+import {
+  calculateExtendedHalfyearNext,
+  calculateExtendedMonthlyNext,
+  calculateExtendedQuarterlyNext,
+  calculateExtendedWeeklyNext,
+  calculateExtendedYearlyNext
+} from './calculators/extended';
 import { checkDateCondition, adjustDateForCondition } from './adjustment/date-adjuster';
 import { checkWeekdayCondition, applyWeekdayAdjustment } from './adjustment/weekday-adjuster';
 import { shouldEndRecurrence } from './validation';
@@ -30,18 +37,38 @@ export class RecurrenceDateCalculator {
       case 'day':
         nextDate.setDate(nextDate.getDate() + rule.interval);
         break;
-      case 'week':
-        return calculateWeeklyNext(nextDate, rule);
-      case 'month':
-        return calculateMonthlyNext(nextDate, rule);
+      case 'week': {
+        const extendedWeekly = calculateExtendedWeeklyNext(nextDate, rule);
+        return extendedWeekly ?? calculateWeeklyNext(nextDate, rule);
+      }
+      case 'month': {
+        const extendedMonthly = calculateExtendedMonthlyNext(nextDate, rule);
+        return extendedMonthly ?? calculateMonthlyNext(nextDate, rule);
+      }
       case 'quarter':
-        nextDate.setMonth(nextDate.getMonth() + rule.interval * 3);
+        {
+          const extendedQuarterly = calculateExtendedQuarterlyNext(nextDate, rule);
+          if (extendedQuarterly) {
+            nextDate = extendedQuarterly;
+          } else {
+            nextDate.setMonth(nextDate.getMonth() + rule.interval * 3);
+          }
+        }
         break;
       case 'halfyear':
-        nextDate.setMonth(nextDate.getMonth() + rule.interval * 6);
+        {
+          const extendedHalfyear = calculateExtendedHalfyearNext(nextDate, rule);
+          if (extendedHalfyear) {
+            nextDate = extendedHalfyear;
+          } else {
+            nextDate.setMonth(nextDate.getMonth() + rule.interval * 6);
+          }
+        }
         break;
-      case 'year':
-        return calculateYearlyNext(nextDate, rule);
+      case 'year': {
+        const extendedYearly = calculateExtendedYearlyNext(nextDate, rule);
+        return extendedYearly ?? calculateYearlyNext(nextDate, rule);
+      }
       default:
         return null;
     }

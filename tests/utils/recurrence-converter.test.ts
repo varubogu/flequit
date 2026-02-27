@@ -364,6 +364,61 @@ describe('recurrence-converter', () => {
       // maxOccurrences: 0は通過（無制限の意味）
       expect(errors).toHaveLength(0);
     });
+
+    it('拡張週次パターンがあれば daysOfWeek なしでもエラーにならない', () => {
+      const rule: RecurrenceRule = {
+        unit: 'week',
+        interval: 1,
+        pattern: {
+          extended: {
+            weekly: {
+              daysOfWeek: ['monday', 'friday']
+            }
+          }
+        }
+      };
+
+      const errors = validateRecurrenceRule(rule);
+      expect(errors).toHaveLength(0);
+    });
+
+    it('拡張月次パターンで指定が空ならエラー', () => {
+      const rule: RecurrenceRule = {
+        unit: 'month',
+        interval: 1,
+        pattern: {
+          extended: {
+            monthly: {}
+          }
+        }
+      };
+
+      const errors = validateRecurrenceRule(rule);
+      expect(
+        errors.some((error) =>
+          error.includes('拡張月次パターンでは daysOfMonth または weeksOfMonth の指定が必要です')
+        )
+      ).toBe(true);
+    });
+
+    it('拡張年次パターンで months が空ならエラー', () => {
+      const rule: RecurrenceRule = {
+        unit: 'year',
+        interval: 1,
+        pattern: {
+          extended: {
+            yearly: {
+              months: []
+            }
+          }
+        }
+      };
+
+      const errors = validateRecurrenceRule(rule);
+      expect(errors.some((error) => error.includes('拡張年次パターンでは months の指定が必要です'))).toBe(
+        true
+      );
+    });
   });
 
   //   describe('エッジケース', () => {
