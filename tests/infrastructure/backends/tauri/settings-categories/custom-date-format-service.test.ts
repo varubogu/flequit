@@ -30,7 +30,7 @@ describe('CustomDateFormatService', () => {
       const result = await service.getCustomDateFormatSetting('format-123');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_custom_date_format_setting', {
-        format_id: 'format-123'
+        id: 'format-123'
       });
       expect(result).toEqual(mockCustomDateFormat);
     });
@@ -85,7 +85,7 @@ describe('CustomDateFormatService', () => {
       const result = await service.addCustomDateFormatSetting(mockCustomDateFormat);
 
       expect(mockInvoke).toHaveBeenCalledWith('add_custom_date_format_setting', {
-        format_setting: mockCustomDateFormat
+        format: mockCustomDateFormat
       });
       expect(result).toBe(true);
     });
@@ -113,7 +113,7 @@ describe('CustomDateFormatService', () => {
       const result = await service.updateCustomDateFormatSetting(mockCustomDateFormat);
 
       expect(mockInvoke).toHaveBeenCalledWith('update_custom_date_format_setting', {
-        format_setting: mockCustomDateFormat
+        format: mockCustomDateFormat
       });
       expect(result).toBe(true);
     });
@@ -141,7 +141,7 @@ describe('CustomDateFormatService', () => {
       const result = await service.deleteCustomDateFormatSetting('format-123');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_custom_date_format_setting', {
-        format_id: 'format-123'
+        id: 'format-123'
       });
       expect(result).toBe(true);
     });

@@ -243,7 +243,7 @@ describe('SettingsManagementTauriService', () => {
       await service.getAllCustomDateFormatSettings();
 
       expect(mockInvoke).toHaveBeenCalledWith('get_custom_date_format_setting', {
-        format_id: 'format-123'
+        id: 'format-123'
       });
       expect(mockInvoke).toHaveBeenCalledWith('get_all_custom_date_format_settings');
     });
