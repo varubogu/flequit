@@ -55,6 +55,26 @@
   const cancel = translationService.getMessage('cancel');
   const save = translationService.getMessage('save');
 
+  function createUpdatedUser(sourceUser: User): User {
+    return {
+      ...sourceUser,
+      handleId: username.trim() || sourceUser.handleId,
+      displayName: displayName.trim() || sourceUser.displayName,
+      email: email.trim() || sourceUser.email,
+      bio: bio.trim() || sourceUser.bio,
+      timezone: timezone.trim() || sourceUser.timezone,
+      updatedAt: new Date().toISOString()
+    };
+  }
+
+  function addSaveError(message: string) {
+    errorHandler.addError({
+      type: 'general',
+      message,
+      retryable: false
+    });
+  }
+
   function handleClose() {
     if (!isSaving) {
       onClose();
@@ -66,45 +86,26 @@
 
     isSaving = true;
     try {
-      // Create updated user object
-      const updatedUser: User = {
-        ...user,
-        handleId: username.trim() || user.handleId,
-        displayName: displayName.trim() || user.displayName,
-        email: email.trim() || user.email,
-        bio: bio.trim() || user.bio,
-        timezone: timezone.trim() || user.timezone,
-        updatedAt: new Date().toISOString()
-      };
+      const updatedUser = createUpdatedUser(user);
 
-      // Save to backend
       const success = await UserService.update(updatedUser);
 
       if (success) {
         onSave?.(updatedUser);
         onClose();
       } else {
-        errorHandler.addError({
-          type: 'general',
-          message: 'プロフィール保存に失敗しました',
-          retryable: false
-        });
+        addSaveError('プロフィール保存に失敗しました');
       }
-    } catch (error) {
-      console.error('Failed to save user profile:', error);
-      errorHandler.addError({
-        type: 'general',
-        message: 'プロフィール保存中にエラーが発生しました',
-        retryable: false
-      });
+    } catch {
+      addSaveError('プロフィール保存中にエラーが発生しました');
     } finally {
       isSaving = false;
     }
   }
 
   function handleKeydown(event: KeyboardEvent) {
-    if (event.key === 'Escape' && !isSaving) {
-      onClose();
+    if (event.key === 'Escape') {
+      handleClose();
     }
   }
 </script>
