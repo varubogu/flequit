@@ -1,4 +1,5 @@
 use crate::models::project::{ProjectCommandModel, ProjectTreeCommandModel};
+use crate::models::project_search_request::ProjectSearchRequest;
 use crate::models::CommandModelConverter;
 use crate::state::AppState;
 use chrono::Utc;
@@ -46,6 +47,37 @@ pub async fn get_project(
         Some(project) => Ok(Some(project.to_command_model().await?)),
         None => Ok(None),
     }
+}
+
+#[instrument(level = "info", skip(state), fields(name = ?condition.name))]
+#[tauri::command]
+pub async fn search_projects(
+    state: State<'_, AppState>,
+    condition: ProjectSearchRequest,
+) -> Result<Vec<ProjectCommandModel>, String> {
+    let repositories = state.repositories.read().await;
+
+    let projects = project_facades::search_projects(
+        &*repositories,
+        condition.name.as_deref(),
+        condition.status.as_ref(),
+        condition.owner_id.as_deref(),
+        condition.is_archived,
+        condition.limit,
+        condition.offset,
+    )
+    .await
+    .map_err(|e| {
+        tracing::error!(target: "commands::project", command = "search_projects", error = %e);
+        e
+    })?;
+
+    let mut result = Vec::with_capacity(projects.len());
+    for project in projects {
+        result.push(project.to_command_model().await?);
+    }
+
+    Ok(result)
 }
 
 #[instrument(level = "info", skip(state, patch), fields(project_id = %id))]

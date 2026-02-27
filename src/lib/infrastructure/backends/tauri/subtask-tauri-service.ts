@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { SubTask } from '$lib/types/sub-task';
+import type { SubTask, SubTaskSearchCondition } from '$lib/types/sub-task';
 import type { SubTaskService } from '../subtask-service';
 
 export class SubtaskTauriService implements SubTaskService {
@@ -105,12 +105,10 @@ export class SubtaskTauriService implements SubTaskService {
     }
   }
 
-  async search(): Promise<SubTask[]> {
-    // TODO: search_sub_tasks コマンドが Tauri側に実装されていないため、一時的にmock実装
-    console.warn('search_sub_tasks is not implemented on Tauri side - using mock implementation');
+  async search(projectId: string, condition: SubTaskSearchCondition): Promise<SubTask[]> {
     try {
-      // 一時的に空の配列を返す
-      return [];
+      const result = (await invoke('search_sub_tasks', { projectId, condition })) as SubTask[];
+      return result;
     } catch (error) {
       console.error('Failed to search sub tasks:', error);
       return [];

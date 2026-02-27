@@ -4,6 +4,7 @@ use flequit_model::models::task_projects::subtask::{PartialSubTask, SubTask};
 use flequit_model::models::task_projects::subtask_tag::SubTaskTag;
 use flequit_model::models::task_projects::tag::Tag;
 use flequit_model::types::id_types::{ProjectId, SubTaskId, TagId, UserId};
+use flequit_model::types::task_types::TaskStatus;
 use flequit_types::errors::service_error::ServiceError;
 
 pub async fn create_sub_task<R>(
@@ -34,6 +35,37 @@ where
         Ok(subtask) => Ok(subtask),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to get subtask: {:?}", e)),
+    }
+}
+
+pub async fn search_sub_tasks<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    task_id: Option<&str>,
+    title: Option<&str>,
+    status: Option<&TaskStatus>,
+    priority: Option<i32>,
+    limit: Option<i32>,
+    offset: Option<i32>,
+) -> Result<Vec<SubTask>, String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    match subtask_service::search_subtasks(
+        repositories,
+        project_id,
+        task_id,
+        title,
+        status,
+        priority,
+        limit,
+        offset,
+    )
+    .await
+    {
+        Ok(subtasks) => Ok(subtasks),
+        Err(ServiceError::ValidationError(msg)) => Err(msg),
+        Err(e) => Err(format!("Failed to search subtasks: {:?}", e)),
     }
 }
 

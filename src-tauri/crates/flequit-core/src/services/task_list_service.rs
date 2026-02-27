@@ -87,6 +87,44 @@ where
     Ok(filtered_lists)
 }
 
+pub async fn search_task_lists<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    name: Option<&str>,
+    is_archived: Option<bool>,
+    order_index: Option<i32>,
+    limit: Option<i32>,
+    offset: Option<i32>,
+) -> Result<Vec<TaskList>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    let mut task_lists = repositories.task_lists().find_all(project_id).await?;
+
+    if let Some(name) = name {
+        let name = name.trim().to_lowercase();
+        if !name.is_empty() {
+            task_lists.retain(|task_list| task_list.name.to_lowercase().contains(&name));
+        }
+    }
+
+    if let Some(is_archived) = is_archived {
+        task_lists.retain(|task_list| task_list.is_archived == is_archived);
+    }
+
+    if let Some(order_index) = order_index {
+        task_lists.retain(|task_list| task_list.order_index == order_index);
+    }
+
+    task_lists.sort_by(|a, b| a.order_index.cmp(&b.order_index));
+
+    let offset = offset.unwrap_or(0).max(0) as usize;
+    let limit = limit.unwrap_or(i32::MAX).max(0) as usize;
+    let task_lists = task_lists.into_iter().skip(offset).take(limit).collect();
+
+    Ok(task_lists)
+}
+
 /// プロジェクトIDからタスクを含むタスクリスト一覧を取得
 pub async fn get_task_lists_with_tasks<R>(
     repositories: &R,

@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { SubtaskTauriService } from '$lib/infrastructure/backends/tauri/subtask-tauri-service';
-import type { SubTask } from '$lib/types/sub-task';
+import type { SubTask, SubTaskSearchCondition } from '$lib/types/sub-task';
 
 // Mock Tauri invoke
 vi.mock('@tauri-apps/api/core', () => ({
@@ -13,6 +13,7 @@ const mockInvoke = vi.mocked(await import('@tauri-apps/api/core')).invoke;
 describe('SubtaskTauriService', () => {
   let service: SubtaskTauriService;
   let mockSubTask: SubTask;
+  let mockSearchCondition: SubTaskSearchCondition;
 
   beforeEach(() => {
     service = new SubtaskTauriService();
@@ -37,6 +38,10 @@ describe('SubtaskTauriService', () => {
       updatedAt: new Date('2024-01-01T00:00:00Z'),
       deleted: false,
       updatedBy: 'test-user-id'
+    };
+    mockSearchCondition = {
+      taskId: 'task-456',
+      title: 'Test'
     };
     vi.clearAllMocks();
   });
@@ -312,70 +317,92 @@ describe('SubtaskTauriService', () => {
   });
 
   describe('search', () => {
-    let consoleWarnSpy: ReturnType<typeof vi.spyOn>;
+    it('should successfully search subtasks', async () => {
+      mockInvoke.mockResolvedValue([mockSubTask]);
 
-    beforeEach(() => {
-      // search は未実装のため、警告が出力される。テスト出力をクリーンに保つためモック化
-      consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    });
+      const result = await service.search('test-project-id', mockSearchCondition);
 
-    afterEach(() => {
-      consoleWarnSpy.mockRestore();
-    });
-
-    it('should return empty array as search is not implemented', async () => {
-      const result = await service.search();
-
-      // search is not implemented, so invoke should not be called
-      expect(mockInvoke).not.toHaveBeenCalled();
-      expect(result).toEqual([]);
+      expect(mockInvoke).toHaveBeenCalledWith('search_sub_tasks', {
+        projectId: 'test-project-id',
+        condition: mockSearchCondition
+      });
+      expect(result).toEqual([mockSubTask]);
     });
 
     it('should return empty array when no subtasks found', async () => {
-      const result = await service.search();
+      mockInvoke.mockResolvedValue([]);
+      const result = await service.search('test-project-id', mockSearchCondition);
 
-      // search is not implemented, so invoke should not be called
-      expect(mockInvoke).not.toHaveBeenCalled();
+      expect(mockInvoke).toHaveBeenCalledWith('search_sub_tasks', {
+        projectId: 'test-project-id',
+        condition: mockSearchCondition
+      });
       expect(result).toEqual([]);
     });
 
     it('should return empty array when search fails', async () => {
-      const result = await service.search();
+      mockInvoke.mockRejectedValue(new Error('Search failed'));
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const result = await service.search('test-project-id', mockSearchCondition);
 
-      // search is not implemented, so invoke should not be called
-      expect(mockInvoke).not.toHaveBeenCalled();
+      expect(mockInvoke).toHaveBeenCalledWith('search_sub_tasks', {
+        projectId: 'test-project-id',
+        condition: mockSearchCondition
+      });
       expect(result).toEqual([]);
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to search sub tasks:', expect.any(Error));
+      consoleSpy.mockRestore();
     });
 
     it('should handle search by parent task ID only', async () => {
-      const result = await service.search();
+      const condition = { taskId: 'task-456' };
+      mockInvoke.mockResolvedValue([]);
+      const result = await service.search('test-project-id', condition);
 
-      // search is not implemented, so invoke should not be called
-      expect(mockInvoke).not.toHaveBeenCalled();
+      expect(mockInvoke).toHaveBeenCalledWith('search_sub_tasks', {
+        projectId: 'test-project-id',
+        condition
+      });
       expect(result).toEqual([]);
     });
 
     it('should handle search by status only', async () => {
-      const result = await service.search();
+      const condition = { status: 'completed' as const };
+      mockInvoke.mockResolvedValue([]);
+      const result = await service.search('test-project-id', condition);
 
-      // search is not implemented, so invoke should not be called
-      expect(mockInvoke).not.toHaveBeenCalled();
+      expect(mockInvoke).toHaveBeenCalledWith('search_sub_tasks', {
+        projectId: 'test-project-id',
+        condition
+      });
       expect(result).toEqual([]);
     });
 
     it('should handle search with multiple criteria', async () => {
-      const result = await service.search();
+      const condition = {
+        taskId: 'task-456',
+        title: 'Test',
+        status: 'not_started' as const
+      };
+      mockInvoke.mockResolvedValue([]);
+      const result = await service.search('test-project-id', condition);
 
-      // search is not implemented, so invoke should not be called
-      expect(mockInvoke).not.toHaveBeenCalled();
+      expect(mockInvoke).toHaveBeenCalledWith('search_sub_tasks', {
+        projectId: 'test-project-id',
+        condition
+      });
       expect(result).toEqual([]);
     });
 
     it('should handle empty search condition', async () => {
-      const result = await service.search();
+      const condition = {};
+      mockInvoke.mockResolvedValue([]);
+      const result = await service.search('test-project-id', condition);
 
-      // search is not implemented, so invoke should not be called
-      expect(mockInvoke).not.toHaveBeenCalled();
+      expect(mockInvoke).toHaveBeenCalledWith('search_sub_tasks', {
+        projectId: 'test-project-id',
+        condition
+      });
       expect(result).toEqual([]);
     });
   });
@@ -431,20 +458,15 @@ describe('SubtaskTauriService', () => {
     });
 
     it('should handle different priority values', async () => {
-      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const condition = { priority: 3 };
+      mockInvoke.mockResolvedValue([]);
+      const result = await service.search('test-project-id', condition);
 
-      const result = await service.search();
-
-      // search is not implemented, so invoke should not be called
-      expect(mockInvoke).not.toHaveBeenCalled();
+      expect(mockInvoke).toHaveBeenCalledWith('search_sub_tasks', {
+        projectId: 'test-project-id',
+        condition
+      });
       expect(result).toEqual([]);
-
-      // 未実装警告が出力されたことを検証
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        'search_sub_tasks is not implemented on Tauri side - using mock implementation'
-      );
-
-      consoleWarnSpy.mockRestore();
     });
   });
 });

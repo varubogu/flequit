@@ -1,4 +1,5 @@
 use crate::models::tag::TagCommandModel;
+use crate::models::tag_search_request::TagSearchRequest;
 use crate::models::CommandModelConverter;
 use crate::state::AppState;
 use chrono::Utc;
@@ -144,4 +145,38 @@ pub async fn restore_tag(
             tracing::error!(target: "commands::tag", command = "restore_tag", project_id = %project_id, tag_id = %tag_id, error = %e);
             e
         })
+}
+
+#[instrument(level = "info", skip(state), fields(project_id = %project_id, name = ?condition.name))]
+#[tauri::command]
+pub async fn search_tags(
+    state: State<'_, AppState>,
+    project_id: String,
+    condition: TagSearchRequest,
+) -> Result<Vec<TagCommandModel>, String> {
+    let project_id = match ProjectId::try_from_str(&project_id) {
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
+    };
+    let repositories = state.repositories.read().await;
+
+    let tags = tag_facades::search_tags(
+        &*repositories,
+        &project_id,
+        condition.name.as_deref(),
+        condition.limit,
+        condition.offset,
+    )
+    .await
+    .map_err(|e| {
+        tracing::error!(target: "commands::tag", command = "search_tags", project_id = %project_id, error = %e);
+        e
+    })?;
+
+    let mut result = Vec::with_capacity(tags.len());
+    for tag in tags {
+        result.push(tag.to_command_model().await?);
+    }
+
+    Ok(result)
 }

@@ -5,6 +5,7 @@ use chrono::{DateTime, Utc};
 use flequit_model::models::task_projects::project::{PartialProject, Project};
 use flequit_model::traits::TransactionManager;
 use flequit_model::types::id_types::{ProjectId, UserId};
+use flequit_model::types::project_types::ProjectStatus;
 use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_types::errors::repository_error::RepositoryError;
@@ -35,6 +36,35 @@ where
         Ok(None) => Ok(None),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to get project: {:?}", e)),
+    }
+}
+
+pub async fn search_projects<R>(
+    repositories: &R,
+    name: Option<&str>,
+    status: Option<&ProjectStatus>,
+    owner_id: Option<&str>,
+    is_archived: Option<bool>,
+    limit: Option<i32>,
+    offset: Option<i32>,
+) -> Result<Vec<Project>, String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    match project_service::search_projects(
+        repositories,
+        name,
+        status,
+        owner_id,
+        is_archived,
+        limit,
+        offset,
+    )
+    .await
+    {
+        Ok(projects) => Ok(projects),
+        Err(ServiceError::ValidationError(msg)) => Err(msg),
+        Err(e) => Err(format!("Failed to search projects: {:?}", e)),
     }
 }
 

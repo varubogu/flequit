@@ -1,4 +1,5 @@
 use crate::models::{
+    subtask_search_request::SubTaskSearchRequest,
     subtask::SubtaskCommandModel, subtask_recurrence::SubtaskRecurrenceCommandModel,
     CommandModelConverter,
 };
@@ -60,6 +61,43 @@ pub async fn get_sub_task(
             Err(format!("Failed to get sub task: {}", e))
         }
     }
+}
+
+#[instrument(level = "info", skip(state), fields(project_id = %project_id, title = ?condition.title))]
+#[tauri::command]
+pub async fn search_sub_tasks(
+    state: State<'_, AppState>,
+    project_id: String,
+    condition: SubTaskSearchRequest,
+) -> Result<Vec<SubtaskCommandModel>, String> {
+    let project_id = match ProjectId::try_from_str(&project_id) {
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
+    };
+    let repositories = state.repositories.read().await;
+
+    let subtasks = subtask_facades::search_sub_tasks(
+        &*repositories,
+        &project_id,
+        condition.task_id.as_deref(),
+        condition.title.as_deref(),
+        condition.status.as_ref(),
+        condition.priority,
+        condition.limit,
+        condition.offset,
+    )
+    .await
+    .map_err(|e| {
+        tracing::error!(target: "commands::subtask", command = "search_sub_tasks", project_id = %project_id, error = %e);
+        e
+    })?;
+
+    let mut result = Vec::with_capacity(subtasks.len());
+    for subtask in subtasks {
+        result.push(subtask.to_command_model().await?);
+    }
+
+    Ok(result)
 }
 
 #[instrument(level = "info", skip(state, patch), fields(project_id = %project_id, subtask_id = %id))]

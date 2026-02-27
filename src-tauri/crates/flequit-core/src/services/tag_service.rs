@@ -53,6 +53,29 @@ where
     Ok(repository.tags().find_all(project_id).await?)
 }
 
+pub async fn search_tags<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    name: Option<&str>,
+    limit: Option<i32>,
+    offset: Option<i32>,
+) -> Result<Vec<Tag>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    let mut tags = if let Some(name) = name {
+        search_tags_by_name(repositories, project_id, name).await?
+    } else {
+        list_tags(repositories, project_id).await?
+    };
+
+    let offset = offset.unwrap_or(0).max(0) as usize;
+    let limit = limit.unwrap_or(i32::MAX).max(0) as usize;
+    tags = tags.into_iter().skip(offset).take(limit).collect();
+
+    Ok(tags)
+}
+
 pub async fn update_tag<R>(
     repositories: &R,
     project_id: &ProjectId,

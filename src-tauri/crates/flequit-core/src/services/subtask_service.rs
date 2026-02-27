@@ -63,6 +63,50 @@ where
     Ok(filtered_subtasks)
 }
 
+pub async fn search_subtasks<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    task_id: Option<&str>,
+    title: Option<&str>,
+    status: Option<&TaskStatus>,
+    priority: Option<i32>,
+    limit: Option<i32>,
+    offset: Option<i32>,
+) -> Result<Vec<SubTask>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    let mut subtasks = repositories.sub_tasks().find_all(project_id).await?;
+
+    if let Some(task_id) = task_id {
+        let task_id = task_id.trim();
+        if !task_id.is_empty() {
+            subtasks.retain(|subtask| subtask.task_id.to_string() == task_id);
+        }
+    }
+
+    if let Some(title) = title {
+        let title = title.trim().to_lowercase();
+        if !title.is_empty() {
+            subtasks.retain(|subtask| subtask.title.to_lowercase().contains(&title));
+        }
+    }
+
+    if let Some(status) = status {
+        subtasks.retain(|subtask| subtask.status == *status);
+    }
+
+    if let Some(priority) = priority {
+        subtasks.retain(|subtask| subtask.priority == Some(priority));
+    }
+
+    let offset = offset.unwrap_or(0).max(0) as usize;
+    let limit = limit.unwrap_or(i32::MAX).max(0) as usize;
+    let subtasks = subtasks.into_iter().skip(offset).take(limit).collect();
+
+    Ok(subtasks)
+}
+
 pub async fn update_subtask<R>(
     repositories: &R,
     project_id: &ProjectId,

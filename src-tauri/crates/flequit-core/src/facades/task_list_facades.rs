@@ -40,6 +40,35 @@ where
     }
 }
 
+pub async fn search_task_lists<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    name: Option<&str>,
+    is_archived: Option<bool>,
+    order_index: Option<i32>,
+    limit: Option<i32>,
+    offset: Option<i32>,
+) -> Result<Vec<TaskList>, String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    match task_list_service::search_task_lists(
+        repositories,
+        project_id,
+        name,
+        is_archived,
+        order_index,
+        limit,
+        offset,
+    )
+    .await
+    {
+        Ok(task_lists) => Ok(task_lists),
+        Err(ServiceError::ValidationError(msg)) => Err(msg),
+        Err(e) => Err(format!("Failed to search task lists: {:?}", e)),
+    }
+}
+
 pub async fn update_task_list<R>(
     repositories: &R,
     project_id: &ProjectId,

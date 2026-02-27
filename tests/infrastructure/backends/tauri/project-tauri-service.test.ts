@@ -171,30 +171,40 @@ describe('ProjectTauriService', () => {
   });
 
   describe('search', () => {
-    it('should return empty array as mock implementation', async () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    it('should successfully search projects', async () => {
+      mockInvoke.mockResolvedValue([mockProject]);
 
       const result = await service.search(mockSearchCondition);
 
-      expect(result).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'search_projects is not implemented on Tauri side - using mock implementation'
-      );
-
-      consoleSpy.mockRestore();
+      expect(mockInvoke).toHaveBeenCalledWith('search_projects', {
+        condition: mockSearchCondition
+      });
+      expect(result).toEqual([mockProject]);
     });
 
     it('should handle search with empty condition', async () => {
       const emptyCondition = {};
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      mockInvoke.mockResolvedValue([]);
 
       const result = await service.search(emptyCondition);
 
+      expect(mockInvoke).toHaveBeenCalledWith('search_projects', {
+        condition: emptyCondition
+      });
       expect(result).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'search_projects is not implemented on Tauri side - using mock implementation'
-      );
+    });
 
+    it('should return empty array when search fails', async () => {
+      mockInvoke.mockRejectedValue(new Error('Search failed'));
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      const result = await service.search(mockSearchCondition);
+
+      expect(mockInvoke).toHaveBeenCalledWith('search_projects', {
+        condition: mockSearchCondition
+      });
+      expect(result).toEqual([]);
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to search projects:', expect.any(Error));
       consoleSpy.mockRestore();
     });
   });

@@ -61,13 +61,10 @@ export class TasklistTauriService implements TaskListService {
     }
   }
 
-  async search(_projectId: string, _condition: TaskListSearchCondition): Promise<TaskList[]> {
+  async search(projectId: string, condition: TaskListSearchCondition): Promise<TaskList[]> {
     try {
-      // TODO: search_task_lists コマンドが Tauri側に実装されていないため、一時的にmock実装
-      console.warn(
-        'search_task_lists is not implemented on Tauri side - using mock implementation'
-      );
-      return [];
+      const result = (await invoke('search_task_lists', { projectId, condition })) as TaskList[];
+      return result;
     } catch (error) {
       console.error('Failed to search task lists:', error);
       return [];

@@ -3,6 +3,7 @@
 //! タスクの取得コマンドを提供する
 
 use crate::models::{task::TaskCommandModel, CommandModelConverter};
+use crate::models::task_search_request::TaskSearchRequest;
 use crate::state::AppState;
 use flequit_core::facades::task_facades;
 use flequit_model::types::id_types::{ProjectId, TaskId};
@@ -35,4 +36,43 @@ pub async fn get_task(
         Some(task) => Ok(Some(task.to_command_model().await?)),
         None => Ok(None),
     }
+}
+
+#[instrument(level = "info", skip(state), fields(project_id = %project_id, title = ?condition.title))]
+#[tauri::command]
+pub async fn search_tasks(
+    state: State<'_, AppState>,
+    project_id: String,
+    condition: TaskSearchRequest,
+) -> Result<Vec<TaskCommandModel>, String> {
+    let project_id = match ProjectId::try_from_str(&project_id) {
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
+    };
+    let repositories = state.repositories.read().await;
+
+    let tasks = task_facades::search_tasks(
+        &*repositories,
+        &project_id,
+        condition.list_id.as_deref(),
+        condition.status.as_ref(),
+        condition.assigned_user_id.as_deref(),
+        condition.tag_id.as_deref(),
+        condition.title.as_deref(),
+        condition.is_archived,
+        condition.limit,
+        condition.offset,
+    )
+    .await
+    .map_err(|e| {
+        tracing::error!(target: "commands::task", command = "search_tasks", project_id = %project_id, error = %e);
+        e
+    })?;
+
+    let mut result = Vec::with_capacity(tasks.len());
+    for task in tasks {
+        result.push(task.to_command_model().await?);
+    }
+
+    Ok(result)
 }

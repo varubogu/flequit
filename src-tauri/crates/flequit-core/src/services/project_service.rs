@@ -2,6 +2,7 @@ use crate::InfrastructureRepositoriesTrait;
 use chrono::Utc;
 use flequit_model::models::task_projects::project::{PartialProject, Project};
 use flequit_model::types::id_types::{ProjectId, UserId};
+use flequit_model::types::project_types::ProjectStatus;
 use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_repository::repositories::patchable_trait::Patchable;
 use flequit_types::errors::service_error::ServiceError;
@@ -46,6 +47,54 @@ where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
     Ok(repositories.projects().find_all().await?)
+}
+
+pub async fn search_projects<R>(
+    repositories: &R,
+    name: Option<&str>,
+    status: Option<&ProjectStatus>,
+    owner_id: Option<&str>,
+    is_archived: Option<bool>,
+    limit: Option<i32>,
+    offset: Option<i32>,
+) -> Result<Vec<Project>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    let mut projects = repositories.projects().find_all().await?;
+
+    if let Some(name) = name {
+        let name = name.trim().to_lowercase();
+        if !name.is_empty() {
+            projects.retain(|project| project.name.to_lowercase().contains(&name));
+        }
+    }
+
+    if let Some(status) = status {
+        projects.retain(|project| project.status.as_ref() == Some(status));
+    }
+
+    if let Some(owner_id) = owner_id {
+        let owner_id = owner_id.trim();
+        if !owner_id.is_empty() {
+            projects.retain(|project| {
+                project
+                    .owner_id
+                    .as_ref()
+                    .is_some_and(|id| id.to_string() == owner_id)
+            });
+        }
+    }
+
+    if let Some(is_archived) = is_archived {
+        projects.retain(|project| project.is_archived == is_archived);
+    }
+
+    let offset = offset.unwrap_or(0).max(0) as usize;
+    let limit = limit.unwrap_or(i32::MAX).max(0) as usize;
+    let projects = projects.into_iter().skip(offset).take(limit).collect();
+
+    Ok(projects)
 }
 
 pub async fn update_project<R>(

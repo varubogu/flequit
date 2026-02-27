@@ -7,6 +7,7 @@ pub struct TaskListSearchRequest {
     pub project_id: Option<String>,
     pub name: Option<String>,
     pub is_archived: Option<bool>,
+    pub order_index: Option<i32>,
     pub limit: Option<i32>,
     pub offset: Option<i32>,
 }

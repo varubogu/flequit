@@ -21,6 +21,7 @@ pub mod setting_response;
 pub mod settings;
 pub mod subtask;
 pub mod subtask_assignment;
+pub mod subtask_search_request;
 pub mod subtask_recurrence;
 pub mod subtask_tag;
 pub mod tag;

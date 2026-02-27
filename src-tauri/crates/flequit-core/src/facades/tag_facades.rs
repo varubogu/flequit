@@ -41,6 +41,23 @@ where
     }
 }
 
+pub async fn search_tags<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    name: Option<&str>,
+    limit: Option<i32>,
+    offset: Option<i32>,
+) -> Result<Vec<Tag>, String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    match tag_service::search_tags(repositories, project_id, name, limit, offset).await {
+        Ok(tags) => Ok(tags),
+        Err(ServiceError::ValidationError(msg)) => Err(msg),
+        Err(e) => Err(format!("Failed to search tags: {:?}", e)),
+    }
+}
+
 pub async fn update_tag<R>(
     repositories: &R,
     project_id: &ProjectId,

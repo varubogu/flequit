@@ -58,11 +58,10 @@ export class TagTauriService implements TagService {
     }
   }
 
-  async search(_projectId: string, _condition: TagSearchCondition): Promise<Tag[]> {
+  async search(projectId: string, condition: TagSearchCondition): Promise<Tag[]> {
     try {
-      // TODO: search_tags コマンドが Tauri側に実装されていないため、一時的にmock実装
-      console.warn('search_tags is not implemented on Tauri side - using mock implementation');
-      return [];
+      const result = (await invoke('search_tags', { projectId, condition })) as Tag[];
+      return result;
     } catch (error) {
       console.error('Failed to search tags:', error);
       return [];

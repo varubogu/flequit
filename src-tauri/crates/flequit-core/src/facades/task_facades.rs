@@ -9,6 +9,7 @@ use flequit_model::models::task_projects::task::{PartialTask, Task};
 use flequit_model::models::task_projects::task_tag::TaskTag;
 use flequit_model::traits::TransactionManager;
 use flequit_model::types::id_types::{ProjectId, TagId, TaskId, UserId};
+use flequit_model::types::task_types::TaskStatus;
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_types::errors::service_error::ServiceError;
 use sea_orm::DatabaseTransaction;
@@ -43,6 +44,41 @@ where
         Ok(t) => Ok(t),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to update task: {:?}", e)),
+    }
+}
+
+pub async fn search_tasks<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    list_id: Option<&str>,
+    status: Option<&TaskStatus>,
+    assigned_user_id: Option<&str>,
+    tag_id: Option<&str>,
+    title: Option<&str>,
+    is_archived: Option<bool>,
+    limit: Option<i32>,
+    offset: Option<i32>,
+) -> Result<Vec<Task>, String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    match task_service::search_tasks(
+        repositories,
+        project_id,
+        list_id,
+        status,
+        assigned_user_id,
+        tag_id,
+        title,
+        is_archived,
+        limit,
+        offset,
+    )
+    .await
+    {
+        Ok(tasks) => Ok(tasks),
+        Err(ServiceError::ValidationError(msg)) => Err(msg),
+        Err(e) => Err(format!("Failed to search tasks: {:?}", e)),
     }
 }
 

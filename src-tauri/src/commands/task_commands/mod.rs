@@ -7,7 +7,7 @@ mod recurrence;
 mod write;
 
 // 関数の再エクスポート
-pub use read::get_task;
+pub use read::{get_task, search_tasks};
 pub use recurrence::{
     create_recurrence_adjustment, create_recurrence_details, create_recurrence_rule,
     create_task_recurrence, delete_recurrence_adjustment, delete_recurrence_details,
@@ -18,7 +18,7 @@ pub use recurrence::{
 pub use write::{create_task, delete_task, restore_task, update_task};
 
 // Tauri generate_handler! 用の __cmd__* シンボルの再エクスポート
-pub use read::__cmd__get_task;
+pub use read::{__cmd__get_task, __cmd__search_tasks};
 pub use recurrence::{
     __cmd__create_recurrence_adjustment, __cmd__create_recurrence_details,
     __cmd__create_recurrence_rule, __cmd__create_task_recurrence,

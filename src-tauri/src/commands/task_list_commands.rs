@@ -1,4 +1,5 @@
 use crate::models::task_list::{TaskListCommandModel, TaskListTreeCommandModel};
+use crate::models::task_list_search_request::TaskListSearchRequest;
 use crate::models::CommandModelConverter;
 use crate::state::AppState;
 use chrono::Utc;
@@ -145,6 +146,42 @@ pub async fn restore_task_list(
             tracing::error!(target: "commands::task_list", command = "restore_task_list", project_id = %project_id, task_list_id = %task_list_id, error = %e);
             e
         })
+}
+
+#[instrument(level = "info", skip(state), fields(project_id = %project_id, name = ?condition.name))]
+#[tauri::command]
+pub async fn search_task_lists(
+    state: State<'_, AppState>,
+    project_id: String,
+    condition: TaskListSearchRequest,
+) -> Result<Vec<TaskListCommandModel>, String> {
+    let project_id = match ProjectId::try_from_str(&project_id) {
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
+    };
+    let repositories = state.repositories.read().await;
+
+    let task_lists = task_list_facades::search_task_lists(
+        &*repositories,
+        &project_id,
+        condition.name.as_deref(),
+        condition.is_archived,
+        condition.order_index,
+        condition.limit,
+        condition.offset,
+    )
+    .await
+    .map_err(|e| {
+        tracing::error!(target: "commands::task_list", command = "search_task_lists", project_id = %project_id, error = %e);
+        e
+    })?;
+
+    let mut result = Vec::with_capacity(task_lists.len());
+    for task_list in task_lists {
+        result.push(task_list.to_command_model().await?);
+    }
+
+    Ok(result)
 }
 
 #[instrument(level = "info", skip(state), fields(project_id = %project_id))]

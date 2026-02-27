@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TaskTauriService } from '$lib/infrastructure/backends/tauri/task-tauri-service';
-import type { Task } from '$lib/types/task';
+import type { Task, TaskSearchCondition } from '$lib/types/task';
 
 // Mock Tauri invoke
 vi.mock('@tauri-apps/api/core', () => ({
@@ -13,6 +13,7 @@ const mockInvoke = vi.mocked(await import('@tauri-apps/api/core')).invoke;
 describe('TaskTauriService', () => {
   let service: TaskTauriService;
   let mockTask: Task;
+  let mockSearchCondition: TaskSearchCondition;
 
   beforeEach(() => {
     service = new TaskTauriService();
@@ -35,6 +36,10 @@ describe('TaskTauriService', () => {
       updatedAt: new Date('2024-01-01T00:00:00Z'),
       deleted: false,
       updatedBy: 'test-user-id'
+    };
+    mockSearchCondition = {
+      title: 'Test',
+      isArchived: false
     };
     vi.clearAllMocks();
   });
@@ -213,29 +218,43 @@ describe('TaskTauriService', () => {
   });
 
   describe('search', () => {
-    it('should return empty array as mock implementation', async () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    it('should successfully search tasks', async () => {
+      mockInvoke.mockResolvedValue([mockTask]);
 
-      const result = await service.search();
+      const result = await service.search('test-project-id', mockSearchCondition);
 
-      expect(result).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'search_tasks is not implemented on Tauri side - using mock implementation'
-      );
-
-      consoleSpy.mockRestore();
+      expect(mockInvoke).toHaveBeenCalledWith('search_tasks', {
+        projectId: 'test-project-id',
+        condition: mockSearchCondition
+      });
+      expect(result).toEqual([mockTask]);
     });
 
     it('should handle search with empty condition', async () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const emptyCondition = {};
+      mockInvoke.mockResolvedValue([]);
 
-      const result = await service.search();
+      const result = await service.search('test-project-id', emptyCondition);
 
+      expect(mockInvoke).toHaveBeenCalledWith('search_tasks', {
+        projectId: 'test-project-id',
+        condition: emptyCondition
+      });
       expect(result).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'search_tasks is not implemented on Tauri side - using mock implementation'
-      );
+    });
 
+    it('should return empty array when search fails', async () => {
+      mockInvoke.mockRejectedValue(new Error('Search failed'));
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      const result = await service.search('test-project-id', mockSearchCondition);
+
+      expect(mockInvoke).toHaveBeenCalledWith('search_tasks', {
+        projectId: 'test-project-id',
+        condition: mockSearchCondition
+      });
+      expect(result).toEqual([]);
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to search tasks:', expect.any(Error));
       consoleSpy.mockRestore();
     });
   });

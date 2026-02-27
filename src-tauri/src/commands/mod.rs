@@ -29,6 +29,7 @@ macro_rules! generate_app_handler {
             // Task management commands
             task_commands::create_task,
             task_commands::get_task,
+            task_commands::search_tasks,
             task_commands::update_task,
             task_commands::delete_task,
             task_commands::restore_task,
@@ -39,6 +40,7 @@ macro_rules! generate_app_handler {
             // Project management commands
             project_commands::create_project,
             project_commands::get_project,
+            project_commands::search_projects,
             project_commands::update_project,
             project_commands::delete_project,
             project_commands::restore_project,
@@ -83,6 +85,7 @@ macro_rules! generate_app_handler {
             // Subtask management commands (frontend compatibility aliases)
             subtask_commands::create_sub_task,
             subtask_commands::get_sub_task,
+            subtask_commands::search_sub_tasks,
             subtask_commands::update_sub_task,
             subtask_commands::delete_sub_task,
             // Subtask recurrence commands
@@ -92,6 +95,7 @@ macro_rules! generate_app_handler {
             // Tag management commands
             tag_commands::create_tag,
             tag_commands::get_tag,
+            tag_commands::search_tags,
             tag_commands::update_tag,
             tag_commands::delete_tag,
             tag_commands::restore_tag,
@@ -106,6 +110,7 @@ macro_rules! generate_app_handler {
             // TaskList commands
             task_list_commands::create_task_list,
             task_list_commands::get_task_list,
+            task_list_commands::search_task_lists,
             task_list_commands::update_task_list,
             task_list_commands::delete_task_list,
             task_list_commands::restore_task_list,
