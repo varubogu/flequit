@@ -17,12 +17,32 @@ export default defineConfig({
     include: ['tests/**/*.{test,spec}.{js,ts}', 'tests/**/*.svelte.{test,spec}.{js,ts}'],
     globals: true,
     pool: 'threads',
-    maxWorkers: 1,
+    maxWorkers: 4,
     minWorkers: 1,
     // No need for alias, use /svelte5 directly in imports
     server: {
       deps: {
         inline: ['svelte']
+      }
+    },
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json-summary', 'json', 'html', 'lcov'],
+      reportsDirectory: './coverage',
+      reportOnFailure: true,
+      include: ['src/lib/**/*.{ts,svelte}'],
+      exclude: [
+        'src/lib/types/bindings.ts',
+        'src/lib/data/sample-data.ts',
+        'src/lib/components/ui/**',
+        'src/paraglide/**',
+        'src/lib/**/*.d.ts'
+      ],
+      thresholds: {
+        lines: 60,
+        functions: 60,
+        branches: 60,
+        statements: 60
       }
     }
   }

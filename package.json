@@ -16,6 +16,8 @@
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "test:coverage:watch": "vitest --coverage",
     "test:e2e": "npx playwright test",
     "test:prepare:automerge": "mkdir -p .tmp/tests/cargo/flequit-infrastructure-automerge/automerge .tmp/tests/cargo/flequit-infrastructure-automerge/json",
     "test:prepare:db": "cargo run --manifest-path src-tauri/Cargo.toml -p flequit-infrastructure-sqlite --bin migration_runner -- .tmp/tests/test_database.db",
