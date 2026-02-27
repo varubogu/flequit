@@ -265,7 +265,7 @@ export default tseslint.config(
       'package-lock.json',
       'playwright-report/',
       'test-results/',
-      '.temp/worktree/',
+      '.tmp/worktree/',
       'src/lib/types/bindings.ts'
     ]
   }

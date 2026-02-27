@@ -7,8 +7,8 @@
   import type { User } from '$lib/types/user';
   import { Users } from 'lucide-svelte';
   import { AssignmentService } from '$lib/services/domain/assignment';
-  import TaskAssignmentList from './task-assignment-list.svelte';
-  import TaskAssignmentForm from './task-assignment-form.svelte';
+  import TaskAssignmentList from '$lib/components/task/assignment/task-assignment-list.svelte';
+  import TaskAssignmentForm from '$lib/components/task/assignment/task-assignment-form.svelte';
 
   interface Props {
     task?: TaskWithSubTasks | null;

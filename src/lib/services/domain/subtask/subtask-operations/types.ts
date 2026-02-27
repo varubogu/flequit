@@ -1,5 +1,3 @@
-import type { Task, TaskWithSubTasks } from '$lib/types/task';
-import type { SubTask } from '$lib/types/sub-task';
 import type { Tag } from '$lib/types/tag';
 import type { TaskStore } from '$lib/stores/tasks.svelte';
 import type { TaskCoreStore } from '$lib/stores/task-core-store.svelte';

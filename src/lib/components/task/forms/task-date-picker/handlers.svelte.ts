@@ -6,7 +6,7 @@ import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
 import { RecurrenceSyncService } from '$lib/services/domain/recurrence-sync';
 import { SvelteDate } from 'svelte/reactivity';
 import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
-import type { DatePickerState, SubTaskDatePickerState } from './state.svelte';
+import type { DatePickerState, SubTaskDatePickerState } from '$lib/components/task/forms/task-date-picker/state.svelte';
 
 // RecurrenceRule保存処理
 async function saveRecurrenceRule(
