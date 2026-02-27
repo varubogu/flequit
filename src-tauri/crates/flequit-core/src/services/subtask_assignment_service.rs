@@ -1,5 +1,5 @@
-use chrono::Utc;
 use crate::InfrastructureRepositoriesTrait;
+use chrono::Utc;
 use flequit_model::models::task_projects::subtask_assignment::SubTaskAssignment;
 use flequit_model::types::id_types::{ProjectId, SubTaskId, UserId};
 use flequit_repository::repositories::base_repository_trait::Repository;
@@ -22,7 +22,13 @@ where
     let now = Utc::now();
     repositories
         .subtask_assignments()
-        .add(&actual_project_id, subtask_id, user_id, updating_user_id, &now)
+        .add(
+            &actual_project_id,
+            subtask_id,
+            user_id,
+            updating_user_id,
+            &now,
+        )
         .await
         .map_err(ServiceError::Repository)
 }

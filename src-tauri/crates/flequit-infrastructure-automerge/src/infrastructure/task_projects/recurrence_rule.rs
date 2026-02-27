@@ -4,8 +4,8 @@ use crate::infrastructure::document::Document;
 
 use super::super::document_manager::{DocumentManager, DocumentType};
 use async_trait::async_trait;
-use flequit_model::models::task_projects::recurrence_rule::RecurrenceRule;
 use chrono::{DateTime, Utc};
+use flequit_model::models::task_projects::recurrence_rule::RecurrenceRule;
 use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, UserId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::task_projects::recurrence_rule_repository_trait::RecurrenceRuleRepositoryTrait;

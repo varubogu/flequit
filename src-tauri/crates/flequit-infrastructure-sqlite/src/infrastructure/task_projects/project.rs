@@ -96,7 +96,12 @@ impl ProjectLocalSqliteRepository {
 
 #[async_trait]
 impl Repository<Project, ProjectId> for ProjectLocalSqliteRepository {
-    async fn save(&self, project: &Project, _user_id: &UserId, _timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
+    async fn save(
+        &self,
+        project: &Project,
+        _user_id: &UserId,
+        _timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
         tracing::info!(
             "ProjectLocalSqliteRepository::save - 開始: {:?}",
             project.id

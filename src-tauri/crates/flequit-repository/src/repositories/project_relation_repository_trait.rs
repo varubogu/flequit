@@ -202,7 +202,8 @@ where
         TChildId: Clone,
     {
         for (parent_id, child_id) in relations {
-            self.add(project_id, parent_id, child_id, user_id, timestamp).await?;
+            self.add(project_id, parent_id, child_id, user_id, timestamp)
+                .await?;
         }
         Ok(())
     }

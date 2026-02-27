@@ -207,7 +207,9 @@ async fn test_account_update_operation() -> Result<(), Box<dyn std::error::Error
     updated_account.is_active = false; // is_activeフィールドの更新をテスト
     updated_account.updated_at = timestamp3;
     updated_account.updated_by = user_id2;
-    account_repo.save(&updated_account, &user_id2, &timestamp3).await?;
+    account_repo
+        .save(&updated_account, &user_id2, &timestamp3)
+        .await?;
 
     // 更新後の取得確認（1件目）- is_activeフィールドが更新されたことを確認
     let retrieved_updated = account_repo.find_by_id(&account_id1).await?;
@@ -378,9 +380,15 @@ async fn test_account_provider_specific_operations() -> Result<(), Box<dyn std::
     };
 
     // 全て保存
-    account_repo.save(&google_account, &google_user_id, &timestamp).await?;
-    account_repo.save(&github_account, &github_user_id, &timestamp).await?;
-    account_repo.save(&local_account, &local_user_id, &timestamp).await?;
+    account_repo
+        .save(&google_account, &google_user_id, &timestamp)
+        .await?;
+    account_repo
+        .save(&github_account, &github_user_id, &timestamp)
+        .await?;
+    account_repo
+        .save(&local_account, &local_user_id, &timestamp)
+        .await?;
 
     // 各プロバイダーアカウントの取得確認
     let retrieved_google = account_repo.find_by_id(&google_account_id).await?;
@@ -477,7 +485,9 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
         deleted: false,
         updated_by: user_id2,
     };
-    account_repo2.save(&account2, &user_id2, &timestamp2).await?;
+    account_repo2
+        .save(&account2, &user_id2, &timestamp2)
+        .await?;
 
     // DB1からは見えないことを確認
     let not_found = account_repo1.find_by_id(&account_id2).await?;

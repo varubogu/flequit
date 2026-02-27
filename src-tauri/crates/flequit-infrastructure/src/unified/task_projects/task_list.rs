@@ -25,7 +25,13 @@ impl ProjectPatchable<TaskList, TaskListId> for TaskListRepositoryVariant {}
 
 #[async_trait]
 impl ProjectRepository<TaskList, TaskListId> for TaskListRepositoryVariant {
-    async fn save(&self, project_id: &ProjectId, entity: &TaskList, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
+    async fn save(
+        &self,
+        project_id: &ProjectId,
+        entity: &TaskList,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.save(project_id, entity, user_id, timestamp).await,
             Self::LocalAutomerge(repo) => repo.save(project_id, entity, user_id, timestamp).await,
@@ -146,14 +152,22 @@ impl ProjectPatchable<TaskList, TaskListId> for TaskListUnifiedRepository {}
 
 #[async_trait]
 impl ProjectRepository<TaskList, TaskListId> for TaskListUnifiedRepository {
-    async fn save(&self, project_id: &ProjectId, entity: &TaskList, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
+    async fn save(
+        &self,
+        project_id: &ProjectId,
+        entity: &TaskList,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
         info!(
             "Saving task list entity with ID: {} in project: {}",
             entity.id, project_id
         );
 
         for repository in &self.save_repositories {
-            repository.save(project_id, entity, user_id, timestamp).await?;
+            repository
+                .save(project_id, entity, user_id, timestamp)
+                .await?;
         }
 
         Ok(())

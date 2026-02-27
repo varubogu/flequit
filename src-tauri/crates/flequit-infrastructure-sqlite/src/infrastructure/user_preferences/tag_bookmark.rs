@@ -134,7 +134,10 @@ impl TagBookmarkLocalSqliteRepository {
     }
 
     /// ユーザーIDで全ブックマークを取得（order_indexでソート）
-    pub async fn find_by_user(&self, user_id: &UserId) -> Result<Vec<TagBookmark>, RepositoryError> {
+    pub async fn find_by_user(
+        &self,
+        user_id: &UserId,
+    ) -> Result<Vec<TagBookmark>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
@@ -252,15 +255,11 @@ impl TagBookmarkLocalSqliteRepository {
         project_id: &ProjectId,
     ) -> Result<i32, RepositoryError> {
         let bookmarks = self.find_by_user_and_project(user_id, project_id).await?;
-        
+
         if bookmarks.is_empty() {
             Ok(-1) // 最初のブックマークはorder_index=0になるように
         } else {
-            Ok(bookmarks
-                .iter()
-                .map(|b| b.order_index)
-                .max()
-                .unwrap_or(-1))
+            Ok(bookmarks.iter().map(|b| b.order_index).max().unwrap_or(-1))
         }
     }
 
@@ -290,7 +289,6 @@ impl Default for TagBookmarkLocalSqliteRepository {
         // 実際の使用時は必ずnew()で適切なdb_managerを渡すこと
         // 注: DatabaseManagerはシングルトンなので、instance()を呼び出す必要があるが
         // Defaultトレイトでは非同期処理が使えないため、別のアプローチを取る
-
 
         // ダミーのDatabaseManagerを作成（実際には使用されないことを想定）
         // DatabaseManagerのnew_testメソッドがあればそれを使用、なければpanic

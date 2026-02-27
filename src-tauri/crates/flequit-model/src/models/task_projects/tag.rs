@@ -184,25 +184,41 @@ impl ModelConverter<Tag> for TagTree {
 }
 
 impl Trackable for Tag {
-    fn mark_created(&mut self, user_id: crate::types::id_types::UserId, timestamp: chrono::DateTime<chrono::Utc>) {
+    fn mark_created(
+        &mut self,
+        user_id: crate::types::id_types::UserId,
+        timestamp: chrono::DateTime<chrono::Utc>,
+    ) {
         self.created_at = timestamp;
         self.updated_at = timestamp;
         self.updated_by = user_id;
         self.deleted = false;
     }
 
-    fn mark_updated(&mut self, user_id: crate::types::id_types::UserId, timestamp: chrono::DateTime<chrono::Utc>) {
+    fn mark_updated(
+        &mut self,
+        user_id: crate::types::id_types::UserId,
+        timestamp: chrono::DateTime<chrono::Utc>,
+    ) {
         self.updated_at = timestamp;
         self.updated_by = user_id;
     }
 
-    fn mark_deleted(&mut self, user_id: crate::types::id_types::UserId, timestamp: chrono::DateTime<chrono::Utc>) {
+    fn mark_deleted(
+        &mut self,
+        user_id: crate::types::id_types::UserId,
+        timestamp: chrono::DateTime<chrono::Utc>,
+    ) {
         self.deleted = true;
         self.updated_at = timestamp;
         self.updated_by = user_id;
     }
 
-    fn mark_restored(&mut self, user_id: crate::types::id_types::UserId, timestamp: chrono::DateTime<chrono::Utc>) {
+    fn mark_restored(
+        &mut self,
+        user_id: crate::types::id_types::UserId,
+        timestamp: chrono::DateTime<chrono::Utc>,
+    ) {
         self.deleted = false;
         self.updated_at = timestamp;
         self.updated_by = user_id;
@@ -226,25 +242,41 @@ impl Trackable for Tag {
 }
 
 impl Trackable for TagTree {
-    fn mark_created(&mut self, user_id: crate::types::id_types::UserId, timestamp: chrono::DateTime<chrono::Utc>) {
+    fn mark_created(
+        &mut self,
+        user_id: crate::types::id_types::UserId,
+        timestamp: chrono::DateTime<chrono::Utc>,
+    ) {
         self.created_at = timestamp;
         self.updated_at = timestamp;
         self.updated_by = user_id;
         self.deleted = false;
     }
 
-    fn mark_updated(&mut self, user_id: crate::types::id_types::UserId, timestamp: chrono::DateTime<chrono::Utc>) {
+    fn mark_updated(
+        &mut self,
+        user_id: crate::types::id_types::UserId,
+        timestamp: chrono::DateTime<chrono::Utc>,
+    ) {
         self.updated_at = timestamp;
         self.updated_by = user_id;
     }
 
-    fn mark_deleted(&mut self, user_id: crate::types::id_types::UserId, timestamp: chrono::DateTime<chrono::Utc>) {
+    fn mark_deleted(
+        &mut self,
+        user_id: crate::types::id_types::UserId,
+        timestamp: chrono::DateTime<chrono::Utc>,
+    ) {
         self.deleted = true;
         self.updated_at = timestamp;
         self.updated_by = user_id;
     }
 
-    fn mark_restored(&mut self, user_id: crate::types::id_types::UserId, timestamp: chrono::DateTime<chrono::Utc>) {
+    fn mark_restored(
+        &mut self,
+        user_id: crate::types::id_types::UserId,
+        timestamp: chrono::DateTime<chrono::Utc>,
+    ) {
         self.deleted = false;
         self.updated_at = timestamp;
         self.updated_by = user_id;

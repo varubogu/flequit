@@ -2,8 +2,8 @@ use crate::infrastructure::document::Document;
 
 use super::super::document_manager::{DocumentManager, DocumentType};
 use async_trait::async_trait;
-use flequit_model::models::task_projects::date_condition::DateCondition;
 use chrono::{DateTime, Utc};
+use flequit_model::models::task_projects::date_condition::DateCondition;
 use flequit_model::types::id_types::{DateConditionId, ProjectId, UserId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::task_projects::date_condition_repository_trait::DateConditionRepositoryTrait;

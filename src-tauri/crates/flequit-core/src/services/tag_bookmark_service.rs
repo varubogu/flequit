@@ -1,8 +1,8 @@
-use chrono::Utc;
 use crate::ports::infrastructure_repositories::{
     TagBookmarkAutomergeRepositoryPort, TagBookmarkSqliteRepositoryPort,
 };
 use crate::InfrastructureRepositoriesTrait;
+use chrono::Utc;
 use flequit_model::models::user_preferences::tag_bookmark::TagBookmark;
 use flequit_model::types::id_types::{ProjectId, TagBookmarkId, TagId, UserId};
 use flequit_types::errors::service_error::ServiceError;
@@ -228,12 +228,15 @@ pub async fn reorder_bookmarks<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    let mut bookmarks = list_bookmarks_by_user_and_project(repositories, user_id, project_id).await?;
+    let mut bookmarks =
+        list_bookmarks_by_user_and_project(repositories, user_id, project_id).await?;
 
-    if from_index < 0 || to_index < 0 || from_index >= bookmarks.len() as i32 || to_index >= bookmarks.len() as i32 {
-        return Err(ServiceError::ValidationError(
-            "Invalid index".to_string(),
-        ));
+    if from_index < 0
+        || to_index < 0
+        || from_index >= bookmarks.len() as i32
+        || to_index >= bookmarks.len() as i32
+    {
+        return Err(ServiceError::ValidationError("Invalid index".to_string()));
     }
 
     // 要素を移動

@@ -193,7 +193,13 @@ impl TaskLocalSqliteRepository {
 
 #[async_trait]
 impl ProjectRepository<Task, TaskId> for TaskLocalSqliteRepository {
-    async fn save(&self, project_id: &ProjectId, task: &Task, _user_id: &UserId, _timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
+    async fn save(
+        &self,
+        project_id: &ProjectId,
+        task: &Task,
+        _user_id: &UserId,
+        _timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()

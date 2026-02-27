@@ -26,8 +26,14 @@ impl TaskTagRepositoryVariant {
         tag_id: &TagId,
     ) -> Result<(), RepositoryError> {
         match self {
-            Self::LocalSqlite(repo) => repo.remove_all_relations_by_tag_id(project_id, tag_id).await,
-            Self::LocalAutomerge(repo) => repo.remove_all_relations_by_tag_id(project_id, tag_id).await,
+            Self::LocalSqlite(repo) => {
+                repo.remove_all_relations_by_tag_id(project_id, tag_id)
+                    .await
+            }
+            Self::LocalAutomerge(repo) => {
+                repo.remove_all_relations_by_tag_id(project_id, tag_id)
+                    .await
+            }
         }
     }
 }
@@ -45,8 +51,14 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagRepositoryVari
         timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
         match self {
-            Self::LocalSqlite(repo) => repo.add(project_id, parent_id, child_id, user_id, timestamp).await,
-            Self::LocalAutomerge(repo) => repo.add(project_id, parent_id, child_id, user_id, timestamp).await,
+            Self::LocalSqlite(repo) => {
+                repo.add(project_id, parent_id, child_id, user_id, timestamp)
+                    .await
+            }
+            Self::LocalAutomerge(repo) => {
+                repo.add(project_id, parent_id, child_id, user_id, timestamp)
+                    .await
+            }
         }
     }
 
@@ -189,7 +201,9 @@ impl TaskTagUnifiedRepository {
         );
 
         for repository in &self.save_repositories {
-            repository.remove_all_relations_by_tag_id(project_id, tag_id).await?;
+            repository
+                .remove_all_relations_by_tag_id(project_id, tag_id)
+                .await?;
         }
 
         Ok(())
@@ -224,7 +238,9 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagUnifiedReposit
                 i,
                 std::any::type_name_of_val(repository)
             );
-            repository.add(project_id, parent_id, child_id, user_id, timestamp).await?;
+            repository
+                .add(project_id, parent_id, child_id, user_id, timestamp)
+                .await?;
             info!("TaskTagUnifiedRepository::add - repository {} completed", i);
         }
 

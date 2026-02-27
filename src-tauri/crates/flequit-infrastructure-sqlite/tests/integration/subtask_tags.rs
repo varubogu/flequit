@@ -113,7 +113,9 @@ async fn test_subtask_tag_relation_operations() -> Result<(), Box<dyn std::error
         deleted: false,
         updated_by: user_id,
     };
-    task_repo.save(&task.project_id, &task, &user_id, &timestamp).await?;
+    task_repo
+        .save(&task.project_id, &task, &user_id, &timestamp)
+        .await?;
 
     let subtask_id = SubTaskId::from(Uuid::new_v4());
     let subtask = SubTask {
@@ -138,7 +140,9 @@ async fn test_subtask_tag_relation_operations() -> Result<(), Box<dyn std::error
         deleted: false,
         updated_by: user_id,
     };
-    subtask_repo.save(&task.project_id, &subtask, &user_id, &timestamp).await?;
+    subtask_repo
+        .save(&task.project_id, &subtask, &user_id, &timestamp)
+        .await?;
 
     // テスト用タグ作成
     let tag1_id = TagId::from(Uuid::new_v4());
@@ -154,7 +158,9 @@ async fn test_subtask_tag_relation_operations() -> Result<(), Box<dyn std::error
         deleted: false,
         updated_by: user_id,
     };
-    tag_repo.save(&project_id, &tag1, &user_id, &timestamp).await?;
+    tag_repo
+        .save(&project_id, &tag1, &user_id, &timestamp)
+        .await?;
 
     let tag2_id = TagId::from(Uuid::new_v4());
     let user_id = UserId::from(Uuid::new_v4());
@@ -169,7 +175,9 @@ async fn test_subtask_tag_relation_operations() -> Result<(), Box<dyn std::error
         deleted: false,
         updated_by: user_id,
     };
-    tag_repo.save(&project_id, &tag2, &user_id, &timestamp).await?;
+    tag_repo
+        .save(&project_id, &tag2, &user_id, &timestamp)
+        .await?;
 
     // 1. サブタスクとタグの関連付け追加テスト
     subtask_tag_repo
@@ -312,7 +320,9 @@ async fn test_subtask_tag_bulk_update() -> Result<(), Box<dyn std::error::Error>
         deleted: false,
         updated_by: user_id,
     };
-    task_repo.save(&task.project_id, &task, &user_id, &timestamp).await?;
+    task_repo
+        .save(&task.project_id, &task, &user_id, &timestamp)
+        .await?;
 
     let subtask_id = SubTaskId::from(Uuid::new_v4());
     let user_id = UserId::from(Uuid::new_v4());
@@ -339,7 +349,9 @@ async fn test_subtask_tag_bulk_update() -> Result<(), Box<dyn std::error::Error>
         deleted: false,
         updated_by: user_id,
     };
-    subtask_repo.save(&task.project_id, &subtask, &user_id, &timestamp).await?;
+    subtask_repo
+        .save(&task.project_id, &subtask, &user_id, &timestamp)
+        .await?;
 
     // テスト用タグ作成
     let mut tag_ids = Vec::new();
@@ -357,7 +369,9 @@ async fn test_subtask_tag_bulk_update() -> Result<(), Box<dyn std::error::Error>
             deleted: false,
             updated_by: user_id,
         };
-        tag_repo.save(&project_id, &tag, &user_id, &timestamp).await?;
+        tag_repo
+            .save(&project_id, &tag, &user_id, &timestamp)
+            .await?;
         tag_ids.push(tag_id);
     }
 

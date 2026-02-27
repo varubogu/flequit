@@ -23,7 +23,13 @@ impl SubTaskRepositoryTrait for SubTaskRepositoryVariant {}
 
 #[async_trait]
 impl ProjectRepository<SubTask, SubTaskId> for SubTaskRepositoryVariant {
-    async fn save(&self, project_id: &ProjectId, entity: &SubTask, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
+    async fn save(
+        &self,
+        project_id: &ProjectId,
+        entity: &SubTask,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.save(project_id, entity, user_id, timestamp).await,
             Self::LocalAutomerge(repo) => repo.save(project_id, entity, user_id, timestamp).await,
@@ -145,14 +151,22 @@ impl ProjectPatchable<SubTask, SubTaskId> for SubTaskUnifiedRepository {}
 
 #[async_trait]
 impl ProjectRepository<SubTask, SubTaskId> for SubTaskUnifiedRepository {
-    async fn save(&self, project_id: &ProjectId, entity: &SubTask, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
+    async fn save(
+        &self,
+        project_id: &ProjectId,
+        entity: &SubTask,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
         info!(
             "Saving subtask entity with ID: {} in project: {}",
             entity.id, project_id
         );
 
         for repository in &self.save_repositories {
-            repository.save(project_id, entity, user_id, timestamp).await?;
+            repository
+                .save(project_id, entity, user_id, timestamp)
+                .await?;
         }
 
         Ok(())
@@ -195,10 +209,7 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskUnifiedRepository {
         for (idx, repository) in self.save_repositories.iter().enumerate() {
             let exists = repository.exists(project_id, id).await?;
             existence_status.push((idx, exists));
-            info!(
-                "Repository {} - SubTask {} existence: {}",
-                idx, id, exists
-            );
+            info!("Repository {} - SubTask {} existence: {}", idx, id, exists);
         }
 
         // 少なくとも1つのリポジトリにデータが存在することを確認

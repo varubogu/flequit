@@ -22,7 +22,10 @@ where
     new_data.created_at = now;
     new_data.updated_at = now;
 
-    repositories.sub_tasks().save(project_id, &new_data, user_id, &now).await?;
+    repositories
+        .sub_tasks()
+        .save(project_id, &new_data, user_id, &now)
+        .await?;
 
     Ok(())
 }
@@ -124,7 +127,10 @@ where
 
         // 保存
         let now = Utc::now();
-        repositories.sub_tasks().save(project_id, &subtask, user_id, &now).await?;
+        repositories
+            .sub_tasks()
+            .save(project_id, &subtask, user_id, &now)
+            .await?;
     }
 
     Ok(())

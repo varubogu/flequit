@@ -14,8 +14,9 @@ use crate::infrastructure::{
     task_projects::task_assignments::TaskAssignmentLocalSqliteRepository,
     task_projects::task_list::TaskListLocalSqliteRepository,
     task_projects::task_recurrence::TaskRecurrenceLocalSqliteRepository,
-    task_projects::task_tag::TaskTagLocalSqliteRepository, users::user::UserLocalSqliteRepository,
+    task_projects::task_tag::TaskTagLocalSqliteRepository,
     user_preferences::tag_bookmark::TagBookmarkLocalSqliteRepository,
+    users::user::UserLocalSqliteRepository,
 };
 use std::sync::Arc;
 use tokio::sync::RwLock;

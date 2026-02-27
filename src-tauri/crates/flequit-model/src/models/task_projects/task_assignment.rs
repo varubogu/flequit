@@ -3,9 +3,9 @@
 //! このモジュールは、タスクやサブタスクとユーザー間の割り当て関係を管理する
 //! モデルを定義します。
 
+use crate::traits::Trackable;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use crate::traits::Trackable;
 
 use crate::types::id_types::{TaskId, UserId};
 

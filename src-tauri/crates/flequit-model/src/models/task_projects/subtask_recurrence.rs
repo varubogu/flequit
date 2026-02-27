@@ -3,9 +3,9 @@
 //! このモジュールは、サブタスクと繰り返しルール間の関連付けを管理する
 //! モデルを定義します。
 
+use crate::traits::Trackable;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use crate::traits::Trackable;
 
 use crate::types::id_types::{RecurrenceRuleId, SubTaskId, UserId};
 

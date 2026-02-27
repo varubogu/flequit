@@ -12,7 +12,9 @@ use flequit_model::types::id_types::{ProjectId, TagId, TaskId, TaskListId, UserI
 use flequit_types::errors::repository_error::RepositoryError;
 
 use crate::infrastructure::local_automerge_repositories::LocalAutomergeRepositories;
-use crate::infrastructure::task_projects::project::{ProjectDocument, ProjectLocalAutomergeRepository};
+use crate::infrastructure::task_projects::project::{
+    ProjectDocument, ProjectLocalAutomergeRepository,
+};
 use crate::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalAutomergeRepository;
 
 #[async_trait]
@@ -39,7 +41,10 @@ impl TagBookmarkAutomergeRepositoryPort for TagBookmarkLocalAutomergeRepository 
 impl AutomergeProjectRepositoryPort for ProjectLocalAutomergeRepository {
     type Snapshot = ProjectDocument;
 
-    async fn create_snapshot(&self, project_id: &ProjectId) -> Result<Self::Snapshot, RepositoryError> {
+    async fn create_snapshot(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Self::Snapshot, RepositoryError> {
         self.create_snapshot(project_id).await
     }
 
@@ -57,7 +62,8 @@ impl AutomergeProjectRepositoryPort for ProjectLocalAutomergeRepository {
         user_id: &UserId,
         timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
-        self.mark_project_deleted(project_id, user_id, timestamp).await
+        self.mark_project_deleted(project_id, user_id, timestamp)
+            .await
     }
 
     async fn mark_all_tasks_deleted(
@@ -66,7 +72,8 @@ impl AutomergeProjectRepositoryPort for ProjectLocalAutomergeRepository {
         user_id: &UserId,
         timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
-        self.mark_all_tasks_deleted(project_id, user_id, timestamp).await
+        self.mark_all_tasks_deleted(project_id, user_id, timestamp)
+            .await
     }
 
     async fn mark_all_tags_deleted(
@@ -75,7 +82,8 @@ impl AutomergeProjectRepositoryPort for ProjectLocalAutomergeRepository {
         user_id: &UserId,
         timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
-        self.mark_all_tags_deleted(project_id, user_id, timestamp).await
+        self.mark_all_tags_deleted(project_id, user_id, timestamp)
+            .await
     }
 
     async fn mark_all_task_lists_deleted(
@@ -84,7 +92,8 @@ impl AutomergeProjectRepositoryPort for ProjectLocalAutomergeRepository {
         user_id: &UserId,
         timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
-        self.mark_all_task_lists_deleted(project_id, user_id, timestamp).await
+        self.mark_all_task_lists_deleted(project_id, user_id, timestamp)
+            .await
     }
 
     async fn mark_task_deleted(
@@ -94,7 +103,8 @@ impl AutomergeProjectRepositoryPort for ProjectLocalAutomergeRepository {
         user_id: &UserId,
         timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
-        self.mark_task_deleted(project_id, task_id, user_id, timestamp).await
+        self.mark_task_deleted(project_id, task_id, user_id, timestamp)
+            .await
     }
 
     async fn mark_tag_deleted(
@@ -104,7 +114,8 @@ impl AutomergeProjectRepositoryPort for ProjectLocalAutomergeRepository {
         user_id: &UserId,
         timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
-        self.mark_tag_deleted(project_id, tag_id, user_id, timestamp).await
+        self.mark_tag_deleted(project_id, tag_id, user_id, timestamp)
+            .await
     }
 
     async fn mark_task_list_deleted(
@@ -114,7 +125,8 @@ impl AutomergeProjectRepositoryPort for ProjectLocalAutomergeRepository {
         user_id: &UserId,
         timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
-        self.mark_task_list_deleted(project_id, task_list_id, user_id, timestamp).await
+        self.mark_task_list_deleted(project_id, task_list_id, user_id, timestamp)
+            .await
     }
 
     async fn restore_project(
@@ -150,7 +162,8 @@ impl AutomergeProjectRepositoryPort for ProjectLocalAutomergeRepository {
         user_id: &UserId,
         timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
-        self.restore_all_task_lists(project_id, user_id, timestamp).await
+        self.restore_all_task_lists(project_id, user_id, timestamp)
+            .await
     }
 
     async fn restore_task(
@@ -160,7 +173,8 @@ impl AutomergeProjectRepositoryPort for ProjectLocalAutomergeRepository {
         user_id: &UserId,
         timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
-        self.restore_task(project_id, task_id, user_id, timestamp).await
+        self.restore_task(project_id, task_id, user_id, timestamp)
+            .await
     }
 
     async fn restore_tag(
@@ -170,7 +184,8 @@ impl AutomergeProjectRepositoryPort for ProjectLocalAutomergeRepository {
         user_id: &UserId,
         timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
-        self.restore_tag(project_id, tag_id, user_id, timestamp).await
+        self.restore_tag(project_id, tag_id, user_id, timestamp)
+            .await
     }
 
     async fn restore_task_list(
@@ -180,14 +195,21 @@ impl AutomergeProjectRepositoryPort for ProjectLocalAutomergeRepository {
         user_id: &UserId,
         timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
-        self.restore_task_list(project_id, task_list_id, user_id, timestamp).await
+        self.restore_task_list(project_id, task_list_id, user_id, timestamp)
+            .await
     }
 
-    async fn get_deleted_project(&self, project_id: &ProjectId) -> Result<Option<Project>, RepositoryError> {
+    async fn get_deleted_project(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Option<Project>, RepositoryError> {
         self.get_deleted_project(project_id).await
     }
 
-    async fn get_deleted_tasks(&self, project_id: &ProjectId) -> Result<Vec<Task>, RepositoryError> {
+    async fn get_deleted_tasks(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Vec<Task>, RepositoryError> {
         self.get_deleted_tasks(project_id).await
     }
 
@@ -223,7 +245,8 @@ impl AutomergeProjectRepositoryPort for ProjectLocalAutomergeRepository {
         project_id: &ProjectId,
         task_list_id: &TaskListId,
     ) -> Result<Option<TaskList>, RepositoryError> {
-        self.get_deleted_task_list_by_id(project_id, task_list_id).await
+        self.get_deleted_task_list_by_id(project_id, task_list_id)
+            .await
     }
 }
 

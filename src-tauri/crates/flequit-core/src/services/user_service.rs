@@ -22,7 +22,11 @@ pub async fn can_edit_user_profile(current_account: &Account, target_user_id: &U
     current_account.user_id == *target_user_id
 }
 
-pub async fn create_user<R>(repositories: &R, user: &User, user_id: &UserId) -> Result<(), ServiceError>
+pub async fn create_user<R>(
+    repositories: &R,
+    user: &User,
+    user_id: &UserId,
+) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -65,7 +69,11 @@ where
     Ok(repositories.users().find_all().await?)
 }
 
-pub async fn update_user<R>(repositories: &R, user: &User, user_id: &UserId) -> Result<(), ServiceError>
+pub async fn update_user<R>(
+    repositories: &R,
+    user: &User,
+    user_id: &UserId,
+) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -107,7 +115,10 @@ where
     let now = Utc::now();
     updated_user.updated_at = now;
 
-    repositories.users().save(&updated_user, user_id, &now).await?;
+    repositories
+        .users()
+        .save(&updated_user, user_id, &now)
+        .await?;
     Ok(())
 }
 
@@ -125,12 +136,14 @@ where
                 .to_lowercase()
                 .contains(&query.to_lowercase())
                 || user.display_name.contains(&query.to_lowercase())
-                || user.email.as_ref().is_some_and(|email| {
-                    email.to_lowercase().contains(&query.to_lowercase())
-                })
-                || user.bio.as_ref().is_some_and(|bio| {
-                    bio.to_lowercase().contains(&query.to_lowercase())
-                })
+                || user
+                    .email
+                    .as_ref()
+                    .is_some_and(|email| email.to_lowercase().contains(&query.to_lowercase()))
+                || user
+                    .bio
+                    .as_ref()
+                    .is_some_and(|bio| bio.to_lowercase().contains(&query.to_lowercase()))
         })
         .collect();
 
@@ -193,7 +206,10 @@ where
         let now = Utc::now();
         user.updated_at = now;
 
-        repositories.users().save(&user, updating_user_id, &now).await?;
+        repositories
+            .users()
+            .save(&user, updating_user_id, &now)
+            .await?;
         Ok(())
     } else {
         Err(ServiceError::NotFound("User not found".to_string()))
@@ -222,7 +238,10 @@ where
         // 実際の実装では、password_hashフィールドが存在する場合のみ更新
         let _ = new_password_hash; // 一時的に使用しない
 
-        repositories.users().save(&user, updating_user_id, &now).await?;
+        repositories
+            .users()
+            .save(&user, updating_user_id, &now)
+            .await?;
         Ok(())
     } else {
         Err(ServiceError::NotFound("User not found".to_string()))

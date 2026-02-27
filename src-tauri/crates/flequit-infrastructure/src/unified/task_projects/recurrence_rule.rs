@@ -195,7 +195,9 @@ impl ProjectRepository<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleUnifi
         );
 
         for repository in &self.save_repositories {
-            repository.save(project_id, entity, user_id, timestamp).await?;
+            repository
+                .save(project_id, entity, user_id, timestamp)
+                .await?;
         }
 
         Ok(())

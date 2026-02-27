@@ -3,11 +3,11 @@
 //! このモジュールは繰り返しパターンの詳細設定を管理する構造体を定義します。
 
 use crate::models::task_projects::date_condition::DateCondition;
-use crate::types::id_types::UserId;
+use crate::traits::Trackable;
 use crate::types::datetime_calendar_types::{DayOfWeek, WeekOfMonth};
+use crate::types::id_types::UserId;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use crate::traits::Trackable;
 
 /// 繰り返しパターンの詳細設定を表現する構造体
 ///

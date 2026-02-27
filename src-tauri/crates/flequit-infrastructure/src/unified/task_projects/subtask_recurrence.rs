@@ -43,8 +43,12 @@ impl SubtaskRecurrenceRepositoryTrait for SubTaskRecurrenceRepositoryVariant {
 
     async fn find_all(&self) -> Result<Vec<SubTaskRecurrence>, RepositoryError> {
         match self {
-            Self::LocalSqlite(repo) => <_ as SubtaskRecurrenceRepositoryTrait>::find_all(repo).await,
-            Self::LocalAutomerge(repo) => <_ as SubtaskRecurrenceRepositoryTrait>::find_all(repo).await,
+            Self::LocalSqlite(repo) => {
+                <_ as SubtaskRecurrenceRepositoryTrait>::find_all(repo).await
+            }
+            Self::LocalAutomerge(repo) => {
+                <_ as SubtaskRecurrenceRepositoryTrait>::find_all(repo).await
+            }
         }
     }
 
@@ -68,7 +72,9 @@ impl SubtaskRecurrenceRepositoryTrait for SubTaskRecurrenceRepositoryVariant {
     ) -> Result<(), RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.delete_by_recurrence_rule_id(recurrence_rule_id).await,
-            Self::LocalAutomerge(repo) => repo.delete_by_recurrence_rule_id(recurrence_rule_id).await,
+            Self::LocalAutomerge(repo) => {
+                repo.delete_by_recurrence_rule_id(recurrence_rule_id).await
+            }
         }
     }
 
@@ -81,7 +87,9 @@ impl SubtaskRecurrenceRepositoryTrait for SubTaskRecurrenceRepositoryVariant {
 }
 
 #[async_trait]
-impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId> for SubTaskRecurrenceRepositoryVariant {
+impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
+    for SubTaskRecurrenceRepositoryVariant
+{
     async fn add(
         &self,
         project_id: &ProjectId,
@@ -91,8 +99,14 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId> f
         timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
         match self {
-            Self::LocalSqlite(repo) => repo.add(project_id, parent_id, child_id, user_id, timestamp).await,
-            Self::LocalAutomerge(repo) => repo.add(project_id, parent_id, child_id, user_id, timestamp).await,
+            Self::LocalSqlite(repo) => {
+                repo.add(project_id, parent_id, child_id, user_id, timestamp)
+                    .await
+            }
+            Self::LocalAutomerge(repo) => {
+                repo.add(project_id, parent_id, child_id, user_id, timestamp)
+                    .await
+            }
         }
     }
 
@@ -130,10 +144,23 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId> f
         }
     }
 
-    async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<SubTaskRecurrence>, RepositoryError> {
+    async fn find_all(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Vec<SubTaskRecurrence>, RepositoryError> {
         match self {
-            Self::LocalSqlite(repo) => <_ as ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>>::find_all(repo, project_id).await,
-            Self::LocalAutomerge(repo) => <_ as ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>>::find_all(repo, project_id).await,
+            Self::LocalSqlite(repo) => <_ as ProjectRelationRepository<
+                SubTaskRecurrence,
+                SubTaskId,
+                RecurrenceRuleId,
+            >>::find_all(repo, project_id)
+            .await,
+            Self::LocalAutomerge(repo) => <_ as ProjectRelationRepository<
+                SubTaskRecurrence,
+                SubTaskId,
+                RecurrenceRuleId,
+            >>::find_all(repo, project_id)
+            .await,
         }
     }
 
@@ -200,9 +227,14 @@ impl SubTaskRecurrenceUnifiedRepository {
             .push(SubTaskRecurrenceRepositoryVariant::LocalSqlite(sqlite_repo));
     }
 
-    pub fn add_automerge_for_save(&mut self, automerge_repo: SubtaskRecurrenceLocalAutomergeRepository) {
+    pub fn add_automerge_for_save(
+        &mut self,
+        automerge_repo: SubtaskRecurrenceLocalAutomergeRepository,
+    ) {
         self.save_repositories
-            .push(SubTaskRecurrenceRepositoryVariant::LocalAutomerge(automerge_repo));
+            .push(SubTaskRecurrenceRepositoryVariant::LocalAutomerge(
+                automerge_repo,
+            ));
     }
 
     pub fn add_sqlite_for_search(&mut self, sqlite_repo: SubtaskRecurrenceLocalSqliteRepository) {
@@ -210,9 +242,14 @@ impl SubTaskRecurrenceUnifiedRepository {
             .push(SubTaskRecurrenceRepositoryVariant::LocalSqlite(sqlite_repo));
     }
 
-    pub fn add_automerge_for_search(&mut self, automerge_repo: SubtaskRecurrenceLocalAutomergeRepository) {
+    pub fn add_automerge_for_search(
+        &mut self,
+        automerge_repo: SubtaskRecurrenceLocalAutomergeRepository,
+    ) {
         self.search_repositories
-            .push(SubTaskRecurrenceRepositoryVariant::LocalAutomerge(automerge_repo));
+            .push(SubTaskRecurrenceRepositoryVariant::LocalAutomerge(
+                automerge_repo,
+            ));
     }
 
     pub fn save_repositories_count(&self) -> usize {
@@ -242,7 +279,9 @@ impl SubtaskRecurrenceRepositoryTrait for SubTaskRecurrenceUnifiedRepository {
         recurrence_rule_id: &RecurrenceRuleId,
     ) -> Result<Vec<SubTaskRecurrence>, RepositoryError> {
         if let Some(repository) = self.search_repositories.first() {
-            repository.find_by_recurrence_rule_id(recurrence_rule_id).await
+            repository
+                .find_by_recurrence_rule_id(recurrence_rule_id)
+                .await
         } else {
             Ok(Vec::new())
         }
@@ -275,7 +314,9 @@ impl SubtaskRecurrenceRepositoryTrait for SubTaskRecurrenceUnifiedRepository {
         recurrence_rule_id: &RecurrenceRuleId,
     ) -> Result<(), RepositoryError> {
         for repository in &self.save_repositories {
-            repository.delete_by_recurrence_rule_id(recurrence_rule_id).await?;
+            repository
+                .delete_by_recurrence_rule_id(recurrence_rule_id)
+                .await?;
         }
         Ok(())
     }
@@ -291,7 +332,9 @@ impl SubtaskRecurrenceRepositoryTrait for SubTaskRecurrenceUnifiedRepository {
 }
 
 #[async_trait]
-impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId> for SubTaskRecurrenceUnifiedRepository {
+impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
+    for SubTaskRecurrenceUnifiedRepository
+{
     async fn add(
         &self,
         project_id: &ProjectId,
@@ -316,8 +359,13 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId> f
                 i,
                 std::any::type_name_of_val(repository)
             );
-            repository.add(project_id, parent_id, child_id, user_id, timestamp).await?;
-            info!("SubTaskRecurrenceUnifiedRepository::add - repository {} completed", i);
+            repository
+                .add(project_id, parent_id, child_id, user_id, timestamp)
+                .await?;
+            info!(
+                "SubTaskRecurrenceUnifiedRepository::add - repository {} completed",
+                i
+            );
         }
 
         Ok(())
@@ -375,8 +423,14 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId> f
         }
     }
 
-    async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<SubTaskRecurrence>, RepositoryError> {
-        info!("Finding all subtask recurrence relations in project: {}", project_id);
+    async fn find_all(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Vec<SubTaskRecurrence>, RepositoryError> {
+        info!(
+            "Finding all subtask recurrence relations in project: {}",
+            project_id
+        );
 
         if let Some(repository) = self.search_repositories.first() {
             <_ as ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>>::find_all(repository, project_id).await

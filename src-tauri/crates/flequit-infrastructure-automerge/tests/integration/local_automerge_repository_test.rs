@@ -162,7 +162,9 @@ async fn test_project_repository_crud_operations() -> Result<(), Box<dyn std::er
     updated_project.updated_at = update_timestamp;
     updated_project.updated_by = update_user_id.clone();
 
-    repository.save(&updated_project, &update_user_id, &update_timestamp).await?;
+    repository
+        .save(&updated_project, &update_user_id, &update_timestamp)
+        .await?;
     println!("✅ Project updated successfully");
 
     // 更新確認
@@ -175,9 +177,15 @@ async fn test_project_repository_crud_operations() -> Result<(), Box<dyn std::er
         Some("更新されたプロジェクト説明".to_string())
     );
     // updated_at が更新されていることを確認
-    assert_ne!(updated.updated_at, timestamp, "updated_at should be updated");
+    assert_ne!(
+        updated.updated_at, timestamp,
+        "updated_at should be updated"
+    );
     // updated_by が正しく設定されていることを確認
-    assert_eq!(updated.updated_by, update_user_id, "updated_by should match the update user");
+    assert_eq!(
+        updated.updated_by, update_user_id,
+        "updated_by should match the update user"
+    );
 
     // List操作テスト (ProjectListLocalAutomergeRepositoryを使用)
     let project_list_repository =
@@ -282,7 +290,9 @@ async fn test_multiple_projects_concurrent_operations() -> Result<(), Box<dyn st
             updated_project.updated_at = Utc::now();
             updated_project.updated_by = user_id;
 
-            repository.save(&updated_project, &user_id, &timestamp).await?;
+            repository
+                .save(&updated_project, &user_id, &timestamp)
+                .await?;
             project_list_repository
                 .add_or_update_project(&updated_project)
                 .await?;
@@ -341,7 +351,9 @@ async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn s
         updated_by: user_id,
     };
 
-    repository.save(&stage1_project, &user_id, &timestamp).await?;
+    repository
+        .save(&stage1_project, &user_id, &timestamp)
+        .await?;
     println!("✅ Stage 1: Basic project created");
 
     // Stage 1の状態をエクスポート
@@ -366,7 +378,9 @@ async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn s
     stage2_project.updated_at = timestamp2;
     stage2_project.updated_by = user_id2;
 
-    repository.save(&stage2_project, &user_id2, &timestamp2).await?;
+    repository
+        .save(&stage2_project, &user_id2, &timestamp2)
+        .await?;
     println!("✅ Stage 2: Tags and members added");
 
     // Stage 2の状態をエクスポート
@@ -391,7 +405,9 @@ async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn s
     stage3_project.updated_at = timestamp3;
     stage3_project.updated_by = user_id3;
 
-    repository.save(&stage3_project, &user_id3, &timestamp3).await?;
+    repository
+        .save(&stage3_project, &user_id3, &timestamp3)
+        .await?;
     println!("✅ Stage 3: Project fully enhanced");
 
     // Stage 3の状態をエクスポート
@@ -455,7 +471,10 @@ async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn s
 #[tokio::test]
 async fn test_project_repository_json_export_with_detailed_changes(
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_project_repository_json_export_with_detailed_changes");
+    let temp_dir_path = TestPathGenerator::generate_test_dir(
+        file!(),
+        "test_project_repository_json_export_with_detailed_changes",
+    );
     std::fs::create_dir_all(&temp_dir_path)?;
     let persistent_dir =
         create_persistent_test_dir("test_project_repository_json_export_with_detailed_changes");
@@ -543,7 +562,9 @@ async fn test_project_repository_json_export_with_detailed_changes(
     updated_project1.updated_at = timestamp3;
     updated_project1.updated_by = user_id3;
 
-    repository.save(&updated_project1, &user_id3, &timestamp3).await?;
+    repository
+        .save(&updated_project1, &user_id3, &timestamp3)
+        .await?;
     println!("📝 プロジェクト1更新完了: {}", updated_project1.name);
 
     // Change 3をエクスポート
@@ -575,7 +596,9 @@ async fn test_project_repository_json_export_with_detailed_changes(
         updated_by: user_id_p3.clone(),
     };
 
-    repository.save(&project3, &user_id_p3, &timestamp_p3).await?;
+    repository
+        .save(&project3, &user_id_p3, &timestamp_p3)
+        .await?;
     println!("📝 プロジェクト3作成完了: {}", project3.name);
 
     // Change 4をエクスポート
@@ -597,7 +620,9 @@ async fn test_project_repository_json_export_with_detailed_changes(
     archived_project2.updated_at = timestamp_archive;
     archived_project2.updated_by = user_id_archive.clone();
 
-    repository.save(&archived_project2, &user_id_archive, &timestamp_archive).await?;
+    repository
+        .save(&archived_project2, &user_id_archive, &timestamp_archive)
+        .await?;
     println!("📝 プロジェクト2アーカイブ完了: {}", archived_project2.name);
 
     // Change 5をエクスポート
@@ -758,7 +783,9 @@ async fn test_error_handling_and_edge_cases() -> Result<(), Box<dyn std::error::
     };
 
     // 更新は成功する可能性があります（automergeの特性上、新規作成として扱われる場合）
-    let update_result = repository.save(&fake_project, &fake_user_id, &fake_timestamp).await;
+    let update_result = repository
+        .save(&fake_project, &fake_user_id, &fake_timestamp)
+        .await;
     println!(
         "✅ Update non-existent project result: {:?}",
         update_result.is_ok()
@@ -789,7 +816,9 @@ async fn test_error_handling_and_edge_cases() -> Result<(), Box<dyn std::error::
         updated_by: empty_user_id.clone(),
     };
 
-    let create_result = repository.save(&empty_name_project, &empty_user_id, &empty_timestamp).await;
+    let create_result = repository
+        .save(&empty_name_project, &empty_user_id, &empty_timestamp)
+        .await;
     println!(
         "✅ Empty name project creation result: {:?}",
         create_result.is_ok()
@@ -813,7 +842,9 @@ async fn test_error_handling_and_edge_cases() -> Result<(), Box<dyn std::error::
         updated_by: large_user_id.clone(),
     };
 
-    let large_create_result = repository.save(&large_project, &large_user_id, &large_timestamp).await;
+    let large_create_result = repository
+        .save(&large_project, &large_user_id, &large_timestamp)
+        .await;
     println!(
         "✅ Large project creation result: {:?}",
         large_create_result.is_ok()
@@ -878,7 +909,9 @@ async fn test_task_list_repository_crud_operations() -> Result<(), Box<dyn std::
     println!("Creating task list: {:?}", task_list.name);
 
     // Create操作テスト
-    repository.save(&project_id, &task_list, &user_id, &timestamp).await?;
+    repository
+        .save(&project_id, &task_list, &user_id, &timestamp)
+        .await?;
     println!("✅ TaskList created successfully");
 
     // Read操作テスト
@@ -902,7 +935,14 @@ async fn test_task_list_repository_crud_operations() -> Result<(), Box<dyn std::
     updated_task_list.updated_at = update_timestamp;
     updated_task_list.updated_by = update_user_id.clone();
 
-    repository.save(&project_id, &updated_task_list, &update_user_id, &update_timestamp).await?;
+    repository
+        .save(
+            &project_id,
+            &updated_task_list,
+            &update_user_id,
+            &update_timestamp,
+        )
+        .await?;
     println!("✅ TaskList updated successfully");
 
     // 更新確認
@@ -917,9 +957,15 @@ async fn test_task_list_repository_crud_operations() -> Result<(), Box<dyn std::
     assert_eq!(updated.color, Some("#e74c3c".to_string()));
     assert_eq!(updated.order_index, 2);
     // updated_at が更新されていることを確認
-    assert_ne!(updated.updated_at, timestamp, "updated_at should be updated");
+    assert_ne!(
+        updated.updated_at, timestamp,
+        "updated_at should be updated"
+    );
     // updated_by が正しく設定されていることを確認
-    assert_eq!(updated.updated_by, update_user_id, "updated_by should match the update user");
+    assert_eq!(
+        updated.updated_by, update_user_id,
+        "updated_by should match the update user"
+    );
 
     // List操作テスト
     let all_task_lists = repository.find_all(&project_id).await?;
@@ -1026,7 +1072,9 @@ async fn test_task_repository_crud_operations() -> Result<(), Box<dyn std::error
     println!("Creating task: {:?}", task.title);
 
     // Create操作テスト
-    repository.save(&project_id, &task, &user_id, &timestamp).await?;
+    repository
+        .save(&project_id, &task, &user_id, &timestamp)
+        .await?;
     println!("✅ Task created successfully");
 
     // Read操作テスト
@@ -1050,7 +1098,14 @@ async fn test_task_repository_crud_operations() -> Result<(), Box<dyn std::error
     updated_task.updated_at = update_timestamp;
     updated_task.updated_by = update_user_id.clone();
 
-    repository.save(&project_id, &updated_task, &update_user_id, &update_timestamp).await?;
+    repository
+        .save(
+            &project_id,
+            &updated_task,
+            &update_user_id,
+            &update_timestamp,
+        )
+        .await?;
     println!("✅ Task updated successfully");
 
     // 更新確認
@@ -1061,9 +1116,15 @@ async fn test_task_repository_crud_operations() -> Result<(), Box<dyn std::error
     assert_eq!(updated.status, TaskStatus::InProgress);
     assert_eq!(updated.priority, 2);
     // updated_at が更新されていることを確認
-    assert_ne!(updated.updated_at, timestamp, "updated_at should be updated");
+    assert_ne!(
+        updated.updated_at, timestamp,
+        "updated_at should be updated"
+    );
     // updated_by が正しく設定されていることを確認
-    assert_eq!(updated.updated_by, update_user_id, "updated_by should match the update user");
+    assert_eq!(
+        updated.updated_by, update_user_id,
+        "updated_by should match the update user"
+    );
 
     // List操作テスト
     let all_tasks = repository.find_all(&project_id).await?;
@@ -1146,7 +1207,9 @@ async fn test_subtask_repository_crud_operations() -> Result<(), Box<dyn std::er
     println!("Creating subtask: {:?}", subtask.title);
 
     // Create操作テスト
-    repository.save(&project_id, &subtask, &user_id, &timestamp).await?;
+    repository
+        .save(&project_id, &subtask, &user_id, &timestamp)
+        .await?;
     println!("✅ SubTask created successfully");
 
     // Read操作テスト
@@ -1169,7 +1232,14 @@ async fn test_subtask_repository_crud_operations() -> Result<(), Box<dyn std::er
     updated_subtask.updated_at = update_timestamp;
     updated_subtask.updated_by = update_user_id.clone();
 
-    repository.save(&project_id, &updated_subtask, &update_user_id, &update_timestamp).await?;
+    repository
+        .save(
+            &project_id,
+            &updated_subtask,
+            &update_user_id,
+            &update_timestamp,
+        )
+        .await?;
     println!("✅ SubTask updated successfully");
 
     // 更新確認
@@ -1180,9 +1250,15 @@ async fn test_subtask_repository_crud_operations() -> Result<(), Box<dyn std::er
     assert_eq!(updated.status, TaskStatus::Completed);
     assert_eq!(updated.order_index, 2);
     // updated_at が更新されていることを確認
-    assert_ne!(updated.updated_at, timestamp, "updated_at should be updated");
+    assert_ne!(
+        updated.updated_at, timestamp,
+        "updated_at should be updated"
+    );
     // updated_by が正しく設定されていることを確認
-    assert_eq!(updated.updated_by, update_user_id, "updated_by should match the update user");
+    assert_eq!(
+        updated.updated_by, update_user_id,
+        "updated_by should match the update user"
+    );
 
     // List操作テスト
     let all_subtasks = repository.find_all(&project_id).await?;
@@ -1255,7 +1331,9 @@ async fn test_tag_repository_crud_operations() -> Result<(), Box<dyn std::error:
     println!("Creating tag: {:?}", tag.name);
 
     // Create操作テスト
-    repository.save(&project_id, &tag, &user_id, &timestamp).await?;
+    repository
+        .save(&project_id, &tag, &user_id, &timestamp)
+        .await?;
     println!("✅ Tag created successfully");
 
     // Read操作テスト
@@ -1277,7 +1355,14 @@ async fn test_tag_repository_crud_operations() -> Result<(), Box<dyn std::error:
     updated_tag.updated_at = update_timestamp;
     updated_tag.updated_by = update_user_id.clone();
 
-    repository.save(&project_id, &updated_tag, &update_user_id, &update_timestamp).await?;
+    repository
+        .save(
+            &project_id,
+            &updated_tag,
+            &update_user_id,
+            &update_timestamp,
+        )
+        .await?;
     println!("✅ Tag updated successfully");
 
     // 更新確認
@@ -1288,9 +1373,15 @@ async fn test_tag_repository_crud_operations() -> Result<(), Box<dyn std::error:
     assert_eq!(updated.color, Some("#e74c3c".to_string()));
     assert_eq!(updated.order_index, Some(2));
     // updated_at が更新されていることを確認
-    assert_ne!(updated.updated_at, timestamp, "updated_at should be updated");
+    assert_ne!(
+        updated.updated_at, timestamp,
+        "updated_at should be updated"
+    );
     // updated_by が正しく設定されていることを確認
-    assert_eq!(updated.updated_by, update_user_id, "updated_by should match the update user");
+    assert_eq!(
+        updated.updated_by, update_user_id,
+        "updated_by should match the update user"
+    );
 
     // List操作テスト
     let all_tags = repository.find_all(&project_id).await?;

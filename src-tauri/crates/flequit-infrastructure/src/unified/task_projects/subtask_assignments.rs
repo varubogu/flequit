@@ -33,8 +33,14 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
         match self {
-            Self::LocalSqlite(repo) => repo.add(project_id, parent_id, child_id, user_id, timestamp).await,
-            Self::LocalAutomerge(repo) => repo.add(project_id, parent_id, child_id, user_id, timestamp).await,
+            Self::LocalSqlite(repo) => {
+                repo.add(project_id, parent_id, child_id, user_id, timestamp)
+                    .await
+            }
+            Self::LocalAutomerge(repo) => {
+                repo.add(project_id, parent_id, child_id, user_id, timestamp)
+                    .await
+            }
         }
     }
 
@@ -211,7 +217,9 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         );
 
         for repository in &self.save_repositories {
-            repository.add(project_id, parent_id, child_id, user_id, timestamp).await?;
+            repository
+                .add(project_id, parent_id, child_id, user_id, timestamp)
+                .await?;
         }
 
         Ok(())

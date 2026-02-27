@@ -27,7 +27,10 @@ impl SubTaskTagRepositoryVariant {
     ) -> Result<(), RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.remove_all_relations_by_tag_id(tag_id).await,
-            Self::LocalAutomerge(repo) => repo.remove_all_relations_by_tag_id(project_id, tag_id).await,
+            Self::LocalAutomerge(repo) => {
+                repo.remove_all_relations_by_tag_id(project_id, tag_id)
+                    .await
+            }
         }
     }
 }
@@ -45,8 +48,14 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubTaskTagRepos
         timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
         match self {
-            Self::LocalSqlite(repo) => repo.add(project_id, parent_id, child_id, user_id, timestamp).await,
-            Self::LocalAutomerge(repo) => repo.add(project_id, parent_id, child_id, user_id, timestamp).await,
+            Self::LocalSqlite(repo) => {
+                repo.add(project_id, parent_id, child_id, user_id, timestamp)
+                    .await
+            }
+            Self::LocalAutomerge(repo) => {
+                repo.add(project_id, parent_id, child_id, user_id, timestamp)
+                    .await
+            }
         }
     }
 
@@ -199,7 +208,9 @@ impl SubTaskTagUnifiedRepository {
         );
 
         for repository in &self.save_repositories {
-            repository.remove_all_relations_by_tag_id(project_id, tag_id).await?;
+            repository
+                .remove_all_relations_by_tag_id(project_id, tag_id)
+                .await?;
         }
 
         Ok(())
@@ -224,7 +235,9 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubTaskTagUnifi
         );
 
         for repository in &self.save_repositories {
-            repository.add(project_id, parent_id, child_id, user_id, timestamp).await?;
+            repository
+                .add(project_id, parent_id, child_id, user_id, timestamp)
+                .await?;
         }
 
         Ok(())

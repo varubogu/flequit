@@ -3,8 +3,8 @@
 //! このモジュールは日時フォーマット、カスタム日時フォーマット、
 //! 日付条件、曜日条件のビジネスロジックを処理します。
 
-use chrono::{DateTime, Datelike, Utc};
 use crate::InfrastructureRepositoriesTrait;
+use chrono::{DateTime, Datelike, Utc};
 use flequit_types::errors::service_error::ServiceError;
 
 use flequit_model::models::task_projects::{

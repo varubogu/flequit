@@ -14,7 +14,9 @@ pub async fn add<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match service::add_task_assignment(repositories, project_id, task_id, assigned_user_id, user_id).await {
+    match service::add_task_assignment(repositories, project_id, task_id, assigned_user_id, user_id)
+        .await
+    {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to add task assignment: {:?}", e)),
@@ -77,7 +79,9 @@ pub async fn update<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match service::update_task_assignments(repositories, project_id, task_id, user_ids, user_id).await {
+    match service::update_task_assignments(repositories, project_id, task_id, user_ids, user_id)
+        .await
+    {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to update task assignments: {:?}", e)),

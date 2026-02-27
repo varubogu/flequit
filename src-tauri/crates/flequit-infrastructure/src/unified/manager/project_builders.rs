@@ -2,7 +2,7 @@
 //!
 //! Project、Account、User エンティティのUnifiedRepositoryを構築するメソッドを提供する
 
-use super::{get_default_automerge_path, UnifiedManager};
+use super::{UnifiedManager, get_default_automerge_path};
 use crate::unified::{AccountUnifiedRepository, ProjectUnifiedRepository, UserUnifiedRepository};
 use flequit_infrastructure_automerge::infrastructure::accounts::account::AccountLocalAutomergeRepository;
 use flequit_infrastructure_automerge::infrastructure::task_projects::project::ProjectLocalAutomergeRepository;
@@ -45,8 +45,8 @@ impl UnifiedManager {
             let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
                 ProjectLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
-                let base_path = get_default_automerge_path()
-                    .ok_or("Failed to get default Automerge path")?;
+                let base_path =
+                    get_default_automerge_path().ok_or("Failed to get default Automerge path")?;
                 ProjectLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -96,8 +96,8 @@ impl UnifiedManager {
             let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
                 AccountLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
-                let base_path = get_default_automerge_path()
-                    .ok_or("Failed to get default Automerge path")?;
+                let base_path =
+                    get_default_automerge_path().ok_or("Failed to get default Automerge path")?;
                 AccountLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -141,8 +141,8 @@ impl UnifiedManager {
             let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
                 UserLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
-                let base_path = get_default_automerge_path()
-                    .ok_or("Failed to get default Automerge path")?;
+                let base_path =
+                    get_default_automerge_path().ok_or("Failed to get default Automerge path")?;
                 UserLocalAutomergeRepository::new(base_path).await?
             };
 

@@ -1,7 +1,7 @@
+use crate::traits::Trackable;
 use crate::types::id_types::{SubTaskId, UserId};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use crate::traits::Trackable;
 
 /// サブタスクとユーザーの割り当て関係を表現するモデル
 ///

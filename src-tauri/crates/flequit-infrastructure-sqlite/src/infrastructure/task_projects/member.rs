@@ -31,7 +31,13 @@ impl MemberRepositoryTrait for MemberLocalSqliteRepository {}
 
 #[async_trait]
 impl ProjectRepository<Member, UserId> for MemberLocalSqliteRepository {
-    async fn save(&self, project_id: &ProjectId, entity: &Member, _user_id: &UserId, _timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
+    async fn save(
+        &self,
+        project_id: &ProjectId,
+        entity: &Member,
+        _user_id: &UserId,
+        _timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()

@@ -4,7 +4,11 @@ use flequit_model::models::accounts::account::{Account, PartialAccount};
 use flequit_model::types::id_types::{AccountId, UserId};
 use flequit_types::errors::service_error::ServiceError;
 
-pub async fn create_account<R>(repositories: &R, account: &Account, user_id: &UserId) -> Result<bool, String>
+pub async fn create_account<R>(
+    repositories: &R,
+    account: &Account,
+    user_id: &UserId,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {

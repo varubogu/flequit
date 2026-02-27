@@ -72,7 +72,7 @@ impl FileStorage {
             let mut mapped_count = 0;
             for entry in entries.flatten() {
                 let path = entry.path();
-                
+
                 // .deleted フォルダ内のファイルはスキップ
                 if let Some(parent) = path.parent() {
                     if let Some(parent_name) = parent.file_name().and_then(|n| n.to_str()) {
@@ -81,12 +81,12 @@ impl FileStorage {
                         }
                     }
                 }
-                
+
                 // ディレクトリはスキップ（ファイルのみ処理）
                 if !path.is_file() {
                     continue;
                 }
-                
+
                 if let Some(filename) = path.file_name().and_then(|n| n.to_str()) {
                     if filename.ends_with(".automerge") {
                         scanned_count += 1;
@@ -97,19 +97,30 @@ impl FileStorage {
                         let doc_id = match std::fs::read(&path) {
                             Ok(data) => {
                                 if let Some(id) = Self::extract_document_id_from_file(&data) {
-                                    tracing::info!("Extracted DocumentId from file content: {} -> {}", filename, id);
+                                    tracing::info!(
+                                        "Extracted DocumentId from file content: {} -> {}",
+                                        filename,
+                                        id
+                                    );
                                     id
                                 } else {
                                     // ファイル内容から抽出失敗 → ファイル名から決定的に生成
-                                    let generated_id = Self::generate_document_id_from_filename(&filename_without_ext);
-                                    tracing::info!("Generated DocumentId from filename: {} -> {}", filename, generated_id);
+                                    let generated_id = Self::generate_document_id_from_filename(
+                                        &filename_without_ext,
+                                    );
+                                    tracing::info!(
+                                        "Generated DocumentId from filename: {} -> {}",
+                                        filename,
+                                        generated_id
+                                    );
                                     generated_id
                                 }
                             }
                             Err(e) => {
                                 tracing::error!("Failed to read file {}: {:?}", filename, e);
                                 // ファイル読み込み失敗でもファイル名から生成
-                                let generated_id = Self::generate_document_id_from_filename(&filename_without_ext);
+                                let generated_id =
+                                    Self::generate_document_id_from_filename(&filename_without_ext);
                                 tracing::info!("Generated DocumentId from filename (after read error): {} -> {}", filename, generated_id);
                                 generated_id
                             }
@@ -129,7 +140,11 @@ impl FileStorage {
             tracing::warn!("Failed to read directory: {:?}", base_path);
         }
 
-        tracing::info!("FileStorage initialized at {:?} with {} mappings", base_path, mapping.id_to_filename.len());
+        tracing::info!(
+            "FileStorage initialized at {:?} with {} mappings",
+            base_path,
+            mapping.id_to_filename.len()
+        );
 
         Ok(Self {
             base_path,
@@ -142,10 +157,16 @@ impl FileStorage {
     /// automerge-repoのファイルフォーマットから DocumentId を読み取る
     /// ファイル全体をスキャンして UUID パターン (8-4-4-4-12) を検索する
     fn extract_document_id_from_file(data: &[u8]) -> Option<DocumentId> {
-        tracing::debug!("Extracting DocumentId from file data (size: {} bytes)", data.len());
+        tracing::debug!(
+            "Extracting DocumentId from file data (size: {} bytes)",
+            data.len()
+        );
 
         if data.len() < 36 {
-            tracing::warn!("File data too short to contain DocumentId: {} bytes", data.len());
+            tracing::warn!(
+                "File data too short to contain DocumentId: {} bytes",
+                data.len()
+            );
             return None;
         }
 
@@ -164,12 +185,17 @@ impl FileStorage {
                         && parts[2].len() == 4
                         && parts[3].len() == 4
                         && parts[4].len() == 12
-                        && parts.iter().all(|p| p.chars().all(|c| c.is_ascii_hexdigit()))
+                        && parts
+                            .iter()
+                            .all(|p| p.chars().all(|c| c.is_ascii_hexdigit()))
                     {
                         // DocumentId としてパース
                         match s.parse::<DocumentId>() {
                             Ok(doc_id) => {
-                                tracing::info!("Successfully extracted DocumentId from file: {}", doc_id);
+                                tracing::info!(
+                                    "Successfully extracted DocumentId from file: {}",
+                                    doc_id
+                                );
                                 return Some(doc_id);
                             }
                             Err(e) => {
@@ -182,7 +208,10 @@ impl FileStorage {
         }
 
         tracing::warn!("Failed to find valid DocumentId in file data");
-        tracing::debug!("First 100 bytes (hex): {:02x?}", &data[..data.len().min(100)]);
+        tracing::debug!(
+            "First 100 bytes (hex): {:02x?}",
+            &data[..data.len().min(100)]
+        );
         None
     }
 
@@ -215,7 +244,10 @@ impl FileStorage {
         tracing::info!("Setting mapping: {} -> {}", id, filename);
         let mut mapping = self.mapping.write().unwrap();
         mapping.set_mapping(id, filename);
-        tracing::debug!("Mapping updated. Current mappings count: {}", mapping.id_to_filename.len());
+        tracing::debug!(
+            "Mapping updated. Current mappings count: {}",
+            mapping.id_to_filename.len()
+        );
     }
 
     /// ファイルパスからファイル名を抽出してマッピングを確保
@@ -233,18 +265,28 @@ impl FileStorage {
             drop(mapping);
 
             // マッピングが存在しない場合は追加
-            tracing::info!("Ensuring mapping for file write: {} -> {}", filename_without_ext, id);
+            tracing::info!(
+                "Ensuring mapping for file write: {} -> {}",
+                filename_without_ext,
+                id
+            );
             self.set_mapping(id, filename_without_ext);
         }
     }
 
     /// ファイル名からDocumentIdを取得（逆引き）
-    pub fn get_document_id_by_filename(&self, filename: &str) -> Result<DocumentId, AutomergeError> {
+    pub fn get_document_id_by_filename(
+        &self,
+        filename: &str,
+    ) -> Result<DocumentId, AutomergeError> {
         tracing::debug!("Looking up DocumentId for filename: {}", filename);
         let mapping = self.mapping.read().unwrap();
         let filename_without_ext = filename.replace(".automerge", "");
 
-        tracing::debug!("Available mappings: {:?}", mapping.filename_to_id.keys().collect::<Vec<_>>());
+        tracing::debug!(
+            "Available mappings: {:?}",
+            mapping.filename_to_id.keys().collect::<Vec<_>>()
+        );
 
         mapping
             .get_id_by_filename(&filename_without_ext)
@@ -330,7 +372,12 @@ impl FileStorage {
     /// ドキュメントに変更を追記
     pub async fn append(&self, id: DocumentId, changes: Vec<u8>) -> Result<(), AutomergeError> {
         let path = self.document_path(&id);
-        tracing::debug!("Appending {} bytes to document {} at path {:?}", changes.len(), id, path);
+        tracing::debug!(
+            "Appending {} bytes to document {} at path {:?}",
+            changes.len(),
+            id,
+            path
+        );
 
         // ファイル名からマッピングを確保（ファイル書き込み時に必ずマッピングを保持）
         self.ensure_mapping_from_path(&path, id.clone());
@@ -352,7 +399,11 @@ impl FileStorage {
                         match file.flush() {
                             Ok(_) => Ok(()),
                             Err(e) => {
-                                tracing::error!("Failed to flush document {}: {}", id.as_uuid_str(), e);
+                                tracing::error!(
+                                    "Failed to flush document {}: {}",
+                                    id.as_uuid_str(),
+                                    e
+                                );
                                 Err(AutomergeError::StorageError(format!(
                                     "Failed to flush document {}: {}",
                                     id.as_uuid_str(),
@@ -389,7 +440,12 @@ impl FileStorage {
     /// ドキュメントを圧縮
     pub async fn compact(&self, id: DocumentId, full_doc: Vec<u8>) -> Result<(), AutomergeError> {
         let path = self.document_path(&id);
-        tracing::debug!("Compacting document {} ({} bytes) to path {:?}", id, full_doc.len(), path);
+        tracing::debug!(
+            "Compacting document {} ({} bytes) to path {:?}",
+            id,
+            full_doc.len(),
+            path
+        );
 
         // ファイル名からマッピングを確保（ファイル書き込み時に必ずマッピングを保持）
         self.ensure_mapping_from_path(&path, id.clone());
@@ -461,7 +517,10 @@ impl Storage for FileStorage {
                                 if let Ok(document_id) = id_str.parse() {
                                     document_ids.push(document_id);
                                 } else {
-                                    tracing::warn!("Invalid automerge filename format: {}", file_name);
+                                    tracing::warn!(
+                                        "Invalid automerge filename format: {}",
+                                        file_name
+                                    );
                                 }
                             }
                         }
@@ -519,7 +578,11 @@ impl Storage for FileStorage {
                             }
                         }
                         Err(e) => {
-                            tracing::error!("Failed to write to document {}: {}", id.as_uuid_str(), e);
+                            tracing::error!(
+                                "Failed to write to document {}: {}",
+                                id.as_uuid_str(),
+                                e
+                            );
                             Err(StorageError::Error)
                         }
                     }

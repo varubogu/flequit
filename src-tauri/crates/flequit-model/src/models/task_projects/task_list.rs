@@ -14,7 +14,11 @@ use chrono::{DateTime, Utc};
 use partially::Partial;
 use serde::{Deserialize, Serialize};
 
-use crate::{models::ModelConverter, traits::Trackable, types::id_types::{ProjectId, UserId}};
+use crate::{
+    models::ModelConverter,
+    traits::Trackable,
+    types::id_types::{ProjectId, UserId},
+};
 
 /// 基本タスクリスト情報を表現する構造体
 ///

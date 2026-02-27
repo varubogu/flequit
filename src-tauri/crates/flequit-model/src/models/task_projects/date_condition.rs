@@ -2,10 +2,13 @@
 //!
 //! このモジュールは日付に基づく条件を管理する構造体を定義します。
 
-use crate::types::{datetime_calendar_types::DateRelation, id_types::{DateConditionId, UserId}};
+use crate::traits::Trackable;
+use crate::types::{
+    datetime_calendar_types::DateRelation,
+    id_types::{DateConditionId, UserId},
+};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use crate::traits::Trackable;
 
 /// 日付に基づく条件を表現する構造体
 ///

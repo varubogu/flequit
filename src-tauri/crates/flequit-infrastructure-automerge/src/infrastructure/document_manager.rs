@@ -76,9 +76,7 @@ impl DocumentType {
             "user.automerge" => Some(DocumentType::User),
             name if name.starts_with("project_") && name.ends_with(".automerge") => {
                 // "project_{uuid}.automerge" から uuid を抽出
-                let id_str = name
-                    .strip_prefix("project_")?
-                    .strip_suffix(".automerge")?;
+                let id_str = name.strip_prefix("project_")?.strip_suffix(".automerge")?;
                 let uuid = uuid::Uuid::parse_str(id_str).ok()?;
                 let project_id = ProjectId::from(uuid);
                 Some(DocumentType::Project(project_id))
@@ -125,7 +123,6 @@ impl DocumentManager {
         })
     }
 
-
     /// ドキュメントファイルのフルパスを取得（将来の機能で使用予定）
     fn _document_path(&self, doc_type: &DocumentType) -> PathBuf {
         self.base_path.join(doc_type.filename())
@@ -150,8 +147,14 @@ impl DocumentManager {
         let doc_handle = if file_path.exists() {
             // 既存ファイルをロード
             tracing::info!("Loading existing document from file: {:?}", file_path);
-            let doc_id = self.file_storage.get_document_id_by_filename(&doc_type.filename())?;
-            tracing::debug!("Retrieved DocumentId {} for filename {}", doc_id, doc_type.filename());
+            let doc_id = self
+                .file_storage
+                .get_document_id_by_filename(&doc_type.filename())?;
+            tracing::debug!(
+                "Retrieved DocumentId {} for filename {}",
+                doc_id,
+                doc_type.filename()
+            );
             self.repo_handle
                 .request_document(doc_id)
                 .await
@@ -164,13 +167,18 @@ impl DocumentManager {
                 })?
         } else {
             // 新しいドキュメントを作成
-            tracing::info!("Creating new document for {:?} at {:?}", doc_type, file_path);
+            tracing::info!(
+                "Creating new document for {:?} at {:?}",
+                doc_type,
+                file_path
+            );
             let handle = self.repo_handle.new_document();
             let doc_id = handle.document_id();
 
             // ファイル名をDocumentIdに紐付け（メモリ内のみ）
             let desired_filename = doc_type.filename().replace(".automerge", "");
-            self.file_storage.set_mapping(doc_id.clone(), desired_filename.clone());
+            self.file_storage
+                .set_mapping(doc_id.clone(), desired_filename.clone());
             tracing::info!(
                 "Mapped filename '{}' to document ID {} (in memory)",
                 desired_filename,
@@ -321,28 +329,30 @@ impl DocumentManager {
     }
 
     /// ドキュメントを削除（.deletedフォルダに移動）
-    /// 
+    ///
     /// 削除されたファイルは .deleted/ サブフォルダに移動され、
     /// アプリケーションから復元または完全削除（ゴミ箱移動）が可能です。
     pub fn delete(&mut self, doc_type: DocumentType) -> Result<(), AutomergeError> {
         // メモリ内のドキュメントを削除
         self.documents.remove(&doc_type);
-        
+
         let source_path = self.base_path.join(doc_type.filename());
         if !source_path.exists() {
             return Ok(()); // ファイルが存在しなければ何もしない
         }
-        
+
         // .deleted/ フォルダを作成
         let deleted_dir = self.base_path.join(".deleted");
-        std::fs::create_dir_all(&deleted_dir)
-            .map_err(|e| AutomergeError::IOError(format!("Failed to create .deleted directory: {}", e)))?;
-        
+        std::fs::create_dir_all(&deleted_dir).map_err(|e| {
+            AutomergeError::IOError(format!("Failed to create .deleted directory: {}", e))
+        })?;
+
         // ファイルを .deleted/ フォルダに移動
         let dest_path = deleted_dir.join(doc_type.filename());
-        std::fs::rename(&source_path, &dest_path)
-            .map_err(|e| AutomergeError::IOError(format!("Failed to move file to .deleted: {}", e)))?;
-        
+        std::fs::rename(&source_path, &dest_path).map_err(|e| {
+            AutomergeError::IOError(format!("Failed to move file to .deleted: {}", e))
+        })?;
+
         // メタデータファイルを作成
         let metadata = DeletedDocumentMetadata {
             doc_type: format!("{:?}", doc_type),
@@ -350,16 +360,24 @@ impl DocumentManager {
             original_filename: doc_type.filename(),
             original_path: source_path.to_string_lossy().to_string(),
         };
-        
-        let meta_filename = format!("{}.meta.json", doc_type.filename().replace(".automerge", ""));
+
+        let meta_filename = format!(
+            "{}.meta.json",
+            doc_type.filename().replace(".automerge", "")
+        );
         let meta_path = deleted_dir.join(meta_filename);
         let meta_json = serde_json::to_string_pretty(&metadata)
             .map_err(|e| AutomergeError::SerializationError(e.to_string()))?;
-        std::fs::write(&meta_path, meta_json)
-            .map_err(|e| AutomergeError::IOError(format!("Failed to write metadata file: {}", e)))?;
-        
-        tracing::info!("Moved to .deleted folder: {:?} -> {:?} (with metadata)", source_path, dest_path);
-        
+        std::fs::write(&meta_path, meta_json).map_err(|e| {
+            AutomergeError::IOError(format!("Failed to write metadata file: {}", e))
+        })?;
+
+        tracing::info!(
+            "Moved to .deleted folder: {:?} -> {:?} (with metadata)",
+            source_path,
+            dest_path
+        );
+
         Ok(())
     }
 

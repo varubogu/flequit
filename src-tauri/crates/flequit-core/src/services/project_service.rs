@@ -1,12 +1,16 @@
-use chrono::Utc;
 use crate::InfrastructureRepositoriesTrait;
+use chrono::Utc;
 use flequit_model::models::task_projects::project::{PartialProject, Project};
 use flequit_model::types::id_types::{ProjectId, UserId};
 use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_repository::repositories::patchable_trait::Patchable;
 use flequit_types::errors::service_error::ServiceError;
 
-pub async fn create_project<R>(repositories: &R, project: &Project, user_id: &UserId) -> Result<Project, ServiceError>
+pub async fn create_project<R>(
+    repositories: &R,
+    project: &Project,
+    user_id: &UserId,
+) -> Result<Project, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -19,7 +23,10 @@ where
         new_project.id = ProjectId::new();
     }
 
-    repositories.projects().save(&new_project, user_id, &now).await?;
+    repositories
+        .projects()
+        .save(&new_project, user_id, &now)
+        .await?;
 
     Ok(new_project)
 }
@@ -52,7 +59,10 @@ where
 {
     // パッチによる部分更新を実行
     let now = Utc::now();
-    let changed = repositories.projects().patch(project_id, patch, user_id, &now).await?;
+    let changed = repositories
+        .projects()
+        .patch(project_id, patch, user_id, &now)
+        .await?;
     Ok(changed)
 }
 

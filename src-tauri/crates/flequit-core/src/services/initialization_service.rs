@@ -129,7 +129,10 @@ where
             updated_by: user_id,
         };
 
-        repositories.users().save(&default_user, &user_id, &now).await?;
+        repositories
+            .users()
+            .save(&default_user, &user_id, &now)
+            .await?;
         created_entities.push(format!("user({})", default_user.id));
         users.push(default_user);
     }
@@ -137,7 +140,9 @@ where
     if accounts.iter().all(|account| account.deleted) {
         let now = chrono::Utc::now();
         let user_id = resolve_primary_user_id(&users, &accounts).ok_or_else(|| {
-            ServiceError::InternalError("No user available for default account creation".to_string())
+            ServiceError::InternalError(
+                "No user available for default account creation".to_string(),
+            )
         })?;
 
         let default_account = Account {
@@ -169,7 +174,9 @@ where
     if projects.iter().all(|project| project.deleted) {
         let now = chrono::Utc::now();
         let owner_user_id = resolve_primary_user_id(&users, &accounts).ok_or_else(|| {
-            ServiceError::InternalError("No user available for default project creation".to_string())
+            ServiceError::InternalError(
+                "No user available for default project creation".to_string(),
+            )
         })?;
 
         let next_order_index = projects

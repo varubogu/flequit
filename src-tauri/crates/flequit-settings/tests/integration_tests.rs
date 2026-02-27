@@ -2,8 +2,8 @@
 
 use flequit_settings::{PartialSettings, Settings, SettingsManager};
 use flequit_testing::TestPathGenerator;
-use tracing::info;
 use std::env;
+use tracing::info;
 
 #[test]
 fn test_config_manager_creation() {

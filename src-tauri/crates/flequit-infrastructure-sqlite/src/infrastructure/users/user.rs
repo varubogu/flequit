@@ -4,21 +4,21 @@
 
 use super::super::database_manager::DatabaseManager;
 use crate::errors::sqlite_error::SQLiteError;
-use chrono::{DateTime, Utc};
 use crate::models::user::{ActiveModel as UserActiveModel, Column, Entity as UserEntity};
 use crate::models::{DomainToSqliteConverter, SqliteModelConverter};
+use chrono::{DateTime, Utc};
 use flequit_model::models::users::user::User;
 use flequit_model::types::id_types::UserId;
 use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_repository::users::UserRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
-use tracing::info;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
     QuerySelect,
 };
 use std::sync::Arc;
 use tokio::sync::RwLock;
+use tracing::info;
 
 /// User用SQLiteリポジトリ
 #[derive(Debug)]
@@ -172,7 +172,12 @@ impl UserRepositoryTrait for UserLocalSqliteRepository {}
 
 #[async_trait::async_trait]
 impl Repository<User, UserId> for UserLocalSqliteRepository {
-    async fn save(&self, user: &User, _user_id: &UserId, _timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
+    async fn save(
+        &self,
+        user: &User,
+        _user_id: &UserId,
+        _timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()

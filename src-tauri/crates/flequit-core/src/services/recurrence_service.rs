@@ -3,18 +3,19 @@
 //! このモジュールは繰り返しルール、調整、詳細、タスク・サブタスク関連付けの
 //! ビジネスロジックを処理します。
 
-use chrono::Utc;
 use crate::InfrastructureRepositoriesTrait;
+use chrono::Utc;
 use flequit_model::models::task_projects::{
-    recurrence_adjustment::RecurrenceAdjustment, recurrence_details::RecurrenceDetails,
+    recurrence_adjustment::RecurrenceAdjustment,
+    recurrence_details::RecurrenceDetails,
     recurrence_rule::{PartialRecurrenceRule, RecurrenceRule},
     subtask_recurrence::SubTaskRecurrence,
     task_recurrence::TaskRecurrence,
 };
 use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, SubTaskId, TaskId, UserId};
 use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
-use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::project_relation_repository_trait::ProjectRelationRepository;
+use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_types::errors::service_error::ServiceError;
 
 // Command models are not available in core layer - using domain models directly

@@ -1,9 +1,9 @@
+use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use flequit_model::models::task_projects::subtask_recurrence::SubTaskRecurrence;
 use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, SubTaskId, UserId};
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
-use async_trait::async_trait;
 
 use crate::models::{DomainToSqliteConverterWithProjectId, SqliteModelConverter};
 

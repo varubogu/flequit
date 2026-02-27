@@ -1,5 +1,5 @@
-use chrono::Utc;
 use crate::InfrastructureRepositoriesTrait;
+use chrono::Utc;
 use flequit_model::models::task_projects::task::TaskTree;
 use flequit_model::models::task_projects::task_list::{PartialTaskList, TaskList, TaskListTree};
 use flequit_model::models::task_projects::SubTaskTree;
@@ -110,7 +110,10 @@ where
 
     // 3-1. プロジェクト内の全 task_recurrence、subtask_recurrence、recurrence_rule を取得
     let all_task_recurrences = repositories.task_recurrences().find_all(project_id).await?;
-    let all_subtask_recurrences = repositories.subtask_recurrences().find_all(project_id).await?;
+    let all_subtask_recurrences = repositories
+        .subtask_recurrences()
+        .find_all(project_id)
+        .await?;
     let all_recurrence_rules = repositories.recurrence_rules().find_all(project_id).await?;
 
     // 3-2. HashMap を作成してルックアップを高速化

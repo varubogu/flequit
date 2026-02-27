@@ -77,7 +77,9 @@ async fn test_task_list_create_operation() -> Result<(), Box<dyn std::error::Err
     };
 
     // Create操作
-    task_list_repo.save(&project_id, &task_list, &user_id, &timestamp).await?;
+    task_list_repo
+        .save(&project_id, &task_list, &user_id, &timestamp)
+        .await?;
 
     // 作成確認
     let retrieved = task_list_repo
@@ -167,8 +169,12 @@ async fn test_task_list_read_operation() -> Result<(), Box<dyn std::error::Error
     };
 
     // 2件とも保存
-    task_list_repo.save(&project_id, &task_list1, &user_id, &timestamp).await?;
-    task_list_repo.save(&project_id, &task_list2, &user_id, &timestamp).await?;
+    task_list_repo
+        .save(&project_id, &task_list1, &user_id, &timestamp)
+        .await?;
+    task_list_repo
+        .save(&project_id, &task_list2, &user_id, &timestamp)
+        .await?;
 
     // 1件目のみRead操作
     let retrieved = task_list_repo
@@ -262,15 +268,21 @@ async fn test_task_list_update_operation() -> Result<(), Box<dyn std::error::Err
     };
 
     // 2件とも保存
-    task_list_repo.save(&project_id, &task_list1, &user_id, &timestamp).await?;
-    task_list_repo.save(&project_id, &task_list2, &user_id, &timestamp).await?;
+    task_list_repo
+        .save(&project_id, &task_list1, &user_id, &timestamp)
+        .await?;
+    task_list_repo
+        .save(&project_id, &task_list2, &user_id, &timestamp)
+        .await?;
 
     // 1件目のみUpdate操作
     let mut updated = task_list1.clone();
     updated.name = "更新されたUpdate操作SQLiteタスクリスト1".to_string();
     updated.description = Some("更新されたUpdate操作SQLiteテスト用タスクリスト1".to_string());
     updated.color = Some("#009688".to_string());
-    task_list_repo.save(&project_id, &updated, &user_id, &timestamp).await?;
+    task_list_repo
+        .save(&project_id, &updated, &user_id, &timestamp)
+        .await?;
 
     // 更新後の取得確認（1件目）
     let updated_result = task_list_repo
@@ -368,8 +380,12 @@ async fn test_task_list_delete_operation() -> Result<(), Box<dyn std::error::Err
     };
 
     // 2件とも保存
-    task_list_repo.save(&project_id, &task_list1, &user_id, &timestamp).await?;
-    task_list_repo.save(&project_id, &task_list2, &user_id, &timestamp).await?;
+    task_list_repo
+        .save(&project_id, &task_list1, &user_id, &timestamp)
+        .await?;
+    task_list_repo
+        .save(&project_id, &task_list2, &user_id, &timestamp)
+        .await?;
 
     // 1件目のみDelete操作
     task_list_repo.delete(&project_id, &task_list_id1).await?;

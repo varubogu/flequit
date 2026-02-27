@@ -25,7 +25,12 @@ impl UserRepositoryTrait for UserRepositoryVariant {}
 
 #[async_trait]
 impl Repository<User, UserId> for UserRepositoryVariant {
-    async fn save(&self, entity: &User, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
+    async fn save(
+        &self,
+        entity: &User,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.save(entity, user_id, timestamp).await,
             Self::LocalAutomerge(repo) => repo.save(entity, user_id, timestamp).await,
@@ -141,7 +146,12 @@ impl UserUnifiedRepository {
 #[async_trait]
 impl Repository<User, UserId> for UserUnifiedRepository {
     /// 保存用リポジトリ（SQLite + Automerge + α）に保存
-    async fn save(&self, entity: &User, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
+    async fn save(
+        &self,
+        entity: &User,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
         info!(
             "UserUnifiedRepository::save - 保存用リポジトリ {} 箇所に保存",
             self.save_repositories.len()

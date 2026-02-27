@@ -61,7 +61,13 @@ where
     /// # 戻り値
     ///
     /// 成功時は`Ok(())`、失敗時は`Err(RepositoryError)`
-    async fn add(&self, parent_id: &TParentId, child_id: &TChildId, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError>;
+    async fn add(
+        &self,
+        parent_id: &TParentId,
+        child_id: &TChildId,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError>;
 
     /// 紐づけを削除
     ///

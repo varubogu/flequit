@@ -11,7 +11,12 @@ pub trait InitializedDataRepositoryTrait: Send + Sync {
     async fn get_initialized_data(&self) -> Result<Option<InitializedData>, RepositoryError>;
 
     /// 初期化データを更新
-    async fn update_initialized_data(&self, data: &InitializedData, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError>;
+    async fn update_initialized_data(
+        &self,
+        data: &InitializedData,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError>;
 
     /// 初期化データを削除
     async fn delete_initialized_data(&self) -> Result<(), RepositoryError>;

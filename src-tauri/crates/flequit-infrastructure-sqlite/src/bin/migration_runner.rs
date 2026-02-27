@@ -20,7 +20,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let force_mode = args.len() == 3 && args[2] == "--force";
 
     if force_mode {
-        println!("🔄 強制マイグレーション実行開始（全テーブル削除→再作成）: {}", db_path);
+        println!(
+            "🔄 強制マイグレーション実行開始（全テーブル削除→再作成）: {}",
+            db_path
+        );
     } else {
         println!("🔧 マイグレーション実行開始: {}", db_path);
     }
@@ -29,11 +32,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env::set_var("FLEQUIT_DB_PATH", db_path);
 
     // 強制モードの場合は、既存のDBファイルを削除
-    if force_mode
-        && std::path::Path::new(db_path).exists() {
-            println!("⚠️  既存のデータベースファイルを削除します");
-            std::fs::remove_file(db_path)?;
-        }
+    if force_mode && std::path::Path::new(db_path).exists() {
+        println!("⚠️  既存のデータベースファイルを削除します");
+        std::fs::remove_file(db_path)?;
+    }
 
     // DatabaseManagerを作成（シングルトンではない新しいインスタンスが必要）
     let db_manager = DatabaseManager::new_for_test(db_path);

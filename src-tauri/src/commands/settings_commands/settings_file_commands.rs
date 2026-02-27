@@ -1,5 +1,5 @@
-use crate::models::CommandModelConverter;
 use crate::models::settings::{PartialSettingsCommandModel, SettingsCommandModel};
+use crate::models::CommandModelConverter;
 use crate::state::AppState;
 use flequit_model::models::ModelConverter;
 use flequit_settings::{PartialSettings, Settings};

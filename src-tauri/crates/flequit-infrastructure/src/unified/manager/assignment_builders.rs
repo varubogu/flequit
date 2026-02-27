@@ -2,7 +2,7 @@
 //!
 //! TaskAssignment、SubTaskAssignment エンティティのUnifiedRepositoryを構築するメソッドを提供する
 
-use super::{get_default_automerge_path, UnifiedManager};
+use super::{UnifiedManager, get_default_automerge_path};
 use crate::unified::{SubTaskAssignmentUnifiedRepository, TaskAssignmentUnifiedRepository};
 use flequit_infrastructure_automerge::infrastructure::task_projects::{
     subtask_assignments::SubtaskAssignmentLocalAutomergeRepository,
@@ -44,8 +44,8 @@ impl UnifiedManager {
                 TaskAssignmentLocalAutomergeRepository::new_with_manager(doc_manager.clone())
                     .await?
             } else {
-                let base_path = get_default_automerge_path()
-                    .ok_or("Failed to get default Automerge path")?;
+                let base_path =
+                    get_default_automerge_path().ok_or("Failed to get default Automerge path")?;
                 TaskAssignmentLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -73,15 +73,13 @@ impl UnifiedManager {
             let db_manager = DatabaseManager::instance().await?;
 
             if self.config.sqlite_search_enabled {
-                let sqlite_repo =
-                    SubtaskAssignmentLocalSqliteRepository::new(db_manager.clone());
+                let sqlite_repo = SubtaskAssignmentLocalSqliteRepository::new(db_manager.clone());
                 repo.add_sqlite_for_search(sqlite_repo);
                 tracing::info!("SQLiteリポジトリを検索用に追加しました（SubTaskAssignment）");
             }
 
             if self.config.sqlite_storage_enabled {
-                let sqlite_repo =
-                    SubtaskAssignmentLocalSqliteRepository::new(db_manager.clone());
+                let sqlite_repo = SubtaskAssignmentLocalSqliteRepository::new(db_manager.clone());
                 repo.add_sqlite_for_save(sqlite_repo);
                 tracing::info!("SQLiteリポジトリを保存用に追加しました（SubTaskAssignment）");
             }
@@ -93,8 +91,8 @@ impl UnifiedManager {
                 SubtaskAssignmentLocalAutomergeRepository::new_with_manager(doc_manager.clone())
                     .await?
             } else {
-                let base_path = get_default_automerge_path()
-                    .ok_or("Failed to get default Automerge path")?;
+                let base_path =
+                    get_default_automerge_path().ok_or("Failed to get default Automerge path")?;
                 SubtaskAssignmentLocalAutomergeRepository::new(base_path).await?
             };
 

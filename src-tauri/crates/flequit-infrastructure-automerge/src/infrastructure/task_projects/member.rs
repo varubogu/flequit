@@ -2,8 +2,8 @@ use crate::infrastructure::document::Document;
 
 use super::super::document_manager::{DocumentManager, DocumentType};
 use async_trait::async_trait;
-use flequit_model::models::task_projects::member::Member;
 use chrono::{DateTime, Utc};
+use flequit_model::models::task_projects::member::Member;
 use flequit_model::types::id_types::{ProjectId, UserId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::task_projects::member_repository_trait::MemberRepositoryTrait;
@@ -145,7 +145,13 @@ impl MemberRepositoryTrait for MemberLocalAutomergeRepository {}
 
 #[async_trait]
 impl ProjectRepository<Member, UserId> for MemberLocalAutomergeRepository {
-    async fn save(&self, project_id: &ProjectId, entity: &Member, _user_id: &UserId, _timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
+    async fn save(
+        &self,
+        project_id: &ProjectId,
+        entity: &Member,
+        _user_id: &UserId,
+        _timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
         tracing::info!(
             "MemberLocalAutomergeRepository::save - 開始: {:?}",
             entity.id

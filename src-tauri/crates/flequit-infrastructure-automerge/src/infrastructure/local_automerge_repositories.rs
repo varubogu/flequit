@@ -15,8 +15,8 @@ use crate::infrastructure::{
     task_projects::task_assignments::TaskAssignmentLocalAutomergeRepository,
     task_projects::task_list::TaskListLocalAutomergeRepository,
     task_projects::task_tag::TaskTagLocalAutomergeRepository,
-    users::user::UserLocalAutomergeRepository,
     user_preferences::tag_bookmark::TagBookmarkLocalAutomergeRepository,
+    users::user::UserLocalAutomergeRepository,
 };
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -101,7 +101,8 @@ impl LocalAutomergeRepositories {
             accounts: AccountLocalAutomergeRepository::new_with_manager(document_manager.clone())
                 .await?,
             users: UserLocalAutomergeRepository::new_with_manager(document_manager.clone()).await?,
-            tag_bookmarks: TagBookmarkLocalAutomergeRepository::new_with_manager(document_manager).await?,
+            tag_bookmarks: TagBookmarkLocalAutomergeRepository::new_with_manager(document_manager)
+                .await?,
         })
     }
 

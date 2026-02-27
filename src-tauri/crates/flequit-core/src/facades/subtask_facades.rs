@@ -47,7 +47,9 @@ pub async fn update_sub_task<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match subtask_service::update_subtask(repositories, project_id, subtask_id, patch, user_id).await {
+    match subtask_service::update_subtask(repositories, project_id, subtask_id, patch, user_id)
+        .await
+    {
         Ok(changed) => Ok(changed),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to update subtask: {:?}", e)),

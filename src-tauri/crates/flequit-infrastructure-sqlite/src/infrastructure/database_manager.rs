@@ -7,7 +7,9 @@ use crate::errors::sqlite_error::SQLiteError;
 use async_trait::async_trait;
 use flequit_model::traits::TransactionManager;
 use flequit_types::errors::repository_error::RepositoryError;
-use sea_orm::{ConnectOptions, Database, DatabaseConnection, DatabaseTransaction, TransactionTrait};
+use sea_orm::{
+    ConnectOptions, Database, DatabaseConnection, DatabaseTransaction, TransactionTrait,
+};
 use std::path::Path;
 use std::sync::Arc;
 use tokio::sync::{OnceCell, RwLock};
@@ -136,10 +138,7 @@ impl TransactionManager for DatabaseManager {
     type Transaction = DatabaseTransaction;
 
     async fn begin(&self) -> Result<Self::Transaction, RepositoryError> {
-        let db = self
-            .get_connection()
-            .await
-            .map_err(RepositoryError::from)?;
+        let db = self.get_connection().await.map_err(RepositoryError::from)?;
 
         db.begin()
             .await

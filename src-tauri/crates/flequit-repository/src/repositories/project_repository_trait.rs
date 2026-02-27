@@ -10,7 +10,13 @@ use flequit_types::errors::repository_error::RepositoryError;
 #[async_trait]
 pub trait ProjectRepository<T: Send + Sync, ID: Send + Sync>: Send + Sync {
     /// エンティティを保存（プロジェクトスコープ内）
-    async fn save(&self, project_id: &ProjectId, entity: &T, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError>;
+    async fn save(
+        &self,
+        project_id: &ProjectId,
+        entity: &T,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError>;
 
     /// IDでエンティティを検索（プロジェクトスコープ内）
     async fn find_by_id(

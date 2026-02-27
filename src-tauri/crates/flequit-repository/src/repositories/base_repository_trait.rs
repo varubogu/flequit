@@ -66,7 +66,12 @@ where
     /// # 戻り値
     ///
     /// 成功時は`Ok(())`、失敗時は`Err(RepositoryError)`
-    async fn save(&self, entity: &T, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError>;
+    async fn save(
+        &self,
+        entity: &T,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError>;
 
     /// IDでエンティティを取得
     ///

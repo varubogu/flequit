@@ -25,7 +25,13 @@ impl ProjectPatchable<Task, TaskId> for TaskRepositoryVariant {}
 
 #[async_trait]
 impl ProjectRepository<Task, TaskId> for TaskRepositoryVariant {
-    async fn save(&self, project_id: &ProjectId, entity: &Task, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
+    async fn save(
+        &self,
+        project_id: &ProjectId,
+        entity: &Task,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.save(project_id, entity, user_id, timestamp).await,
             Self::LocalAutomerge(repo) => repo.save(project_id, entity, user_id, timestamp).await,
@@ -142,14 +148,22 @@ impl ProjectPatchable<Task, TaskId> for TaskUnifiedRepository {}
 
 #[async_trait]
 impl ProjectRepository<Task, TaskId> for TaskUnifiedRepository {
-    async fn save(&self, project_id: &ProjectId, entity: &Task, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
+    async fn save(
+        &self,
+        project_id: &ProjectId,
+        entity: &Task,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
         info!(
             "Saving task entity with ID: {} in project: {}",
             entity.id, project_id
         );
 
         for repository in &self.save_repositories {
-            repository.save(project_id, entity, user_id, timestamp).await?;
+            repository
+                .save(project_id, entity, user_id, timestamp)
+                .await?;
         }
 
         Ok(())
@@ -189,10 +203,7 @@ impl ProjectRepository<Task, TaskId> for TaskUnifiedRepository {
         for (idx, repository) in self.save_repositories.iter().enumerate() {
             let exists = repository.exists(project_id, id).await?;
             existence_status.push((idx, exists));
-            info!(
-                "Repository {} - Task {} existence: {}",
-                idx, id, exists
-            );
+            info!("Repository {} - Task {} existence: {}", idx, id, exists);
         }
 
         // 少なくとも1つのリポジトリにデータが存在することを確認
@@ -219,7 +230,10 @@ impl ProjectRepository<Task, TaskId> for TaskUnifiedRepository {
                         id, idx, e
                     );
                     // 削除失敗: ロールバック処理
-                    error!("Rolling back deletions due to failure in repository {}", idx);
+                    error!(
+                        "Rolling back deletions due to failure in repository {}",
+                        idx
+                    );
 
                     // TODO: ロールバック処理を実装
                     // 現時点では、削除されたデータを復元する機能がないため、
@@ -229,7 +243,11 @@ impl ProjectRepository<Task, TaskId> for TaskUnifiedRepository {
             }
         }
 
-        info!("Successfully deleted task {} from all {} repositories", id, deleted_repos.len());
+        info!(
+            "Successfully deleted task {} from all {} repositories",
+            id,
+            deleted_repos.len()
+        );
         Ok(())
     }
 

@@ -122,9 +122,7 @@ impl AutoMergeTagBookmarkCollection {
         tag_id: &str,
     ) -> bool {
         bookmarks.iter().any(|b| {
-            b.belongs_to_user(user_id)
-                && b.belongs_to_project(project_id)
-                && b.is_for_tag(tag_id)
+            b.belongs_to_user(user_id) && b.belongs_to_project(project_id) && b.is_for_tag(tag_id)
         })
     }
 
@@ -204,29 +202,25 @@ mod tests {
         ];
 
         // プロジェクト別フィルタリング
-        let proj1_bookmarks =
-            AutoMergeTagBookmarkCollection::get_bookmarks_for_user_and_project(
-                &bookmarks, "user1", "proj1",
-            );
+        let proj1_bookmarks = AutoMergeTagBookmarkCollection::get_bookmarks_for_user_and_project(
+            &bookmarks, "user1", "proj1",
+        );
         assert_eq!(proj1_bookmarks.len(), 2);
 
         // ソート
-        let proj1_vec: Vec<AutoMergeTagBookmark> =
-            proj1_bookmarks.into_iter().cloned().collect();
+        let proj1_vec: Vec<AutoMergeTagBookmark> = proj1_bookmarks.into_iter().cloned().collect();
         let sorted = AutoMergeTagBookmarkCollection::sort_by_order_index(proj1_vec);
         assert_eq!(sorted[0].tag_id, "tag2"); // order_index = 1
         assert_eq!(sorted[1].tag_id, "tag1"); // order_index = 2
 
         // ブックマーク済みチェック
-        let is_bookmarked = AutoMergeTagBookmarkCollection::is_bookmarked(
-            &bookmarks, "user1", "proj1", "tag1",
-        );
+        let is_bookmarked =
+            AutoMergeTagBookmarkCollection::is_bookmarked(&bookmarks, "user1", "proj1", "tag1");
         assert!(is_bookmarked);
 
         // 最大order_index取得
-        let max_order = AutoMergeTagBookmarkCollection::get_max_order_index(
-            &bookmarks, "user1", "proj1",
-        );
+        let max_order =
+            AutoMergeTagBookmarkCollection::get_max_order_index(&bookmarks, "user1", "proj1");
         assert_eq!(max_order, 2);
     }
 }

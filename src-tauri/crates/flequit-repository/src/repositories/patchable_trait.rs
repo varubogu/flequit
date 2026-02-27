@@ -49,7 +49,13 @@ where
     /// 変更がなかった場合は`Ok(false)`、
     /// エンティティが存在しない場合は`Ok(false)`、
     /// エラー時は`Err(RepositoryError)`
-    async fn patch<P>(&self, id: &TId, patch: &P, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<bool, RepositoryError>
+    async fn patch<P>(
+        &self,
+        id: &TId,
+        patch: &P,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
+    ) -> Result<bool, RepositoryError>
     where
         P: Send + Sync + Clone,
         T: Partial<Item = P> + Clone,

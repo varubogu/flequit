@@ -128,9 +128,11 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
     };
 
     task_list_repo
-        .save(&task_list1.project_id, &task_list1, &user_id1, &timestamp1).await?;
+        .save(&task_list1.project_id, &task_list1, &user_id1, &timestamp1)
+        .await?;
     task_list_repo
-        .save(&task_list2.project_id, &task_list2, &user_id2, &timestamp2).await?;
+        .save(&task_list2.project_id, &task_list2, &user_id2, &timestamp2)
+        .await?;
 
     // タスクリスト取得確認
     let retrieved_task_list1 = task_list_repo
@@ -200,8 +202,12 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
         updated_by: user_id2,
     };
 
-    task_repo.save(&task1.project_id, &task1, &user_id1, &timestamp1).await?;
-    task_repo.save(&task2.project_id, &task2, &user_id2, &timestamp2).await?;
+    task_repo
+        .save(&task1.project_id, &task1, &user_id1, &timestamp1)
+        .await?;
+    task_repo
+        .save(&task2.project_id, &task2, &user_id2, &timestamp2)
+        .await?;
 
     // タスク取得確認
     let retrieved_task1 = task_repo.find_by_id(&task1.project_id, &task_id1).await?;
@@ -264,8 +270,12 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
         updated_by: user_id2,
     };
 
-    subtask_repo.save(&project_id1, &subtask1, &user_id1, &timestamp1).await?;
-    subtask_repo.save(&project_id2, &subtask2, &user_id2, &timestamp2).await?;
+    subtask_repo
+        .save(&project_id1, &subtask1, &user_id1, &timestamp1)
+        .await?;
+    subtask_repo
+        .save(&project_id2, &subtask2, &user_id2, &timestamp2)
+        .await?;
 
     // サブタスク取得確認
     let retrieved_subtask1 = subtask_repo.find_by_id(&project_id1, &subtask_id1).await?;
@@ -304,8 +314,12 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
         updated_by: user_id2,
     };
 
-    tag_repo.save(&project_id1, &tag1, &user_id1, &timestamp3).await?;
-    tag_repo.save(&project_id2, &tag2, &user_id2, &timestamp4).await?;
+    tag_repo
+        .save(&project_id1, &tag1, &user_id1, &timestamp3)
+        .await?;
+    tag_repo
+        .save(&project_id2, &tag2, &user_id2, &timestamp4)
+        .await?;
 
     // タグ取得確認
     let retrieved_tag1 = tag_repo.find_by_id(&project_id1, &tag_id1).await?;
@@ -319,7 +333,9 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
     // プロジェクト更新
     let mut updated_project1 = project1.clone();
     updated_project1.name = "更新済みマルチエンティティテストプロジェクト1".to_string();
-    project_repo.save(&updated_project1, &user_id1, &timestamp1).await?;
+    project_repo
+        .save(&updated_project1, &user_id1, &timestamp1)
+        .await?;
 
     let retrieved_updated_project1 = project_repo.find_by_id(&project_id1).await?;
     assert!(retrieved_updated_project1.is_some());

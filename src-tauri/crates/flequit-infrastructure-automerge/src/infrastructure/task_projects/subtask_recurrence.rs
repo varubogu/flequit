@@ -5,7 +5,9 @@ use crate::infrastructure::document::Document;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use flequit_model::models::task_projects::subtask_recurrence::SubTaskRecurrence;
-use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, SubTaskId, SubTaskRecurrenceId, UserId};
+use flequit_model::types::id_types::{
+    ProjectId, RecurrenceRuleId, SubTaskId, SubTaskRecurrenceId, UserId,
+};
 use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_repository::repositories::project_relation_repository_trait::ProjectRelationRepository;
 use flequit_repository::repositories::task_projects::subtask_recurrence_repository_trait::SubtaskRecurrenceRepositoryTrait;
@@ -137,7 +139,12 @@ impl SubtaskRecurrenceRepositoryTrait for SubtaskRecurrenceLocalAutomergeReposit
 impl Repository<SubTaskRecurrence, SubTaskRecurrenceId>
     for SubtaskRecurrenceLocalAutomergeRepository
 {
-    async fn save(&self, _entity: &SubTaskRecurrence, _user_id: &UserId, _timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
+    async fn save(
+        &self,
+        _entity: &SubTaskRecurrence,
+        _user_id: &UserId,
+        _timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
         Err(RepositoryError::InvalidOperation(
             "Use ProjectRelationRepository::add instead".into(),
         ))

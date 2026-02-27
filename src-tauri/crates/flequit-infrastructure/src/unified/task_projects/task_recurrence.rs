@@ -21,7 +21,9 @@ pub enum TaskRecurrenceRepositoryVariant {
 impl TaskRecurrenceRepositoryTrait for TaskRecurrenceRepositoryVariant {}
 
 #[async_trait]
-impl ProjectRelationRepository<TaskRecurrence, TaskId, RecurrenceRuleId> for TaskRecurrenceRepositoryVariant {
+impl ProjectRelationRepository<TaskRecurrence, TaskId, RecurrenceRuleId>
+    for TaskRecurrenceRepositoryVariant
+{
     async fn add(
         &self,
         project_id: &ProjectId,
@@ -31,8 +33,14 @@ impl ProjectRelationRepository<TaskRecurrence, TaskId, RecurrenceRuleId> for Tas
         timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
         match self {
-            Self::LocalSqlite(repo) => repo.add(project_id, parent_id, child_id, user_id, timestamp).await,
-            Self::LocalAutomerge(repo) => repo.add(project_id, parent_id, child_id, user_id, timestamp).await,
+            Self::LocalSqlite(repo) => {
+                repo.add(project_id, parent_id, child_id, user_id, timestamp)
+                    .await
+            }
+            Self::LocalAutomerge(repo) => {
+                repo.add(project_id, parent_id, child_id, user_id, timestamp)
+                    .await
+            }
         }
     }
 
@@ -70,7 +78,10 @@ impl ProjectRelationRepository<TaskRecurrence, TaskId, RecurrenceRuleId> for Tas
         }
     }
 
-    async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<TaskRecurrence>, RepositoryError> {
+    async fn find_all(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Vec<TaskRecurrence>, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.find_all(project_id).await,
             Self::LocalAutomerge(repo) => repo.find_all(project_id).await,
@@ -140,9 +151,14 @@ impl TaskRecurrenceUnifiedRepository {
             .push(TaskRecurrenceRepositoryVariant::LocalSqlite(sqlite_repo));
     }
 
-    pub fn add_automerge_for_save(&mut self, automerge_repo: TaskRecurrenceLocalAutomergeRepository) {
+    pub fn add_automerge_for_save(
+        &mut self,
+        automerge_repo: TaskRecurrenceLocalAutomergeRepository,
+    ) {
         self.save_repositories
-            .push(TaskRecurrenceRepositoryVariant::LocalAutomerge(automerge_repo));
+            .push(TaskRecurrenceRepositoryVariant::LocalAutomerge(
+                automerge_repo,
+            ));
     }
 
     pub fn add_sqlite_for_search(&mut self, sqlite_repo: TaskRecurrenceLocalSqliteRepository) {
@@ -150,9 +166,14 @@ impl TaskRecurrenceUnifiedRepository {
             .push(TaskRecurrenceRepositoryVariant::LocalSqlite(sqlite_repo));
     }
 
-    pub fn add_automerge_for_search(&mut self, automerge_repo: TaskRecurrenceLocalAutomergeRepository) {
+    pub fn add_automerge_for_search(
+        &mut self,
+        automerge_repo: TaskRecurrenceLocalAutomergeRepository,
+    ) {
         self.search_repositories
-            .push(TaskRecurrenceRepositoryVariant::LocalAutomerge(automerge_repo));
+            .push(TaskRecurrenceRepositoryVariant::LocalAutomerge(
+                automerge_repo,
+            ));
     }
 
     pub fn save_repositories_count(&self) -> usize {
@@ -167,7 +188,9 @@ impl TaskRecurrenceUnifiedRepository {
 impl TaskRecurrenceRepositoryTrait for TaskRecurrenceUnifiedRepository {}
 
 #[async_trait]
-impl ProjectRelationRepository<TaskRecurrence, TaskId, RecurrenceRuleId> for TaskRecurrenceUnifiedRepository {
+impl ProjectRelationRepository<TaskRecurrence, TaskId, RecurrenceRuleId>
+    for TaskRecurrenceUnifiedRepository
+{
     async fn add(
         &self,
         project_id: &ProjectId,
@@ -192,8 +215,13 @@ impl ProjectRelationRepository<TaskRecurrence, TaskId, RecurrenceRuleId> for Tas
                 i,
                 std::any::type_name_of_val(repository)
             );
-            repository.add(project_id, parent_id, child_id, user_id, timestamp).await?;
-            info!("TaskRecurrenceUnifiedRepository::add - repository {} completed", i);
+            repository
+                .add(project_id, parent_id, child_id, user_id, timestamp)
+                .await?;
+            info!(
+                "TaskRecurrenceUnifiedRepository::add - repository {} completed",
+                i
+            );
         }
 
         Ok(())
@@ -251,8 +279,14 @@ impl ProjectRelationRepository<TaskRecurrence, TaskId, RecurrenceRuleId> for Tas
         }
     }
 
-    async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<TaskRecurrence>, RepositoryError> {
-        info!("Finding all task recurrence relations in project: {}", project_id);
+    async fn find_all(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Vec<TaskRecurrence>, RepositoryError> {
+        info!(
+            "Finding all task recurrence relations in project: {}",
+            project_id
+        );
 
         if let Some(repository) = self.search_repositories.first() {
             repository.find_all(project_id).await

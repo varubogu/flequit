@@ -66,7 +66,8 @@ impl TagBookmarkLocalAutomergeRepository {
 
     /// ブックマークを作成
     pub async fn create(&self, bookmark: &TagBookmark) -> Result<(), RepositoryError> {
-        let path = Self::get_bookmark_path(&bookmark.user_id, &bookmark.project_id, &bookmark.tag_id);
+        let path =
+            Self::get_bookmark_path(&bookmark.user_id, &bookmark.project_id, &bookmark.tag_id);
         let path_refs: Vec<&str> = path.iter().map(|s| s.as_str()).collect();
 
         let mut manager = self.document_manager.lock().await;
@@ -103,7 +104,7 @@ impl TagBookmarkLocalAutomergeRepository {
         let path_refs: Vec<&str> = path.iter().map(|s| s.as_str()).collect();
 
         let mut manager = self.document_manager.lock().await;
-        
+
         // プロジェクトのブックマークMapを取得
         let bookmarks_map: Option<std::collections::HashMap<String, TagBookmark>> = manager
             .load_data_at_nested_path(&DocumentType::User, &path_refs)
@@ -121,14 +122,19 @@ impl TagBookmarkLocalAutomergeRepository {
     }
 
     /// ユーザーの全ブックマークを取得
-    pub async fn find_by_user(&self, user_id: &UserId) -> Result<Vec<TagBookmark>, RepositoryError> {
+    pub async fn find_by_user(
+        &self,
+        user_id: &UserId,
+    ) -> Result<Vec<TagBookmark>, RepositoryError> {
         let path = Self::get_user_bookmarks_path(user_id);
         let path_refs: Vec<&str> = path.iter().map(|s| s.as_str()).collect();
 
         let mut manager = self.document_manager.lock().await;
-        
+
         // 全プロジェクトのブックマークMapを取得
-        let projects_map: Option<std::collections::HashMap<String, std::collections::HashMap<String, TagBookmark>>> = manager
+        let projects_map: Option<
+            std::collections::HashMap<String, std::collections::HashMap<String, TagBookmark>>,
+        > = manager
             .load_data_at_nested_path(&DocumentType::User, &path_refs)
             .await
             .map_err(|e| RepositoryError::AutomergeError(e.to_string()))?;
@@ -163,7 +169,7 @@ impl TagBookmarkLocalAutomergeRepository {
         let path_refs: Vec<&str> = path.iter().map(|s| s.as_str()).collect();
 
         let mut manager = self.document_manager.lock().await;
-        
+
         // nullを保存することで削除を表現
         manager
             .save_data_at_nested_path::<Option<TagBookmark>>(&DocumentType::User, &path_refs, &None)
@@ -178,15 +184,11 @@ impl TagBookmarkLocalAutomergeRepository {
         project_id: &ProjectId,
     ) -> Result<i32, RepositoryError> {
         let bookmarks = self.find_by_user_and_project(user_id, project_id).await?;
-        
+
         if bookmarks.is_empty() {
             Ok(-1)
         } else {
-            Ok(bookmarks
-                .iter()
-                .map(|b| b.order_index)
-                .max()
-                .unwrap_or(-1))
+            Ok(bookmarks.iter().map(|b| b.order_index).max().unwrap_or(-1))
         }
     }
 }

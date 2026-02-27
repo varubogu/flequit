@@ -25,7 +25,14 @@ pub async fn create_task_tag(
     let task_id = TaskId::from(task_id);
     let repositories = state.repositories.read().await;
 
-    let result = task_facades::add_task_tag(&*repositories, &project_id, &task_id, &tag_name, &user_id_typed).await;
+    let result = task_facades::add_task_tag(
+        &*repositories,
+        &project_id,
+        &task_id,
+        &tag_name,
+        &user_id_typed,
+    )
+    .await;
     if let Err(e) = result {
         tracing::error!(target: "commands::tagging", command = "create_task_tag", project_id = %project_id, task_id = %task_id, tag_name = %tag_name, error = %e);
         return Err(e);
@@ -75,7 +82,14 @@ pub async fn create_task_tag_by_name(
     };
     let task_id = TaskId::from(task_id);
     let repositories = state.repositories.read().await;
-    let result = task_facades::add_task_tag(&*repositories, &project_id, &task_id, &tag_name, &user_id_typed).await;
+    let result = task_facades::add_task_tag(
+        &*repositories,
+        &project_id,
+        &task_id,
+        &tag_name,
+        &user_id_typed,
+    )
+    .await;
     if let Err(e) = result {
         tracing::error!(target: "commands::tagging", command = "create_task_tag_by_name", project_id = %project_id, task_id = %task_id, tag_name = %tag_name, error = %e);
         return Err(e);
@@ -99,8 +113,14 @@ pub async fn create_subtask_tag_by_name(
     };
     let subtask_id = SubTaskId::from(subtask_id);
     let repositories = state.repositories.read().await;
-    let result =
-        subtask_facades::add_subtask_tag(&*repositories, &project_id, &subtask_id, &tag_name, &user_id_typed).await;
+    let result = subtask_facades::add_subtask_tag(
+        &*repositories,
+        &project_id,
+        &subtask_id,
+        &tag_name,
+        &user_id_typed,
+    )
+    .await;
     if let Err(e) = result {
         tracing::error!(target: "commands::tagging", command = "create_subtask_tag_by_name", project_id = %project_id, subtask_id = %subtask_id, tag_name = %tag_name, error = %e);
         return Err(e);
@@ -127,8 +147,14 @@ pub async fn create_subtask_tag(
     let subtask_id = SubTaskId::from(subtask_id);
     let repositories = state.repositories.read().await;
 
-    let result =
-        subtask_facades::add_subtask_tag(&*repositories, &project_id, &subtask_id, &tag_name, &user_id_typed).await;
+    let result = subtask_facades::add_subtask_tag(
+        &*repositories,
+        &project_id,
+        &subtask_id,
+        &tag_name,
+        &user_id_typed,
+    )
+    .await;
     if let Err(e) = result {
         tracing::error!(target: "commands::tagging", command = "create_subtask_tag", project_id = %project_id, subtask_id = %subtask_id, tag_name = %tag_name, error = %e);
         return Err(e);

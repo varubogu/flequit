@@ -271,13 +271,13 @@ impl ProjectRelationRepository<TaskRecurrence, TaskId, RecurrenceRuleId>
         match model {
             Some(m) => {
                 let d = TaskRecurrence {
-                task_id: TaskId::from(m.task_id),
-                recurrence_rule_id: RecurrenceRuleId::from(m.recurrence_rule_id),
-                created_at: m.created_at,
-                updated_at: m.updated_at,
-                deleted: m.deleted,
-                updated_by: UserId::from(m.updated_by),
-            };
+                    task_id: TaskId::from(m.task_id),
+                    recurrence_rule_id: RecurrenceRuleId::from(m.recurrence_rule_id),
+                    created_at: m.created_at,
+                    updated_at: m.updated_at,
+                    deleted: m.deleted,
+                    updated_by: UserId::from(m.updated_by),
+                };
                 Ok(Some(d))
             }
             None => Ok(None),

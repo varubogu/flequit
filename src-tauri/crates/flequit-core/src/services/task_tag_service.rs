@@ -1,5 +1,5 @@
-use chrono::Utc;
 use crate::InfrastructureRepositoriesTrait;
+use chrono::Utc;
 use flequit_model::models::task_projects::task_tag::TaskTag;
 use flequit_model::types::id_types::{ProjectId, TagId, TaskId, UserId};
 use flequit_repository::project_relation_repository_trait::ProjectRelationRepository;

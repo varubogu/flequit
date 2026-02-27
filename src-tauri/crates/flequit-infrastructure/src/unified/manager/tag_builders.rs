@@ -2,7 +2,7 @@
 //!
 //! Tag、TaskTag、SubTaskTag エンティティのUnifiedRepositoryを構築するメソッドを提供する
 
-use super::{get_default_automerge_path, UnifiedManager};
+use super::{UnifiedManager, get_default_automerge_path};
 use crate::unified::{SubTaskTagUnifiedRepository, TagUnifiedRepository, TaskTagUnifiedRepository};
 use flequit_infrastructure_automerge::infrastructure::task_projects::{
     subtask_tag::SubtaskTagLocalAutomergeRepository, tag::TagLocalAutomergeRepository,
@@ -43,8 +43,8 @@ impl UnifiedManager {
             let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
                 TagLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
-                let base_path = get_default_automerge_path()
-                    .ok_or("Failed to get default Automerge path")?;
+                let base_path =
+                    get_default_automerge_path().ok_or("Failed to get default Automerge path")?;
                 TagLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -91,8 +91,8 @@ impl UnifiedManager {
             let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
                 TaskTagLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
-                let base_path = get_default_automerge_path()
-                    .ok_or("Failed to get default Automerge path")?;
+                let base_path =
+                    get_default_automerge_path().ok_or("Failed to get default Automerge path")?;
                 TaskTagLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -136,8 +136,8 @@ impl UnifiedManager {
             let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
                 SubtaskTagLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
-                let base_path = get_default_automerge_path()
-                    .ok_or("Failed to get default Automerge path")?;
+                let base_path =
+                    get_default_automerge_path().ok_or("Failed to get default Automerge path")?;
                 SubtaskTagLocalAutomergeRepository::new(base_path).await?
             };
 

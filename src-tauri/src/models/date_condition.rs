@@ -4,7 +4,10 @@ use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use flequit_model::{
     models::{task_projects::date_condition::DateCondition, ModelConverter},
-    types::{datetime_calendar_types::DateRelation, id_types::{DateConditionId, UserId}},
+    types::{
+        datetime_calendar_types::DateRelation,
+        id_types::{DateConditionId, UserId},
+    },
 };
 use serde::{Deserialize, Serialize};
 

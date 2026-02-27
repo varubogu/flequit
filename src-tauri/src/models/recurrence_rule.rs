@@ -3,7 +3,9 @@
 use crate::models::CommandModelConverter;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use flequit_model::models::task_projects::recurrence_rule::{PartialRecurrenceRule, RecurrenceRule};
+use flequit_model::models::task_projects::recurrence_rule::{
+    PartialRecurrenceRule, RecurrenceRule,
+};
 use flequit_model::models::ModelConverter;
 use flequit_model::types::datetime_calendar_types::{DayOfWeek, RecurrenceUnit};
 use flequit_model::types::id_types::{RecurrenceRuleId, UserId};
@@ -306,7 +308,10 @@ impl ModelConverter<PartialRecurrenceRule> for PartialRecurrenceRuleCommandModel
             None
         };
 
-        let id = self.id.as_ref().map(|id_str| RecurrenceRuleId::from(id_str.clone()));
+        let id = self
+            .id
+            .as_ref()
+            .map(|id_str| RecurrenceRuleId::from(id_str.clone()));
 
         Ok(PartialRecurrenceRule {
             id,

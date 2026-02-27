@@ -22,7 +22,10 @@ where
     new_data.updated_at = now;
 
     let repository = repositories;
-    repository.tags().save(project_id, &new_data, user_id, &now).await?;
+    repository
+        .tags()
+        .save(project_id, &new_data, user_id, &now)
+        .await?;
 
     Ok(())
 }
@@ -78,7 +81,10 @@ where
 
         // 保存
         let now = Utc::now();
-        repositories.tags().save(project_id, &tag, user_id, &now).await?;
+        repositories
+            .tags()
+            .save(project_id, &tag, user_id, &now)
+            .await?;
         Ok(true)
     } else {
         Ok(false)

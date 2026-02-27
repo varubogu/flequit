@@ -80,7 +80,9 @@ async fn test_subtask_create_operation() -> Result<(), Box<dyn std::error::Error
         deleted: false,
         updated_by: user_id,
     };
-    task_list_repo.save(&project_id, &task_list, &user_id, &timestamp).await?;
+    task_list_repo
+        .save(&project_id, &task_list, &user_id, &timestamp)
+        .await?;
 
     // 親タスク作成
     let task_id = TaskId::from(Uuid::new_v4());
@@ -109,7 +111,9 @@ async fn test_subtask_create_operation() -> Result<(), Box<dyn std::error::Error
         deleted: false,
         updated_by: user_id,
     };
-    task_repo.save(&project_id, &task, &user_id, &timestamp).await?;
+    task_repo
+        .save(&project_id, &task, &user_id, &timestamp)
+        .await?;
 
     // サブタスク作成
     let subtask_id = SubTaskId::from(Uuid::new_v4());
@@ -139,7 +143,9 @@ async fn test_subtask_create_operation() -> Result<(), Box<dyn std::error::Error
     };
 
     // Create操作
-    subtask_repo.save(&project_id, &subtask, &user_id, &timestamp).await?;
+    subtask_repo
+        .save(&project_id, &subtask, &user_id, &timestamp)
+        .await?;
 
     // 作成確認
     let retrieved = subtask_repo.find_by_id(&project_id, &subtask_id).await?;
@@ -210,7 +216,9 @@ async fn test_subtask_read_operation() -> Result<(), Box<dyn std::error::Error>>
         deleted: false,
         updated_by: user_id,
     };
-    task_list_repo.save(&project_id, &task_list, &user_id, &timestamp).await?;
+    task_list_repo
+        .save(&project_id, &task_list, &user_id, &timestamp)
+        .await?;
 
     // 親タスク作成
     let task_id = TaskId::from(Uuid::new_v4());
@@ -239,7 +247,9 @@ async fn test_subtask_read_operation() -> Result<(), Box<dyn std::error::Error>>
         deleted: false,
         updated_by: user_id,
     };
-    task_repo.save(&project_id, &task, &user_id, &timestamp).await?;
+    task_repo
+        .save(&project_id, &task, &user_id, &timestamp)
+        .await?;
 
     // 2件のサブタスク作成
     let subtask_id1 = SubTaskId::from(Uuid::new_v4());
@@ -295,8 +305,12 @@ async fn test_subtask_read_operation() -> Result<(), Box<dyn std::error::Error>>
     };
 
     // 2件とも保存
-    subtask_repo.save(&project_id, &subtask1, &user_id, &timestamp).await?;
-    subtask_repo.save(&project_id, &subtask2, &user_id, &timestamp).await?;
+    subtask_repo
+        .save(&project_id, &subtask1, &user_id, &timestamp)
+        .await?;
+    subtask_repo
+        .save(&project_id, &subtask2, &user_id, &timestamp)
+        .await?;
 
     // 1件目のみRead操作
     let retrieved = subtask_repo.find_by_id(&project_id, &subtask_id1).await?;
@@ -370,7 +384,9 @@ async fn test_subtask_update_operation() -> Result<(), Box<dyn std::error::Error
         deleted: false,
         updated_by: user_id,
     };
-    task_list_repo.save(&project_id, &task_list, &user_id, &timestamp).await?;
+    task_list_repo
+        .save(&project_id, &task_list, &user_id, &timestamp)
+        .await?;
 
     // 親タスク作成
     let task_id = TaskId::from(Uuid::new_v4());
@@ -399,7 +415,9 @@ async fn test_subtask_update_operation() -> Result<(), Box<dyn std::error::Error
         deleted: false,
         updated_by: user_id,
     };
-    task_repo.save(&project_id, &task, &user_id, &timestamp).await?;
+    task_repo
+        .save(&project_id, &task, &user_id, &timestamp)
+        .await?;
 
     // 2件のサブタスク作成
     let subtask_id1 = SubTaskId::from(Uuid::new_v4());
@@ -455,8 +473,12 @@ async fn test_subtask_update_operation() -> Result<(), Box<dyn std::error::Error
     };
 
     // 2件とも保存
-    subtask_repo.save(&project_id, &subtask1, &user_id, &timestamp).await?;
-    subtask_repo.save(&project_id, &subtask2, &user_id, &timestamp).await?;
+    subtask_repo
+        .save(&project_id, &subtask1, &user_id, &timestamp)
+        .await?;
+    subtask_repo
+        .save(&project_id, &subtask2, &user_id, &timestamp)
+        .await?;
 
     // 1件目のみUpdate操作
     let mut updated = subtask1.clone();
@@ -466,7 +488,9 @@ async fn test_subtask_update_operation() -> Result<(), Box<dyn std::error::Error
     updated.priority = Some(3);
     updated.completed = true;
     updated.do_end_date = Some(timestamp);
-    subtask_repo.save(&project_id, &updated, &user_id, &timestamp).await?;
+    subtask_repo
+        .save(&project_id, &updated, &user_id, &timestamp)
+        .await?;
 
     // 更新後の取得確認（1件目）
     let updated_result = subtask_repo.find_by_id(&project_id, &subtask_id1).await?;
@@ -544,7 +568,9 @@ async fn test_subtask_delete_operation() -> Result<(), Box<dyn std::error::Error
         deleted: false,
         updated_by: user_id,
     };
-    task_list_repo.save(&project_id, &task_list, &user_id, &timestamp).await?;
+    task_list_repo
+        .save(&project_id, &task_list, &user_id, &timestamp)
+        .await?;
 
     // 親タスク作成
     let task_id = TaskId::from(Uuid::new_v4());
@@ -573,7 +599,9 @@ async fn test_subtask_delete_operation() -> Result<(), Box<dyn std::error::Error
         deleted: false,
         updated_by: user_id,
     };
-    task_repo.save(&project_id, &task, &user_id, &timestamp).await?;
+    task_repo
+        .save(&project_id, &task, &user_id, &timestamp)
+        .await?;
 
     // 2件のサブタスク作成
     let subtask_id1 = SubTaskId::from(Uuid::new_v4());
@@ -629,8 +657,12 @@ async fn test_subtask_delete_operation() -> Result<(), Box<dyn std::error::Error
     };
 
     // 2件とも保存
-    subtask_repo.save(&project_id, &subtask1, &user_id, &timestamp).await?;
-    subtask_repo.save(&project_id, &subtask2, &user_id, &timestamp).await?;
+    subtask_repo
+        .save(&project_id, &subtask1, &user_id, &timestamp)
+        .await?;
+    subtask_repo
+        .save(&project_id, &subtask2, &user_id, &timestamp)
+        .await?;
 
     // 1件目のみDelete操作
     subtask_repo.delete(&project_id, &subtask_id1).await?;

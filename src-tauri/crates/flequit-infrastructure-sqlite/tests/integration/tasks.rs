@@ -111,7 +111,9 @@ async fn test_task_create_operation() -> Result<(), Box<dyn std::error::Error>> 
     };
 
     // Create操作
-    task_repo.save(&task.project_id, &task, &user_id, &timestamp).await?;
+    task_repo
+        .save(&task.project_id, &task, &user_id, &timestamp)
+        .await?;
 
     // 作成確認
     let retrieved = task_repo.find_by_id(&task.project_id, &task_id).await?;
@@ -242,8 +244,12 @@ async fn test_task_read_operation() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     // 2件とも保存
-    task_repo.save(&task1.project_id, &task1, &user_id, &timestamp).await?;
-    task_repo.save(&task2.project_id, &task2, &user_id, &timestamp).await?;
+    task_repo
+        .save(&task1.project_id, &task1, &user_id, &timestamp)
+        .await?;
+    task_repo
+        .save(&task2.project_id, &task2, &user_id, &timestamp)
+        .await?;
 
     // 1件目のみRead操作
     let retrieved = task_repo.find_by_id(&task1.project_id, &task_id1).await?;
@@ -377,8 +383,12 @@ async fn test_task_update_operation() -> Result<(), Box<dyn std::error::Error>> 
     };
 
     // 2件とも保存
-    task_repo.save(&task1.project_id, &task1, &user_id, &timestamp).await?;
-    task_repo.save(&task2.project_id, &task2, &user_id, &timestamp).await?;
+    task_repo
+        .save(&task1.project_id, &task1, &user_id, &timestamp)
+        .await?;
+    task_repo
+        .save(&task2.project_id, &task2, &user_id, &timestamp)
+        .await?;
 
     // 1件目のみUpdate操作
     let mut updated = task1.clone();
@@ -386,7 +396,9 @@ async fn test_task_update_operation() -> Result<(), Box<dyn std::error::Error>> 
     updated.description = Some("更新されたUpdate操作SQLiteテスト用タスク1".to_string());
     updated.status = TaskStatus::Completed;
     updated.priority = 3;
-    task_repo.save(&updated.project_id, &updated, &user_id, &timestamp).await?;
+    task_repo
+        .save(&updated.project_id, &updated, &user_id, &timestamp)
+        .await?;
 
     // 更新後の取得確認（1件目）
     let updated_result = task_repo.find_by_id(&task1.project_id, &task_id1).await?;
@@ -523,8 +535,12 @@ async fn test_task_delete_operation() -> Result<(), Box<dyn std::error::Error>> 
     };
 
     // 2件とも保存
-    task_repo.save(&task1.project_id, &task1, &user_id, &timestamp).await?;
-    task_repo.save(&task2.project_id, &task2, &user_id, &timestamp).await?;
+    task_repo
+        .save(&task1.project_id, &task1, &user_id, &timestamp)
+        .await?;
+    task_repo
+        .save(&task2.project_id, &task2, &user_id, &timestamp)
+        .await?;
 
     // 1件目のみDelete操作
     task_repo.delete(&task1.project_id, &task_id1).await?;

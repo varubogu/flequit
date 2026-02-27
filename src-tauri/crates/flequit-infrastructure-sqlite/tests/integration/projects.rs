@@ -207,7 +207,9 @@ async fn test_project_update_operation() -> Result<(), Box<dyn std::error::Error
     updated_project.description =
         Some("更新されたUpdate操作のためのテストプロジェクト1".to_string());
     updated_project.status = Some(ProjectStatus::Completed);
-    project_repo.save(&updated_project, &user_id1, &timestamp1).await?;
+    project_repo
+        .save(&updated_project, &user_id1, &timestamp1)
+        .await?;
 
     // 更新後の取得確認（1件目）
     let retrieved_updated = project_repo.find_by_id(&project_id1).await?;
@@ -347,7 +349,9 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
         deleted: false,
         updated_by: user_id1,
     };
-    project_repo1.save(&project1, &user_id1, &timestamp1).await?;
+    project_repo1
+        .save(&project1, &user_id1, &timestamp1)
+        .await?;
 
     // DB2からは見えないことを確認
     let not_found = project_repo2.find_by_id(&project_id1).await?;
@@ -371,7 +375,9 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
         deleted: false,
         updated_by: user_id2,
     };
-    project_repo2.save(&project2, &user_id2, &timestamp2).await?;
+    project_repo2
+        .save(&project2, &user_id2, &timestamp2)
+        .await?;
 
     // DB1からは見えないことを確認
     let not_found = project_repo1.find_by_id(&project_id2).await?;

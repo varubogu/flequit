@@ -1,5 +1,5 @@
-use chrono::Utc;
 use crate::InfrastructureRepositoriesTrait;
+use chrono::Utc;
 use flequit_model::models::task_projects::task::{PartialTask, Task};
 use flequit_model::types::id_types::{ProjectId, TaskId, UserId};
 use flequit_model::types::task_types::TaskStatus;
@@ -17,7 +17,10 @@ where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
     let now = Utc::now();
-    repositories.tasks().save(project_id, task, user_id, &now).await?;
+    repositories
+        .tasks()
+        .save(project_id, task, user_id, &now)
+        .await?;
     Ok(())
 }
 
@@ -159,7 +162,10 @@ where
 
         // 保存
         let now = Utc::now();
-        repositories.tasks().save(&project_id_typed, &task, user_id, &now).await?;
+        repositories
+            .tasks()
+            .save(&project_id_typed, &task, user_id, &now)
+            .await?;
     }
 
     Ok(())
@@ -201,7 +207,10 @@ where
 
         // 保存
         let now = Utc::now();
-        repositories.tasks().save(&project_id_typed, &task, user_id, &now).await?;
+        repositories
+            .tasks()
+            .save(&project_id_typed, &task, user_id, &now)
+            .await?;
     }
 
     Ok(())
@@ -243,7 +252,10 @@ where
 
         // 保存
         let now = Utc::now();
-        repositories.tasks().save(&project_id_typed, &task, user_id, &now).await?;
+        repositories
+            .tasks()
+            .save(&project_id_typed, &task, user_id, &now)
+            .await?;
     }
 
     Ok(())

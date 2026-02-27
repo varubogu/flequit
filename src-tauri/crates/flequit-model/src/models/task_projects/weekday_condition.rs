@@ -2,13 +2,13 @@
 //!
 //! このモジュールは曜日に基づく条件調整を管理する構造体を定義します。
 
+use crate::traits::Trackable;
 use crate::types::{
     datetime_calendar_types::{AdjustmentDirection, AdjustmentTarget, DayOfWeek},
     id_types::{UserId, WeekdayConditionId},
 };
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use crate::traits::Trackable;
 
 /// 曜日に基づく条件調整を表現する構造体
 ///

@@ -126,7 +126,10 @@ async fn test_mark_project_deleted_sets_deleted_flag() {
     let retrieved = repo.get_project(&project_id.to_string()).await.unwrap();
     let retrieved = retrieved.expect("Project should exist after deletion");
 
-    assert!(retrieved.deleted, "deleted flag should be true after mark_project_deleted");
+    assert!(
+        retrieved.deleted,
+        "deleted flag should be true after mark_project_deleted"
+    );
     assert_eq!(
         retrieved.updated_by, delete_user,
         "updated_by should be set to the deleting user"
@@ -145,7 +148,10 @@ async fn test_mark_project_deleted_not_found() {
         .mark_project_deleted(&non_existent_id, &user_id, &timestamp)
         .await;
 
-    assert!(result.is_err(), "Should return error for non-existent project");
+    assert!(
+        result.is_err(),
+        "Should return error for non-existent project"
+    );
 }
 
 // ========== Phase 2: スナップショット ==========
@@ -165,7 +171,10 @@ async fn test_create_snapshot_returns_clone() {
 
     assert_eq!(snapshot.id, project_id.to_string());
     assert_eq!(snapshot.name, "Test Project");
-    assert!(!snapshot.deleted, "Snapshot should reflect non-deleted state");
+    assert!(
+        !snapshot.deleted,
+        "Snapshot should reflect non-deleted state"
+    );
 }
 
 /// restore_from_snapshot がドキュメントを復元することを確認
@@ -234,7 +243,11 @@ async fn test_snapshot_includes_child_entities() {
     // スナップショット作成
     let snapshot = repo.create_snapshot(&project_id).await.unwrap();
 
-    assert_eq!(snapshot.task_lists.len(), 1, "Snapshot should include task lists");
+    assert_eq!(
+        snapshot.task_lists.len(),
+        1,
+        "Snapshot should include task lists"
+    );
     assert_eq!(snapshot.tasks.len(), 1, "Snapshot should include tasks");
     assert_eq!(snapshot.tags.len(), 1, "Snapshot should include tags");
 }
@@ -266,7 +279,11 @@ async fn test_get_active_tasks_filters_deleted() {
 
     // get_active_tasks は削除済みを含まない
     let active_tasks = repo.get_active_tasks(&project_id).await.unwrap();
-    assert_eq!(active_tasks.len(), 1, "Should only return non-deleted tasks");
+    assert_eq!(
+        active_tasks.len(),
+        1,
+        "Should only return non-deleted tasks"
+    );
     assert_eq!(active_tasks[0].title, "Test Task");
 
     // get_deleted_tasks は削除済みのみ
@@ -324,16 +341,26 @@ async fn test_get_active_task_lists_filters_deleted() {
     deleted_list.mark_deleted(user_id.clone(), timestamp);
 
     repo.add_task_list(&project_id, &active_list).await.unwrap();
-    repo.add_task_list(&project_id, &deleted_list).await.unwrap();
+    repo.add_task_list(&project_id, &deleted_list)
+        .await
+        .unwrap();
 
     // get_active_task_lists は削除済みを含まない
     let active_lists = repo.get_active_task_lists(&project_id).await.unwrap();
-    assert_eq!(active_lists.len(), 1, "Should only return non-deleted task lists");
+    assert_eq!(
+        active_lists.len(),
+        1,
+        "Should only return non-deleted task lists"
+    );
     assert_eq!(active_lists[0].name, "Test TaskList");
 
     // get_deleted_task_lists は削除済みのみ
     let deleted_lists = repo.get_deleted_task_lists(&project_id).await.unwrap();
-    assert_eq!(deleted_lists.len(), 1, "Should only return deleted task lists");
+    assert_eq!(
+        deleted_lists.len(),
+        1,
+        "Should only return deleted task lists"
+    );
     assert_eq!(deleted_lists[0].name, "Deleted TaskList");
 }
 
@@ -388,7 +415,11 @@ async fn test_restore_project() {
         .unwrap();
 
     // 削除後確認
-    let deleted = repo.get_project(&project_id.to_string()).await.unwrap().unwrap();
+    let deleted = repo
+        .get_project(&project_id.to_string())
+        .await
+        .unwrap()
+        .unwrap();
     assert!(deleted.deleted);
 
     // 復元
@@ -399,8 +430,15 @@ async fn test_restore_project() {
         .unwrap();
 
     // 復元後は deleted=false、updated_by が restore_user になる
-    let restored = repo.get_project(&project_id.to_string()).await.unwrap().unwrap();
-    assert!(!restored.deleted, "deleted flag should be false after restore_project");
+    let restored = repo
+        .get_project(&project_id.to_string())
+        .await
+        .unwrap()
+        .unwrap();
+    assert!(
+        !restored.deleted,
+        "deleted flag should be false after restore_project"
+    );
     assert_eq!(
         restored.updated_by, restore_user,
         "updated_by should be set to the restoring user"
@@ -419,7 +457,9 @@ async fn test_restore_project_not_deleted_returns_error() {
 
     // 削除していないプロジェクトの復元は失敗する
     let timestamp = Utc::now();
-    let result = repo.restore_project(&project_id, &user_id, &timestamp).await;
+    let result = repo
+        .restore_project(&project_id, &user_id, &timestamp)
+        .await;
 
     assert!(
         result.is_err(),
@@ -466,10 +506,18 @@ async fn test_restore_all_tasks() {
 
     // アクティブなタスクが2つになり、削除済みが0になることを確認
     let active_after = repo.get_active_tasks(&project_id).await.unwrap();
-    assert_eq!(active_after.len(), 2, "Should have 2 active tasks after restore");
+    assert_eq!(
+        active_after.len(),
+        2,
+        "Should have 2 active tasks after restore"
+    );
 
     let deleted_after = repo.get_deleted_tasks(&project_id).await.unwrap();
-    assert_eq!(deleted_after.len(), 0, "Should have 0 deleted tasks after restore");
+    assert_eq!(
+        deleted_after.len(),
+        0,
+        "Should have 0 deleted tasks after restore"
+    );
 }
 
 /// restore_all_tags が削除済みタグを復元することを確認
@@ -501,10 +549,18 @@ async fn test_restore_all_tags() {
 
     // アクティブなタグが1つになり、削除済みが0になることを確認
     let active_after = repo.get_active_tags(&project_id).await.unwrap();
-    assert_eq!(active_after.len(), 1, "Should have 1 active tag after restore");
+    assert_eq!(
+        active_after.len(),
+        1,
+        "Should have 1 active tag after restore"
+    );
 
     let deleted_after = repo.get_deleted_tags(&project_id).await.unwrap();
-    assert_eq!(deleted_after.len(), 0, "Should have 0 deleted tags after restore");
+    assert_eq!(
+        deleted_after.len(),
+        0,
+        "Should have 0 deleted tags after restore"
+    );
 }
 
 /// restore_all_task_lists が削除済みタスクリストを復元することを確認
@@ -575,7 +631,10 @@ async fn test_full_delete_restore_flow() {
         .unwrap();
 
     let deleted_project = repo.get_deleted_project(&project_id).await.unwrap();
-    assert!(deleted_project.is_some(), "Project should be retrievable as deleted");
+    assert!(
+        deleted_project.is_some(),
+        "Project should be retrievable as deleted"
+    );
 
     // 4. 復元（restore_project）
     let restore_time = Utc::now();
@@ -583,7 +642,11 @@ async fn test_full_delete_restore_flow() {
         .await
         .unwrap();
 
-    let restored = repo.get_project(&project_id.to_string()).await.unwrap().unwrap();
+    let restored = repo
+        .get_project(&project_id.to_string())
+        .await
+        .unwrap()
+        .unwrap();
     assert!(!restored.deleted, "Project should be active after restore");
 
     // 5. get_deleted_project は復元後 None を返す
@@ -620,7 +683,11 @@ async fn test_snapshot_restore_preserves_child_entities() {
     repo.add_task(&project_id, &task2).await.unwrap();
 
     let before_restore = repo.get_active_tasks(&project_id).await.unwrap();
-    assert_eq!(before_restore.len(), 2, "Should have 2 tasks before restore");
+    assert_eq!(
+        before_restore.len(),
+        2,
+        "Should have 2 tasks before restore"
+    );
 
     // スナップショットから復元
     repo.restore_from_snapshot(&project_id, &snapshot)
@@ -629,8 +696,15 @@ async fn test_snapshot_restore_preserves_child_entities() {
 
     // 復元後はスナップショット時点の1件に戻る
     let after_restore = repo.get_active_tasks(&project_id).await.unwrap();
-    assert_eq!(after_restore.len(), 1, "Should have 1 task after snapshot restore");
-    assert_eq!(after_restore[0].id, task_id, "Original task should be preserved");
+    assert_eq!(
+        after_restore.len(),
+        1,
+        "Should have 1 task after snapshot restore"
+    );
+    assert_eq!(
+        after_restore[0].id, task_id,
+        "Original task should be preserved"
+    );
 }
 
 // ========== 一括論理削除メソッド（mark_all_*_deleted）==========
@@ -667,7 +741,11 @@ async fn test_mark_all_tasks_deleted() {
 
     // 全て deleted になる
     let active_after = repo.get_active_tasks(&project_id).await.unwrap();
-    assert_eq!(active_after.len(), 0, "No active tasks after mark_all_tasks_deleted");
+    assert_eq!(
+        active_after.len(),
+        0,
+        "No active tasks after mark_all_tasks_deleted"
+    );
 
     let deleted_after = repo.get_deleted_tasks(&project_id).await.unwrap();
     assert_eq!(deleted_after.len(), 3, "All 3 tasks should be deleted");
@@ -702,7 +780,11 @@ async fn test_mark_all_tags_deleted() {
         .unwrap();
 
     let active_after = repo.get_active_tags(&project_id).await.unwrap();
-    assert_eq!(active_after.len(), 0, "No active tags after mark_all_tags_deleted");
+    assert_eq!(
+        active_after.len(),
+        0,
+        "No active tags after mark_all_tags_deleted"
+    );
 
     let deleted_after = repo.get_deleted_tags(&project_id).await.unwrap();
     assert_eq!(deleted_after.len(), 2, "All 2 tags should be deleted");
@@ -732,7 +814,11 @@ async fn test_mark_all_task_lists_deleted() {
         .unwrap();
 
     let active_after = repo.get_active_task_lists(&project_id).await.unwrap();
-    assert_eq!(active_after.len(), 0, "No active task lists after mark_all_task_lists_deleted");
+    assert_eq!(
+        active_after.len(),
+        0,
+        "No active task lists after mark_all_task_lists_deleted"
+    );
 
     let deleted_after = repo.get_deleted_task_lists(&project_id).await.unwrap();
     assert_eq!(deleted_after.len(), 2, "All 2 task lists should be deleted");
@@ -782,9 +868,22 @@ async fn test_cascade_logical_delete_flow() {
     assert_eq!(repo.get_deleted_tasks(&project_id).await.unwrap().len(), 1);
     assert_eq!(repo.get_active_tags(&project_id).await.unwrap().len(), 0);
     assert_eq!(repo.get_deleted_tags(&project_id).await.unwrap().len(), 1);
-    assert_eq!(repo.get_active_task_lists(&project_id).await.unwrap().len(), 0);
-    assert_eq!(repo.get_deleted_task_lists(&project_id).await.unwrap().len(), 1);
-    assert!(repo.get_deleted_project(&project_id).await.unwrap().is_some());
+    assert_eq!(
+        repo.get_active_task_lists(&project_id).await.unwrap().len(),
+        0
+    );
+    assert_eq!(
+        repo.get_deleted_task_lists(&project_id)
+            .await
+            .unwrap()
+            .len(),
+        1
+    );
+    assert!(repo
+        .get_deleted_project(&project_id)
+        .await
+        .unwrap()
+        .is_some());
 
     // restore_project Facade と同等の Automerge 操作シーケンス
     let restore_user = UserId::new();
@@ -808,9 +907,22 @@ async fn test_cascade_logical_delete_flow() {
     assert_eq!(repo.get_deleted_tasks(&project_id).await.unwrap().len(), 0);
     assert_eq!(repo.get_active_tags(&project_id).await.unwrap().len(), 1);
     assert_eq!(repo.get_deleted_tags(&project_id).await.unwrap().len(), 0);
-    assert_eq!(repo.get_active_task_lists(&project_id).await.unwrap().len(), 1);
-    assert_eq!(repo.get_deleted_task_lists(&project_id).await.unwrap().len(), 0);
-    assert!(repo.get_deleted_project(&project_id).await.unwrap().is_none());
+    assert_eq!(
+        repo.get_active_task_lists(&project_id).await.unwrap().len(),
+        1
+    );
+    assert_eq!(
+        repo.get_deleted_task_lists(&project_id)
+            .await
+            .unwrap()
+            .len(),
+        0
+    );
+    assert!(repo
+        .get_deleted_project(&project_id)
+        .await
+        .unwrap()
+        .is_none());
 
     // スナップショットはこのテストの参考情報として保持（直接利用しない）
     let _ = snapshot;

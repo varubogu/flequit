@@ -56,7 +56,8 @@ fn create_test_template_database() {
         project_root.display()
     );
 
-    let template_path = project_root.join(".tmp/tests/cargo/flequit-infrastructure-sqlite/test_database.db");
+    let template_path =
+        project_root.join(".tmp/tests/cargo/flequit-infrastructure-sqlite/test_database.db");
     println!(
         "cargo:warning=📍 テンプレートパス: {}",
         template_path.display()

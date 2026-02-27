@@ -2,7 +2,7 @@
 //!
 //! RecurrenceRule、TaskRecurrence、SubTaskRecurrence エンティティのUnifiedRepositoryを構築するメソッドを提供する
 
-use super::{get_default_automerge_path, UnifiedManager};
+use super::{UnifiedManager, get_default_automerge_path};
 use crate::unified::{
     RecurrenceRuleUnifiedRepository, SubTaskRecurrenceUnifiedRepository,
     TaskRecurrenceUnifiedRepository,
@@ -46,10 +46,11 @@ impl UnifiedManager {
         // Automergeリポジトリの設定
         if self.config.automerge_storage_enabled {
             let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
-                RecurrenceRuleLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
+                RecurrenceRuleLocalAutomergeRepository::new_with_manager(doc_manager.clone())
+                    .await?
             } else {
-                let base_path = get_default_automerge_path()
-                    .ok_or("Failed to get default Automerge path")?;
+                let base_path =
+                    get_default_automerge_path().ok_or("Failed to get default Automerge path")?;
                 RecurrenceRuleLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -92,10 +93,11 @@ impl UnifiedManager {
         // Automergeリポジトリの設定
         if self.config.automerge_storage_enabled {
             let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
-                TaskRecurrenceLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
+                TaskRecurrenceLocalAutomergeRepository::new_with_manager(doc_manager.clone())
+                    .await?
             } else {
-                let base_path = get_default_automerge_path()
-                    .ok_or("Failed to get default Automerge path")?;
+                let base_path =
+                    get_default_automerge_path().ok_or("Failed to get default Automerge path")?;
                 TaskRecurrenceLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -123,15 +125,13 @@ impl UnifiedManager {
             let db_manager = DatabaseManager::instance().await?;
 
             if self.config.sqlite_search_enabled {
-                let sqlite_repo =
-                    SubtaskRecurrenceLocalSqliteRepository::new(db_manager.clone());
+                let sqlite_repo = SubtaskRecurrenceLocalSqliteRepository::new(db_manager.clone());
                 repo.add_sqlite_for_search(sqlite_repo);
                 tracing::info!("SQLiteリポジトリを検索用に追加しました（SubTaskRecurrence）");
             }
 
             if self.config.sqlite_storage_enabled {
-                let sqlite_repo =
-                    SubtaskRecurrenceLocalSqliteRepository::new(db_manager.clone());
+                let sqlite_repo = SubtaskRecurrenceLocalSqliteRepository::new(db_manager.clone());
                 repo.add_sqlite_for_save(sqlite_repo);
                 tracing::info!("SQLiteリポジトリを保存用に追加しました（SubTaskRecurrence）");
             }
@@ -143,8 +143,8 @@ impl UnifiedManager {
                 SubtaskRecurrenceLocalAutomergeRepository::new_with_manager(doc_manager.clone())
                     .await?
             } else {
-                let base_path = get_default_automerge_path()
-                    .ok_or("Failed to get default Automerge path")?;
+                let base_path =
+                    get_default_automerge_path().ok_or("Failed to get default Automerge path")?;
                 SubtaskRecurrenceLocalAutomergeRepository::new(base_path).await?
             };
 

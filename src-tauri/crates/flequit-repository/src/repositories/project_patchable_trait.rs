@@ -106,7 +106,10 @@ where
     {
         let mut changed_count = 0;
         for id in ids {
-            if self.patch(project_id, id, patch, user_id, timestamp).await? {
+            if self
+                .patch(project_id, id, patch, user_id, timestamp)
+                .await?
+            {
                 changed_count += 1;
             }
         }

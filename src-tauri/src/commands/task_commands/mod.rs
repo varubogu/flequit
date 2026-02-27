@@ -28,6 +28,4 @@ pub use recurrence::{
     __cmd__get_recurrence_rule, __cmd__get_task_recurrence_by_task_id,
     __cmd__update_recurrence_details, __cmd__update_recurrence_rule,
 };
-pub use write::{
-    __cmd__create_task, __cmd__delete_task, __cmd__restore_task, __cmd__update_task,
-};
+pub use write::{__cmd__create_task, __cmd__delete_task, __cmd__restore_task, __cmd__update_task};

@@ -418,7 +418,10 @@ mod tests {
         };
 
         // Repository トレイトメソッドのテスト
-        repository.save(&account, &user_id, &timestamp).await.unwrap();
+        repository
+            .save(&account, &user_id, &timestamp)
+            .await
+            .unwrap();
 
         let found = repository.find_by_id(&test_account_id).await.unwrap();
         assert!(found.is_some());

@@ -80,8 +80,8 @@ impl UnifiedManager {
         // Automergeリポジトリの初期化
         if self.config.automerge_storage_enabled {
             // 共有DocumentManagerを初期化（SQLiteと同じディレクトリ構造を使用）
-            let base_path = get_default_automerge_path()
-                .ok_or("Failed to get default Automerge path")?;
+            let base_path =
+                get_default_automerge_path().ok_or("Failed to get default Automerge path")?;
 
             // ディレクトリが存在しない場合は作成
             if !base_path.exists() {
@@ -98,7 +98,10 @@ impl UnifiedManager {
             )
             .await?;
             self.automerge_repositories = Some(Arc::new(RwLock::new(automerge_repos)));
-            tracing::info!("Automergeリポジトリを共有DocumentManagerで初期化しました: {:?}", base_path);
+            tracing::info!(
+                "Automergeリポジトリを共有DocumentManagerで初期化しました: {:?}",
+                base_path
+            );
         } else {
             self.automerge_repositories = None;
             self.shared_document_manager = None;

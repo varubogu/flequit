@@ -144,7 +144,13 @@ impl SubTaskLocalSqliteRepository {
 
 #[async_trait]
 impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalSqliteRepository {
-    async fn save(&self, project_id: &ProjectId, subtask: &SubTask, _user_id: &UserId, _timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
+    async fn save(
+        &self,
+        project_id: &ProjectId,
+        subtask: &SubTask,
+        _user_id: &UserId,
+        _timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()

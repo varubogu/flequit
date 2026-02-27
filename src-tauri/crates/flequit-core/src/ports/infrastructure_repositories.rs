@@ -225,7 +225,10 @@ pub trait SqliteRepositoriesPort: Send + Sync {
 pub trait AutomergeProjectRepositoryPort: Send + Sync {
     type Snapshot: Clone + Send + Sync;
 
-    async fn create_snapshot(&self, project_id: &ProjectId) -> Result<Self::Snapshot, RepositoryError>;
+    async fn create_snapshot(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Self::Snapshot, RepositoryError>;
     async fn restore_from_snapshot(
         &self,
         project_id: &ProjectId,
@@ -324,8 +327,12 @@ pub trait AutomergeProjectRepositoryPort: Send + Sync {
         timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError>;
 
-    async fn get_deleted_project(&self, project_id: &ProjectId) -> Result<Option<Project>, RepositoryError>;
-    async fn get_deleted_tasks(&self, project_id: &ProjectId) -> Result<Vec<Task>, RepositoryError>;
+    async fn get_deleted_project(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Option<Project>, RepositoryError>;
+    async fn get_deleted_tasks(&self, project_id: &ProjectId)
+        -> Result<Vec<Task>, RepositoryError>;
     async fn get_deleted_tags(&self, project_id: &ProjectId) -> Result<Vec<Tag>, RepositoryError>;
     async fn get_deleted_task_lists(
         &self,
@@ -357,26 +364,32 @@ pub trait AutomergeRepositoriesPort: Send + Sync {
 #[async_trait]
 pub trait InfrastructureRepositoriesTrait: Send + Sync + std::fmt::Debug {
     type AccountsRepository: Repository<Account, AccountId> + Send + Sync;
-    type ProjectsRepository:
-        Repository<Project, ProjectId> + Patchable<Project, ProjectId> + Send + Sync;
+    type ProjectsRepository: Repository<Project, ProjectId>
+        + Patchable<Project, ProjectId>
+        + Send
+        + Sync;
     type TagsRepository: ProjectRepository<Tag, TagId> + TagRepositoryExt + Send + Sync;
     type TasksRepository: ProjectPatchable<Task, TaskId> + Send + Sync;
     type TaskListsRepository: ProjectPatchable<TaskList, TaskListId> + Send + Sync;
     type SubTasksRepository: ProjectPatchable<SubTask, SubTaskId> + Send + Sync;
     type UsersRepository: Repository<User, UserId> + Send + Sync;
-    type RecurrenceRulesRepository:
-        ProjectPatchable<RecurrenceRule, RecurrenceRuleId> + Send + Sync;
-    type TaskAssignmentsRepository:
-        ProjectRelationRepository<TaskAssignment, TaskId, UserId> + Send + Sync;
-    type SubtaskAssignmentsRepository:
-        ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId> + Send + Sync;
+    type RecurrenceRulesRepository: ProjectPatchable<RecurrenceRule, RecurrenceRuleId> + Send + Sync;
+    type TaskAssignmentsRepository: ProjectRelationRepository<TaskAssignment, TaskId, UserId>
+        + Send
+        + Sync;
+    type SubtaskAssignmentsRepository: ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
+        + Send
+        + Sync;
     type TaskTagsRepository: ProjectRelationRepository<TaskTag, TaskId, TagId> + Send + Sync;
-    type SubtaskTagsRepository:
-        ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> + Send + Sync;
-    type TaskRecurrencesRepository:
-        ProjectRelationRepository<TaskRecurrence, TaskId, RecurrenceRuleId> + Send + Sync;
-    type SubtaskRecurrencesRepository:
-        ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId> + Send + Sync;
+    type SubtaskTagsRepository: ProjectRelationRepository<SubTaskTag, SubTaskId, TagId>
+        + Send
+        + Sync;
+    type TaskRecurrencesRepository: ProjectRelationRepository<TaskRecurrence, TaskId, RecurrenceRuleId>
+        + Send
+        + Sync;
+    type SubtaskRecurrencesRepository: ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
+        + Send
+        + Sync;
 
     type TagBookmarksSqliteRepository: TagBookmarkSqliteRepositoryPort;
     type TagBookmarksAutomergeRepository: TagBookmarkAutomergeRepositoryPort;

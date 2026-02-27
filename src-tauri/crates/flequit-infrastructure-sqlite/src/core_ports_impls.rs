@@ -39,7 +39,8 @@ impl TagBookmarkSqliteRepositoryPort for TagBookmarkLocalSqliteRepository {
         project_id: &ProjectId,
         tag_id: &TagId,
     ) -> Result<Option<TagBookmark>, RepositoryError> {
-        self.find_by_user_project_tag(user_id, project_id, tag_id).await
+        self.find_by_user_project_tag(user_id, project_id, tag_id)
+            .await
     }
 
     async fn find_by_user_and_project(
@@ -110,13 +111,17 @@ impl SqliteTaskListRepositoryPort for TaskListLocalSqliteRepository {
         txn: &DatabaseTransaction,
         project_id: &ProjectId,
     ) -> Result<(), RepositoryError> {
-        self.remove_all_by_project_id_with_txn(txn, project_id).await
+        self.remove_all_by_project_id_with_txn(txn, project_id)
+            .await
     }
 }
 
 #[async_trait]
 impl SqliteTaskRepositoryPort for TaskLocalSqliteRepository {
-    async fn find_ids_by_project_id(&self, project_id: &ProjectId) -> Result<Vec<TaskId>, RepositoryError> {
+    async fn find_ids_by_project_id(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Vec<TaskId>, RepositoryError> {
         self.find_ids_by_project_id(project_id).await
     }
 
@@ -138,13 +143,17 @@ impl SqliteSubTaskRepositoryPort for SubTaskLocalSqliteRepository {
         project_id: &ProjectId,
         task_id: &str,
     ) -> Result<(), RepositoryError> {
-        self.remove_all_by_task_id_with_txn(txn, project_id, task_id).await
+        self.remove_all_by_task_id_with_txn(txn, project_id, task_id)
+            .await
     }
 }
 
 #[async_trait]
 impl SqliteTagRepositoryPort for TagLocalSqliteRepository {
-    async fn find_ids_by_project_id(&self, project_id: &ProjectId) -> Result<Vec<TagId>, RepositoryError> {
+    async fn find_ids_by_project_id(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Vec<TagId>, RepositoryError> {
         self.find_ids_by_project_id(project_id).await
     }
 
@@ -166,7 +175,8 @@ impl SqliteTaskTagRepositoryPort for TaskTagLocalSqliteRepository {
         project_id: &ProjectId,
         task_id: &TaskId,
     ) -> Result<(), RepositoryError> {
-        self.remove_all_by_task_id_with_txn(txn, project_id, task_id).await
+        self.remove_all_by_task_id_with_txn(txn, project_id, task_id)
+            .await
     }
 
     async fn remove_all_by_tag_id_with_txn(
@@ -175,7 +185,8 @@ impl SqliteTaskTagRepositoryPort for TaskTagLocalSqliteRepository {
         project_id: &ProjectId,
         tag_id: &TagId,
     ) -> Result<(), RepositoryError> {
-        self.remove_all_by_tag_id_with_txn(txn, project_id, tag_id).await
+        self.remove_all_by_tag_id_with_txn(txn, project_id, tag_id)
+            .await
     }
 }
 
@@ -221,7 +232,8 @@ impl SqliteTagBookmarkRepositoryPort for TagBookmarkLocalSqliteRepository {
         project_id: &ProjectId,
         tag_id: &TagId,
     ) -> Result<(), RepositoryError> {
-        self.remove_all_by_tag_id_with_txn(txn, project_id, tag_id).await
+        self.remove_all_by_tag_id_with_txn(txn, project_id, tag_id)
+            .await
     }
 }
 

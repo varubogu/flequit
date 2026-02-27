@@ -895,9 +895,11 @@ impl ProjectLocalAutomergeRepository {
                 RepositoryError::NotFound(format!("Project not found: {}", project_id))
             })?;
 
-        let task = document.tasks.iter_mut().find(|t| t.id == *task_id).ok_or_else(|| {
-            RepositoryError::NotFound(format!("Task not found: {}", task_id))
-        })?;
+        let task = document
+            .tasks
+            .iter_mut()
+            .find(|t| t.id == *task_id)
+            .ok_or_else(|| RepositoryError::NotFound(format!("Task not found: {}", task_id)))?;
         task.mark_deleted(*user_id, *timestamp);
 
         self.save_project_document(project_id, &document).await
@@ -918,9 +920,11 @@ impl ProjectLocalAutomergeRepository {
                 RepositoryError::NotFound(format!("Project not found: {}", project_id))
             })?;
 
-        let tag = document.tags.iter_mut().find(|t| t.id == *tag_id).ok_or_else(|| {
-            RepositoryError::NotFound(format!("Tag not found: {}", tag_id))
-        })?;
+        let tag = document
+            .tags
+            .iter_mut()
+            .find(|t| t.id == *tag_id)
+            .ok_or_else(|| RepositoryError::NotFound(format!("Tag not found: {}", tag_id)))?;
         tag.mark_deleted(*user_id, *timestamp);
 
         self.save_project_document(project_id, &document).await
@@ -968,9 +972,11 @@ impl ProjectLocalAutomergeRepository {
                 RepositoryError::NotFound(format!("Project not found: {}", project_id))
             })?;
 
-        let task = document.tasks.iter_mut().find(|t| t.id == *task_id).ok_or_else(|| {
-            RepositoryError::NotFound(format!("Task not found: {}", task_id))
-        })?;
+        let task = document
+            .tasks
+            .iter_mut()
+            .find(|t| t.id == *task_id)
+            .ok_or_else(|| RepositoryError::NotFound(format!("Task not found: {}", task_id)))?;
         if !task.is_deleted() {
             return Err(RepositoryError::InvalidOperation(format!(
                 "Task is not deleted: {}",
@@ -997,9 +1003,11 @@ impl ProjectLocalAutomergeRepository {
                 RepositoryError::NotFound(format!("Project not found: {}", project_id))
             })?;
 
-        let tag = document.tags.iter_mut().find(|t| t.id == *tag_id).ok_or_else(|| {
-            RepositoryError::NotFound(format!("Tag not found: {}", tag_id))
-        })?;
+        let tag = document
+            .tags
+            .iter_mut()
+            .find(|t| t.id == *tag_id)
+            .ok_or_else(|| RepositoryError::NotFound(format!("Tag not found: {}", tag_id)))?;
         if !tag.is_deleted() {
             return Err(RepositoryError::InvalidOperation(format!(
                 "Tag is not deleted: {}",
@@ -1055,7 +1063,10 @@ impl ProjectLocalAutomergeRepository {
             None => return Ok(None),
         };
 
-        Ok(document.tasks.into_iter().find(|t| t.id == *task_id && t.is_deleted()))
+        Ok(document
+            .tasks
+            .into_iter()
+            .find(|t| t.id == *task_id && t.is_deleted()))
     }
 
     /// 削除済み個別タグの取得
@@ -1069,7 +1080,10 @@ impl ProjectLocalAutomergeRepository {
             None => return Ok(None),
         };
 
-        Ok(document.tags.into_iter().find(|t| t.id == *tag_id && t.is_deleted()))
+        Ok(document
+            .tags
+            .into_iter()
+            .find(|t| t.id == *tag_id && t.is_deleted()))
     }
 
     /// 削除済み個別タスクリストの取得
@@ -1092,7 +1106,12 @@ impl ProjectLocalAutomergeRepository {
 
 #[async_trait]
 impl Repository<Project, ProjectId> for ProjectLocalAutomergeRepository {
-    async fn save(&self, entity: &Project, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
+    async fn save(
+        &self,
+        entity: &Project,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
         tracing::info!(
             "ProjectLocalAutomergeRepository::save - 開始: {:?}",
             entity.id

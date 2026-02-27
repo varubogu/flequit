@@ -7,7 +7,8 @@ use crate::services::recurrence_service;
 use crate::InfrastructureRepositoriesTrait;
 use flequit_model::{
     models::task_projects::{
-        recurrence_adjustment::RecurrenceAdjustment, recurrence_details::RecurrenceDetails,
+        recurrence_adjustment::RecurrenceAdjustment,
+        recurrence_details::RecurrenceDetails,
         recurrence_rule::{PartialRecurrenceRule, RecurrenceRule},
         subtask_recurrence::SubTaskRecurrence,
         task_recurrence::TaskRecurrence,
@@ -33,7 +34,8 @@ pub async fn create_recurrence_rule<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::create_recurrence_rule(repositories, project_id, rule, user_id).await {
+    match recurrence_service::create_recurrence_rule(repositories, project_id, rule, user_id).await
+    {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to create recurrence rule: {:?}", e)),
@@ -81,7 +83,15 @@ pub async fn update_recurrence_rule<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::update_recurrence_rule(repositories, project_id, rule_id, patch, user_id).await {
+    match recurrence_service::update_recurrence_rule(
+        repositories,
+        project_id,
+        rule_id,
+        patch,
+        user_id,
+    )
+    .await
+    {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to update recurrence rule: {:?}", e)),
