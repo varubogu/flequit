@@ -49,7 +49,7 @@ vi.mock('$lib/stores/account-store.svelte', () => ({
 
 // ---------- ヘルパー ----------
 
-const now = new Date('2025-01-01T00:00:00.000Z');
+const now = '2025-01-01T00:00:00.000Z';
 
 const buildBookmark = (overrides: Partial<TagBookmark> = {}): TagBookmark => ({
   id: 'bookmark-1',
@@ -59,8 +59,6 @@ const buildBookmark = (overrides: Partial<TagBookmark> = {}): TagBookmark => ({
   orderIndex: 0,
   createdAt: now,
   updatedAt: now,
-  deleted: false,
-  updatedBy: 'user-1',
   ...overrides
 });
 

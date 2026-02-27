@@ -19,12 +19,14 @@ vi.mock('$lib/services/domain/current-user-id', () => ({
 
 // ---------- ヘルパー ----------
 
-const now = new Date('2025-01-01T00:00:00.000Z');
+const now = '2025-01-01T00:00:00.000Z';
 
 const buildUser = (overrides: Partial<User> = {}): User => ({
   id: 'user-1',
-  name: 'Test User',
+  handleId: 'test-user',
+  displayName: 'Test User',
   email: 'test@example.com',
+  isActive: true,
   createdAt: now,
   updatedAt: now,
   deleted: false,
@@ -43,7 +45,7 @@ describe('UserService', () => {
 
   describe('update', () => {
     it('バックエンドを呼び出してユーザーを更新する', async () => {
-      const user = buildUser({ name: 'Updated User' });
+      const user = buildUser({ displayName: 'Updated User' });
       backendMock.user.update.mockResolvedValue(true);
 
       const result = await UserService.update(user);
