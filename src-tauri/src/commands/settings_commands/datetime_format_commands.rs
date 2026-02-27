@@ -1,5 +1,7 @@
 use crate::models::datetime_format::DateTimeFormatCommandModel;
+use crate::models::CommandModelConverter;
 use crate::state::AppState;
+use flequit_core::facades::{datetime_facades, setting_facades};
 use flequit_model::models::ModelConverter;
 use tauri::State;
 use tracing::instrument;
@@ -8,63 +10,99 @@ use tracing::instrument;
 // Custom Date Format commands
 // ---------------------------
 
-// NOTE: Custom Date Format機能は一時的に無効化されています
-// setting_facades::get_custom_date_formatが実装されていないため
 /// 指定されたIDのカスタム日付フォーマットを取得します。
-#[instrument(level = "info", skip(_state))]
+#[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn get_custom_date_format_setting(
-    _state: State<'_, AppState>,
+    state: State<'_, AppState>,
     id: String,
 ) -> Result<Option<DateTimeFormatCommandModel>, String> {
-    // TODO: setting_facadesでの実装完了後に有効化
-    let _ = id; // 未使用警告を回避
-    Ok(None)
+    let settings = state.settings.read().await;
+    let result = setting_facades::get_custom_date_format(&settings, &id).await?;
+    match result {
+        Some(format) => Ok(Some(format.to_command_model().await?)),
+        None => Ok(None),
+    }
 }
 
 /// すべてのカスタム日付フォーマットを取得します。
-#[instrument(level = "info", skip(_state))]
+#[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn get_all_custom_date_format_settings(
-    _state: State<'_, AppState>,
+    state: State<'_, AppState>,
 ) -> Result<Vec<DateTimeFormatCommandModel>, String> {
-    // TODO: setting_facadesでの実装完了後に有効化
-    Ok(Vec::new())
+    let settings = state.settings.read().await;
+    let formats = setting_facades::get_all_custom_date_formats(&settings).await?;
+    let mut command_results = Vec::new();
+    for format in formats {
+        command_results.push(format.to_command_model().await?);
+    }
+    Ok(command_results)
 }
 
 /// カスタム日付フォーマットを追加します。
-#[instrument(level = "info", skip(_state))]
+#[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn add_custom_date_format_setting(
-    _state: State<'_, AppState>,
+    state: State<'_, AppState>,
     format: DateTimeFormatCommandModel,
 ) -> Result<DateTimeFormatCommandModel, String> {
-    // TODO: setting_facadesでの実装完了後に有効化
-    Ok(format)
+    let model = format.to_model().await?;
+    let mut settings = state.settings.write().await;
+
+    let added = setting_facades::add_custom_date_format(&mut settings, model).await?;
+    state
+        .settings_manager
+        .save_settings(&settings)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::settings", command = "add_custom_date_format_setting", error = %e);
+            e.to_string()
+        })?;
+
+    added.to_command_model().await
 }
 
 /// カスタム日付フォーマットを更新します。
-#[instrument(level = "info", skip(_state))]
+#[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn update_custom_date_format_setting(
-    _state: State<'_, AppState>,
+    state: State<'_, AppState>,
     format: DateTimeFormatCommandModel,
 ) -> Result<DateTimeFormatCommandModel, String> {
-    // TODO: datetime_facadesでの実装完了後に有効化
-    // datetime_facades::update_datetime_format(&*repositories, model).await
-    Ok(format)
+    let model = format.to_model().await?;
+    let mut settings = state.settings.write().await;
+
+    let updated = datetime_facades::update_datetime_format(&mut settings, model).await?;
+    state
+        .settings_manager
+        .save_settings(&settings)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::settings", command = "update_custom_date_format_setting", error = %e);
+            e.to_string()
+        })?;
+
+    updated.to_command_model().await
 }
 
 /// カスタム日付フォーマットを削除します。
-#[instrument(level = "info", skip(_state))]
+#[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn delete_custom_date_format_setting(
-    _state: State<'_, AppState>,
+    state: State<'_, AppState>,
     id: String,
 ) -> Result<(), String> {
-    // TODO: datetime_facadesでの実装完了後に有効化
-    // datetime_facades::delete_datetime_format(&*repositories, format_id).await
-    let _ = id; // 未使用警告を回避
+    let mut settings = state.settings.write().await;
+    datetime_facades::delete_datetime_format(&mut settings, &id).await?;
+    state
+        .settings_manager
+        .save_settings(&settings)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::settings", command = "delete_custom_date_format_setting", error = %e);
+            e.to_string()
+        })?;
     Ok(())
 }
 

@@ -1,10 +1,24 @@
 use crate::models::account::AccountCommandModel;
+use crate::models::individual::LocalSettingsCommand;
 use crate::models::project::ProjectTreeCommandModel;
 use crate::models::CommandModelConverter;
 use crate::state::AppState;
-use flequit_core::facades::initialization_facades;
+use flequit_core::facades::{initialization_facades, setting_facades};
 use tauri::State;
 use tracing::instrument;
+
+#[instrument(level = "info", skip(state))]
+#[tauri::command]
+pub async fn load_local_settings(
+    state: State<'_, AppState>,
+) -> Result<LocalSettingsCommand, String> {
+    let settings = state.settings.read().await;
+    let local_settings = setting_facades::load_local_settings(&settings).await?;
+    Ok(LocalSettingsCommand {
+        theme: local_settings.theme,
+        language: local_settings.language,
+    })
+}
 
 #[instrument(level = "info", skip(state))]
 #[tauri::command]

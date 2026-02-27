@@ -17,7 +17,7 @@ macro_rules! generate_app_handler {
     () => {
         tauri::generate_handler![
             // Initialization commands
-            // initialization_commands::load_local_settings,
+            initialization_commands::load_local_settings,
             initialization_commands::load_current_account,
             initialization_commands::load_all_project_data,
             initialization_commands::load_all_account,

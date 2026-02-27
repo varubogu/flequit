@@ -7,6 +7,8 @@ use crate::InfrastructureRepositoriesTrait;
 use chrono::{DateTime, Utc};
 use flequit_model::models::task_projects::date_condition::DateCondition;
 use flequit_model::models::task_projects::weekday_condition::WeekdayCondition;
+use flequit_settings::models::datetime_format::DateTimeFormat;
+use flequit_settings::models::settings::Settings;
 use flequit_types::errors::service_error::ServiceError;
 
 // =============================================================================
@@ -176,4 +178,35 @@ where
         Ok(result) => Ok(result),
         Err(e) => Err(format!("Failed to evaluate weekday condition: {:?}", e)),
     }
+}
+
+// =============================================================================
+// 日時フォーマット関連ファサード
+// =============================================================================
+
+pub async fn update_datetime_format(
+    settings: &mut Settings,
+    format: DateTimeFormat,
+) -> Result<DateTimeFormat, String> {
+    if let Some(existing) = settings
+        .datetime_formats
+        .iter_mut()
+        .find(|existing| existing.id == format.id)
+    {
+        *existing = format.clone();
+        return Ok(format);
+    }
+
+    Err(format!("datetime_format id not found: {}", format.id))
+}
+
+pub async fn delete_datetime_format(settings: &mut Settings, id: &str) -> Result<(), String> {
+    let before_len = settings.datetime_formats.len();
+    settings.datetime_formats.retain(|f| f.id != id);
+
+    if settings.datetime_formats.len() == before_len {
+        return Err(format!("datetime_format id not found: {}", id));
+    }
+
+    Ok(())
 }

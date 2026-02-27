@@ -19,9 +19,16 @@ export class InitializationTauriService implements InitializationService {
    */
   async loadLocalSettings(): Promise<LocalSettings> {
     try {
-      // TODO: load_local_settings コマンドが Tauri側でコメントアウトされているため、一時的にmock実装
-      console.warn('load_local_settings is not implemented on Tauri side - using default settings');
-      return this.getDefaultSettings();
+      const loaded = (await invoke('load_local_settings')) as Partial<LocalSettings>;
+      const merged = { ...this.getDefaultSettings(), ...loaded };
+      return {
+        ...merged,
+        theme: this.normalizeTheme(merged.theme),
+        language:
+          typeof merged.language === 'string' && merged.language.length > 0
+            ? merged.language
+            : this.getDefaultSettings().language
+      };
     } catch (error) {
       console.warn('Failed to load local settings:', error);
       return this.getDefaultSettings();
@@ -80,5 +87,12 @@ export class InitializationTauriService implements InitializationService {
       theme: 'system',
       language: 'ja'
     };
+  }
+
+  private normalizeTheme(theme: unknown): LocalSettings['theme'] {
+    if (theme === 'light' || theme === 'dark' || theme === 'system') {
+      return theme;
+    }
+    return 'system';
   }
 }

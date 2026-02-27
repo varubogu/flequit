@@ -1412,6 +1412,7 @@ dependencies = [
  "chrono",
  "flequit-model",
  "flequit-repository",
+ "flequit-settings",
  "flequit-types",
  "log",
  "sea-orm",

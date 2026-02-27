@@ -8,7 +8,7 @@ export class CustomDateFormatService {
   async getCustomDateFormatSetting(formatId: string): Promise<CustomDateFormat | null> {
     try {
       const result = (await invoke('get_custom_date_format_setting', {
-        format_id: formatId
+        id: formatId
       })) as CustomDateFormat | null;
       return result;
     } catch (error) {
@@ -29,10 +29,10 @@ export class CustomDateFormatService {
 
   async addCustomDateFormatSetting(formatSetting: CustomDateFormat): Promise<boolean> {
     try {
-      const result = await invoke('add_custom_date_format_setting', {
-        format_setting: formatSetting
+      await invoke('add_custom_date_format_setting', {
+        format: formatSetting
       });
-      return result as boolean;
+      return true;
     } catch (error) {
       console.error('Failed to add custom date format setting:', error);
       return false;
@@ -41,10 +41,10 @@ export class CustomDateFormatService {
 
   async updateCustomDateFormatSetting(formatSetting: CustomDateFormat): Promise<boolean> {
     try {
-      const result = await invoke('update_custom_date_format_setting', {
-        format_setting: formatSetting
+      await invoke('update_custom_date_format_setting', {
+        format: formatSetting
       });
-      return result as boolean;
+      return true;
     } catch (error) {
       console.error('Failed to update custom date format setting:', error);
       return false;
@@ -53,10 +53,10 @@ export class CustomDateFormatService {
 
   async deleteCustomDateFormatSetting(formatId: string): Promise<boolean> {
     try {
-      const result = await invoke('delete_custom_date_format_setting', {
-        format_id: formatId
+      await invoke('delete_custom_date_format_setting', {
+        id: formatId
       });
-      return result as boolean;
+      return true;
     } catch (error) {
       console.error('Failed to delete custom date format setting:', error);
       return false;
