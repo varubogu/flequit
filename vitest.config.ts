@@ -1,3 +1,6 @@
+// テストは UTC で実行することでローカル・CI 環境の差異をなくす
+process.env.TZ = 'UTC';
+
 import { defineConfig } from 'vitest/config';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { svelteTesting } from '@testing-library/svelte/vite';

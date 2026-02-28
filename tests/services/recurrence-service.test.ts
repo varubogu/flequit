@@ -135,8 +135,8 @@ describe('RecurrenceDateCalculator', () => {
       };
 
       const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
-      // 2024年2月の第2日曜日は2月10日（実装の計算結果に合わせて修正）
-      expect(nextDate?.toISOString().split('T')[0]).toBe('2024-02-10');
+      // 2024年2月の第2日曜日は2月11日
+      expect(nextDate?.toISOString().split('T')[0]).toBe('2024-02-11');
     });
 
     it('月の最後の曜日指定（最終金曜日）', () => {
@@ -153,8 +153,8 @@ describe('RecurrenceDateCalculator', () => {
       };
 
       const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
-      // 2024年2月の最終金曜日は2月22日（実装の計算結果に合わせて修正）
-      expect(nextDate?.toISOString().split('T')[0]).toBe('2024-02-22');
+      // 2024年2月の最終金曜日は2月23日（2024年はうるう年でFeb 29=木、Feb 23=金）
+      expect(nextDate?.toISOString().split('T')[0]).toBe('2024-02-23');
     });
 
     it('年単位の繰り返し計算', () => {
@@ -913,11 +913,11 @@ describe('RecurrenceDateCalculator', () => {
         const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
 
         // 現在の実装では設定に関係なく同じ結果になります
-        // 2024年2月の第1月曜日は2月4日（実装の計算結果）
-        expect(nextDate?.toISOString().split('T')[0]).toBe('2024-02-04');
+        // 2024年2月の第1月曜日は2月5日（Feb 1=木、+4日=Feb 5=月）
+        expect(nextDate?.toISOString().split('T')[0]).toBe('2024-02-05');
 
         // TODO: 週の開始日設定を考慮する実装が必要
-        // 実装では2/4を返すが、実際のカレンダーでは：
+        // 実際のカレンダーでは：
         // 日曜日始まり: 2月の第1週は 2/4(日)-2/10(土) → 第1月曜日は2/5
         // 月曜日始まり: 2月の第1週は 1/29(月)-2/4(日) → 第1月曜日は1/29だが、これは1月なので2/5
       });
@@ -937,11 +937,8 @@ describe('RecurrenceDateCalculator', () => {
 
         const nextDate = RecurrenceDateCalculator.calculateNextDate(baseDate, rule);
 
-        // 現在の実装結果（週の開始日設定に依存しない）
-        expect(nextDate?.toISOString().split('T')[0]).toBe('2024-02-10');
-
-        // NOTE: この結果は実際のカレンダーでは2024年2月の第2日曜日（2月11日）と1日ずれています
-        // 実装では0ベースの週計算を使用している可能性があります
+        // 2024年2月の第2日曜日は2月11日（Feb 4=第1日曜、+7日=Feb 11=第2日曜）
+        expect(nextDate?.toISOString().split('T')[0]).toBe('2024-02-11');
       });
     });
 

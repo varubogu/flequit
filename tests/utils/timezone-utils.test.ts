@@ -6,17 +6,6 @@ import {
   parseInputDateTime
 } from '../../src/lib/utils/timezone-utils';
 
-// Mock settingsStore
-vi.mock('../../src/lib/stores/settings.svelte', () => ({
-  settingsStore: {
-    effectiveTimezone: 'Asia/Tokyo'
-  }
-}));
-
-const mockSettingsStore = {
-  effectiveTimezone: 'Asia/Tokyo'
-};
-
 // Mock console.error
 const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -24,7 +13,6 @@ describe('timezone-utils', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     consoleErrorSpy.mockClear();
-    mockSettingsStore.effectiveTimezone = 'Asia/Tokyo';
   });
 
   describe('localDateTimeToUTC', () => {
@@ -58,8 +46,6 @@ describe('timezone-utils', () => {
     });
 
     test('should handle timezone conversion errors gracefully', () => {
-      mockSettingsStore.effectiveTimezone = 'Invalid/Timezone';
-
       // Mock Date methods to simulate error
       const originalToLocaleString = Date.prototype.toLocaleString;
       Date.prototype.toLocaleString = vi.fn().mockImplementation(() => {
@@ -67,7 +53,8 @@ describe('timezone-utils', () => {
       });
 
       const utcDate = new Date('2024-01-01T12:00:00.000Z');
-      const result = utcToLocalDateTime(utcDate);
+      // 不正なタイムゾーン文字列を渡してエラーハンドリングを確認
+      const result = utcToLocalDateTime(utcDate, 'Invalid/Timezone');
 
       expect(result).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/);
 
@@ -105,10 +92,9 @@ describe('timezone-utils', () => {
     });
 
     test('should handle formatting errors gracefully', () => {
-      mockSettingsStore.effectiveTimezone = 'Invalid/Timezone';
-
       const utcDate = new Date('2024-01-01T12:00:00.000Z');
-      const result = formatDateTimeInTimezone(utcDate);
+      // 不正なタイムゾーン文字列を渡してエラーハンドリングを確認
+      const result = formatDateTimeInTimezone(utcDate, true, 'Invalid/Timezone');
 
       // Should fallback to basic formatting
       expect(typeof result).toBe('string');
@@ -151,24 +137,53 @@ describe('timezone-utils', () => {
   });
 
   describe('timezone integration', () => {
-    test('should use different timezone settings', () => {
-      mockSettingsStore.effectiveTimezone = 'America/New_York';
-
+    // UTC: ベースライン（GitHub Actions・テスト標準環境）
+    test('UTC: utcToLocalDateTime は UTC のまま返す', () => {
       const utcDate = new Date('2024-01-01T12:00:00.000Z');
-      const result = formatDateTimeInTimezone(utcDate);
-
-      expect(typeof result).toBe('string');
-      expect(result.length).toBeGreaterThan(0);
+      const result = utcToLocalDateTime(utcDate, 'UTC');
+      expect(result).toBe('2024-01-01T12:00:00');
     });
 
-    test('should handle UTC timezone', () => {
-      mockSettingsStore.effectiveTimezone = 'UTC';
-
+    test('UTC: formatDateTimeInTimezone は UTC 時刻でフォーマットする', () => {
       const utcDate = new Date('2024-01-01T12:00:00.000Z');
-      const result = formatDateTimeInTimezone(utcDate);
+      const result = formatDateTimeInTimezone(utcDate, true, 'UTC');
+      expect(result).toMatch(/2024\/01\/01/);
+      expect(result).toMatch(/12:00/);
+    });
 
-      expect(typeof result).toBe('string');
-      expect(result.length).toBeGreaterThan(0);
+    // Asia/Tokyo (JST = UTC+9): ローカル開発者環境での確認
+    test('JST: utcToLocalDateTime は UTC+9 に変換する', () => {
+      const utcDate = new Date('2024-01-01T15:00:00.000Z'); // UTC 15:00
+      const result = utcToLocalDateTime(utcDate, 'Asia/Tokyo');
+      expect(result).toBe('2024-01-02T00:00:00'); // JST = UTC+9 → 翌日 00:00
+    });
+
+    test('JST: formatDateTimeInTimezone は JST 時刻でフォーマットする', () => {
+      const utcDate = new Date('2024-01-01T15:00:00.000Z'); // UTC 15:00 = JST 2024-01-02 00:00
+      const result = formatDateTimeInTimezone(utcDate, true, 'Asia/Tokyo');
+      expect(result).toMatch(/2024\/01\/02/);
+      expect(result).toMatch(/00:00/);
+    });
+
+    // America/New_York (EST = UTC-5): 負オフセットタイムゾーンの確認
+    test('EST: utcToLocalDateTime は UTC-5 に変換する', () => {
+      const utcDate = new Date('2024-01-01T12:00:00.000Z'); // UTC 12:00
+      const result = utcToLocalDateTime(utcDate, 'America/New_York');
+      expect(result).toBe('2024-01-01T07:00:00'); // EST = UTC-5 → 07:00
+    });
+
+    test('EST: formatDateTimeInTimezone は EST 時刻でフォーマットする', () => {
+      const utcDate = new Date('2024-01-01T12:00:00.000Z'); // UTC 12:00 = EST 07:00
+      const result = formatDateTimeInTimezone(utcDate, true, 'America/New_York');
+      expect(result).toMatch(/2024\/01\/01/);
+      expect(result).toMatch(/07:00/);
+    });
+
+    // 日付をまたぐケース（負オフセット）
+    test('EST: UTC 深夜は前日になる', () => {
+      const utcDate = new Date('2024-01-02T04:00:00.000Z'); // UTC 04:00 = EST 前日 23:00
+      const result = utcToLocalDateTime(utcDate, 'America/New_York');
+      expect(result).toBe('2024-01-01T23:00:00');
     });
   });
 });

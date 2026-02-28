@@ -27,6 +27,8 @@ jobs:
 
       - name: Run frontend tests with coverage
         run: bun run test:coverage --reporter=verbose
+        env:
+          TZ: UTC
 
       - name: Upload coverage report
         if: always()

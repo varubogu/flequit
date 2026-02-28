@@ -322,9 +322,8 @@ describe('weekday-adjuster', () => {
           thenDirection: 'next'
         };
         const result = applyWeekdayAdjustment(date, condition);
-        // 2025-01-02は木曜、次の祝日(土日)は 2025-01-04 (土曜) のはずだが、
-        // 実装では2025-01-03 が返ってくる。これは moveToHoliday の挙動
-        expect(result.toISOString().split('T')[0]).toBe('2025-01-03');
+        // 2025-01-02は木曜、次の祝日(土日)は 2025-01-04 (土曜)
+        expect(result.toISOString().split('T')[0]).toBe('2025-01-04');
       });
 
       it('日曜日から前の非祝日へ移動', () => {
@@ -336,9 +335,9 @@ describe('weekday-adjuster', () => {
           thenDirection: 'previous'
         };
         const result = applyWeekdayAdjustment(date, condition);
-        // 2025-01-12は日曜、前の非祝日は 2025-01-10 (金曜) のはずだが、
-        // 実装では 2025-01-09 が返ってくる
-        expect(result.toISOString().split('T')[0]).toBe('2025-01-09');
+        // 2025-01-12は日曜(祝日扱い)、前の非祝日は 2025-01-10 (金曜)
+        // Jan 11=土(祝日扱い)をスキップして Jan 10=金に到達
+        expect(result.toISOString().split('T')[0]).toBe('2025-01-10');
       });
     });
 

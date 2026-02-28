@@ -20,20 +20,29 @@ test('formatDate: formats undefined as empty string', () => {
 });
 
 test("formatDate: formats today as 'Today'", () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2024-06-15T12:00:00Z')); // UTC noon で固定
   const today = new Date();
   expect(formatDate(today)).toBe('Today');
+  vi.useRealTimers();
 });
 
 test("formatDate: formats tomorrow as 'Tomorrow'", () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2024-06-15T12:00:00Z')); // UTC noon で固定
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   expect(formatDate(tomorrow)).toBe('Tomorrow');
+  vi.useRealTimers();
 });
 
 test("formatDate: formats yesterday as 'Yesterday'", () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2024-06-15T12:00:00Z')); // UTC noon で固定
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   expect(formatDate(yesterday)).toBe('Yesterday');
+  vi.useRealTimers();
 });
 
 test('formatDate: formats other dates as locale string', () => {
@@ -82,27 +91,39 @@ test('getDueDateClass: returns empty string for undefined date', () => {
 });
 
 test('getDueDateClass: returns overdue class for past dates', () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2024-06-15T12:00:00Z')); // UTC noon で固定
   const pastDate = new Date();
   pastDate.setDate(pastDate.getDate() - 1);
   expect(getDueDateClass(pastDate, 'not_started')).toBe('text-red-600 font-semibold');
+  vi.useRealTimers();
 });
 
 test("getDueDateClass: returns today class for today's date", () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2024-06-15T12:00:00Z')); // UTC noon で固定
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   expect(getDueDateClass(today)).toBe('text-orange-300 font-medium');
+  vi.useRealTimers();
 });
 
 test('getDueDateClass: returns normal class for future dates', () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2024-06-15T12:00:00Z')); // UTC noon で固定
   const futureDate = new Date();
   futureDate.setDate(futureDate.getDate() + 1);
   expect(getDueDateClass(futureDate)).toBe('text-muted-foreground');
+  vi.useRealTimers();
 });
 
 test('getDueDateClass: returns normal class for completed overdue tasks', () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2024-06-15T12:00:00Z')); // UTC noon で固定
   const pastDate = new Date();
   pastDate.setDate(pastDate.getDate() - 1);
   expect(getDueDateClass(pastDate, 'completed')).toBe('text-muted-foreground');
+  vi.useRealTimers();
 });
 
 describe('Internal datetime utility functions', () => {
