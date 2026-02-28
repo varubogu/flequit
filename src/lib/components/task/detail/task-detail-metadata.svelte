@@ -4,6 +4,7 @@
   import type { SubTask } from '$lib/types/sub-task';
   import Button from '$lib/components/shared/button.svelte';
   import { formatDateTime } from '$lib/utils/datetime/formatting';
+  import { generalSettingsStore } from '$lib/stores/settings/general-settings-store.svelte';
 
   interface Props {
     currentItem: TaskWithSubTasks | SubTask;
@@ -13,6 +14,8 @@
   }
 
   let { currentItem, isSubTask, isNewTaskMode = false, onGoToParentTask }: Props = $props();
+
+  const timezone = $derived(generalSettingsStore.effectiveTimezone);
 
   const translationService = useTranslation();
   // Reactive messages
@@ -26,8 +29,8 @@
 
 {#if !isNewTaskMode}
   <div class="text-muted-foreground space-y-2 border-t pt-4 text-sm">
-    <div>{created()}: {formatDateTime(currentItem.createdAt)}</div>
-    <div>{updated()}: {formatDateTime(currentItem.updatedAt)}</div>
+    <div>{created()}: {formatDateTime(currentItem.createdAt, timezone)}</div>
+    <div>{updated()}: {formatDateTime(currentItem.updatedAt, timezone)}</div>
     <div>{isSubTask ? sub_task() : task()} ID: {currentItem.id}</div>
     {#if isSubTask && 'taskId' in currentItem}
       <div>{parent_task_id()}: {currentItem.taskId}</div>

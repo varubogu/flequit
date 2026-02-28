@@ -33,6 +33,30 @@ Flequitでは異なる層間で型変換を行います。以下の変換表に�
 - **SQLite真偽値**: `true`=1, `false`=0で保存
 - **Optional値**: 未設定時は`null`/`NULL`で統一
 
+## UTCポリシー
+
+アプリケーション内の全日時データは以下のポリシーに従います：
+
+### 内部データ（常にUTC）
+
+- **Rustモデル**: chrono クレートの `DateTime<Utc>` を全フィールドで使用
+- **SQLiteストレージ**: 全TIMESTAMPカラムはUTC ISO 8601文字列（`YYYY-MM-DDTHH:mm:ss.sssZ`）として保存
+- **Automerge CRDT**: 全日時フィールドはUTC ISO 8601文字列として保存
+- **IPCレイヤー（Tauri）**: `DateTime<Utc>` はUTC ISO 8601文字列としてシリアライズ
+- **日付のみの規約**: 日付のみの値はUTC深夜（`T00:00:00Z`）として保存
+
+### 表示レイヤー（ユーザーのタイムゾーン）
+
+- ユーザーに表示する全日時は、ユーザーの有効タイムゾーンに変換する
+- ユーザータイムゾーンの取得元: `generalSettingsStore.effectiveTimezone`（`'system'` 設定時はシステムタイムゾーンにフォールバック）
+- フォーマットユーティリティは `timezone: string` パラメータを受け取る（デフォルト: `Intl.DateTimeFormat().resolvedOptions().timeZone`）
+- コンポーネントは `generalSettingsStore.effectiveTimezone` からタイムゾーンを取得し、フォーマット関数に渡す
+
+### テストのルール
+
+- 全日付文字列にはUTCの意図を明示するため `Z` サフィックスを付ける: `new Date('2025-01-15T12:00:00Z')`
+- フォーマット関数のテストでは `'UTC'` を明示的に渡す: `formatDate(date, 'UTC')`
+
 ## エンティティ定義
 
 `./entity/*.md` を参照

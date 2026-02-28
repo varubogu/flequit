@@ -22,14 +22,27 @@ vi.mock('$lib/stores/locale.svelte', () => ({
   })
 }));
 
-vi.mock('$lib/utils/datetime/formatting', () => ({
-  getDueDateClass: vi.fn((date: Date) => {
-    const now = new Date();
-    if (date < now) return 'text-red-500'; // overdue
-    if (date.toDateString() === now.toDateString()) return 'text-orange-500'; // today
-    return 'text-green-500'; // future
-  })
+// generalSettingsStore をモック（タイムゾーン設定の提供）
+vi.mock('$lib/stores/settings/general-settings-store.svelte', () => ({
+  generalSettingsStore: {
+    effectiveTimezone: 'UTC'
+  }
 }));
+
+vi.mock('$lib/utils/datetime/formatting', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('$lib/utils/datetime/formatting')>();
+  return {
+    ...actual,
+    getDueDateClass: vi.fn(
+      (date: Date, status?: string, _timezone?: string) => {
+        const now = new Date();
+        if (date < now && status !== 'completed') return 'text-red-500'; // overdue
+        if (date.toDateString() === now.toDateString()) return 'text-orange-500'; // today
+        return 'text-green-500'; // future
+      }
+    )
+  };
+});
 
 describe('DueDate', () => {
   const mockHandleDueDateClick = vi.fn();
@@ -271,7 +284,8 @@ describe('DueDate', () => {
 
       expect(vi.mocked(getDueDateClass)).toHaveBeenCalledWith(
         baseTask.planEndDate,
-        baseTask.status
+        baseTask.status,
+        expect.any(String) // timezone
       );
     });
 
@@ -565,7 +579,8 @@ describe('DueDate', () => {
       expect(container.innerHTML).toBeTruthy();
       expect(vi.mocked(getDueDateClass)).toHaveBeenCalledWith(
         completedTask.planEndDate,
-        'completed'
+        'completed',
+        expect.any(String) // timezone
       );
     });
   });

@@ -1,7 +1,8 @@
 <script lang="ts">
   import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { TaskBase } from '$lib/types/task';
-  import { getDueDateClass } from '$lib/utils/datetime/formatting';
+  import { formatDate, getDueDateClass } from '$lib/utils/datetime/formatting';
+  import { generalSettingsStore } from '$lib/stores/settings/general-settings-store.svelte';
 
   interface Props {
     task: TaskBase;
@@ -12,6 +13,8 @@
 
   let { task, handleDueDateClick, variant = 'compact', class: className = '' }: Props = $props();
 
+  const timezone = $derived(generalSettingsStore.effectiveTimezone);
+
   const translationService = useTranslation();
   // Reactive messages
   const todayLabel = translationService.getMessage('today');
@@ -20,30 +23,22 @@
   const addDateLabel = translationService.getMessage('add_date');
   const selectDate = translationService.getMessage('select_date');
 
-  // Style classes based on variant
+  // Style classes based on variant（タイムゾーン考慮のリアクティブ計算）
   const baseClasses =
     'text-sm whitespace-nowrap flex-shrink-0 hover:bg-muted rounded px-1 py-0.5 transition-colors';
-  const colorClasses = task.planEndDate
-    ? getDueDateClass(task.planEndDate, task.status)
-    : 'text-muted-foreground';
+  const colorClasses = $derived(
+    task.planEndDate
+      ? getDueDateClass(task.planEndDate, task.status, timezone)
+      : 'text-muted-foreground'
+  );
 
+  // Today/Tomorrow/Yesterday を i18n ラベルに変換しつつ、タイムゾーン考慮の日付フォーマットを適用する
   function formatDateI18n(date: Date | undefined): string {
-    if (!date) return '';
-
-    const now = new Date();
-    const taskDate = new Date(date);
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const taskDay = new Date(taskDate.getFullYear(), taskDate.getMonth(), taskDate.getDate());
-
-    if (taskDay.getTime() === today.getTime()) {
-      return todayLabel();
-    } else if (taskDay.getTime() === today.getTime() + 24 * 60 * 60 * 1000) {
-      return tomorrowLabel();
-    } else if (taskDay.getTime() === today.getTime() - 24 * 60 * 60 * 1000) {
-      return yesterdayLabel();
-    } else {
-      return taskDate.toLocaleDateString();
-    }
+    const result = formatDate(date, timezone);
+    if (result === 'Today') return todayLabel();
+    if (result === 'Tomorrow') return tomorrowLabel();
+    if (result === 'Yesterday') return yesterdayLabel();
+    return result;
   }
 </script>
 
