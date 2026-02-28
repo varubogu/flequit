@@ -7,6 +7,18 @@ use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_types::errors::service_error::ServiceError;
 
+#[derive(Debug, Clone, Default)]
+pub struct TaskSearchCondition {
+    pub list_id: Option<String>,
+    pub status: Option<TaskStatus>,
+    pub assigned_user_id: Option<String>,
+    pub tag_id: Option<String>,
+    pub title: Option<String>,
+    pub is_archived: Option<bool>,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
+}
+
 pub async fn create_task<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -48,32 +60,25 @@ where
 pub async fn search_tasks<R>(
     repositories: &R,
     project_id: &ProjectId,
-    list_id: Option<&str>,
-    status: Option<&TaskStatus>,
-    assigned_user_id: Option<&str>,
-    tag_id: Option<&str>,
-    title: Option<&str>,
-    is_archived: Option<bool>,
-    limit: Option<i32>,
-    offset: Option<i32>,
+    condition: &TaskSearchCondition,
 ) -> Result<Vec<Task>, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
     let mut tasks = repositories.tasks().find_all(project_id).await?;
 
-    if let Some(list_id) = list_id {
+    if let Some(list_id) = condition.list_id.as_deref() {
         let list_id = list_id.trim();
         if !list_id.is_empty() {
             tasks.retain(|task| task.list_id.to_string() == list_id);
         }
     }
 
-    if let Some(status) = status {
+    if let Some(status) = condition.status.as_ref() {
         tasks.retain(|task| task.status == *status);
     }
 
-    if let Some(assigned_user_id) = assigned_user_id {
+    if let Some(assigned_user_id) = condition.assigned_user_id.as_deref() {
         let assigned_user_id = assigned_user_id.trim();
         if !assigned_user_id.is_empty() {
             tasks.retain(|task| {
@@ -84,26 +89,26 @@ where
         }
     }
 
-    if let Some(tag_id) = tag_id {
+    if let Some(tag_id) = condition.tag_id.as_deref() {
         let tag_id = tag_id.trim();
         if !tag_id.is_empty() {
             tasks.retain(|task| task.tag_ids.iter().any(|id| id.to_string() == tag_id));
         }
     }
 
-    if let Some(title) = title {
+    if let Some(title) = condition.title.as_deref() {
         let title = title.trim().to_lowercase();
         if !title.is_empty() {
             tasks.retain(|task| task.title.to_lowercase().contains(&title));
         }
     }
 
-    if let Some(is_archived) = is_archived {
+    if let Some(is_archived) = condition.is_archived {
         tasks.retain(|task| task.is_archived == is_archived);
     }
 
-    let offset = offset.unwrap_or(0).max(0) as usize;
-    let limit = limit.unwrap_or(i32::MAX).max(0) as usize;
+    let offset = condition.offset.unwrap_or(0).max(0) as usize;
+    let limit = condition.limit.unwrap_or(i32::MAX).max(0) as usize;
     let tasks = tasks.into_iter().skip(offset).take(limit).collect();
 
     Ok(tasks)

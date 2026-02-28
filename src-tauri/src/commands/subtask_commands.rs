@@ -5,6 +5,7 @@ use crate::models::{
 };
 use crate::state::AppState;
 use flequit_core::facades::{recurrence_facades, subtask_facades};
+use flequit_core::services::subtask_service::SubtaskSearchCondition;
 use flequit_model::models::{task_projects::subtask::PartialSubTask, ModelConverter};
 use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, SubTaskId, UserId};
 use tauri::State;
@@ -75,16 +76,19 @@ pub async fn search_sub_tasks(
         Err(err) => return Err(err.to_string()),
     };
     let repositories = state.repositories.read().await;
+    let search_condition = SubtaskSearchCondition {
+        task_id: condition.task_id,
+        title: condition.title,
+        status: condition.status,
+        priority: condition.priority,
+        limit: condition.limit,
+        offset: condition.offset,
+    };
 
     let subtasks = subtask_facades::search_sub_tasks(
         &*repositories,
         &project_id,
-        condition.task_id.as_deref(),
-        condition.title.as_deref(),
-        condition.status.as_ref(),
-        condition.priority,
-        condition.limit,
-        condition.offset,
+        &search_condition,
     )
     .await
     .map_err(|e| {

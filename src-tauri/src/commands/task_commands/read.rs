@@ -6,6 +6,7 @@ use crate::models::{task::TaskCommandModel, CommandModelConverter};
 use crate::models::task_search_request::TaskSearchRequest;
 use crate::state::AppState;
 use flequit_core::facades::task_facades;
+use flequit_core::services::task_service::TaskSearchCondition;
 use flequit_model::types::id_types::{ProjectId, TaskId};
 use tauri::State;
 use tracing::instrument;
@@ -50,18 +51,21 @@ pub async fn search_tasks(
         Err(err) => return Err(err.to_string()),
     };
     let repositories = state.repositories.read().await;
+    let search_condition = TaskSearchCondition {
+        list_id: condition.list_id,
+        status: condition.status,
+        assigned_user_id: condition.assigned_user_id,
+        tag_id: condition.tag_id,
+        title: condition.title,
+        is_archived: condition.is_archived,
+        limit: condition.limit,
+        offset: condition.offset,
+    };
 
     let tasks = task_facades::search_tasks(
         &*repositories,
         &project_id,
-        condition.list_id.as_deref(),
-        condition.status.as_ref(),
-        condition.assigned_user_id.as_deref(),
-        condition.tag_id.as_deref(),
-        condition.title.as_deref(),
-        condition.is_archived,
-        condition.limit,
-        condition.offset,
+        &search_condition,
     )
     .await
     .map_err(|e| {
