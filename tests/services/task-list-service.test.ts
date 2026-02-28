@@ -2,8 +2,15 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import type { TaskList, TaskListWithTasks } from '$lib/types/task-list';
 import type { ProjectTree } from '$lib/types/project';
 import type { TaskWithSubTasks } from '$lib/types/task';
+import { TaskListService, configureTaskListSelectionResolver } from '$lib/services/domain/task-list';
+
+vi.unmock('$lib/services/domain/task-list');
 
 const backendTaskLists = new Map<string, TaskList>();
+const addTaskMock = vi.hoisted(() => vi.fn());
+const errorHandlerMock = vi.hoisted(() => ({
+  addSyncError: vi.fn()
+}));
 
 const backendStub = {
   tasklist: {
@@ -62,19 +69,11 @@ const buildTask = (listId: string, overrides: Partial<TaskWithSubTasks> = {}): T
   };
 };
 
-const addTaskMock = vi.fn(async (listId: string, data: { title: string }) =>
-  buildTask(listId, { title: data.title })
-);
-
 vi.mock('$lib/services/domain/task', () => ({
   taskOperations: {
     addTask: addTaskMock
   }
 }));
-
-const errorHandlerMock = {
-  addSyncError: vi.fn()
-};
 
 vi.mock('$lib/stores/error-handler.svelte', () => ({
   errorHandler: errorHandlerMock
@@ -100,10 +99,6 @@ const selectionState = {
   selectedListId: null as string | null,
   selectedProjectId: null as string | null
 };
-
-const { TaskListService, configureTaskListSelectionResolver } = await vi.importActual<
-  typeof import('$lib/services/domain/task-list')
->('$lib/services/domain/task-list');
 
 configureTaskListSelectionResolver(() => selectionState);
 
@@ -164,7 +159,9 @@ beforeEach(() => {
   projectStoreMock.getProjectById.mockReset().mockImplementation(() => null);
   selectionState.selectedListId = null;
   selectionState.selectedProjectId = null;
-  addTaskMock.mockClear();
+  addTaskMock.mockReset().mockImplementation(async (listId: string, data: { title: string }) =>
+    buildTask(listId, { title: data.title })
+  );
   errorHandlerMock.addSyncError.mockClear();
   resolveProjectStoreMock.mockReturnValue(projectStoreMock);
 });
