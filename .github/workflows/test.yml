@@ -25,6 +25,9 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Generate Paraglide runtime
+        run: bun run paraglide:compile
+
       - name: Run frontend tests with coverage
         run: bun run test:coverage --reporter=verbose
         env:
