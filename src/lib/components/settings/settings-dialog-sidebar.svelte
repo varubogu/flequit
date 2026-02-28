@@ -41,8 +41,17 @@
   }
 
   function handleSearchInput(event: Event) {
-    const target = event.target as HTMLInputElement;
+    const target = event.currentTarget;
+    if (!(target instanceof HTMLInputElement)) {
+      return;
+    }
     onSearchQueryChange(target.value);
+  }
+
+  function handleOverlayKeydown(event: KeyboardEvent) {
+    if (event.key === 'Escape') {
+      toggleSidebar();
+    }
   }
 </script>
 
@@ -89,6 +98,6 @@
     role="button"
     tabindex="0"
     onclick={toggleSidebar}
-    onkeydown={(event) => event.key === 'Escape' && toggleSidebar()}
+    onkeydown={handleOverlayKeydown}
   ></div>
 {/if}
