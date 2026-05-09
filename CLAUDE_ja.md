@@ -1,29 +1,30 @@
-# CLAUDE.md (日本語版概要)
+# CLAUDE_ja.md
 
-このファイルは、Claude Code (claude.ai/code) がこのリポジトリのコードを扱う際の日本語ガイダンス索引です。詳細な指示は `CLAUDE.md` (英語版) を正本とします。
+このリポジトリで作業する Claude Code 向けガイドの日本語版。
+Claude が読み込む正本は英語の `CLAUDE.md`。本ファイルは人間の参照用で、編集時は英語版と同期させる。
 
-## レスポンスについて
+## 応答ルール
 
-- 常に **日本語** で回答してください。
-- このファイルを読み込んだら、最初に「✅️ CLAUDE.md loaded」と発言してから指示に従ってください。
+- 必ず**日本語**で回答する。
+- このファイルを読み込んだ最初に `✅️ CLAUDE.md loaded` と出力してから指示に従う。
 
-## 重要な開発ルール
+## プロジェクト
 
-- 修正指示時、関連部分以外を勝手に修正せず、必ず許可を求めてください。
-- 正規表現等による置換は、適用前に検証して影響範囲を確認してください。
-- ファイル/ディレクトリが存在しないエラーが出たら `pwd` でカレントディレクトリを確認してください。
+Tauri 製のデスクトップタスク管理アプリ。
+Frontend: SvelteKit 2 + Svelte 5 (runes) + Tailwind 4 + bits-ui + Inlang Paraglide。
+Backend: Tauri 2 (Rust) + Sea-ORM + SQLite + Automerge (CRDT)。
+Clean Architecture（クレート分離）+ Specta による Rust→TS 型生成。
 
-## ドキュメント構成
+- パッケージマネージャは **Bun**（npm / yarn / pnpm 不可）。
 
-| 種別 | パス | 内容 |
-| --- | --- | --- |
-| 設計 | `docs/ja/develop/design/` | アーキテクチャ、フロントエンド、バックエンド、データ、API |
-| 規約 | `docs/ja/develop/rules/` | コーディング規約、フロントエンド/バックエンド/テスト規約、ワークフロー |
-| 要件 | `docs/ja/develop/requirements/` | パフォーマンス、アクセシビリティ、ユーザビリティ、テスト要件、非機能要件 |
-| コマンド | `docs/ja/develop/commands.md` | 開発コマンド一覧 (要約) |
+## 重要ルール
 
-skills (`.claude/skills/`) はタスク内容に応じて自動的にロードされます。詳細は `CLAUDE.md` の "Skills" セクション参照。
+- 指示外のコードを勝手に変更しない。必要なら先にユーザーへ確認する。
+- regex 等での一括置換は適用前に必ず差分を確認する。
+- 「ファイル/ディレクトリが無い」系エラー時はまず `pwd` を確認する。
 
-## 注意事項
+## ポインタ
 
-- 本タスク (大規模リファクタリング) では `docs/ja/` を先行更新し、`docs/en/` は別タスクで同期します。一時的に構造が乖離する点に留意してください。
+- 設計 / 規約 / 要件 / コマンド: `docs/ja/develop/{design,rules,requirements,commands.md}`
+- `docs/ja/` を信頼源とし、`docs/en/` の同期は別タスク。
+- タスク固有のガイドは関連スキル（testing / tauri-command / architecture-review / i18n / documentation / coding-standards / debugging）が自動発火するので、CLAUDE.md / CLAUDE_ja.md にスキル側の内容を重複記載しない。
