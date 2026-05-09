@@ -1,488 +1,110 @@
 # Svelte 5 設計パターン
 
-## 概要
+Flequit で採用する Svelte 5 (runes) 中心の設計パターン。
 
-本文書では、Flequitアプリケーションで採用するSvelte 5の設計パターンとベストプラクティスを定義します。Svelte 5の新機能であるrunesを中心とした設計指針を示します。
+> 実装の正本は `src/lib/stores/`、`src/lib/components/` を参照。本書は原則と適用範囲のみを述べる。
 
-関連ドキュメント:
+## コンポーネント分割指針
 
-- component-patterns: docs/ja/develop/design/frontend/component-patterns.md
-- anti-patterns: docs/ja/develop/design/frontend/anti-patterns.md
+- **シンプル (〜100 行)**: ロジッククラス不要。`$state` / `$derived` / `$effect` を直接使用
+- **中規模 (100-200 行)**: 内部関数でロジック分離 (export しない)。Context API で状態共有
+- **大規模 (200 行超)**: 機能別に分割 (header / content / footer 等)。分割後も各 200 行以内目安
 
-禁止事項（要約）:
+## アンチパターン
 
-- -logic.svelte.ts形式のロジッククラス新規追加
-- プロキシのみのサービス層増設（UI→Store→Backendから逸脱）
-- 同一概念の型二重定義と変換関数の乱立
+- ❌ **ロジッククラス (`-logic.svelte.ts`)**: runes をクラスに閉じ込めるとコンポーネントが薄くなりすぎる → コンポーネント内で直接 runes を使用
+- ❌ **過度なサービス層**: プロキシのみの層が増殖しデバッグ困難 → 必要最小限の層 (UI → Store → Backend)
+- ❌ **型の二重定義**: 同一概念の複数型と変換関数の乱立 → 統一型を採用 (例: `RecurrenceRule`)
 
-## 状態管理
+## 状態管理 (runes)
 
-### $state: リアクティブな状態
+### `$state`: リアクティブな状態
 
-基本的なリアクティブ状態の管理に使用します。
+- ストア内の基本的なリアクティブ状態に使用
+- `.svelte.ts` 拡張子内でのみ有効
 
-```typescript
-// stores/task.svelte.ts
-export class TaskStore {
-  private tasks = $state<Task[]>([]);
-  private loading = $state<boolean>(false);
+### `$derived`: 派生状態
 
-  get allTasks() {
-    return this.tasks;
-  }
+- 他の状態から計算される値に使用
+- 派生計算は **必ず** `$derived` で。手動 `$effect` での同期は禁止
 
-  get isLoading() {
-    return this.loading;
-  }
+### `$effect`: 副作用
 
-  addTask(task: Task) {
-    this.tasks.push(task);
-  }
-}
-```
+- **使用すべき場面**: 外部システムとの同期 (localStorage / WebSocket / DOM イベント登録)
+- **使用してはならない場面**: 内部状態の派生計算 (それは `$derived` の役割)
+- **クリーンアップ必須**: タイマー・イベントリスナー等を使う場合は return でクリーンアップ関数を返す
 
-### $derived: 派生状態（計算されたプロパティ）
-
-他の状態から派生する値の計算に使用します。
-
-```typescript
-// stores/task.svelte.ts
-export class TaskStore {
-  private tasks = $state<Task[]>([]);
-
-  get completedTasks() {
-    return $derived(this.tasks.filter((task) => task.status === 'completed'));
-  }
-
-  get progress() {
-    return $derived(this.tasks.length > 0 ? this.completedTasks.length / this.tasks.length : 0);
-  }
-}
-```
-
-### $effect: 副作用処理
-
-状態変更に基づく副作用の実行に使用します。
-
-```typescript
-// components/task-list.svelte
-<script lang="ts">
-  import { taskStore } from '$lib/stores/task.svelte';
-
-  // タスク変更時にローカルストレージに保存
-  $effect(() => {
-    localStorage.setItem('tasks', JSON.stringify(taskStore.allTasks));
-  });
-
-  // クリーンアップが必要な場合
-  $effect(() => {
-    const interval = setInterval(() => {
-      console.log('Current tasks:', taskStore.allTasks.length);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  });
-</script>
-```
+実装参照:
+- ストア例: `src/lib/stores/tasks.svelte.ts`
+- 副作用クリーンアップ例: `src/lib/components/...`
 
 ### クラスベースストア
 
-複雑な状態管理には、クラスベースのストアを使用します。
-
-```typescript
-// stores/project.svelte.ts
-import type { Project, Task } from '$lib/types';
-
-export class ProjectStore {
-  private projects = $state<Project[]>([]);
-  private currentProject = $state<Project | null>(null);
-  private loading = $state<boolean>(false);
-  private error = $state<string | null>(null);
-
-  // ゲッター
-  get allProjects() {
-    return this.projects;
-  }
-
-  get current() {
-    return this.currentProject;
-  }
-
-  get isLoading() {
-    return this.loading;
-  }
-
-  get hasError() {
-    return this.error !== null;
-  }
-
-  // 派生状態
-  get activeProjects() {
-    return $derived(this.projects.filter((project) => !project.isArchived));
-  }
-
-  // アクション
-  async loadProjects() {
-    this.loading = true;
-    this.error = null;
-
-    try {
-      const projects = await invoke<Project[]>('get_projects');
-      this.projects = projects;
-    } catch (err) {
-      this.error = err instanceof Error ? err.message : 'Unknown error';
-    } finally {
-      this.loading = false;
-    }
-  }
-
-  selectProject(projectId: string) {
-    this.currentProject = this.projects.find((p) => p.id === projectId) || null;
-  }
-
-  addProject(project: Project) {
-    this.projects.push(project);
-  }
-
-  updateProject(updatedProject: Project) {
-    const index = this.projects.findIndex((p) => p.id === updatedProject.id);
-    if (index !== -1) {
-      this.projects[index] = updatedProject;
-    }
-  }
-
-  deleteProject(projectId: string) {
-    this.projects = this.projects.filter((p) => p.id !== projectId);
-    if (this.currentProject?.id === projectId) {
-      this.currentProject = null;
-    }
-  }
-}
-
-// シングルトンとしてエクスポート
-export const projectStore = new ProjectStore();
-```
+複雑な状態管理にはクラスベースストアを使用する。シングルトン export が基本。詳細は [`store-and-service-architecture.md`](./store-and-service-architecture.md) 参照。
 
 ## コンポーネント設計
 
-注意: 詳細な推奨/非推奨パターンは component-patterns.md / anti-patterns.md を参照。ここではSvelte 5固有の指針のみを扱う。
+### Props 定義
 
-### Props定義
+Svelte 5 の `$props()` を使用する。Props は明示的な `interface Props` で型付けする。
 
-Svelte 5のprops定義パターンを使用します。
-
-```typescript
-// components/task-item.svelte
+```svelte
 <script lang="ts">
-  import type { Task } from '$lib/types';
-
   interface Props {
     task: Task;
     readonly?: boolean;
     onUpdate?: (task: Task) => void;
-    onDelete?: (taskId: string) => void;
   }
-
-  let {
-    task,
-    readonly = false,
-    onUpdate = () => {},
-    onDelete = () => {}
-  }: Props = $props();
-
-  // ローカル状態
-  let isEditing = $state<boolean>(false);
-  let editedTitle = $state<string>(task.title);
-
-  // 派生状態
-  const canEdit = $derived(!readonly && !task.isCompleted);
-
-  function handleSave() {
-    if (editedTitle.trim()) {
-      onUpdate({ ...task, title: editedTitle.trim() });
-      isEditing = false;
-    }
-  }
+  let { task, readonly = false, onUpdate = () => {} }: Props = $props();
 </script>
 ```
 
 ### イベントハンドリング
 
-コールバック関数を優先し、CustomEventは必要時のみ使用します。
+- **コールバック関数を優先** (props 経由で受け取る)
+- CustomEvent (`createEventDispatcher`) は必要時のみ使用 (例: イベントを複数階層で透過する場合)
 
-```typescript
-// 推奨: コールバック関数
-<script lang="ts">
-  interface Props {
-    onTaskComplete: (taskId: string) => void;
-    onTaskEdit: (task: Task) => void;
-  }
+### スニペット (Snippet)
 
-  let { onTaskComplete, onTaskEdit }: Props = $props();
-</script>
+子コンテンツの受け渡しは `Snippet` 型を使用する。Modal や Layout 系コンポーネントで活用。`{@render children()}` / `{#snippet name()}...{/snippet}` で記述。
 
-<button onclick={() => onTaskComplete(task.id)}>
-  Complete
-</button>
+実装参照: `src/lib/components/shared/modal.svelte` (該当があれば)
 
-<!-- 必要時のみCustomEvent -->
-<script lang="ts">
-  import { createEventDispatcher } from 'svelte';
+### コンポーネントからのバックエンド呼び出し
 
-  const dispatch = createEventDispatcher<{
-    taskUpdated: { task: Task; changes: Partial<Task> };
-  }>();
+❌ コンポーネントから `invoke` 直呼び出しや Infrastructure import は禁止
+✅ Services 層 (`$lib/services/domain/...`) のみ呼び出す
 
-  function handleUpdate(changes: Partial<Task>) {
-    const updatedTask = { ...task, ...changes };
-    dispatch('taskUpdated', { task: updatedTask, changes });
-  }
-</script>
-```
-
-### スニペット（Snippet）
-
-子コンテンツの渡しにはSnippet型を使用します。
-
-```typescript
-// components/modal.svelte
-<script lang="ts">
-  import type { Snippet } from 'svelte';
-
-  interface Props {
-    title: string;
-    isOpen: boolean;
-    onClose: () => void;
-    children: Snippet;
-    actions?: Snippet;
-  }
-
-  let { title, isOpen, onClose, children, actions }: Props = $props();
-</script>
-
-{#if isOpen}
-  <div class="modal-overlay" onclick={onClose}>
-    <div class="modal-content" onclick={(e) => e.stopPropagation()}>
-      <header class="modal-header">
-        <h2>{title}</h2>
-        <button onclick={onClose}>×</button>
-      </header>
-
-      <main class="modal-body">
-        {@render children()}
-      </main>
-
-      {#if actions}
-        <footer class="modal-actions">
-          {@render actions()}
-        </footer>
-      {/if}
-    </div>
-  </div>
-{/if}
-```
-
-使用例：
-
-```svelte
-<Modal title="Edit Task" isOpen={isModalOpen} onClose={() => (isModalOpen = false)}>
-  <TaskForm task={selectedTask} onSave={handleSave} />
-
-  {#snippet actions()}
-    <button onclick={handleCancel}>Cancel</button>
-    <button onclick={handleSave}>Save</button>
-  {/snippet}
-</Modal>
-```
+詳細は [`layers.md`](./layers.md) 参照。
 
 ## リアクティビティのベストプラクティス
 
 ### 1. 状態の最小化
 
-必要最小限の状態のみを$stateで管理し、できる限り$derivedを使用します。
+`$state` で持つのは「真の入力」のみ。導出可能な値は `$derived` を使う。状態を二重に持つと手動同期が必要になり、バグの温床になる。
 
-```typescript
-// 良い例
-class TaskStore {
-  private tasks = $state<Task[]>([]);
+### 2. `$effect` の適切な使用
 
-  get completedTasks() {
-    return $derived(this.tasks.filter((t) => t.status === 'completed'));
-  }
+- 外部システムとの同期にのみ使用
+- 内部状態の更新には使用しない (`$derived` を使う)
 
-  get pendingTasks() {
-    return $derived(this.tasks.filter((t) => t.status === 'pending'));
-  }
-}
+### 3. メモリリーク防止
 
-// 悪い例 - 冗長な状態管理
-class TaskStore {
-  private tasks = $state<Task[]>([]);
-  private completedTasks = $state<Task[]>([]);
-  private pendingTasks = $state<Task[]>([]);
-
-  // 手動で同期が必要 - バグの原因となりやすい
-  addTask(task: Task) {
-    this.tasks.push(task);
-    if (task.status === 'completed') {
-      this.completedTasks.push(task);
-    } else {
-      this.pendingTasks.push(task);
-    }
-  }
-}
-```
-
-### 2. $effectの適切な使用
-
-$effectは外部システムとの同期にのみ使用し、内部状態の更新には使用しません。
-
-```typescript
-// 良い例 - 外部システムとの同期
-$effect(() => {
-  // ローカルストレージとの同期
-  localStorage.setItem('userPreferences', JSON.stringify(preferences));
-});
-
-$effect(() => {
-  // WebSocketとの同期
-  if (isConnected) {
-    websocket.send(JSON.stringify(currentState));
-  }
-});
-
-// 悪い例 - 内部状態の更新（$derivedを使うべき）
-let count = $state(0);
-let doubledCount = $state(0);
-
-$effect(() => {
-  doubledCount = count * 2; // これは$derivedで行うべき
-});
-```
-
-### 3. メモリリークの防止
-
-$effectでリソースを作成する場合は、必ずクリーンアップを行います。
-
-```typescript
-$effect(() => {
-  const eventListener = (event: KeyboardEvent) => {
-    if (event.key === 'Escape') {
-      closeModal();
-    }
-  };
-
-  document.addEventListener('keydown', eventListener);
-
-  // クリーンアップ
-  return () => {
-    document.removeEventListener('keydown', eventListener);
-  };
-});
-```
+`$effect` 内で生成したリソース (event listener / timer / subscription) は必ず return のクリーンアップ関数で解放する。
 
 ## パフォーマンス最適化
 
-### 1. 計算の最適化
+- **重い計算**: `$derived` でメモ化される
+- **条件付きレンダリング**: `{#if}` を使い、不要な要素は完全にレンダリング外へ
+- **リスト**: `{#each items as item (item.id)}` で **必ず key** を指定
 
-複雑な計算は$derivedでメモ化します。
+## エラーハンドリング (UI 層)
 
-```typescript
-class DataStore {
-  private rawData = $state<DataItem[]>([]);
+- ストアに `error` / `loading` 状態を持たせ、コンポーネントで `{#if loading}` / `{:else if error}` / `{:else}` の三状態を扱う
+- Operations サービスでは **楽観的更新 + 失敗時ロールバック** パターン (詳細は [`store-and-service-architecture.md`](./store-and-service-architecture.md) 参照)
 
-  // 重い計算はメモ化される
-  get processedData() {
-    return $derived(
-      this.rawData
-        .filter((item) => item.isActive)
-        .map((item) => ({
-          ...item,
-          computed: heavyComputation(item)
-        }))
-        .sort((a, b) => a.priority - b.priority)
-    );
-  }
-}
-```
+## 関連ドキュメント
 
-### 2. 条件付きレンダリング
-
-不要なレンダリングを避けるため、適切に条件分岐を使用します。
-
-```svelte
-<!-- 良い例 -->
-{#if items.length > 0}
-  <ul>
-    {#each items as item (item.id)}
-      <TaskItem {item} />
-    {/each}
-  </ul>
-{:else}
-  <EmptyState />
-{/if}
-
-<!-- 悪い例 - 常にレンダリングされる -->
-<ul class:hidden={items.length === 0}>
-  {#each items as item (item.id)}
-    <TaskItem {item} />
-  {/each}
-</ul>
-```
-
-## エラーハンドリング
-
-### 1. ストアレベルでのエラー管理
-
-```typescript
-class ApiStore {
-  private data = $state<any[]>([]);
-  private error = $state<string | null>(null);
-  private loading = $state<boolean>(false);
-
-  async fetchData() {
-    this.loading = true;
-    this.error = null;
-
-    try {
-      const result = await api.getData();
-      this.data = result;
-    } catch (err) {
-      this.error = err instanceof Error ? err.message : 'Unknown error';
-      console.error('Failed to fetch data:', err);
-    } finally {
-      this.loading = false;
-    }
-  }
-
-  clearError() {
-    this.error = null;
-  }
-}
-```
-
-### 2. コンポーネントレベルでのエラー表示
-
-```svelte
-<script lang="ts">
-  import { apiStore } from '$lib/stores/api.svelte';
-
-  $effect(() => {
-    apiStore.fetchData();
-  });
-</script>
-
-{#if apiStore.isLoading}
-  <LoadingSpinner />
-{:else if apiStore.hasError}
-  <ErrorMessage
-    message={apiStore.error}
-    onRetry={() => apiStore.fetchData()}
-    onDismiss={() => apiStore.clearError()}
-  />
-{:else}
-  <DataList items={apiStore.data} />
-{/if}
-```
-
-このパターンに従って実装することで、保守性が高く、パフォーマンスに優れたSvelte 5アプリケーションを構築できます。
+- [Store & Service アーキテクチャ](./store-and-service-architecture.md)
+- [レイヤーアーキテクチャ](./layers.md)
+- [コンポーネント実装規約 (rules)](../../rules/frontend.md)

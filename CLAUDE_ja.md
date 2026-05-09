@@ -1,58 +1,29 @@
-# CLAUDE.md
+# CLAUDE.md (日本語版概要)
 
-このファイルは、Claude Code (claude.ai/code) がこのリポジトリのコードを扱う際のガイダンスを提供します。
+このファイルは、Claude Code (claude.ai/code) がこのリポジトリのコードを扱う際の日本語ガイダンス索引です。詳細な指示は `CLAUDE.md` (英語版) を正本とします。
 
 ## レスポンスについて
 
-- 常に**日本語**で回答してください。
-- このファイルを読み込んだら、最初に「✅️ CLAUDE.md loaded」と発言してから、指示に従ってください。
-
-## アプリケーション概要
-
-**Tauri ベースのデスクトップタスク管理アプリケーション**。プロジェクト管理とタスクコラボレーションをサポートします。
-
-**技術スタック**:
-
-- フロントエンド: SvelteKit (SSG) + Svelte 5 + Inlang Paraglide
-- バックエンド: Tauri (Rust) + SQLite + Automerge
-- アーキテクチャ: クリーンアーキテクチャ（Crate 分離）
+- 常に **日本語** で回答してください。
+- このファイルを読み込んだら、最初に「✅️ CLAUDE.md loaded」と発言してから指示に従ってください。
 
 ## 重要な開発ルール
 
-- 何かを修正するように指示された場合、そのソースに関連する部分以外はすぐには修正せず、ユーザーに修正して良いか**必ず許可を求めてください**。
-- 正規表現などによる置換を行う場合、**必ず一度検証**を行って余計な影響が出ないことを確認してから置換を行ってください。
-- コマンドを実行してファイルやディレクトリが存在しないと言われた場合、カレントディレクトリを `pwd` で確認してください。
+- 修正指示時、関連部分以外を勝手に修正せず、必ず許可を求めてください。
+- 正規表現等による置換は、適用前に検証して影響範囲を確認してください。
+- ファイル/ディレクトリが存在しないエラーが出たら `pwd` でカレントディレクトリを確認してください。
 
-## ドキュメント & スキル
+## ドキュメント構成
 
-Claude Code には、よくあるタスクに対応する専門的な**スキル**があります。これらのスキルが詳細なガイダンスを提供します：
+| 種別 | パス | 内容 |
+| --- | --- | --- |
+| 設計 | `docs/ja/develop/design/` | アーキテクチャ、フロントエンド、バックエンド、データ、API |
+| 規約 | `docs/ja/develop/rules/` | コーディング規約、フロントエンド/バックエンド/テスト規約、ワークフロー |
+| 要件 | `docs/ja/develop/requirements/` | パフォーマンス、アクセシビリティ、ユーザビリティ、テスト要件、非機能要件 |
+| コマンド | `docs/ja/develop/commands.md` | 開発コマンド一覧 (要約) |
 
-- **`.claude/skills/frontend-testing/`** - フロントエンドテスト（Vitest、Svelte 5）
-- **`.claude/skills/backend-testing/`** - バックエンドテスト（Rust、cargo）
-- **`.claude/skills/tauri-command/`** - Tauri コマンド実装
-- **`.claude/skills/architecture-review/`** - アーキテクチャ準拠チェック
-- **`.claude/skills/debugging/`** - デバッグ支援
-- **`.claude/skills/i18n/`** - 国際化対応（Inlang Paraglide）
-- **`.claude/skills/documentation/`** - ドキュメント編集（日英両方）
-- **`.claude/skills/coding-standards/`** - コーディング標準チェック
+skills (`.claude/skills/`) はタスク内容に応じて自動的にロードされます。詳細は `CLAUDE.md` の "Skills" セクション参照。
 
-詳細な設計と仕様については、`docs` ディレクトリのドキュメントを参照してください：
+## 注意事項
 
-- **アーキテクチャ & 設計**: `docs/en/develop/design/`
-  - `architecture.md` - 全体アーキテクチャ
-  - `tech-stack.md` - 技術スタックとプロジェクト構造
-  - `frontend/` - フロントエンド設計（Svelte 5、i18n、レイヤーなど）
-  - `backend-tauri/` - バックエンド設計（Rust ガイドライン、トランザクションなど）
-  - `data/` - データ設計（モデル、セキュリティ、Automerge など）
-
-- **開発ルール**: `docs/en/develop/rules/`
-  - `coding-standards.md` - コーディング標準
-  - `frontend.md` - フロントエンドルール
-  - `backend.md` - バックエンドルール
-  - `testing.md` - テストルール
-  - `documentation.md` - ドキュメント編集ルール（**日英両方の更新が必須**）
-
-- **要件定義**: `docs/en/develop/requirements/`
-  - `performance.md`、`security.md`、`testing.md` など
-
-必要に応じてこれらのドキュメントとスキルを参照してください。スキルはタスクに基づいて自動的に起動されます。
+- 本タスク (大規模リファクタリング) では `docs/ja/` を先行更新し、`docs/en/` は別タスクで同期します。一時的に構造が乖離する点に留意してください。

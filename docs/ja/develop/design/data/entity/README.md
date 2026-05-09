@@ -1,108 +1,56 @@
 # エンティティ設計書
 
-Flequitアプリケーションのデータベーススキーマ定義とエンティティ仕様書です。
+Flequit アプリケーションのデータベーススキーマ定義とエンティティ仕様。
 
-## 概要
+## ファイル構成
 
-本ディレクトリには、Flequitで使用される全24テーブルの詳細仕様が個別ファイルとして格納されています。
-各ファイルは統一されたフォーマットでフィールド定義、制約、インデックス、関連テーブルの情報を含んでいます。
+| ファイル | 内容 |
+| --- | --- |
+| [`_template.md`](./_template.md) | 各エンティティの記述テンプレート (フォーマット定義) |
+| [`accounts-and-users.md`](./accounts-and-users.md) | `accounts`, `users` |
+| [`projects.md`](./projects.md) | `projects`, `task_lists`, `tasks`, `subtasks`, `tags`, `tag_bookmarks`, `members`, `task_assignments`, `subtask_assignments`, `task_tags`, `subtask_tags`, `task_recurrences`, `subtask_recurrences`, `date_conditions`, `weekday_conditions` |
+| [`settings.md`](./settings.md) | `settings`, `datetime_formats`, `due_date_buttons`, `recurrence_rules`, `recurrence_details`, `time_labels`, `view_items` |
+| [`user-preferences.md`](./user-preferences.md) | `user_tag_bookmarks` (ユーザー個人設定) |
 
-## 主要スキーマ
+## 主要スキーマカテゴリ
 
-### 🏢 accounts - アカウント管理
+### accounts — アカウント管理
 
-アカウント内部識別子と認証プロバイダー情報を管理する基盤スキーマ。
-ユーザーIDとは分離された内部管理用エンティティで、認証システムの中核を担います。
-LocalSQLite、LocalAutomergeでは完全に秘匿するべき内容で、どことも同期せずにそのPC内で完結すべきです。
-また、暗号化要件を必須とします。
-OSの認証システムを利用した場合のみ暗号化が解除されます。
+`AccountId` は内部識別子で他者から参照不可。`UserId` と分離。LocalSQLite/LocalAutomerge では完全秘匿し、PC 内で完結する。暗号化必須。
 
-**ファイル名**
-LocalSQLite: ./accounts.database
-LocalAutomerge: ./accounts.automerge
+- 物理ファイル: `./accounts.database` / `./accounts.automerge`
 
-### 👥 users - ユーザー情報
+### users — ユーザー情報
 
-公開ユーザー情報を管理するスキーマ。
-他者から参照可能な公開識別子を持ち、プロジェクトメンバーシップやタスク担当者として使用されます。
-他人から参照されることをOKとします。
+公開識別子 `UserId` を持つ。プロジェクトメンバーやタスク担当者として使用される。
 
-**ファイル名**
-LocalSQLite: ./users.database
-LocalAutomerge: ./users.automerge
+- 物理ファイル: `./users.database` / `./users.automerge`
 
-### 📁 projects - プロジェクト管理
+### projects — プロジェクト管理
 
-プロジェクト管理の基本エンティティ。
-タスクやメンバーの親コンテナとして機能し、全てのタスク管理活動の基本単位となります。
-プロジェクト遂行に必要な情報は全てこの中に集約します。
+プロジェクト遂行に必要な情報をすべて集約。プロジェクト単位で 1 ファイル。
 
-**ファイル名**
-LocalSQLite: ./projects/{project_id}.database
-LocalAutomerge: ./projects/{project_id}.automerge
-※プロジェクトごとに1ファイル
+- 物理ファイル: `./projects/{project_id}.database` / `./projects/{project_id}.automerge`
 
-### ⚙️ settings - 汎用設定
+### settings — 汎用設定
 
-ユーザー設定に関するスキーマ。
+アプリ全体の設定。
 
-**ファイル名**
-LocalSQLite: ./settings.database
-LocalAutomerge: ./settings.automerge
-
-## ファイル構造
-
-各エンティティファイルは以下の統一フォーマットで記述されています：
-
-```markdown
-# エンティティ名 (日本語名) - テーブル名
-
-## 概要
-
-エンティティの役割と用途の説明
-
-## フィールド定義
-
-フィールド定義テーブル（論理名、物理名、型、制約等）
-
-## 制約
-
-主キー、外部キー、制約情報
-
-## インデックス
-
-パフォーマンス最適化用インデックス定義
-
-## 関連テーブル
-
-他テーブルとの関係性
-
-## 備考
-
-設計上の注意点や特記事項
-```
+- 物理ファイル: `./settings.database` / `./settings.automerge`
 
 ## 型システム
 
-全エンティティは統一された型システムを使用します：
+| 種別 | 例 |
+| --- | --- |
+| ID 型 | `ProjectId`, `AccountId`, `UserId` 等 (専用型) |
+| 日時 | `DateTime<Utc>` (ISO 8601) |
+| Optional | `Option<T>` (NULL 許可) |
+| 文字列・数値 | `String`, `i32`, `bool` |
 
-- **ID型**: 専用型（ProjectId, AccountId, UserId等）
-- **日時型**: `DateTime<Utc>` (ISO 8601形式)
-- **Optional型**: `Option<T>` (NULL許可)
-- **文字列型**: `String`
-- **数値型**: `i32`, `bool`
+詳細な型変換規則は [`../data-model.md`](../data-model.md) を参照。
 
-詳細な型変換規則については `../data-model.md` の型変換表を参照してください。
+## 設計の方針
 
-## 使用方法
-
-1. **新規エンティティ追加**: `__entity_example.md` テンプレートを参考に作成
-2. **既存エンティティ修正**: 該当ファイルを直接編集
-3. **関係性確認**: 各ファイルの「関連テーブル」セクションを参照
-4. **インデックス設計**: 各ファイルの「インデックス」セクションのSQL文を使用
-
-## 参考資料
-
-- `__entity_example.md`: エンティティファイル作成テンプレート
-- `../data-model.md`: 型変換表とシステム全体仕様
-- `../data-structure.md`: Automerge CRDT設計仕様
+- 各エンティティは「フィールド定義 + 制約 + インデックス対象カラム + 関連 + 必要時の補足」のみを記述する。
+- SQL DDL、Sea-ORM コード、TypeScript インターフェース、Rust サービスコードは **このドキュメント群に置かない**。実装は `src-tauri/crates/flequit-infrastructure-sqlite/` を正本とする。
+- 新規エンティティを追加する際は `_template.md` のフォーマットに従って該当統合ファイルへ追記する。

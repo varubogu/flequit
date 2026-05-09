@@ -1,16 +1,14 @@
-# Store and Service Architecture
+# Store & Service アーキテクチャ
 
-**作成日**: 2025-12-09
-**最終更新**: 2025-12-09
-**ステータス**: ✅ 実装完了
+フロントエンドにおける **状態管理 (Store)** と **ビジネスロジック (Service)** の責務分離・設計指針を定義する。
 
-## 概要
+## 目的
 
-このドキュメントでは、Flequitアプリケーションにおける**状態管理 (Store)** と**ビジネスロジック (Service)** の役割分担と設計指針を説明します。
+- ストアをアプリ全体の「リアクティブ状態キャッシュ」として統一的に扱い、副作用はサービス層へ移譲する。
+- 依存関係と初期化順序を明確化し、循環参照や初期化順序起因のバグを防ぐ。
+- テスト容易性・差し替え可能性を確保しつつ、運用負荷を最小限に抑える。
 
-## アーキテクチャ原則
-
-### 責務の明確な分離
+## レイヤー構成
 
 ```
 UIコンポーネント (.svelte)
@@ -20,362 +18,123 @@ Services (ビジネスロジック)
     └─→ Backend (バックエンド通信)
 ```
 
-## レイヤー構成
-
 ### Layer 1: Stores (状態管理)
 
-**責務**:
+**責務**: アプリケーション状態の保持、リアクティブな状態の提供、状態の読み取り/ローカル書き込み操作。
 
-- アプリケーション状態の保持
-- リアクティブな状態の提供
-- 状態の読み取り専用操作
+**重要**: Stores は **状態管理のみ** を担当し、ビジネスロジックやバックエンド通信は行わない。
 
-**重要**: Stores は**状態管理のみ**を担当し、ビジネスロジックやバックエンド通信は行いません。
-
-**例**: [stores/task-core-store.svelte.ts](src/lib/stores/task-core-store.svelte.ts:1)
-
-```typescript
-export class TaskCoreStore {
-  projects = $state<ProjectTree[]>([]);
-
-  // 状態の読み取り
-  getTaskById(taskId: string): TaskWithSubTasks | null {
-    // プロジェクトツリーから検索
-  }
-
-  // ローカル状態の操作（バックエンドは呼ばない）
-  insertTask(listId: string, task: TaskWithSubTasks): TaskWithSubTasks | null {
-    // メモリ内のprojects配列に追加
-  }
-}
-```
+実装参照: `src/lib/stores/task-core-store.svelte.ts`, `src/lib/stores/tasks.svelte.ts`
 
 ### Layer 2: Services - Operations (ビジネスロジック)
 
-**責務**:
+**責務**: ビジネスルールの実装、楽観的更新 (Optimistic Update)、エラーハンドリング、Stores と Backend の調整。
 
-- ビジネスルールの実装
-- 楽観的更新 (Optimistic Update)
-- エラーハンドリング
-- Stores と Backend の調整
-
-**例**: [services/domain/task/task-operations.ts](src/lib/services/domain/task/task-operations.ts:1)
-
-```typescript
-export class TaskOperations {
-  async addTask(
-    listId: string,
-    taskData: Partial<TaskWithSubTasks>
-  ): Promise<TaskWithSubTasks | null> {
-    // 1. ローカル状態に楽観的に追加
-    const inserted = taskCoreStore.insertTask(listId, newTask);
-
-    try {
-      // 2. バックエンドに永続化
-      await TaskBackend.createTaskWithSubTasks(listId, inserted);
-      return inserted;
-    } catch (error) {
-      // 3. 失敗時はロールバック
-      taskCoreStore.removeTask(inserted.id);
-      errorHandler.addSyncError('タスク作成', 'task', inserted.id, error);
-      return null;
-    }
-  }
-}
-```
+実装参照: `src/lib/services/domain/task/task-operations.ts`
 
 ### Layer 3: Services - Backend (バックエンド通信)
 
-**責務**:
+**責務**: バックエンド API の呼び出し、データ永続化、バックエンドエラーのハンドリング。
 
-- バックエンドAPIの呼び出し
-- データの永続化
-- バックエンドエラーのハンドリング
+**重要**: Backend サービスはローカル状態 (Store) を操作しない。
 
-**重要**: Backend サービスはローカル状態 (Store) を操作しません。
+実装参照: `src/lib/services/domain/task/task-backend.ts`
 
-**例**: [services/domain/task/task-backend.ts](src/lib/services/domain/task/task-backend.ts:1)
+### Layer (Optional): Services - UI
 
-```typescript
-export const TaskBackend = {
-  async createTask(listId: string, taskData: Task): Promise<Task> {
-    const backend = await resolveBackend();
-    await backend.task.create(projectId, newTask, getCurrentUserId());
-    return newTask;
-  }
-};
-```
+UI 層特有の複雑な操作（モード切り替え、ドラフト管理など）は `services/ui/` に配置できる。
 
-## 具体例: タスク管理
+実装参照: `src/lib/services/ui/task/task-interactions.ts`
 
-### ディレクトリ構成
+## ストア分類と責務
 
-```
-src/lib/
-├── stores/                          # 状態管理
-│   ├── task-core-store.svelte.ts   # タスクの状態管理
-│   └── tasks.svelte.ts              # Facade
-│
-├── services/
-│   ├── domain/                      # ビジネスロジック
-│   │   └── task/
-│   │       ├── task-operations.ts   # タスク操作の統合
-│   │       └── task-backend.ts      # バックエンド通信
-│   │
-│   └── ui/                          # UI層のサービス
-│       └── task/
-│           └── task-interactions.ts # UI特有の操作
-```
+| 区分                            | 主な責務                                           | 依存関係                                       |
+| ------------------------------- | -------------------------------------------------- | ---------------------------------------------- |
+| Domain Store                    | ドメイン状態の保持・派生値の提供。副作用なし。     | 同一ドメインのユーティリティ (`utils`/`types`) |
+| UI Store                        | ビュー状態（選択・フィルタ・ダイアログ等）の管理。 | Domain Store（片方向）                         |
+| Infrastructure Store (必要時)   | 環境情報・バックエンド種別の保持。                 | どの層からも参照可。ロジックは持たない。       |
 
-### 呼び出しフロー
+## 楽観的更新パターン
 
-#### ケース1: タスクを作成する
+すべての変更操作はこのパターンに従う:
 
-```typescript
-// UIコンポーネント
-import { taskOperations } from '$lib/services/domain/task';
+1. 現在の状態をスナップショット
+2. ローカル状態を即座に更新（楽観的更新）
+3. バックエンドに永続化を試行
+4. 失敗時はスナップショットから状態を復元し、`errorHandler` でエラー記録
 
-async function handleAddTask() {
-  // UIから直接 Operations を呼び出す
-  const newTask = await taskOperations.addTask(listId, {
-    title: 'New Task',
-    description: 'Description'
-  });
-}
-```
-
-```typescript
-// TaskOperations (services/domain/task/task-operations.ts)
-async addTask(listId: string, taskData: Partial<TaskWithSubTasks>): Promise<TaskWithSubTasks | null> {
-  // 1. ローカル状態を楽観的に更新
-  const inserted = this.#deps.taskCoreStore.insertTask(listId, newTask);
-
-  try {
-    // 2. バックエンドに永続化
-    await TaskBackend.createTaskWithSubTasks(listId, inserted);
-    return inserted;
-  } catch (error) {
-    // 3. エラー時はロールバック
-    this.#deps.taskCoreStore.removeTask(inserted.id);
-    this.#deps.errorHandler.addSyncError('タスク作成', 'task', inserted.id, error);
-    return null;
-  }
-}
-```
-
-#### ケース2: タスクを更新する
-
-```typescript
-// UIコンポーネント
-import { taskOperations } from '$lib/services/domain/task';
-
-async function handleUpdateTask() {
-  await taskOperations.updateTask(taskId, {
-    title: 'Updated Title'
-  });
-}
-```
-
-```typescript
-// TaskOperations
-async updateTask(taskId: string, updates: Partial<Task>): Promise<void> {
-  // 1. 現在の状態をスナップショット
-  const snapshot = cloneTask(currentTask);
-
-  // 2. ローカル状態を楽観的に更新
-  this.#deps.taskCoreStore.applyTaskUpdate(taskId, (task) => {
-    Object.assign(task, updates);
-  });
-
-  try {
-    // 3. バックエンドに永続化
-    await TaskBackend.updateTaskWithSubTasks(projectId, taskId, updates);
-  } catch (error) {
-    // 4. エラー時はスナップショットから復元
-    this.#deps.taskCoreStore.applyTaskUpdate(taskId, (task) => {
-      Object.assign(task, snapshot);
-    });
-    this.#deps.errorHandler.addSyncError('タスク更新', 'task', taskId, error);
-  }
-}
-```
-
-## 命名規則
-
-### Stores
-
-- **ファイル名**: `{entity}-store.svelte.ts` (例: `task-core-store.svelte.ts`)
-- **クラス名**: `{Entity}Store` (例: `TaskCoreStore`)
-- **メソッド命名**:
-  - 読み取り: `getTaskById()`, `getTasksByListId()`
-  - 書き込み: `insertTask()`, `removeTask()`, `applyTaskUpdate()`
-  - 明示的に「ローカル操作」であることを示す
-
-### Services - Operations
-
-- **ファイル名**: `{entity}-operations.ts` (例: `task-operations.ts`)
-- **クラス名**: `{Entity}Operations` (例: `TaskOperations`)
-- **メソッド命名**:
-  - CRUD: `addTask()`, `updateTask()`, `deleteTask()`
-  - ビジネス操作: `toggleTaskStatus()`, `moveTaskToList()`
-
-### Services - Backend
-
-- **ファイル名**: `{entity}-backend.ts` (例: `task-backend.ts`)
-- **オブジェクト名**: `{Entity}Backend` (例: `TaskBackend`)
-- **メソッド命名**:
-  - `createTask()`, `updateTask()`, `deleteTask()`
-  - バックエンドAPIの操作を直接的に表現
-
-## 楽観的更新 (Optimistic Update) パターン
-
-すべての変更操作は以下のパターンに従います:
-
-```typescript
-async function operation() {
-  // 1. スナップショットを作成 (更新の場合)
-  const snapshot = cloneCurrentState();
-
-  // 2. ローカル状態を即座に更新 (楽観的更新)
-  store.updateLocalState(newData);
-
-  try {
-    // 3. バックエンドに永続化
-    await backend.persistData(newData);
-  } catch (error) {
-    // 4. エラー時はロールバック
-    store.restoreState(snapshot);
-    errorHandler.addError(error);
-  }
-}
-```
+実装参照: `src/lib/services/domain/task/task-operations.ts` の `addTask` / `updateTask`
 
 ### メリット
 
-- **ユーザー体験の向上**: UIが即座に反応
-- **データ整合性**: エラー時の自動ロールバック
-- **デバッグ容易性**: エラーハンドリングが一箇所に集約
+- ユーザー体験の向上: UI が即座に反応
+- データ整合性: エラー時の自動ロールバック
+- デバッグ容易性: エラーハンドリングが一箇所に集約
+
+## 初期化規則
+
+1. `initStores()` で全ストアを生成し、初期状態を構築する。
+2. ストア生成時、必要なサービスへ依存注入を行う（例: `configureMutations`）。
+3. アプリエントリ（`src/hooks.client.ts` やレイアウトコンポーネント）で `initStores()` を一度だけ呼ぶ。
+4. テスト用には `initStoresForTest()` / `resetStores()` を用意し、任意のストアのみ生成・リセット可能にする。
+
+## 依存注入ガイドライン
+
+- **ストア → サービス の直接 import は禁止**。サービスはコンストラクタ／ファクトリ経由でストアを受け取る。
+- **サービス → ストア の依存注入はブートストラップ関数内で一括実施**。ランタイムでの循環参照を回避。
+- ストア間で依存が必要な場合は、`constructor` 引数で受け取り、既定値は初期化フェーズで注入する。
+
+## コンポーネントでの利用パターン
+
+- ルート（または上位コンポーネント）がストアインスタンスを Props または Context で子へ渡す。
+- 子コンポーネントは受け取ったストアを `$derived` / `$state` などの Rune に接続して購読する。
+- グローバル import は初期化フェーズのみ。実行時は渡されたインスタンスを使用する。
 
 ## Facade パターン
 
-複雑な Store は Facade パターンで統合します。
+複雑な Store は Facade パターンで統合する（例: `TaskStore` が `TaskEntitiesStore` / `TaskSelectionStore` / `TaskDraftStore` を内部に持ち、公開 API は委譲）。
 
-**例**: [stores/tasks.svelte.ts](src/lib/stores/tasks.svelte.ts:1)
+実装参照: `src/lib/stores/tasks.svelte.ts`
 
-```typescript
-export class TaskStore {
-  #entities: TaskEntitiesStore; // エンティティ管理
-  #selection: TaskSelectionStore; // 選択状態
-  #draft: TaskDraftStore; // ドラフト状態
+## 命名・配置
 
-  // 公開APIは内部ストアに委譲
-  get projects(): ProjectTree[] {
-    return this.#entities.projects;
-  }
+| 種別             | パス                                       | 例                            |
+| ---------------- | ------------------------------------------ | ----------------------------- |
+| Domain Store     | `stores/<domain>/<domain>-store.svelte.ts` | `task-core-store.svelte.ts`   |
+| UI Store         | `stores/ui/<feature>-store.svelte.ts`      | -                             |
+| Service: Operations | `services/domain/<entity>/<entity>-operations.ts` | `task-operations.ts`   |
+| Service: Backend | `services/domain/<entity>/<entity>-backend.ts`    | `task-backend.ts`      |
+| Service: UI      | `services/ui/<entity>/<entity>-interactions.ts`   | `task-interactions.ts` |
+| 初期化           | `init/` または `services/bootstrap/`        | -                             |
 
-  getTaskById(taskId: string): TaskWithSubTasks | null {
-    return this.#selection.getTaskById(taskId);
-  }
-}
-```
+### メソッド命名
 
-## UI特有のサービス (Optional)
-
-UI層特有の複雑な操作は、`services/ui/` に配置することができます。
-
-**例**: [services/ui/task/task-interactions.ts](src/lib/services/ui/task/task-interactions.ts:1)
-
-```typescript
-export class TaskInteractionsService {
-  // 新規タスクモードの開始/キャンセル
-  startNewTaskMode(listId: string): void {
-    /* ... */
-  }
-  cancelNewTaskMode(): void {
-    /* ... */
-  }
-
-  // ドラフトタスクの保存
-  async saveNewTask(): Promise<string | null> {
-    const draft = this.#deps.draft.newTaskDraft;
-    const newTask = await this.#deps.taskOperations.addTask(draft.listId, draft);
-    // ...
-  }
-}
-```
+- **Stores 読み取り**: `getTaskById()`, `getTasksByListId()`
+- **Stores 書き込み**: `insertTask()`, `removeTask()`, `applyTaskUpdate()`（明示的にローカル操作と分かる名前）
+- **Operations**: CRUD は `addTask()` / `updateTask()` / `deleteTask()`。ビジネス操作は `toggleTaskStatus()` 等。
+- **Backend**: `createTask()` / `updateTask()` / `deleteTask()`（バックエンド API の操作を直接表現）
 
 ## ベストプラクティス
 
 ### ✅ 推奨
 
-1. **UIから直接 Operations を呼び出す**
-
-   ```typescript
-   import { taskOperations } from '$lib/services/domain/task';
-   await taskOperations.addTask(listId, taskData);
-   ```
-
-2. **Store は状態管理のみ**
-
-   ```typescript
-   // ✅ 良い例
-   class TaskCoreStore {
-     insertTask(listId: string, task: TaskWithSubTasks) {
-       // ローカル配列に追加するだけ
-     }
-   }
-   ```
-
-3. **Backend は永続化のみ**
-   ```typescript
-   // ✅ 良い例
-   const TaskBackend = {
-     async createTask(listId: string, task: Task) {
-       // バックエンドAPIを呼ぶだけ
-     }
-   };
-   ```
+1. **UI から直接 Operations を呼び出す**（Store/Backend を直接呼ばない）
+2. **Store は状態管理のみ**（バックエンド呼び出しを含めない）
+3. **Backend は永続化のみ**（Store を操作しない）
 
 ### ❌ 非推奨
 
-1. **Store からバックエンドを呼ぶ**
+- Store からバックエンドを呼ぶ
+- Backend から Store を操作する
+- UI から直接 Backend を呼ぶ（エラーハンドリングやロールバックが欠落する）
 
-   ```typescript
-   // ❌ 悪い例
-   class TaskStore {
-     async addTask() {
-       const backend = await resolveBackend();  // NG!
-       await backend.task.create(...);
-     }
-   }
-   ```
+## テスト指針
 
-2. **Backend から Store を操作する**
+- 各ストアに `reset()` などの初期化メソッドを持たせ、テスト間で状態が混ざらないようにする。
+- ルート注入パターンに合わせ、テストではモックストアを Props/Context から注入する。
+- ストア単体テストでは外部サービス依存をモック化し、純粋な状態変換／派生ロジックのみを検証する。
 
-   ```typescript
-   // ❌ 悪い例
-   const TaskBackend = {
-     async createTask() {
-       await backend.task.create(...);
-       taskStore.insertTask(...);  // NG!
-     }
-   }
-   ```
+## 例外・イベント処理
 
-3. **UI から直接 Backend を呼ぶ**
-   ```typescript
-   // ❌ 悪い例
-   async function handleAddTask() {
-     await TaskBackend.createTask(...);  // NG!
-     // エラーハンドリングやロールバックがない
-   }
-   ```
-
-## まとめ
-
-- **Stores**: 状態管理のみ。リアクティブな状態を提供。
-- **Operations**: ビジネスロジック。楽観的更新、エラーハンドリング、Store と Backend の調整。
-- **Backend**: バックエンド通信のみ。データの永続化。
-- **UI**: Operations を直接呼び出す。シンプルで明快。
-
-この設計により、各レイヤーの責務が明確になり、保守性と拡張性が向上します。
+- ストア内でグローバルイベントへ直接登録しない。必要な場合はサービス層がイベントを受け取り、ストアを更新する。
+- エラーは例外で上げず、`errorStore` など共通ハンドラへ委譲する。

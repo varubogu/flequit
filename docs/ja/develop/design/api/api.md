@@ -1,235 +1,113 @@
-# API設計書
+# Web API 設計書
+
+Flequit の Web バックエンド (将来実装) の API 設計。現状は Tauri バックエンドが主で、本書は将来 Web 同期を実装する際の指針。
 
 ## 1. 基本設計
 
-### 1.1 API概要
+| 項目 | 内容 |
+| --- | --- |
+| 形式 | RESTful API |
+| 通信 | JSON |
+| プロトコル | HTTPS |
+| 認証 | Bearer (JWT) |
+| ベース URL | `https://api.flequit.com` |
+| バージョニング | パスプレフィックス `/v1` |
+| リソースパス | `/{resource}` |
 
-- RESTful API
-- JSONベースの通信
-- HTTPSによる暗号化
-- Bearer認証
+### リクエストヘッダー
 
-### 1.2 エンドポイント構造
+- `Authorization: Bearer {token}`
+- `Content-Type: application/json`
+- `Accept-Language: ja-JP` 等
 
-- ベースURL: `https://api.flequit.com`
-- バージョニング: `/v1`
-- リソースパス: `/{resource}`
-- 例：`https://api.flequit.com/v1/auth/login`
+### レスポンスフォーマット (共通)
 
-### 1.3 共通仕様
+`status` (`success` / `error`) + `data` (成功時) + `error` (`code` + `message`) の構造。
 
-- リクエストヘッダー
-  - `Authorization: Bearer {token}`
-  - `Content-Type: application/json`
-  - `Accept-Language: ja-JP`
-- レスポンスフォーマット
+## 2. 認証 API
 
-  ```json
-  {
-    "status": "success|error",
-    "data": {},
-    "error": {
-      "code": "ERROR_CODE",
-      "message": "エラーメッセージ"
-    }
-  }
-  ```
+| エンドポイント | 説明 | 主リクエスト | 主レスポンス |
+| --- | --- | --- | --- |
+| `POST /v1/auth/login` | ログイン | `email`, `password` | `access_token`, `refresh_token`, `expires_in` |
+| `POST /v1/auth/refresh` | トークン更新 | `refresh_token` | `access_token`, `expires_in` |
 
-## 2. 認証API
+## 3. 同期 API
 
-### 2.1 ユーザー認証
-
-```shell
-POST /v1/auth/login
-```
-
-- リクエスト
-
-  ```json
-  {
-    "email": "string",
-    "password": "string"
-  }
-  ```
-
-- レスポンス
-
-  ```json
-  {
-    "access_token": "string",
-    "refresh_token": "string",
-    "expires_in": "number"
-  }
-  ```
-
-### 2.2 トークン更新
-
-```shell
-POST /v1/auth/refresh
-```
-
-- リクエスト
-
-  ```json
-  {
-    "refresh_token": "string"
-  }
-  ```
-
-- レスポンス
-
-  ```json
-  {
-    "access_token": "string",
-    "expires_in": "number"
-  }
-  ```
-
-## 3. 同期API
-
-### 3.1 タスク同期
-
-```shell
-POST /v1/sync/tasks
-```
-
-- リクエスト
-
-  ```json
-  {
-    "last_sync_timestamp": "string",
-    "changes": [
-      {
-        "id": "string",
-        "type": "create|update|delete",
-        "timestamp": "string",
-        "data": {}
-      }
-    ]
-  }
-  ```
-
-- レスポンス
-
-  ```json
-  {
-    "sync_timestamp": "string",
-    "changes": [
-      {
-        "id": "string",
-        "type": "create|update|delete",
-        "timestamp": "string",
-        "data": {}
-      }
-    ],
-    "conflicts": [
-      {
-        "id": "string",
-        "server_version": {},
-        "client_version": {}
-      }
-    ]
-  }
-  ```
-
-### 3.2 同期状態確認
-
-```shell
-GET /v1/sync/status
-```
-
-- レスポンス
-
-  ```json
-  {
-    "last_sync_timestamp": "string",
-    "pending_changes": "number"
-  }
-  ```
+| エンドポイント | 説明 | 主リクエスト | 主レスポンス |
+| --- | --- | --- | --- |
+| `POST /v1/sync/tasks` | タスク同期 (差分送受信) | `last_sync_timestamp`, `changes[{ id, type, timestamp, data }]` (type は create/update/delete) | `sync_timestamp`, `changes[]`, `conflicts[{ id, server_version, client_version }]` |
+| `GET /v1/sync/status` | 同期状態確認 | - | `last_sync_timestamp`, `pending_changes` |
 
 ## 4. エラー処理
 
-### 4.1 エラーコード
+### エラーコード体系
 
-- 認証エラー
-  - `AUTH_001`: 認証情報が無効
-  - `AUTH_002`: トークンの有効期限切れ
-- 同期エラー
-  - `SYNC_001`: 同期の競合
-  - `SYNC_002`: 無効なタイムスタンプ
-- 一般エラー
-  - `GENERAL_001`: サーバーエラー
-  - `GENERAL_002`: 無効なリクエスト
+| カテゴリ | コード | 内容 |
+| --- | --- | --- |
+| 認証 | `AUTH_001` | 認証情報が無効 |
+| 認証 | `AUTH_002` | トークンの有効期限切れ |
+| 同期 | `SYNC_001` | 同期の競合 |
+| 同期 | `SYNC_002` | 無効なタイムスタンプ |
+| 一般 | `GENERAL_001` | サーバーエラー |
+| 一般 | `GENERAL_002` | 無効なリクエスト |
 
-### 4.2 エラーレスポンス
+### エラーレスポンス
 
-```json
-{
-  "status": "error",
-  "error": {
-    "code": "ERROR_CODE",
-    "message": "エラーの詳細メッセージ",
-    "details": {}
-  }
-}
-```
+`status: "error"` + `error: { code, message, details? }` の構造。
 
 ## 5. セキュリティ
 
-### 5.1 認証・認可
+### 認証・認可
 
-- JWTベースの認証
-- アクセストークンの有効期限: 1時間
-- リフレッシュトークンの有効期限: 30日
+- JWT ベース
+- アクセストークン有効期限: **1 時間**
+- リフレッシュトークン有効期限: **30 日**
 
-### 5.2 不正アクセス対策
+### 不正アクセス対策
 
-- リクエスト元IPアドレスの監視
+- リクエスト元 IP アドレスの監視
 - 異常なリクエストパターンの検出
-- アカウントロックアウト
-  - ログイン試行回数制限
-  - 一時的なアカウントロック
+- アカウントロックアウト (ログイン試行回数制限 + 一時的ロック)
 
 ## 6. パフォーマンス最適化
 
-### 6.1 データ圧縮
+### データ圧縮
 
-- gzip圧縮の利用
+- gzip 圧縮の利用
 - 大規模データの分割送信
 - バッチ処理の最適化
 
-### 6.2 キャッシュ戦略
+### キャッシュ戦略
 
-- ETAGの利用
+- ETag の利用
 - 条件付きリクエスト
 - キャッシュヘッダーの適切な設定
 
-## 7. APIドキュメント
+## 7. API ドキュメント
 
-### 7.1 OpenAPI仕様
+### OpenAPI 仕様
 
-- OpenAPI 3.0形式
-- SwaggerUIによる対話的ドキュメント
-- APIエンドポイントの完全な定義
-- リクエスト/レスポンスの例示
+- OpenAPI 3.0 形式
+- SwaggerUI による対話的ドキュメント
+- 全エンドポイントの完全な定義 + リクエスト/レスポンスの例示
 
-### 7.2 開発者ポータル
+### 開発者ポータル
 
-- APIリファレンス
+- API リファレンス
 - 認証ガイド
 - サンプルコード
 - トラブルシューティング
 
 ## 8. 変更管理
 
-### 8.1 バージョニング方針
+### バージョニング方針 (Semantic Versioning)
 
-- メジャーバージョン: 互換性のない変更
-- マイナーバージョン: 後方互換性のある機能追加
-- パッチバージョン: バグ修正
+- **メジャー**: 互換性のない変更
+- **マイナー**: 後方互換性のある機能追加
+- **パッチ**: バグ修正
 
-### 8.2 非推奨化プロセス
+### 非推奨化プロセス
 
-- 非推奨の告知期間: 6か月
+- 非推奨の告知期間: **6 ヶ月**
 - 移行ガイドの提供
-- 旧バージョンのサポート期間
+- 旧バージョンのサポート期間を明記

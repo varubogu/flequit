@@ -6,7 +6,7 @@ PR運用の基本ルール:
 
 - 変更の設計判断に関係する場合、ドキュメント変更を同梱（該当なしはN/Aを明記）
 - PR説明に「適用パターン/回避アンチパターン」を記述（PRテンプレ参照）
-- レビューチェックリストを満たすこと（component-patterns / anti-patterns 参照）
+- レビューチェックリストを満たすこと（`docs/ja/develop/design/frontend/svelte5-patterns.md` 参照）
 
 手順の過程でエラーが発生した場合、解消後に次工程に進む
 

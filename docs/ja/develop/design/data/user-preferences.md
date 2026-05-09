@@ -1,202 +1,90 @@
-# User Preferences（ユーザー設定）
+# User Preferences (ユーザー設定)
 
-## 概要
+ユーザーの個人作業環境設定を管理するカテゴリ。プロジェクトデータ (チーム共有) とは独立し、同じユーザーの複数端末間でのみ同期される。
 
-ユーザーの個人作業環境設定を管理するカテゴリ。プロジェクトデータ（チーム共有）とは独立し、同じユーザーの複数端末間でのみ同期される。
+## 位置づけ: データカテゴリの分類
 
-## 位置づけ
+| カテゴリ | 目的 | 同期対象 | Automerge | 例 |
+| --- | --- | --- | --- | --- |
+| `accounts` | 認証情報 | - | なし | ユーザープロフィール |
+| `user_preferences` | 個人作業環境 | 同じユーザーの他端末 | あり | タグブックマーク、UI 設定 |
+| `projects` | プロジェクトデータ | チームメンバー全員 | あり | タスク、タグ、プロジェクト |
 
-### データカテゴリの分類
-
-| カテゴリ           | 目的               | 同期対象             | Automerge | 例                         |
-| ------------------ | ------------------ | -------------------- | --------- | -------------------------- |
-| `accounts`         | 認証情報           | -                    | なし      | ユーザープロフィール       |
-| `user_preferences` | 個人作業環境       | 同じユーザーの他端末 | あり      | タグブックマーク、UI設定   |
-| `projects`         | プロジェクトデータ | チームメンバー全員   | あり      | タスク、タグ、プロジェクト |
-
-### user_preferences の特徴
+### `user_preferences` の特徴
 
 1. **個人専用**: 他のユーザーとは共有しない
 2. **端末間同期**: 同じユーザーの複数端末で同期
-3. **プロジェクト依存**: 多くの設定はプロジェクトIDをキーとして管理
+3. **プロジェクト依存**: 多くの設定は `project_id` をキーとして管理
 4. **ローカル永続化**: SQLite + Automerge
 
-## Automergeドキュメント構造
+## Automerge ドキュメント階層
 
 ```
 /user_preferences/{user_id}
-  ├── tag_bookmarks/                    # タグブックマーク
-  │   ├── {project_id}/
-  │   │   ├── {tag_id_1}/
-  │   │   │   ├── id: string
-  │   │   │   ├── project_id: string
-  │   │   │   ├── tag_id: string
-  │   │   │   ├── order_index: number
-  │   │   │   ├── created_at: timestamp
-  │   │   │   └── updated_at: timestamp
-  │   │   └── {tag_id_2}/...
-  │   └── {another_project_id}/...
-  │
-  ├── view_preferences/                 # ビュー設定（将来）
-  │   ├── {project_id}/
-  │   │   ├── task_list_columns/        # カラム幅・表示/非表示
-  │   │   ├── default_sort/             # デフォルトソート
-  │   │   └── saved_filters/            # 保存したフィルター
-  │   └── ...
-  │
-  ├── sidebar_state/                    # サイドバー状態（将来）
-  │   ├── collapsed: boolean
-  │   ├── width: number
-  │   └── pinned_items: string[]
-  │
-  └── ui_settings/                      # UI設定（将来）
-      ├── theme: string
-      ├── language: string
-      └── date_format: string
+  ├── tag_bookmarks/{project_id}/{tag_id}
+  ├── view_preferences/{project_id}/         # 将来: カラム幅、ソート、フィルタ
+  ├── sidebar_state/                          # 将来: 開閉、幅、ピン留め
+  └── ui_settings/                            # 将来: テーマ、言語、日付フォーマット
 ```
 
 ## 現在実装されているエンティティ
 
-### Tag Bookmark（タグブックマーク）
+### TagBookmark (タグブックマーク)
 
-詳細は [tag_bookmark.md](./entity/user_preferences/tag_bookmark.md) を参照。
+サイドバーに固定表示するタグの管理。詳細フィールド定義は [`entity/user-preferences.md`](./entity/user-preferences.md) 参照。
 
-#### 概要
-
-サイドバーに固定表示するタグの管理。
-
-#### 主要フィールド
-
-- `project_id`: タグの所属プロジェクト
-- `tag_id`: ブックマークするタグ
-- `order_index`: 表示順序
-- `created_at`, `updated_at`: タイムスタンプ
+主要フィールド: `project_id` / `tag_id` / `order_index` / `created_at` / `updated_at`
 
 ## 同期戦略
 
-### SQLiteとAutomergeの使い分け
+### SQLite と Automerge の使い分け
 
-1. **SQLite**: 高速な読み取りとクエリ
-   - 初期化時の一括読み込み
-   - 並び替えやフィルタリング
-
-2. **Automerge**: 複数端末間の同期
-   - 変更の履歴管理
-   - 競合解決（CRDT）
+| ストレージ | 役割 |
+| --- | --- |
+| SQLite | 高速な読み取りとクエリ (初期化一括読み込み、並び替え、フィルタリング) |
+| Automerge | 複数端末間同期 (変更履歴管理、CRDT による競合解決) |
 
 ### 同期フロー
 
-```
-端末A                                    端末B
-  ↓ 設定変更
-SQLite更新 + Automergeドキュメント更新
-  ↓
-同期サーバー（将来実装）
-  ↓
-                                   ← Automergeドキュメント受信
-                                   ← SQLite更新
-```
+端末 A での設定変更 → SQLite + Automerge を更新 → 同期サーバ (将来) 経由 → 端末 B が Automerge を受信 → SQLite に反映。
 
-## user_idの扱い
+## `user_id` の扱い
 
-### 現在の実装
-
-- `user_id`は固定値: `"local_user"`
-- 単一ユーザー環境を想定
-
-### 将来の拡張
-
-複数デバイスで同じユーザーを識別するため、以下を検討：
-
-- デバイスIDベースの識別
-- クラウド認証との連携
+- **現在**: 固定値 `"local_user"` (単一ユーザー環境)
+- **将来**: 複数デバイスでの同一ユーザー識別 (デバイス ID ベース or クラウド認証連携)
 
 ## 設計原則
 
 ### 1. プロジェクト依存の設定
 
-多くの設定はプロジェクトIDをキーとして管理：
+多くの設定は `project_id` をキーとして管理する。`tag_id` 単独では「どのプロジェクトのタグか」が不明になるため、必ず `project_id` をセットで保持する。
 
-```typescript
-// 良い例
-interface TagBookmark {
-  projectId: string; // 必須
-  tagId: string;
-  orderIndex: number;
-}
+### 2. Automerge パスの一貫性
 
-// 悪い例（プロジェクト情報がない）
-interface TagBookmark {
-  tagId: string; // どのプロジェクトのタグか不明
-  orderIndex: number;
-}
-```
+階層構造 `/user_preferences/{user_id}/{category}/{project_id}/{entity_id}` を保つ。
 
-### 2. Automergeパスの一貫性
+### 3. SQLite と Automerge の整合性
 
-階層構造を保つ：
-
-```
-/user_preferences/{user_id}/{category}/{project_id}/{entity_id}
-```
-
-### 3. SQLiteとAutomergeの整合性
-
-- 両方に同じデータを保存
-- SQLiteは読み取り最適化
-- Automergeは同期最適化
+両方に同じデータを保存。SQLite は読み取り最適化、Automerge は同期最適化。
 
 ## 拡張計画
 
-### 優先度: 高
+| 優先度 | エンティティ |
+| --- | --- |
+| 高 | タグブックマーク (実装済)、サイドバー状態 (開閉・幅) |
+| 中 | ビュー設定 (カラム幅、ソート順、フィルター)、UI 設定 (テーマ、言語) |
+| 低 | キーボードショートカットのカスタマイズ、通知設定 |
 
-- **タグブックマーク**: 実装済み
-- **サイドバー状態**: 開閉状態、幅
+## 実装ガイドライン (新規エンティティ追加時)
 
-### 優先度: 中
+1. **ドキュメント追記**: `entity/user-preferences.md` に新エンティティを追記 (`_template.md` のフォーマットに従う)。`docs/en/` 側は別タスクで同期。
+2. **Rust モデル作成**: `flequit-model`, `flequit-infrastructure-sqlite`, `flequit-infrastructure-automerge` の各 `src/models/user_preferences/` 配下に追加
+3. **TypeScript 型定義**: `src/lib/types/user-preferences/` に追加
+4. **サービス実装**: Rust 側 `flequit-core/src/services/user_preferences/`、TypeScript 側 `src/lib/services/domain/user-preferences/`
+5. **ストア実装**: `src/lib/stores/user-preferences/{entity-name}-store.svelte.ts`
 
-- **ビュー設定**: カラム幅、ソート順、フィルター
-- **UI設定**: テーマ、言語
+## 関連
 
-### 優先度: 低
-
-- **キーボードショートカット**: カスタマイズ
-- **通知設定**: 通知ON/OFF
-
-## 実装ガイドライン
-
-### 新しいエンティティを追加する場合
-
-1. **ドキュメント作成**
-   - `docs/ja/develop/design/data/entity/user_preferences/{entity_name}.md`
-   - `docs/en/develop/design/data/entity/user_preferences/{entity_name}.md`
-
-2. **Rustモデル作成**
-
-   ```
-   src-tauri/crates/
-     ├── flequit-model/src/models/user_preferences/{entity_name}.rs
-     ├── flequit-infrastructure-sqlite/src/models/user_preferences/{entity_name}.rs
-     └── flequit-infrastructure-automerge/src/models/user_preferences/{entity_name}.rs
-   ```
-
-3. **TypeScript型定義**
-
-   ```
-   src/lib/types/user-preferences/{entity-name}.ts
-   ```
-
-4. **サービス実装**
-   - Rustサービス: `src-tauri/crates/flequit-core/src/services/user_preferences/`
-   - TypeScriptサービス: `src/lib/services/domain/user-preferences/`
-
-5. **ストア実装**
-   ```
-   src/lib/stores/user-preferences/{entity-name}-store.svelte.ts
-   ```
-
-## 関連ドキュメント
-
-- [Tag Bookmark エンティティ](./entity/user_preferences/tag_bookmark.md)
-- [Automerge構造](./automerge-structure.md)
-- [データフロー](./tauri-automerge-repo-dataflow.md)
+- [`entity/user-preferences.md`](./entity/user-preferences.md): エンティティ仕様
+- [`automerge-structure.md`](./automerge-structure.md): Automerge 構造全般
+- [`tauri-automerge-repo-dataflow.md`](./tauri-automerge-repo-dataflow.md): データフロー
