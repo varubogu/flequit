@@ -1,0 +1,21 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Tauri prod debug" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
+    <option name="buildProfileId" value="release" />
+    <option name="command" value="build --manifest-path=./src-tauri/Cargo.toml" />
+    <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+    <envs />
+    <option name="emulateTerminal" value="false" />
+    <option name="channel" value="1.89.0" />
+    <option name="requiredFeatures" value="true" />
+    <option name="allFeatures" value="false" />
+    <option name="withSudo" value="false" />
+    <option name="buildTarget" value="REMOTE" />
+    <option name="backtrace" value="SHORT" />
+    <option name="isRedirectInput" value="false" />
+    <option name="redirectInputPath" value="" />
+    <method v="2">
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="ui:build" run_configuration_type="js.build_tools.npm" />
+      <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+    </method>
+  </configuration>
+</component>
