@@ -301,7 +301,6 @@ impl Document {
                         .get_changes(&[])
                         .into_iter()
                         .take(change_index + 1)
-                        .cloned()
                         .collect();
                     temp_doc
                         .apply_changes(changes)

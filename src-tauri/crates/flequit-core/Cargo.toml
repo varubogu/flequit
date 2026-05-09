@@ -1,7 +1,7 @@
 [package]
 name = "flequit-core"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 description = "Core business logic for Flequit task management application"
 
 [lib]
@@ -17,22 +17,22 @@ flequit-settings = { path = "../flequit-settings" }
 
 # Serialization
 serde = { version = "1", features = ["derive"] }
-serde_json = "1.0.142"
+serde_json = "1"
 
 # Async runtime
-tokio = { version = "1.47.1", features = ["full"] }
-async-trait = "0.1.88"
+tokio = { version = "1", features = ["full"] }
+async-trait = "0.1"
 
 # Database ORM (for transaction types)
-sea-orm = { version = "1.1.14", features = ["sqlx-sqlite", "runtime-tokio-rustls"] }
+sea-orm = { version = "1", features = ["sqlx-sqlite", "runtime-tokio-rustls"] }
 
 # Utilities
-uuid = { version = "1.0", features = ["v4", "serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 
 # Error handling
-thiserror = "2.0.12"
+thiserror = "2"
 
 # Logging
 log = "0.4"
-tracing = "0.1.41"
+tracing = "0.1"

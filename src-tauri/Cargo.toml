@@ -3,7 +3,7 @@ name = "flequit"
 version = "0.1.0"
 description = "A Tauri App"
 authors = ["you"]
-edition = "2021"
+edition = "2024"
 default-run = "flequit"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -53,16 +53,16 @@ futures = "0.3.31"
 dirs = "6.0.0"
 
 # Error handling
-thiserror = "2.0.16"
+thiserror = "2"
 
 # Logging
 log = "0.4"
-env_logger = "0.11.8"
-tracing = "0.1.41"
-tracing-subscriber = { version = "0.3.20", features = ["env-filter", "fmt", "time", "chrono"] }
-tracing-appender = "0.2.3"
+env_logger = "0.11"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt", "time", "chrono"] }
+tracing-appender = "0"
 chrono = { version = "0.4", features = ["serde"] }
-uuid = { version = "1.18", features = ["serde", "v4"] }
+uuid = { version = "1", features = ["serde", "v4"] }
 async-trait = "0.1"
 specta = { version = "=2.0.0-rc.22", features = ["uuid"] }
 tauri-specta = { version = "=2.0.0-rc.21", features = ["derive", "typescript"] }

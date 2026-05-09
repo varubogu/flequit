@@ -243,7 +243,7 @@ impl ModelConverter<PartialRecurrenceRule> for PartialRecurrenceRuleCommandModel
 
         // days_of_week文字列をDayOfWeekに変換
         let days_of_week = if let Some(ref days_opt) = self.days_of_week {
-            Some(if let Some(ref days) = days_opt {
+            Some(if let Some(days) = days_opt {
                 let converted_days: Result<Vec<DayOfWeek>, String> = days
                     .iter()
                     .map(|day| match day.as_str() {
@@ -267,7 +267,7 @@ impl ModelConverter<PartialRecurrenceRule> for PartialRecurrenceRuleCommandModel
 
         // 終了日の変換
         let end_date = if let Some(ref date_opt) = self.end_date {
-            Some(if let Some(ref date_str) = date_opt {
+            Some(if let Some(date_str) = date_opt {
                 Some(
                     date_str
                         .parse::<DateTime<Utc>>()
@@ -282,7 +282,7 @@ impl ModelConverter<PartialRecurrenceRule> for PartialRecurrenceRuleCommandModel
 
         // adjustmentの変換
         let adjustment = if let Some(ref adj_opt) = self.adjustment {
-            Some(if let Some(ref adj_str) = adj_opt {
+            Some(if let Some(adj_str) = adj_opt {
                 Some(
                     serde_json::from_str(adj_str)
                         .map_err(|e| format!("Invalid adjustment format: {}", e))?,
@@ -296,7 +296,7 @@ impl ModelConverter<PartialRecurrenceRule> for PartialRecurrenceRuleCommandModel
 
         // detailsの変換
         let details = if let Some(ref det_opt) = self.details {
-            Some(if let Some(ref det_str) = det_opt {
+            Some(if let Some(det_str) = det_opt {
                 Some(
                     serde_json::from_str(det_str)
                         .map_err(|e| format!("Invalid details format: {}", e))?,
