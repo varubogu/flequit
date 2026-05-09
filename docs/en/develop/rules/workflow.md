@@ -6,7 +6,7 @@ Basic rules for PR operations:
 
 - Include documentation changes when related to design decisions for changes (mark N/A if not applicable)
 - Describe "Applied patterns/Avoided anti-patterns" in PR description (refer to PR template)
-- Meet review checklist requirements (refer to component-patterns / anti-patterns)
+- Meet review checklist requirements (see `docs/en/develop/design/frontend/svelte5-patterns.md`)
 
 If errors occur during the process, proceed to the next step after resolution
 

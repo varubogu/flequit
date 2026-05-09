@@ -1,110 +1,46 @@
 # Development Commands
 
-## Overview
+The source of truth is `package.json` (frontend) and each `Cargo.toml` (backend). This document lists only frequently used commands.
 
-This document lists currently valid commands for this repository.
-The source of truth is:
+## Frontend
 
-- Frontend: `package.json` scripts
-- Backend: `src-tauri/Cargo.toml` and each crate `Cargo.toml`
+| Purpose | Command |
+| --- | --- |
+| Type check | `bun check` (`bun run check` is not allowed) |
+| Lint | `bun run lint` |
+| Lint (architecture boundaries) | `bun run lint:arch` |
+| Format | `bun run format` |
+| Unit/integration tests | `bun run test [file]` -> `bun run test` |
+| E2E tests | `bun run test:e2e [file]` (run individual files only) |
+| Build | `bun run build` |
+| Machine translation | `bun run machine-translate` |
+| Tauri dev mode | `bun run tauri:dev` |
 
-## Frontend (Bun)
-
-```bash
-# Type check (required after code changes)
-bun check
-
-# Lint
-bun run lint
-
-# Architecture boundary lint (src/lib only)
-bun run lint:arch
-
-# Format
-bun run format
-
-# Unit/Integration tests (Vitest)
-bun run test [file]
-bun run test
-bun run test:watch
-bun run test:ui
-
-# E2E tests (Playwright: run targeted files first)
-bun run test:e2e [file]
-```
+> Note: `bun run dev` is prohibited because the user uses it.
 
 ## Backend (Rust/Cargo)
 
-```bash
-# Rust checks
-cargo check --quiet
-cargo check
-cargo clippy
-cargo fmt --all
-cargo fmt --all -- --check
+| Purpose | Command |
+| --- | --- |
+| Syntax check | `cargo check --quiet` |
+| Warning check | `cargo check` |
+| Lint | `cargo clippy` |
+| Format | `cargo fmt --all -- --check` |
+| Tests | `cargo test -j 4` (`-j 4` is required) |
 
-# Tests (always include -j 4)
-cargo test -j 4
-cargo test -j 4 <test_name>
-cargo test -j 4 --test <integration_name>
-cargo test -j 4 -- --nocapture
-```
-
-## Test Preparation Helpers
+## Test Preparation
 
 ```bash
-# Prepare Automerge test directories
-bun run test:prepare:automerge
-
-# Prepare SQLite test database (runs migration_runner)
-bun run test:prepare:db
-
-# Recreate SQLite test database from scratch
-bun run test:prepare:db:force
-
-# Run all preparation steps
-bun run test:prepare
+bun run test:prepare:automerge  # Create Automerge test directories
+bun run test:prepare:db         # Prepare SQLite test DB
+bun run test:prepare:db:force   # Recreate SQLite test DB
+bun run test:prepare            # Run all steps above
 ```
 
-## Desktop App (Tauri)
+## Recommended Execution Order (Verification Flow After Changes)
 
-```bash
-# Tauri dev mode
-bun run tauri:dev
+See `docs/en/develop/rules/workflow.md` for detailed steps. Summary:
 
-# Tauri command passthrough
-bun run tauri
-```
-
-## Build and i18n
-
-```bash
-# Frontend build
-bun run build
-
-# Machine translation for localization resources
-bun run machine-translate
-```
-
-## Recommended Execution Order
-
-### Frontend changes
-
-1. `bun check`
-2. `bun run lint`
-3. `bun run test [file]`
-4. `bun run test`
-5. `bun run test:e2e [file]` (when needed)
-
-### Backend changes
-
-1. `cargo check --quiet`
-2. `cargo check`
-3. `cargo clippy`
-4. `cargo fmt --all -- --check`
-5. `cargo test -j 4 <test_name>`
-6. `cargo test -j 4`
-
-### Combined changes
-
-Run frontend checks first, then backend checks.
+- **Frontend changes**: `bun check` -> `bun run lint` -> targeted `bun run test` -> `bun run test`
+- **Backend changes**: `cargo check --quiet` -> `cargo clippy` -> targeted `cargo test -j 4 <name>` -> `cargo test -j 4`
+- **Combined changes**: run frontend checks first, then backend checks

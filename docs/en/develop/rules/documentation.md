@@ -1,37 +1,21 @@
 # Documentation Editing Rules
 
-## Overview
+## Naming Rules
 
-This document defines rules for editing documentation within the project.
+- Use hyphen-separated names by default (kebab-case).
+- Exception: when a file name corresponds to an actual DB table name or similar, match the real name.
+- If a name contains spaces, replace them with hyphens or underscores before saving (do not save names with spaces).
 
-## Basic Policy
+## Multilingual Support
 
-For detailed documentation policies, refer to:
-
-- [Documentation Policy](../requirements/documents.md)
-
-## Important Rules
-
-### Multi-language Support
-
-- **Always update both Japanese and English versions of the documents**
-- Ensure content consistency between Japanese version (`docs/ja/`) and English version (`docs/en/`)
-- Updating only one language version is prohibited
-
-### File Structure
-
-- Japanese version: `docs/ja/develop/requirements/documents.md`
-- English version: `docs/en/develop/requirements/documents.md`
+- The structure and content of `docs/ja/` (Japanese) and `docs/en/` (English) must match.
+- Normally update both at the same time. Updating only one side is prohibited.
+- Translate appropriately without relying on machine translation.
+- Exception: for large restructures, `ja` may lead and `en` may follow in a separate task. See skill `documentation/SKILL.md`.
 
 ## Editing Procedure
 
-1. Edit the Japanese version of the document
-2. Edit the English version with corresponding content
-3. Verify that both versions are consistent
-4. Update other related documents if necessary
-
-## Notes
-
-- When updating documentation, always update both language versions simultaneously
-- Edit both files at once to avoid content inconsistencies
-- Ensure proper translation quality rather than relying on machine translation
+1. Edit the Japanese version
+2. Edit the English version with corresponding content (or in the sync task)
+3. Confirm both versions match
+4. Confirm related document links are not broken
