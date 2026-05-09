@@ -17,7 +17,7 @@ pub use recurrence::{
 };
 pub use write::{create_task, delete_task, restore_task, update_task};
 
-// Tauri generate_handler! 用の __cmd__* シンボルの再エクスポート
+// Tauri generate_handler! 用の補助シンボルの再エクスポート
 pub use read::{__cmd__get_task, __cmd__search_tasks};
 pub use recurrence::{
     __cmd__create_recurrence_adjustment, __cmd__create_recurrence_details,
@@ -29,3 +29,21 @@ pub use recurrence::{
     __cmd__update_recurrence_details, __cmd__update_recurrence_rule,
 };
 pub use write::{__cmd__create_task, __cmd__delete_task, __cmd__restore_task, __cmd__update_task};
+
+pub use read::{__tauri_command_name_get_task, __tauri_command_name_search_tasks};
+pub use recurrence::{
+    __tauri_command_name_create_recurrence_adjustment,
+    __tauri_command_name_create_recurrence_details, __tauri_command_name_create_recurrence_rule,
+    __tauri_command_name_create_task_recurrence,
+    __tauri_command_name_delete_recurrence_adjustment,
+    __tauri_command_name_delete_recurrence_details, __tauri_command_name_delete_recurrence_rule,
+    __tauri_command_name_delete_task_recurrence, __tauri_command_name_get_all_recurrence_rules,
+    __tauri_command_name_get_recurrence_adjustments_by_rule_id,
+    __tauri_command_name_get_recurrence_details_by_rule_id,
+    __tauri_command_name_get_recurrence_rule, __tauri_command_name_get_task_recurrence_by_task_id,
+    __tauri_command_name_update_recurrence_details, __tauri_command_name_update_recurrence_rule,
+};
+pub use write::{
+    __tauri_command_name_create_task, __tauri_command_name_delete_task,
+    __tauri_command_name_restore_task, __tauri_command_name_update_task,
+};
