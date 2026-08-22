@@ -28,14 +28,16 @@ Object.defineProperty(global, 'localStorage', {
 
 // Tauriサービスのモック
 vi.mock('$lib/infrastructure/backends/tauri/custom-date-format-tauri-service', () => ({
-  CustomDateFormatTauriService: vi.fn().mockImplementation(() => ({
-    getAll: vi.fn(() =>
-      Promise.resolve([
-        { id: 'custom-1', name: 'Custom 1', format: 'yyyy/MM/dd' },
-        { id: 'custom-2', name: 'Custom 2', format: 'MM/dd/yyyy' }
-      ])
-    )
-  }))
+  CustomDateFormatTauriService: vi.fn().mockImplementation(function () {
+    return {
+      getAll: vi.fn(() =>
+        Promise.resolve([
+          { id: 'custom-1', name: 'Custom 1', format: 'yyyy/MM/dd' },
+          { id: 'custom-2', name: 'Custom 2', format: 'MM/dd/yyyy' }
+        ])
+      )
+    };
+  })
 }));
 
 describe('FormatStorage', () => {

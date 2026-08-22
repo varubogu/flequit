@@ -3,12 +3,15 @@ import { render } from '@testing-library/svelte';
 import Calendar from '$lib/components/ui/calendar/calendar.svelte';
 
 // Mock CalendarDate factory function for tests
-const mockCalendarDate = (year: number, month: number, day: number) => ({
-  year,
-  month,
-  day,
-  toString: () => `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`
-});
+function mockCalendarDate(year: number, month: number, day: number) {
+  return {
+    year,
+    month,
+    day,
+    toString: () =>
+      `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`
+  };
+}
 
 // Mock @internationalized/date module
 vi.mock('@internationalized/date', () => ({

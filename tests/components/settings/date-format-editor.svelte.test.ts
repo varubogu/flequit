@@ -4,35 +4,37 @@ import DateFormatEditor from '$lib/components/settings/date-format/date-format-e
 
 // Controller と hooks のモック
 vi.mock('$lib/components/settings/date-format/date-format-editor-controller.svelte', () => ({
-  DateFormatEditorController: vi.fn().mockImplementation(() => ({
-    testDateTime: new Date('2024-01-01'),
-    testFormat: 'yyyy-MM-dd',
-    testFormatName: '',
-    editMode: 'manual',
-    editingFormatId: null,
-    deleteDialogOpen: false,
-    isInitialized: false,
-    currentFormat: 'yyyy-MM-dd',
-    allFormats: vi.fn(() => []),
-    selectedPreset: vi.fn(() => null),
-    formatNameEnabled: vi.fn(() => false),
-    addButtonEnabled: vi.fn(() => true),
-    editDeleteButtonEnabled: vi.fn(() => false),
-    saveButtonEnabled: vi.fn(() => false),
-    cancelButtonEnabled: vi.fn(() => false),
-    initialize: vi.fn(),
-    handleDateTimeFormatChange: vi.fn(),
-    handleTestFormatChange: vi.fn(),
-    handleFormatSelection: vi.fn(),
-    copyToTest: vi.fn(),
-    copyToMain: vi.fn(),
-    startAddMode: vi.fn(),
-    startEditMode: vi.fn(),
-    cancelEditMode: vi.fn(),
-    openDeleteDialog: vi.fn(),
-    closeDeleteDialog: vi.fn(),
-    checkDuplicates: vi.fn(() => ({ isDuplicate: false }))
-  }))
+  DateFormatEditorController: vi.fn().mockImplementation(function () {
+    return {
+      testDateTime: new Date('2024-01-01'),
+      testFormat: 'yyyy-MM-dd',
+      testFormatName: '',
+      editMode: 'manual',
+      editingFormatId: null,
+      deleteDialogOpen: false,
+      isInitialized: false,
+      currentFormat: 'yyyy-MM-dd',
+      allFormats: vi.fn(() => []),
+      selectedPreset: vi.fn(() => null),
+      formatNameEnabled: vi.fn(() => false),
+      addButtonEnabled: vi.fn(() => true),
+      editDeleteButtonEnabled: vi.fn(() => false),
+      saveButtonEnabled: vi.fn(() => false),
+      cancelButtonEnabled: vi.fn(() => false),
+      initialize: vi.fn(),
+      handleDateTimeFormatChange: vi.fn(),
+      handleTestFormatChange: vi.fn(),
+      handleFormatSelection: vi.fn(),
+      copyToTest: vi.fn(),
+      copyToMain: vi.fn(),
+      startAddMode: vi.fn(),
+      startEditMode: vi.fn(),
+      cancelEditMode: vi.fn(),
+      openDeleteDialog: vi.fn(),
+      closeDeleteDialog: vi.fn(),
+      checkDuplicates: vi.fn(() => ({ isDuplicate: false }))
+    };
+  })
 }));
 
 vi.mock('$lib/components/settings/date-format/hooks/use-format-management.svelte', () => ({

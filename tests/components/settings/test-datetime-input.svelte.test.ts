@@ -21,7 +21,7 @@ vi.mock('svelte/reactivity', async () => {
 
   return {
     ...actual,
-    SvelteDate: vi.fn().mockImplementation((date: Date) => {
+    SvelteDate: vi.fn().mockImplementation(function (date: Date) {
       const mockDate = new Date(date);
       mockDate.setFullYear = vi.fn((year: number, month?: number, day?: number) => {
         return Date.prototype.setFullYear.call(mockDate, year, month, day);

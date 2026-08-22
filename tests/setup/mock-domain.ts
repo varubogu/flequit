@@ -688,9 +688,8 @@ const buildTaskServiceFacade = async () => {
   const { taskListStore } = await import('../../src/lib/stores/task-list-store.svelte');
   const { subTaskStore } = await import('../../src/lib/stores/sub-task-store.svelte');
   const { TaggingService } = await import('../../src/lib/services/domain/tagging');
-  const { RecurrenceDateCalculator } = await import(
-    '../../src/lib/services/composite/recurrence-composite'
-  );
+  const { RecurrenceDateCalculator } =
+    await import('../../src/lib/services/composite/recurrence-composite');
   const { errorHandler } = await import('../../src/lib/stores/error-handler.svelte');
   const { tagStore } = await import('../../src/lib/stores/tags.svelte');
 
@@ -952,7 +951,12 @@ const buildTaskServiceFacade = async () => {
   };
 };
 
-const taskServiceFacadePromise = buildTaskServiceFacade();
+let taskServiceFacadePromise: ReturnType<typeof buildTaskServiceFacade> | undefined;
+
+const getTaskServiceFacade = () => {
+  taskServiceFacadePromise ??= buildTaskServiceFacade();
+  return taskServiceFacadePromise;
+};
 
 type SelectionResolver = () => {
   selectedListId: string | null;
@@ -1110,7 +1114,7 @@ vi.mock('$lib/services/domain/task', async () => {
   );
   return {
     ...actual,
-    TaskService: await taskServiceFacadePromise
+    TaskService: await getTaskServiceFacade()
   };
 });
 
@@ -1120,7 +1124,7 @@ vi.mock('../../src/lib/services/domain/task', async () => {
   );
   return {
     ...actual,
-    TaskService: await taskServiceFacadePromise
+    TaskService: await getTaskServiceFacade()
   };
 });
 

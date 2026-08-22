@@ -61,7 +61,9 @@ vi.mock('$lib/services/domain/subtask', () => {
   };
 
   return {
-    SubTaskOperations: vi.fn().mockImplementation(() => subTaskOperations),
+    SubTaskOperations: vi.fn().mockImplementation(function () {
+      return subTaskOperations;
+    }),
     getSubTaskOperations: vi.fn(() => subTaskOperations),
     subTaskOperations
   };

@@ -22,9 +22,9 @@ vi.mock('../../src/lib/services/backends-service', () => ({
 
 // Mock ModeWatcher
 vi.mock('mode-watcher', () => ({
-  ModeWatcher: vi.fn().mockImplementation(() => ({
-    component: 'ModeWatcher'
-  }))
+  ModeWatcher: vi.fn().mockImplementation(function () {
+    return { component: 'ModeWatcher' };
+  })
 }));
 
 // Mock ContextMenu

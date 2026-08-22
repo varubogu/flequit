@@ -31,12 +31,14 @@ Object.defineProperty(global, 'localStorage', {
 
 // Tauriサービスのモック
 vi.mock('$lib/infrastructure/backends/tauri/custom-date-format-tauri-service', () => ({
-  CustomDateFormatTauriService: vi.fn().mockImplementation(() => ({
-    create: vi.fn((format) => Promise.resolve(format)),
-    update: vi.fn((format) => Promise.resolve(format)),
-    delete: vi.fn(() => Promise.resolve(true)),
-    getAll: vi.fn(() => Promise.resolve([]))
-  }))
+  CustomDateFormatTauriService: vi.fn().mockImplementation(function () {
+    return {
+      create: vi.fn((format) => Promise.resolve(format)),
+      update: vi.fn((format) => Promise.resolve(format)),
+      delete: vi.fn(() => Promise.resolve(true)),
+      getAll: vi.fn(() => Promise.resolve([]))
+    };
+  })
 }));
 
 /**
