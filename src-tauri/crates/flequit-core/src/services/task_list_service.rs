@@ -147,8 +147,8 @@ where
     let all_subtasks = repositories.sub_tasks().find_all(project_id).await?;
 
     // 3-1. プロジェクト内の全 task_recurrence、subtask_recurrence、recurrence_rule を取得
-    let all_task_recurrences = repositories.task_recurrences().find_all(project_id).await?;
-    let all_subtask_recurrences = repositories
+    let mut all_task_recurrences = repositories.task_recurrences().find_all(project_id).await?;
+    let mut all_subtask_recurrences = repositories
         .subtask_recurrences()
         .find_all(project_id)
         .await?;
@@ -159,6 +159,10 @@ where
         .into_iter()
         .map(|rule| (rule.id, rule))
         .collect();
+
+    // 旧データに重複がある場合も、最新の関連付けがHashMapに残るよう並べる。
+    all_task_recurrences.sort_by_key(|relation| relation.updated_at);
+    all_subtask_recurrences.sort_by_key(|relation| relation.updated_at);
 
     let task_recurrence_map: std::collections::HashMap<_, _> = all_task_recurrences
         .into_iter()

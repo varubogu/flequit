@@ -299,5 +299,68 @@ describe('RecurrenceSyncService', () => {
         })
       ).rejects.toThrow('Failed to create recurrence association');
     });
+
+    it('同一タスクの連続保存を直列化して重複ルール作成を防ぐ', async () => {
+      let resolveRuleCreation: ((value: boolean) => void) | undefined;
+      let associationCreated = false;
+      const existing = {
+        taskId: 'task-1',
+        recurrenceRuleId: 'test-uuid-1234',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        deleted: false,
+        updatedBy: 'user-1'
+      };
+
+      backendMock.taskRecurrence.getByTaskId.mockImplementation(async () =>
+        associationCreated ? existing : null
+      );
+      backendMock.recurrenceRule.create.mockImplementation(
+        () =>
+          new Promise<boolean>((resolve) => {
+            resolveRuleCreation = resolve;
+          })
+      );
+      backendMock.taskRecurrence.create.mockImplementation(async () => {
+        associationCreated = true;
+        return true;
+      });
+      backendMock.recurrenceRule.update.mockResolvedValue(true);
+
+      const firstSave = RecurrenceSyncService.save({
+        projectId: 'project-1',
+        itemId: 'task-1',
+        isSubTask: false,
+        rule: buildLegacyRule({ interval: 1 }),
+        userId: 'user-1'
+      });
+
+      await vi.waitFor(() => {
+        expect(backendMock.recurrenceRule.create).toHaveBeenCalledTimes(1);
+      });
+
+      const secondSave = RecurrenceSyncService.save({
+        projectId: 'project-1',
+        itemId: 'task-1',
+        isSubTask: false,
+        rule: buildLegacyRule({ interval: 2 }),
+        userId: 'user-1'
+      });
+
+      await Promise.resolve();
+      expect(backendMock.taskRecurrence.getByTaskId).toHaveBeenCalledTimes(1);
+
+      resolveRuleCreation?.(true);
+      await Promise.all([firstSave, secondSave]);
+
+      expect(backendMock.recurrenceRule.create).toHaveBeenCalledTimes(1);
+      expect(backendMock.taskRecurrence.create).toHaveBeenCalledTimes(1);
+      expect(backendMock.recurrenceRule.update).toHaveBeenCalledWith(
+        'project-1',
+        'test-uuid-1234',
+        expect.any(Object),
+        'user-1'
+      );
+    });
   });
 });

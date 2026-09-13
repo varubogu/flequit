@@ -15,6 +15,7 @@ use flequit_repository::repositories::task_projects::subtask_recurrence_reposito
 use flequit_types::errors::repository_error::RepositoryError;
 use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter,
+    QueryOrder, TransactionTrait,
 };
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -140,8 +141,8 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
         project_id: &ProjectId,
         parent_id: &SubTaskId,
         child_id: &RecurrenceRuleId,
-        _user_id: &UserId,
-        _timestamp: &DateTime<Utc>,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
@@ -149,31 +150,37 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
             .await
             .map_err(RepositoryError::from)?;
 
-        let existing = SubTaskRecurrenceEntity::find()
-            .filter(Column::ProjectId.eq(project_id.to_string()))
-            .filter(Column::SubtaskId.eq(parent_id.to_string()))
-            .filter(Column::RecurrenceRuleId.eq(child_id.to_string()))
-            .one(db)
+        let txn = db
+            .begin()
             .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
 
-        if existing.is_none() {
-            let now = Utc::now();
-            let active = crate::models::task_projects::subtask_recurrence::ActiveModel {
-                project_id: Set(project_id.to_string()),
-                subtask_id: Set(parent_id.to_string()),
-                recurrence_rule_id: Set(child_id.to_string()),
-                created_at: Set(now),
-                updated_at: Set(now),
-                deleted: Set(false),
-                updated_by: Set(project_id.to_string()),
-            };
+        // サブタスクごとに1つの繰り返しルールのみ許可する。
+        SubTaskRecurrenceEntity::delete_many()
+            .filter(Column::ProjectId.eq(project_id.to_string()))
+            .filter(Column::SubtaskId.eq(parent_id.to_string()))
+            .exec(&txn)
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
 
-            active
-                .insert(db)
-                .await
-                .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
-        }
+        let active = crate::models::task_projects::subtask_recurrence::ActiveModel {
+            project_id: Set(project_id.to_string()),
+            subtask_id: Set(parent_id.to_string()),
+            recurrence_rule_id: Set(child_id.to_string()),
+            created_at: Set(*timestamp),
+            updated_at: Set(*timestamp),
+            deleted: Set(false),
+            updated_by: Set(user_id.to_string()),
+        };
+
+        active
+            .insert(&txn)
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+
+        txn.commit()
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
 
         Ok(())
     }
@@ -236,6 +243,7 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
         let models = SubTaskRecurrenceEntity::find()
             .filter(Column::ProjectId.eq(project_id.to_string()))
             .filter(Column::SubtaskId.eq(parent_id.to_string()))
+            .order_by_desc(Column::UpdatedAt)
             .all(db)
             .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;

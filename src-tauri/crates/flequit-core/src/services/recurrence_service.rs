@@ -271,14 +271,16 @@ pub async fn get_task_recurrence_by_task_id<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    // find_relationsを使用して、タスクIDに関連する最初の繰り返し関連付けを取得
+    // 過去データに重複した関連付けがあっても、画面表示と同じ最新ルールを取得する。
     let relations = repositories
         .task_recurrences()
         .find_relations(project_id, task_id)
         .await
         .map_err(ServiceError::Repository)?;
 
-    Ok(relations.into_iter().next())
+    Ok(relations
+        .into_iter()
+        .max_by_key(|relation| relation.updated_at))
 }
 
 /// タスクの繰り返し関連付けを削除します。
@@ -335,14 +337,16 @@ pub async fn get_subtask_recurrence_by_subtask_id<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    // find_relationsを使用して、サブタスクIDに関連する最初の繰り返し関連付けを取得
+    // 過去データに重複した関連付けがあっても、画面表示と同じ最新ルールを取得する。
     let relations = repositories
         .subtask_recurrences()
         .find_relations(project_id, subtask_id)
         .await
         .map_err(ServiceError::Repository)?;
 
-    Ok(relations.into_iter().next())
+    Ok(relations
+        .into_iter()
+        .max_by_key(|relation| relation.updated_at))
 }
 
 /// サブタスクの繰り返し関連付けを削除します。
