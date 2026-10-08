@@ -1,0 +1,134 @@
+# Dependabot version updates (v2). This file only configures updates.
+# Schedule: weekly, Monday 09:00 Asia/Tokyo.
+# Minor and patch updates are grouped into one pull request per ecosystem.
+# Major updates stay ungrouped so they can be opened as separate pull requests.
+# https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference
+version: 2
+updates:
+  # bun.lock (text lockfile) and package.json at the repository root.
+  # Ecosystem value is "bun" (requires Bun >= 1.1.39). Do not use "npm".
+  - package-ecosystem: "bun"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 5
+    groups:
+      bun-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Cargo workspace root. Member crates are updated through src-tauri/Cargo.lock.
+  # flequit-model and flequit-repository also contain Cargo.lock files, but Cargo
+  # resolves those crates via the workspace lock, so they are not separate entries.
+  - package-ecosystem: "cargo"
+    directory: "/src-tauri"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 5
+    groups:
+      cargo-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # External actions in .github/workflows. directory must be "/" so Dependabot
+  # searches /.github/workflows. The local composite action
+  # ./.github/actions/setup-linux-deps is not an updatable third-party action.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 5
+    groups:
+      github-actions-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # .devcontainer/Dockerfile
+  - package-ecosystem: "docker"
+    directory: "/.devcontainer"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 5
+    groups:
+      docker-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # .devcontainer/docker-compose.yml (Compose file format 3.x).
+  # The only image reference (postgres) is commented out, so there is currently
+  # no image tag to update until an image: key is enabled.
+  - package-ecosystem: "docker-compose"
+    directory: "/.devcontainer"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 5
+    groups:
+      docker-compose-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Features in .devcontainer/devcontainer.json.
+  # GitHub requires directory "/" for devcontainers; Dependabot then finds
+  # .devcontainer/devcontainer.json (and other standard locations).
+  - package-ecosystem: "devcontainers"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 5
+    groups:
+      devcontainers-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # rust-toolchain.toml at the repository root (channel = "1.89.0").
+  - package-ecosystem: "rust-toolchain"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 5
+    groups:
+      rust-toolchain-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
