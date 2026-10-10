@@ -22,7 +22,7 @@ Use this skill to load repository context without bloating `AGENTS.md`.
 
 ## Tech stack
 
-- Frontend: SvelteKit 2 SSG, Svelte 5 runes, Tailwind CSS 4, bits-ui, Inlang Paraglide.
+- Frontend: SvelteKit 3 SSG, Svelte 5 runes, Tailwind CSS 4, bits-ui, Inlang Paraglide.
 - Backend: Tauri 2, Rust, Sea-ORM, SQLite, Automerge CRDT.
 - Package manager: Bun only.
 - Type generation: Specta from Rust to TypeScript.

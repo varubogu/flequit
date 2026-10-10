@@ -4,7 +4,7 @@
 
 ### フロントエンド
 
-- **フレームワーク**: SvelteKit 2（Svelte 5 runes）
+- **フレームワーク**: SvelteKit 3（Svelte 5 runes）
 - **アダプター**: `@sveltejs/adapter-static`（Tauri向けSSG）
 - **UI**: bits-ui ベースのコンポーネント
 - **スタイル**: Tailwind CSS v4

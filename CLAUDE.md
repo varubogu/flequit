@@ -11,7 +11,7 @@ A Japanese mirror of this file is kept at `CLAUDE_ja.md` for human readers; keep
 ## Project
 
 Tauri-based desktop task management app.
-Frontend: SvelteKit 2 + Svelte 5 (runes) + Tailwind 4 + bits-ui + Inlang Paraglide.
+Frontend: SvelteKit 3 + Svelte 5 (runes) + Tailwind 4 + bits-ui + Inlang Paraglide.
 Backend: Tauri 2 (Rust) + Sea-ORM + SQLite + Automerge (CRDT).
 Clean Architecture (crate separation) + Specta (Rust → TS type generation).
 

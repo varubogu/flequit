@@ -1,10 +1,28 @@
 import { paraglideVitePlugin } from '@inlang/paraglide-js';
-import { defineConfig } from 'vite';
+import adapter from '@sveltejs/adapter-static';
 import { sveltekit } from '@sveltejs/kit/vite';
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+import { defineConfig } from 'vite';
 import tailwindcss from '@tailwindcss/vite';
 import devtoolsJson from 'vite-plugin-devtools-json';
 
 const host = process.env.TAURI_DEV_HOST;
+
+// Tauri has no Node server, so the app is prerendered with adapter-static (SSG).
+// SvelteKit 3 no longer reads svelte.config.js; pass options to this plugin.
+// https://v2.tauri.app/start/frontend/sveltekit/
+export function flequitSvelteKit() {
+  return sveltekit({
+    preprocess: vitePreprocess(),
+    adapter: adapter(),
+    alias: {
+      // `$lib` is no longer created automatically. Keep the alias so existing
+      // imports stay valid. `alias` is deprecated in favor of `#lib` subpath imports.
+      $lib: 'src/lib',
+      $paraglide: './src/paraglide'
+    }
+  });
+}
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
@@ -15,7 +33,7 @@ export default defineConfig(async () => ({
       strategy: ['cookie', 'preferredLanguage', 'baseLocale']
     }),
     tailwindcss(),
-    sveltekit(),
+    flequitSvelteKit(),
     devtoolsJson()
   ],
 
