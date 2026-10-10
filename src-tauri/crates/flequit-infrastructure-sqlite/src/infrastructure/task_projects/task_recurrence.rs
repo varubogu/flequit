@@ -333,7 +333,7 @@ mod tests {
         let user_id = user_id.to_string();
         let list_id = "test-list";
 
-        db.execute(Statement::from_sql_and_values(
+        db.execute_raw(Statement::from_sql_and_values(
             DatabaseBackend::Sqlite,
             "INSERT INTO projects (id, name, order_index, is_archived, created_at, updated_at, updated_by, deleted) VALUES (?, 'Test Project', 0, FALSE, ?, ?, ?, FALSE)",
             vec![
@@ -344,7 +344,7 @@ mod tests {
             ],
         ))
         .await?;
-        db.execute(Statement::from_sql_and_values(
+        db.execute_raw(Statement::from_sql_and_values(
             DatabaseBackend::Sqlite,
             "INSERT INTO task_lists (project_id, id, name, order_index, is_archived, created_at, updated_at, deleted, updated_by) VALUES (?, ?, 'Test List', 0, FALSE, ?, ?, FALSE, ?)",
             vec![
@@ -356,7 +356,7 @@ mod tests {
             ],
         ))
         .await?;
-        db.execute(Statement::from_sql_and_values(
+        db.execute_raw(Statement::from_sql_and_values(
             DatabaseBackend::Sqlite,
             "INSERT INTO tasks (project_id, id, list_id, title, status, priority, order_index, is_archived, created_at, updated_at, deleted, updated_by) VALUES (?, ?, ?, 'Test Task', 'not_started', 0, 0, FALSE, ?, ?, FALSE, ?)",
             vec![
@@ -371,7 +371,7 @@ mod tests {
         .await?;
 
         for rule_id in rule_ids {
-            db.execute(Statement::from_sql_and_values(
+            db.execute_raw(Statement::from_sql_and_values(
                 DatabaseBackend::Sqlite,
                 "INSERT INTO recurrence_rules (project_id, id, unit, interval, created_at, updated_at, deleted, updated_by) VALUES (?, ?, 'day', 1, ?, ?, FALSE, ?)",
                 vec![
