@@ -534,10 +534,34 @@ dependencies = [
  "flate2",
  "getrandom 0.3.4",
  "hex",
- "hexane",
- "itertools",
+ "hexane 0.1.7",
+ "itertools 0.14.0",
  "leb128",
  "rand 0.9.5",
+ "rustc-hash",
+ "serde",
+ "sha2 0.11.0",
+ "smol_str",
+ "thiserror 2.0.21",
+ "tinyvec",
+ "tracing",
+ "unicode-segmentation",
+]
+
+[[package]]
+name = "automerge"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2fb849130973a7808a167887f56b1e8bdc36b9b541542602dcb337f34aecf47b"
+dependencies = [
+ "cfg-if",
+ "flate2",
+ "getrandom 0.4.2",
+ "hex",
+ "hexane 1.0.0-alpha.5",
+ "itertools 0.15.0",
+ "leb128",
+ "rand 0.10.3",
  "rustc-hash",
  "serde",
  "sha2 0.11.0",
@@ -554,7 +578,7 @@ version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "248b0ccda1c720802d0401425827b362ff3f42a39f9dd6e4b97e83703c104852"
 dependencies = [
- "automerge",
+ "automerge 0.7.4",
  "bs58",
  "bytes",
  "crossbeam-channel",
@@ -1659,6 +1683,7 @@ checksum = "843fba2746e448b37e26a819579957415c8cef339bf08564fe8b7ddbd959573c"
 dependencies = [
  "crc32fast",
  "miniz_oxide",
+ "zlib-rs",
 ]
 
 [[package]]
@@ -1739,7 +1764,7 @@ name = "flequit-infrastructure-automerge"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "automerge",
+ "automerge 0.12.0",
  "automerge_repo",
  "chrono",
  "dirs",
@@ -2446,6 +2471,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "hexane"
+version = "1.0.0-alpha.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "81df830f11babb0eee9a082e09135ef0a7d8791f3fe9b279bb9485bf7eaf23e0"
+dependencies = [
+ "leb128",
+ "thiserror 2.0.21",
+]
+
+[[package]]
 name = "hkdf"
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2790,6 +2825,15 @@ name = "itertools"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2b192c782037fadd9cfa75548310488aabdbf3d2da73885b31bd0abd03351285"
+dependencies = [
+ "either",
+]
+
+[[package]]
+name = "itertools"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8b4baf93f58d4425749ca49a51c50ebab072c5df6994d08fed93541c331481dc"
 dependencies = [
  "either",
 ]
@@ -4525,7 +4569,7 @@ dependencies = [
  "derive-where",
  "derive_more",
  "futures-util",
- "itertools",
+ "itertools 0.14.0",
  "log",
  "mac_address",
  "ouroboros",
@@ -4587,7 +4631,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "91fa8c81c20fc8cfe78d22d9a2721ca5ef151dc4a8a7b372de218aaba33733fa"
 dependencies = [
  "heck 0.5.0",
- "itertools",
+ "itertools 0.14.0",
  "pluralizer",
  "proc-macro2",
  "quote",
@@ -7364,6 +7408,12 @@ dependencies = [
  "quote",
  "syn 2.0.117",
 ]
+
+[[package]]
+name = "zlib-rs"
+version = "0.6.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b268e58e7c693d7c271f93ffc4ba3b380412554231c85bf61ca7af91042a4112"
 
 [[package]]
 name = "zmij"

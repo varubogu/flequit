@@ -15,7 +15,7 @@ flequit-repository = { path = "../flequit-repository" }
 flequit-core = { path = "../flequit-core" }
 
 # Automerge for CRDT functionality
-automerge = "0.7"
+automerge = "0.12"
 automerge_repo = "0.3"
 
 # Serialization
