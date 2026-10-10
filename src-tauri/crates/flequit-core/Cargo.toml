@@ -24,7 +24,7 @@ tokio = { version = "1", features = ["full"] }
 async-trait = "0.1"
 
 # Database ORM (for transaction types)
-sea-orm = { version = "1", features = ["sqlx-sqlite", "runtime-tokio-rustls"] }
+sea-orm = { version = "2", features = ["sqlx-sqlite", "runtime-tokio-rustls"] }
 
 # Utilities
 uuid = { version = "1", features = ["v4", "serde"] }
