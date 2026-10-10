@@ -22,7 +22,7 @@ function createProject(overrides: Partial<ProjectTree> = {}): ProjectTree {
   return projectStore.addProjectToStore(project);
 }
 
-describe.sequential('Project Management', () => {
+describe('Project Management', { concurrent: false }, () => {
   let taskStore: TaskStore;
 
   beforeEach(() => {
