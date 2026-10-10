@@ -1,5 +1,5 @@
 {
-  "extends": "./.svelte-kit/tsconfig.json",
+  "extends": "$app/tsconfig",
   "compilerOptions": {
     "allowJs": true,
     "checkJs": false,
@@ -9,14 +9,11 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
-    "moduleResolution": "bundler",
-    "typeRoots": ["./node_modules/@types", "./src/types"]
+    "moduleResolution": "bundler"
   },
   "include": ["src", "tests"],
   "exclude": ["src/paraglide/**/*", "src/lib/components/ui/**/*"]
-  // Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias
-  // except $lib which is handled by https://kit.svelte.dev/docs/configuration#files
-  //
-  // If you want to overwrite includes/excludes, make sure to copy over the relevant includes/excludes
-  // from the referenced tsconfig.json - TypeScript does not merge them in
+  // Path aliases ($lib, $paraglide) are set on the sveltekit() plugin in vite.config.js.
+  // `$app/tsconfig` does not declare include/exclude, so they live here.
+  // TypeScript does not merge include/exclude from the extended config.
 }

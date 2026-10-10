@@ -1,16 +1,20 @@
 // テストは UTC で実行することでローカル・CI 環境の差異をなくす
 process.env.TZ = 'UTC';
 
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
-import { sveltekit } from '@sveltejs/kit/vite';
 import { svelteTesting } from '@testing-library/svelte/vite';
+import { flequitSvelteKit } from './vite.config.js';
+
+const root = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  plugins: [sveltekit(), svelteTesting()],
+  plugins: [flequitSvelteKit(), svelteTesting()],
   resolve: {
     alias: {
-      $lib: '/src/lib',
-      $paraglide: '/src/paraglide'
+      $lib: path.resolve(root, 'src/lib'),
+      $paraglide: path.resolve(root, 'src/paraglide')
     },
     conditions: process.env.VITEST ? ['browser'] : undefined
   },
