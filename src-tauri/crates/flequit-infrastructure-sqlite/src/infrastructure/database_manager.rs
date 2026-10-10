@@ -84,7 +84,7 @@ impl DatabaseManager {
 
                 // 外部キー制約を有効化（SQLiteでは接続ごとに設定が必要）
                 use sea_orm::ConnectionTrait;
-                db.execute(sea_orm::Statement::from_string(
+                db.execute_raw(sea_orm::Statement::from_string(
                     sea_orm::DatabaseBackend::Sqlite,
                     "PRAGMA foreign_keys = ON;".to_string(),
                 ))

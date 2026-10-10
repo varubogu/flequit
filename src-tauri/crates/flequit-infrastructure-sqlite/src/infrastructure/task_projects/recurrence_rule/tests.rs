@@ -62,7 +62,7 @@ async fn seed_user_and_project(
     let project_id_str = project_id.to_string();
     let username = format!("test_user_{}", user_id_str);
 
-    db.execute(Statement::from_sql_and_values(
+    db.execute_raw(Statement::from_sql_and_values(
         DatabaseBackend::Sqlite,
         r#"
             INSERT INTO users (
@@ -81,7 +81,7 @@ async fn seed_user_and_project(
     ))
     .await?;
 
-    db.execute(Statement::from_sql_and_values(
+    db.execute_raw(Statement::from_sql_and_values(
         DatabaseBackend::Sqlite,
         r#"
             INSERT INTO projects (
