@@ -1,5 +1,5 @@
-use crate::services::initialization_service;
 use crate::InfrastructureRepositoriesTrait;
+use crate::services::initialization_service;
 use flequit_model::models::accounts::account::Account;
 use flequit_model::models::task_projects::project::ProjectTree;
 use flequit_types::errors::service_error::ServiceError;

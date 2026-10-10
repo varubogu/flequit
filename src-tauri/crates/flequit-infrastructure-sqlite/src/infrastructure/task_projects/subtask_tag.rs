@@ -2,8 +2,8 @@
 
 use super::super::database_manager::DatabaseManager;
 use crate::errors::sqlite_error::SQLiteError;
-use crate::models::subtask_tag::{Column, Entity as SubtaskTagEntity};
 use crate::models::SqliteModelConverter;
+use crate::models::subtask_tag::{Column, Entity as SubtaskTagEntity};
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use flequit_model::models::task_projects::subtask_tag::SubTaskTag;

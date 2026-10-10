@@ -1,5 +1,5 @@
-use crate::models::tag::TagCommandModel;
 use crate::models::CommandModelConverter;
+use crate::models::tag::TagCommandModel;
 use crate::state::AppState;
 use flequit_core::facades::{subtask_facades, task_facades};
 use flequit_model::types::id_types::{ProjectId, SubTaskId, TagId, TaskId, UserId};

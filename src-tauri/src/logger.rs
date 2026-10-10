@@ -7,11 +7,11 @@ use std::path::PathBuf;
 use tracing::Level;
 use tracing_appender::{non_blocking, rolling};
 use tracing_subscriber::{
+    Layer,
     filter::{EnvFilter, LevelFilter},
     fmt::{self, time::ChronoUtc},
     layer::SubscriberExt,
     util::SubscriberInitExt,
-    Layer,
 };
 
 /// ログシステムを初期化します

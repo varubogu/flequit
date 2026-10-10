@@ -233,8 +233,8 @@ async fn test_partial_settings_array_fields() {
 
 #[cfg(test)]
 mod validation_tests {
-    use flequit_settings::validation::SettingsValidator;
     use flequit_settings::Settings;
+    use flequit_settings::validation::SettingsValidator;
 
     #[test]
     fn test_valid_settings() {

@@ -49,13 +49,12 @@ fn select_primary_user(users: &[User]) -> Option<User> {
 }
 
 fn resolve_primary_user_id(users: &[User], accounts: &[Account]) -> Option<UserId> {
-    if let Some(current_account) = select_current_account(accounts) {
-        if users
+    if let Some(current_account) = select_current_account(accounts)
+        && users
             .iter()
             .any(|user| user.id == current_account.user_id && !user.deleted)
-        {
-            return Some(current_account.user_id);
-        }
+    {
+        return Some(current_account.user_id);
     }
 
     select_primary_user(users)

@@ -879,11 +879,12 @@ async fn test_cascade_logical_delete_flow() {
             .len(),
         1
     );
-    assert!(repo
-        .get_deleted_project(&project_id)
-        .await
-        .unwrap()
-        .is_some());
+    assert!(
+        repo.get_deleted_project(&project_id)
+            .await
+            .unwrap()
+            .is_some()
+    );
 
     // restore_project Facade と同等の Automerge 操作シーケンス
     let restore_user = UserId::new();
@@ -918,11 +919,12 @@ async fn test_cascade_logical_delete_flow() {
             .len(),
         0
     );
-    assert!(repo
-        .get_deleted_project(&project_id)
-        .await
-        .unwrap()
-        .is_none());
+    assert!(
+        repo.get_deleted_project(&project_id)
+            .await
+            .unwrap()
+            .is_none()
+    );
 
     // スナップショットはこのテストの参考情報として保持（直接利用しない）
     let _ = snapshot;

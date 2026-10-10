@@ -15,7 +15,7 @@ It combines SQLite and Automerge to provide responsive local operations while ke
 
 ## Tech Stack
 
-- Frontend: SvelteKit 2, Svelte 5 runes, Tailwind CSS 4, bits-ui, Inlang Paraglide
+- Frontend: SvelteKit 3, Svelte 5 runes, Tailwind CSS 4, bits-ui, Inlang Paraglide
 - Backend: Tauri 2 (Rust), Sea-ORM, SQLite, Automerge
 - Tooling: Bun, Vitest, Playwright, ESLint, Prettier
 

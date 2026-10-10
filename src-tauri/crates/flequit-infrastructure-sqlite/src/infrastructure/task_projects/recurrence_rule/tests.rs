@@ -31,8 +31,8 @@ use sea_orm::{
 };
 use tempfile::TempDir;
 
-async fn create_test_repository(
-) -> Result<(TempDir, RecurrenceRuleLocalSqliteRepository), Box<dyn std::error::Error>> {
+async fn create_test_repository()
+-> Result<(TempDir, RecurrenceRuleLocalSqliteRepository), Box<dyn std::error::Error>> {
     let temp_dir = tempfile::tempdir()?;
     let db_path = temp_dir.path().join("recurrence_rule_test.sqlite");
     let db_manager = Arc::new(RwLock::new(DatabaseManager::new_for_test(

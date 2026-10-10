@@ -1,11 +1,11 @@
+use crate::models::CommandModelConverter;
 use crate::models::tag::TagCommandModel;
 use crate::models::tag_search_request::TagSearchRequest;
-use crate::models::CommandModelConverter;
 use crate::state::AppState;
 use chrono::Utc;
 use flequit_core::facades::tag_facades;
-use flequit_model::models::task_projects::tag::PartialTag;
 use flequit_model::models::ModelConverter;
+use flequit_model::models::task_projects::tag::PartialTag;
 use flequit_model::types::id_types::{ProjectId, TagId, UserId};
 use tauri::State;
 use tracing::instrument;

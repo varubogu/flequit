@@ -15,7 +15,7 @@ SQLite と Automerge を組み合わせることで、ローカルでの高速�
 
 ## 技術スタック
 
-- フロントエンド: SvelteKit 2, Svelte 5 runes, Tailwind CSS 4, bits-ui, Inlang Paraglide
+- フロントエンド: SvelteKit 3, Svelte 5 runes, Tailwind CSS 4, bits-ui, Inlang Paraglide
 - バックエンド: Tauri 2 (Rust), Sea-ORM, SQLite, Automerge
 - ツール: Bun, Vitest, Playwright, ESLint, Prettier
 

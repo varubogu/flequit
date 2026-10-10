@@ -332,7 +332,7 @@ pub trait AutomergeProjectRepositoryPort: Send + Sync {
         project_id: &ProjectId,
     ) -> Result<Option<Project>, RepositoryError>;
     async fn get_deleted_tasks(&self, project_id: &ProjectId)
-        -> Result<Vec<Task>, RepositoryError>;
+    -> Result<Vec<Task>, RepositoryError>;
     async fn get_deleted_tags(&self, project_id: &ProjectId) -> Result<Vec<Tag>, RepositoryError>;
     async fn get_deleted_task_lists(
         &self,

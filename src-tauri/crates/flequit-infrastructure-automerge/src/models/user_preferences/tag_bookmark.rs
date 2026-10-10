@@ -110,7 +110,7 @@ impl AutoMergeTagBookmarkCollection {
     pub fn sort_by_order_index(
         mut bookmarks: Vec<AutoMergeTagBookmark>,
     ) -> Vec<AutoMergeTagBookmark> {
-        bookmarks.sort_by(|a, b| a.order_index.cmp(&b.order_index));
+        bookmarks.sort_by_key(|a| a.order_index);
         bookmarks
     }
 

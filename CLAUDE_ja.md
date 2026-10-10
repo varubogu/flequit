@@ -11,7 +11,7 @@ Claude が読み込む正本は英語の `CLAUDE.md`。本ファイルは人間�
 ## プロジェクト
 
 Tauri 製のデスクトップタスク管理アプリ。
-Frontend: SvelteKit 2 + Svelte 5 (runes) + Tailwind 4 + bits-ui + Inlang Paraglide。
+Frontend: SvelteKit 3 + Svelte 5 (runes) + Tailwind 4 + bits-ui + Inlang Paraglide。
 Backend: Tauri 2 (Rust) + Sea-ORM + SQLite + Automerge (CRDT)。
 Clean Architecture（クレート分離）+ Specta による Rust→TS 型生成。
 

@@ -299,8 +299,8 @@ mod tests {
     use sea_orm::{ConnectionTrait, DatabaseBackend, Statement};
     use tempfile::TempDir;
 
-    async fn create_test_repository(
-    ) -> Result<(TempDir, TaskRecurrenceLocalSqliteRepository), Box<dyn std::error::Error>> {
+    async fn create_test_repository()
+    -> Result<(TempDir, TaskRecurrenceLocalSqliteRepository), Box<dyn std::error::Error>> {
         let temp_dir = tempfile::tempdir()?;
         let db_path = temp_dir.path().join("task_recurrence_test.sqlite");
         let db_manager = Arc::new(RwLock::new(DatabaseManager::new_for_test(

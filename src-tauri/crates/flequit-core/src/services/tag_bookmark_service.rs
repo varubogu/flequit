@@ -1,7 +1,7 @@
+use crate::InfrastructureRepositoriesTrait;
 use crate::ports::infrastructure_repositories::{
     TagBookmarkAutomergeRepositoryPort, TagBookmarkSqliteRepositoryPort,
 };
-use crate::InfrastructureRepositoriesTrait;
 use chrono::Utc;
 use flequit_model::models::user_preferences::tag_bookmark::TagBookmark;
 use flequit_model::types::id_types::{ProjectId, TagBookmarkId, TagId, UserId};

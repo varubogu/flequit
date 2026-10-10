@@ -1,7 +1,7 @@
+use crate::models::CommandModelConverter;
 use crate::models::account::AccountCommandModel;
 use crate::models::individual::LocalSettingsCommand;
 use crate::models::project::ProjectTreeCommandModel;
-use crate::models::CommandModelConverter;
 use crate::state::AppState;
 use flequit_core::facades::{initialization_facades, setting_facades};
 use tauri::State;

@@ -1787,8 +1787,8 @@ async fn test_differential_update_single_boolean_property() -> Result<(), Box<dy
 
 /// 差分更新テスト：オプション型プロパティの更新（None → Some）
 #[tokio::test]
-async fn test_differential_update_optional_property_none_to_some(
-) -> Result<(), Box<dyn std::error::Error>> {
+async fn test_differential_update_optional_property_none_to_some()
+-> Result<(), Box<dyn std::error::Error>> {
     let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
     std::fs::create_dir_all(&temp_dir_path)?;
     let mut manager = TestDocumentManager::new(
@@ -2007,8 +2007,8 @@ async fn test_differential_update_deep_nested_properties() -> Result<(), Box<dyn
 
 /// 差分更新テスト：プロパティ名をパラメータ化したテスト
 #[tokio::test]
-async fn test_differential_update_parameterized_properties(
-) -> Result<(), Box<dyn std::error::Error>> {
+async fn test_differential_update_parameterized_properties()
+-> Result<(), Box<dyn std::error::Error>> {
     let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
     std::fs::create_dir_all(&temp_dir_path)?;
     let mut manager = TestDocumentManager::new(
