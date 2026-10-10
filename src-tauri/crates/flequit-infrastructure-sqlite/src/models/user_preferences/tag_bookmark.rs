@@ -4,7 +4,7 @@ use flequit_model::{
     models::user_preferences::tag_bookmark::TagBookmark,
     types::id_types::{ProjectId, TagBookmarkId, TagId, UserId},
 };
-use sea_orm::{entity::prelude::*, Set};
+use sea_orm::{Set, entity::prelude::*};
 use serde::{Deserialize, Serialize};
 
 use crate::models::DomainToSqliteConverter;

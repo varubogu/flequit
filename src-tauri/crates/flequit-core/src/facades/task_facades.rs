@@ -1,8 +1,8 @@
 use tracing::info;
 
+use crate::InfrastructureRepositoriesTrait;
 use crate::ports::infrastructure_repositories::*;
 use crate::services::{tag_service, task_service, task_tag_service};
-use crate::InfrastructureRepositoriesTrait;
 use chrono::{DateTime, Utc};
 use flequit_model::models::task_projects::tag::Tag;
 use flequit_model::models::task_projects::task::{PartialTask, Task};
@@ -218,17 +218,16 @@ where
             .await
         {
             // Automerge失敗 → スナップショットから復元
-            if let Some(ref snap) = snapshot {
-                if let Err(re) = automerge_guard
+            if let Some(ref snap) = snapshot
+                && let Err(re) = automerge_guard
                     .projects_repo()
                     .restore_from_snapshot(project_id, snap)
                     .await
-                {
-                    tracing::error!(
-                        "Failed to restore Automerge snapshot after deletion failure: {:?}",
-                        re
-                    );
-                }
+            {
+                tracing::error!(
+                    "Failed to restore Automerge snapshot after deletion failure: {:?}",
+                    re
+                );
             }
             // SQLiteロールバック
             if let Err(rollback_err) = repositories.rollback(txn).await {
@@ -309,7 +308,8 @@ where
         if let Err(del_err) = repositories.tasks().delete(project_id, id).await {
             tracing::error!(
                 "Failed to restore Automerge and cleanup SQLite also failed: automerge={:?}, sqlite={:?}",
-                e, del_err
+                e,
+                del_err
             );
         }
         return Err(format!("Failed to restore task in Automerge: {:?}", e));

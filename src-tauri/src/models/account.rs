@@ -3,8 +3,8 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::models::CommandModelConverter;
-use flequit_model::models::accounts::account::Account;
 use flequit_model::models::ModelConverter;
+use flequit_model::models::accounts::account::Account;
 use flequit_model::types::id_types::{AccountId, UserId};
 
 /// Tauriコマンド引数用のAccount構造体

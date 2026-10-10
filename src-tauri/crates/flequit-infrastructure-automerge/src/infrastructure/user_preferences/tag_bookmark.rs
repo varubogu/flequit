@@ -114,7 +114,7 @@ impl TagBookmarkLocalAutomergeRepository {
         if let Some(map) = bookmarks_map {
             let mut bookmarks: Vec<TagBookmark> = map.into_values().collect();
             // order_indexでソート
-            bookmarks.sort_by(|a, b| a.order_index.cmp(&b.order_index));
+            bookmarks.sort_by_key(|a| a.order_index);
             Ok(bookmarks)
         } else {
             Ok(Vec::new())
@@ -145,7 +145,7 @@ impl TagBookmarkLocalAutomergeRepository {
                 all_bookmarks.extend(bookmarks_map.into_values());
             }
             // order_indexでソート
-            all_bookmarks.sort_by(|a, b| a.order_index.cmp(&b.order_index));
+            all_bookmarks.sort_by_key(|a| a.order_index);
             Ok(all_bookmarks)
         } else {
             Ok(Vec::new())

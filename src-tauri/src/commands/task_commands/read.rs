@@ -2,8 +2,8 @@
 //!
 //! タスクの取得コマンドを提供する
 
-use crate::models::{task::TaskCommandModel, CommandModelConverter};
 use crate::models::task_search_request::TaskSearchRequest;
+use crate::models::{CommandModelConverter, task::TaskCommandModel};
 use crate::state::AppState;
 use flequit_core::facades::task_facades;
 use flequit_core::services::task_service::TaskSearchCondition;

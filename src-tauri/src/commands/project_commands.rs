@@ -1,11 +1,11 @@
+use crate::models::CommandModelConverter;
 use crate::models::project::{ProjectCommandModel, ProjectTreeCommandModel};
 use crate::models::project_search_request::ProjectSearchRequest;
-use crate::models::CommandModelConverter;
 use crate::state::AppState;
 use chrono::Utc;
 use flequit_core::facades::project_facades;
 use flequit_core::services::{tag_service, task_list_service};
-use flequit_model::models::{task_projects::project::PartialProject, ModelConverter};
+use flequit_model::models::{ModelConverter, task_projects::project::PartialProject};
 use flequit_model::types::id_types::{ProjectId, UserId};
 use tauri::State;
 use tracing::instrument;

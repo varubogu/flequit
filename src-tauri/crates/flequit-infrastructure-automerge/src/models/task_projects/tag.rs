@@ -127,7 +127,7 @@ impl AutoMergeTagCollection {
 
     /// 表示順序でソート
     pub fn sort_by_order_index(mut tags: Vec<AutoMergeTag>) -> Vec<AutoMergeTag> {
-        tags.sort_by(|a, b| a.order_index.cmp(&b.order_index));
+        tags.sort_by_key(|a| a.order_index);
         tags
     }
 

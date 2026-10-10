@@ -469,8 +469,8 @@ async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn s
 
 /// プロジェクトリポジトリのJSON変更履歴エクスポート専用テスト
 #[tokio::test]
-async fn test_project_repository_json_export_with_detailed_changes(
-) -> Result<(), Box<dyn std::error::Error>> {
+async fn test_project_repository_json_export_with_detailed_changes()
+-> Result<(), Box<dyn std::error::Error>> {
     let temp_dir_path = TestPathGenerator::generate_test_dir(
         file!(),
         "test_project_repository_json_export_with_detailed_changes",

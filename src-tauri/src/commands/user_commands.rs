@@ -1,9 +1,9 @@
-use crate::models::user::{PartialUserCommandModel, UserCommandModel};
 use crate::models::CommandModelConverter;
+use crate::models::user::{PartialUserCommandModel, UserCommandModel};
 use crate::state::AppState;
 use flequit_core::facades::user_facades;
-use flequit_model::models::users::user::User;
 use flequit_model::models::ModelConverter;
+use flequit_model::models::users::user::User;
 use flequit_model::types::id_types::UserId;
 use tauri::State;
 use tracing::instrument;

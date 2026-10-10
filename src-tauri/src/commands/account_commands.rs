@@ -1,9 +1,9 @@
-use crate::models::account::AccountCommandModel;
 use crate::models::CommandModelConverter;
+use crate::models::account::AccountCommandModel;
 use crate::state::AppState;
 use flequit_core::facades::account_facades;
-use flequit_model::models::accounts::account::PartialAccount;
 use flequit_model::models::ModelConverter;
+use flequit_model::models::accounts::account::PartialAccount;
 use flequit_model::types::id_types::{AccountId, UserId};
 use tauri::State;
 use tracing::instrument;

@@ -74,12 +74,11 @@ impl FileStorage {
                 let path = entry.path();
 
                 // .deleted フォルダ内のファイルはスキップ
-                if let Some(parent) = path.parent() {
-                    if let Some(parent_name) = parent.file_name().and_then(|n| n.to_str()) {
-                        if parent_name == ".deleted" {
-                            continue;
-                        }
-                    }
+                if let Some(parent) = path.parent()
+                    && let Some(parent_name) = parent.file_name().and_then(|n| n.to_str())
+                    && parent_name == ".deleted"
+                {
+                    continue;
                 }
 
                 // ディレクトリはスキップ（ファイルのみ処理）
@@ -87,48 +86,51 @@ impl FileStorage {
                     continue;
                 }
 
-                if let Some(filename) = path.file_name().and_then(|n| n.to_str()) {
-                    if filename.ends_with(".automerge") {
-                        scanned_count += 1;
-                        tracing::debug!("Scanning file: {}", filename);
-                        let filename_without_ext = filename.replace(".automerge", "");
+                if let Some(filename) = path.file_name().and_then(|n| n.to_str())
+                    && filename.ends_with(".automerge")
+                {
+                    scanned_count += 1;
+                    tracing::debug!("Scanning file: {}", filename);
+                    let filename_without_ext = filename.replace(".automerge", "");
 
-                        // まずファイル内容からDocumentIdを抽出を試みる
-                        let doc_id = match std::fs::read(&path) {
-                            Ok(data) => {
-                                if let Some(id) = Self::extract_document_id_from_file(&data) {
-                                    tracing::info!(
-                                        "Extracted DocumentId from file content: {} -> {}",
-                                        filename,
-                                        id
-                                    );
+                    // まずファイル内容からDocumentIdを抽出を試みる
+                    let doc_id = match std::fs::read(&path) {
+                        Ok(data) => {
+                            if let Some(id) = Self::extract_document_id_from_file(&data) {
+                                tracing::info!(
+                                    "Extracted DocumentId from file content: {} -> {}",
+                                    filename,
                                     id
-                                } else {
-                                    // ファイル内容から抽出失敗 → ファイル名から決定的に生成
-                                    let generated_id = Self::generate_document_id_from_filename(
-                                        &filename_without_ext,
-                                    );
-                                    tracing::info!(
-                                        "Generated DocumentId from filename: {} -> {}",
-                                        filename,
-                                        generated_id
-                                    );
-                                    generated_id
-                                }
-                            }
-                            Err(e) => {
-                                tracing::error!("Failed to read file {}: {:?}", filename, e);
-                                // ファイル読み込み失敗でもファイル名から生成
+                                );
+                                id
+                            } else {
+                                // ファイル内容から抽出失敗 → ファイル名から決定的に生成
                                 let generated_id =
                                     Self::generate_document_id_from_filename(&filename_without_ext);
-                                tracing::info!("Generated DocumentId from filename (after read error): {} -> {}", filename, generated_id);
+                                tracing::info!(
+                                    "Generated DocumentId from filename: {} -> {}",
+                                    filename,
+                                    generated_id
+                                );
                                 generated_id
                             }
-                        };
+                        }
+                        Err(e) => {
+                            tracing::error!("Failed to read file {}: {:?}", filename, e);
+                            // ファイル読み込み失敗でもファイル名から生成
+                            let generated_id =
+                                Self::generate_document_id_from_filename(&filename_without_ext);
+                            tracing::info!(
+                                "Generated DocumentId from filename (after read error): {} -> {}",
+                                filename,
+                                generated_id
+                            );
+                            generated_id
+                        }
+                    };
 
-                        mapping.set_mapping(doc_id, filename_without_ext);
-                        mapped_count += 1;
-                    }
+                    mapping.set_mapping(doc_id, filename_without_ext);
+                    mapped_count += 1;
                 }
             }
             tracing::info!(
@@ -199,7 +201,11 @@ impl FileStorage {
                                 return Some(doc_id);
                             }
                             Err(e) => {
-                                tracing::debug!("Found UUID-like string '{}' but failed to parse as DocumentId: {:?}", s, e);
+                                tracing::debug!(
+                                    "Found UUID-like string '{}' but failed to parse as DocumentId: {:?}",
+                                    s,
+                                    e
+                                );
                             }
                         }
                     }
@@ -341,14 +347,14 @@ impl FileStorage {
         match std::fs::read_dir(&self.base_path) {
             Ok(entries) => {
                 for entry in entries.flatten() {
-                    if let Some(file_name) = entry.file_name().to_str() {
-                        if file_name.ends_with(".automerge") {
-                            let id_str = file_name.strip_suffix(".automerge").unwrap();
-                            if let Ok(document_id) = id_str.parse() {
-                                document_ids.push(document_id);
-                            } else {
-                                tracing::warn!("Invalid automerge filename format: {}", file_name);
-                            }
+                    if let Some(file_name) = entry.file_name().to_str()
+                        && file_name.ends_with(".automerge")
+                    {
+                        let id_str = file_name.strip_suffix(".automerge").unwrap();
+                        if let Ok(document_id) = id_str.parse() {
+                            document_ids.push(document_id);
+                        } else {
+                            tracing::warn!("Invalid automerge filename format: {}", file_name);
                         }
                     }
                 }
@@ -511,17 +517,14 @@ impl Storage for FileStorage {
             match std::fs::read_dir(&base_path) {
                 Ok(entries) => {
                     for entry in entries.flatten() {
-                        if let Some(file_name) = entry.file_name().to_str() {
-                            if file_name.ends_with(".automerge") {
-                                let id_str = file_name.strip_suffix(".automerge").unwrap();
-                                if let Ok(document_id) = id_str.parse() {
-                                    document_ids.push(document_id);
-                                } else {
-                                    tracing::warn!(
-                                        "Invalid automerge filename format: {}",
-                                        file_name
-                                    );
-                                }
+                        if let Some(file_name) = entry.file_name().to_str()
+                            && file_name.ends_with(".automerge")
+                        {
+                            let id_str = file_name.strip_suffix(".automerge").unwrap();
+                            if let Ok(document_id) = id_str.parse() {
+                                document_ids.push(document_id);
+                            } else {
+                                tracing::warn!("Invalid automerge filename format: {}", file_name);
                             }
                         }
                     }

@@ -1,8 +1,8 @@
 use crate::InfrastructureRepositoriesTrait;
 use chrono::Utc;
+use flequit_model::models::task_projects::SubTaskTree;
 use flequit_model::models::task_projects::task::TaskTree;
 use flequit_model::models::task_projects::task_list::{PartialTaskList, TaskList, TaskListTree};
-use flequit_model::models::task_projects::SubTaskTree;
 use flequit_model::types::id_types::{ProjectId, TaskListId, UserId};
 use flequit_repository::project_relation_repository_trait::ProjectRelationRepository;
 use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
@@ -82,7 +82,7 @@ where
     let mut filtered_lists = all_task_lists;
 
     // order_indexでソート
-    filtered_lists.sort_by(|a, b| a.order_index.cmp(&b.order_index));
+    filtered_lists.sort_by_key(|a| a.order_index);
 
     Ok(filtered_lists)
 }
@@ -116,7 +116,7 @@ where
         task_lists.retain(|task_list| task_list.order_index == order_index);
     }
 
-    task_lists.sort_by(|a, b| a.order_index.cmp(&b.order_index));
+    task_lists.sort_by_key(|a| a.order_index);
 
     let offset = offset.unwrap_or(0).max(0) as usize;
     let limit = limit.unwrap_or(i32::MAX).max(0) as usize;
