@@ -364,30 +364,42 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
     // 削除確認
     assert!(project_repo.find_by_id(&project_id1).await?.is_none());
     assert!(project_repo.find_by_id(&project_id2).await?.is_none());
-    assert!(task_list_repo
-        .find_by_id(&project_id1, &task_list_id1)
-        .await?
-        .is_none());
-    assert!(task_list_repo
-        .find_by_id(&project_id2, &task_list_id2)
-        .await?
-        .is_none());
-    assert!(task_repo
-        .find_by_id(&project_id1, &task_id1)
-        .await?
-        .is_none());
-    assert!(task_repo
-        .find_by_id(&project_id2, &task_id2)
-        .await?
-        .is_none());
-    assert!(subtask_repo
-        .find_by_id(&project_id1, &subtask_id1)
-        .await?
-        .is_none());
-    assert!(subtask_repo
-        .find_by_id(&project_id2, &subtask_id2)
-        .await?
-        .is_none());
+    assert!(
+        task_list_repo
+            .find_by_id(&project_id1, &task_list_id1)
+            .await?
+            .is_none()
+    );
+    assert!(
+        task_list_repo
+            .find_by_id(&project_id2, &task_list_id2)
+            .await?
+            .is_none()
+    );
+    assert!(
+        task_repo
+            .find_by_id(&project_id1, &task_id1)
+            .await?
+            .is_none()
+    );
+    assert!(
+        task_repo
+            .find_by_id(&project_id2, &task_id2)
+            .await?
+            .is_none()
+    );
+    assert!(
+        subtask_repo
+            .find_by_id(&project_id1, &subtask_id1)
+            .await?
+            .is_none()
+    );
+    assert!(
+        subtask_repo
+            .find_by_id(&project_id2, &subtask_id2)
+            .await?
+            .is_none()
+    );
     assert!(tag_repo.find_by_id(&project_id1, &tag_id1).await?.is_none());
     assert!(tag_repo.find_by_id(&project_id2, &tag_id2).await?.is_none());
 

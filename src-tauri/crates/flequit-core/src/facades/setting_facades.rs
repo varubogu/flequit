@@ -15,10 +15,16 @@ pub async fn get_custom_date_format(
     settings: &Settings,
     id: &str,
 ) -> Result<Option<DateTimeFormat>, String> {
-    Ok(settings.datetime_formats.iter().find(|f| f.id == id).cloned())
+    Ok(settings
+        .datetime_formats
+        .iter()
+        .find(|f| f.id == id)
+        .cloned())
 }
 
-pub async fn get_all_custom_date_formats(settings: &Settings) -> Result<Vec<DateTimeFormat>, String> {
+pub async fn get_all_custom_date_formats(
+    settings: &Settings,
+) -> Result<Vec<DateTimeFormat>, String> {
     Ok(settings.datetime_formats.clone())
 }
 

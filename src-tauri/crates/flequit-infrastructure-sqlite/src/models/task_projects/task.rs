@@ -7,7 +7,7 @@ use flequit_model::{
         task_types::TaskStatus,
     },
 };
-use sea_orm::{entity::prelude::*, Set};
+use sea_orm::{Set, entity::prelude::*};
 use serde::{Deserialize, Serialize};
 
 use crate::models::DomainToSqliteConverterWithProjectId;

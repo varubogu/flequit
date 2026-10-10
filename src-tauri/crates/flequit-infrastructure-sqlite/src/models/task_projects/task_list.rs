@@ -4,7 +4,7 @@ use flequit_model::{
     models::task_projects::task_list::TaskList,
     types::id_types::{ProjectId, TaskListId, UserId},
 };
-use sea_orm::{entity::prelude::*, Set};
+use sea_orm::{Set, entity::prelude::*};
 use serde::{Deserialize, Serialize};
 
 use crate::models::DomainToSqliteConverterWithProjectId;

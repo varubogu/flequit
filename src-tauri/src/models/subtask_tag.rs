@@ -2,8 +2,8 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
 use crate::models::CommandModelConverter;
-use flequit_model::models::task_projects::subtask_tag::SubTaskTag;
 use flequit_model::models::ModelConverter;
+use flequit_model::models::task_projects::subtask_tag::SubTaskTag;
 use flequit_model::types::id_types::{SubTaskId, TagId, UserId};
 
 /// Tauriコマンド引数用のSubtaskTag構造体（created_atはString）

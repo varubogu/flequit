@@ -1,9 +1,9 @@
-use crate::models::recurrence_rule::RecurrenceRuleCommandModel;
 use crate::models::CommandModelConverter;
+use crate::models::recurrence_rule::RecurrenceRuleCommandModel;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use flequit_model::models::task_projects::subtask::{SubTask, SubTaskTree};
 use flequit_model::models::ModelConverter;
+use flequit_model::models::task_projects::subtask::{SubTask, SubTaskTree};
 use flequit_model::types::id_types::SubTaskId;
 use flequit_model::types::id_types::{TagId, TaskId, UserId};
 use flequit_model::types::task_types::TaskStatus;

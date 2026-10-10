@@ -97,14 +97,14 @@ impl SettingsManager {
         })?;
 
         // 親ディレクトリが存在しない場合は作成
-        if let Some(parent_dir) = self.settings_path.parent() {
-            if !parent_dir.exists() {
-                std::fs::create_dir_all(parent_dir).map_err(|_| {
-                    SettingsError::DirectoryCreationError {
-                        path: parent_dir.display().to_string(),
-                    }
-                })?;
-            }
+        if let Some(parent_dir) = self.settings_path.parent()
+            && !parent_dir.exists()
+        {
+            std::fs::create_dir_all(parent_dir).map_err(|_| {
+                SettingsError::DirectoryCreationError {
+                    path: parent_dir.display().to_string(),
+                }
+            })?;
         }
 
         // ファイルに書き込み

@@ -71,11 +71,11 @@ fn create_test_template_database() {
         return;
     }
 
-    if let Some(parent) = template_path.parent() {
-        if let Err(e) = std::fs::create_dir_all(parent) {
-            println!("cargo:warning=❌ テストDBディレクトリ作成失敗: {}", e);
-            return;
-        }
+    if let Some(parent) = template_path.parent()
+        && let Err(e) = std::fs::create_dir_all(parent)
+    {
+        println!("cargo:warning=❌ テストDBディレクトリ作成失敗: {}", e);
+        return;
     }
 
     let manifest_path = std::env::var("CARGO_MANIFEST_DIR")

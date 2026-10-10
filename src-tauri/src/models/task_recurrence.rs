@@ -2,8 +2,8 @@
 
 use crate::models::CommandModelConverter;
 use chrono::{DateTime, Utc};
-use flequit_model::models::task_projects::task_recurrence::TaskRecurrence;
 use flequit_model::models::ModelConverter;
+use flequit_model::models::task_projects::task_recurrence::TaskRecurrence;
 use flequit_model::types::id_types::{RecurrenceRuleId, TaskId, UserId};
 use serde::{Deserialize, Serialize};
 

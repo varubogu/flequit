@@ -5,7 +5,7 @@ use flequit_model::types::id_types::{ProjectId, UserId};
 use flequit_model::{
     models::task_projects::recurrence_rule::RecurrenceRule, types::id_types::RecurrenceRuleId,
 };
-use sea_orm::{entity::prelude::*, Set};
+use sea_orm::{Set, entity::prelude::*};
 use serde::{Deserialize, Serialize};
 
 use crate::models::DomainToSqliteConverterWithProjectId;

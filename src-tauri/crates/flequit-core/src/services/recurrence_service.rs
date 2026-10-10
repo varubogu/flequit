@@ -42,12 +42,12 @@ where
     }
 
     // max_occurrencesが指定されている場合、正の値である必要がある
-    if let Some(max) = rule.max_occurrences {
-        if max <= 0 {
-            return Err(ServiceError::ValidationError(
-                "最大回数は1以上である必要があります".to_string(),
-            ));
-        }
+    if let Some(max) = rule.max_occurrences
+        && max <= 0
+    {
+        return Err(ServiceError::ValidationError(
+            "最大回数は1以上である必要があります".to_string(),
+        ));
     }
 
     let now = Utc::now();

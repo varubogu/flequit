@@ -293,6 +293,8 @@ impl Default for TagBookmarkLocalSqliteRepository {
         // ダミーのDatabaseManagerを作成（実際には使用されないことを想定）
         // DatabaseManagerのnew_testメソッドがあればそれを使用、なければpanic
         // この実装は主にテスト用途を想定
-        panic!("TagBookmarkLocalSqliteRepository::default() should not be called directly. Use new() with a proper DatabaseManager instead.")
+        panic!(
+            "TagBookmarkLocalSqliteRepository::default() should not be called directly. Use new() with a proper DatabaseManager instead."
+        )
     }
 }

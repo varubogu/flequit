@@ -34,8 +34,7 @@ pub use read::{__tauri_command_name_get_task, __tauri_command_name_search_tasks}
 pub use recurrence::{
     __tauri_command_name_create_recurrence_adjustment,
     __tauri_command_name_create_recurrence_details, __tauri_command_name_create_recurrence_rule,
-    __tauri_command_name_create_task_recurrence,
-    __tauri_command_name_delete_recurrence_adjustment,
+    __tauri_command_name_create_task_recurrence, __tauri_command_name_delete_recurrence_adjustment,
     __tauri_command_name_delete_recurrence_details, __tauri_command_name_delete_recurrence_rule,
     __tauri_command_name_delete_task_recurrence, __tauri_command_name_get_all_recurrence_rules,
     __tauri_command_name_get_recurrence_adjustments_by_rule_id,

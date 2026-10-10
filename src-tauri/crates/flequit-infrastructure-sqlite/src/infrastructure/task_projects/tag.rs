@@ -251,12 +251,12 @@ impl ProjectRepository<Tag, TagId> for TagLocalSqliteRepository {
 
         // 名前での重複チェック（プロジェクト内のみ）
         let existing_by_name = self.find_by_name_in_project(project_id, &tag.name).await?;
-        if let Some(existing_tag) = existing_by_name {
-            if existing_tag.id != tag.id {
-                // 既存の同名タグがある場合は、何もせずに正常終了
-                // （フロントエンドからの重複登録要求を無視）
-                return Ok(());
-            }
+        if let Some(existing_tag) = existing_by_name
+            && existing_tag.id != tag.id
+        {
+            // 既存の同名タグがある場合は、何もせずに正常終了
+            // （フロントエンドからの重複登録要求を無視）
+            return Ok(());
         }
 
         // IDで既存のタグをチェック

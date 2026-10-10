@@ -3,7 +3,7 @@ use chrono::{DateTime, Utc};
 use flequit_model::models::task_projects::subtask::SubTask;
 use flequit_model::types::id_types::{ProjectId, SubTaskId, TaskId, UserId};
 use flequit_model::types::task_types::TaskStatus;
-use sea_orm::{entity::prelude::*, Set};
+use sea_orm::{Set, entity::prelude::*};
 use serde::{Deserialize, Serialize};
 
 use crate::models::{DomainToSqliteConverter, DomainToSqliteConverterWithProjectId};

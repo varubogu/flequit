@@ -3,8 +3,8 @@
 //! このモジュールは繰り返しルール、調整、詳細、タスク・サブタスク関連付けの
 //! Service層とのインターフェースを提供します。
 
-use crate::services::recurrence_service;
 use crate::InfrastructureRepositoriesTrait;
+use crate::services::recurrence_service;
 use flequit_model::{
     models::task_projects::{
         recurrence_adjustment::RecurrenceAdjustment,

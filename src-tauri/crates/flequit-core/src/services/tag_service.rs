@@ -1,7 +1,7 @@
 use chrono::Utc;
 
-use crate::ports::infrastructure_repositories::TagRepositoryExt;
 use crate::InfrastructureRepositoriesTrait;
+use crate::ports::infrastructure_repositories::TagRepositoryExt;
 use flequit_model::models::task_projects::tag::{PartialTag, Tag};
 use flequit_model::types::id_types::{ProjectId, TagId, UserId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
@@ -203,10 +203,10 @@ where
 
     for tag in all_tags {
         // 除外IDが指定されている場合、そのIDのタグは除外
-        if let Some(exclude_id) = exclude_id {
-            if tag.id.to_string() == exclude_id {
-                continue;
-            }
+        if let Some(exclude_id) = exclude_id
+            && tag.id.to_string() == exclude_id
+        {
+            continue;
         }
 
         // 名前が一致するかチェック
@@ -242,7 +242,7 @@ where
     }
 
     // 使用回数の降順でソート
-    tag_usage_counts.sort_by(|a, b| b.1.cmp(&a.1));
+    tag_usage_counts.sort_by_key(|a| std::cmp::Reverse(a.1));
 
     // 指定された限界数まで取得
     let popular_tags = tag_usage_counts

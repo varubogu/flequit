@@ -1,12 +1,12 @@
+use crate::models::CommandModelConverter;
 use crate::models::task_list::{TaskListCommandModel, TaskListTreeCommandModel};
 use crate::models::task_list_search_request::TaskListSearchRequest;
-use crate::models::CommandModelConverter;
 use crate::state::AppState;
 use chrono::Utc;
 use flequit_core::facades::task_list_facades;
 use flequit_core::services::task_list_service;
-use flequit_model::models::task_projects::task_list::PartialTaskList;
 use flequit_model::models::ModelConverter;
+use flequit_model::models::task_projects::task_list::PartialTaskList;
 use flequit_model::types::id_types::{ProjectId, TaskListId, UserId};
 use tauri::State;
 use tracing::instrument;

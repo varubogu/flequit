@@ -198,10 +198,11 @@ impl AutoMergeSubTask {
 
     /// 期限切れかチェック（終了日時が過去かつ未完了）
     pub fn is_overdue(&self) -> bool {
-        if let Some(end_date) = self.plan_end_date {
-            if !self.is_completed() && end_date < Utc::now() {
-                return true;
-            }
+        if let Some(end_date) = self.plan_end_date
+            && !self.is_completed()
+            && end_date < Utc::now()
+        {
+            return true;
         }
         false
     }
