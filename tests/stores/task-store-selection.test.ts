@@ -3,7 +3,7 @@ import { TaskStore } from '$lib/stores/tasks.svelte';
 import { selectionStore } from '$lib/stores/selection-store.svelte';
 import type { ProjectTree } from '$lib/types/project';
 
-describe.sequential('TaskStore - Selection Management', () => {
+describe('TaskStore - Selection Management', { concurrent: false }, () => {
   let taskStore: TaskStore;
 
   // Mock data
