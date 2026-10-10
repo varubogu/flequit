@@ -13,7 +13,7 @@ flequit-types = { path = "../flequit-types" }
 flequit-model = { path = "../flequit-model" }
 
 # Database and ORM
-sea-orm = { version = "1", features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros"] }
+sea-orm = { version = "2", features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros"] }
 
 # Serialization
 serde = { version = "1", features = ["derive"] }
