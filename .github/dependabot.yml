@@ -1,7 +1,9 @@
 # Dependabot version updates (v2). This file only configures updates.
 # Schedule: weekly, Monday 09:00 Asia/Tokyo.
 # Minor and patch updates are grouped into one pull request per ecosystem.
-# Major updates stay ungrouped so they can be opened as separate pull requests.
+# GitHub Actions updates, including majors, are one group.
+# Closely related major updates are grouped by name. Other majors stay
+# ungrouped so they can be reviewed as separate pull requests.
 # https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference
 version: 2
 updates:
@@ -16,6 +18,25 @@ updates:
       timezone: "Asia/Tokyo"
     open-pull-requests-limit: 5
     groups:
+      # Listed before the catch-all. update-types do not overlap with
+      # bun-minor-and-patch, so minor and patch updates of these packages
+      # still join that group.
+      vitest-major:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+        update-types:
+          - "major"
+      sveltejs-major:
+        patterns:
+          - "@sveltejs/*"
+        update-types:
+          - "major"
+      tauri-js-major:
+        patterns:
+          - "@tauri-apps/*"
+        update-types:
+          - "major"
       bun-minor-and-patch:
         patterns:
           - "*"
@@ -35,6 +56,18 @@ updates:
       timezone: "Asia/Tokyo"
     open-pull-requests-limit: 5
     groups:
+      sea-orm-major:
+        patterns:
+          - "sea-orm"
+          - "sea-orm-*"
+        update-types:
+          - "major"
+      tauri-major:
+        patterns:
+          - "tauri"
+          - "tauri-*"
+        update-types:
+          - "major"
       cargo-minor-and-patch:
         patterns:
           - "*"
@@ -45,6 +78,7 @@ updates:
   # External actions in .github/workflows. directory must be "/" so Dependabot
   # searches /.github/workflows. The local composite action
   # ./.github/actions/setup-linux-deps is not an updatable third-party action.
+  # Every update, including majors, is one pull request.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -54,12 +88,9 @@ updates:
       timezone: "Asia/Tokyo"
     open-pull-requests-limit: 5
     groups:
-      github-actions-minor-and-patch:
+      github-actions:
         patterns:
           - "*"
-        update-types:
-          - "minor"
-          - "patch"
 
   # .devcontainer/Dockerfile
   - package-ecosystem: "docker"
@@ -116,7 +147,7 @@ updates:
           - "minor"
           - "patch"
 
-  # rust-toolchain.toml at the repository root (channel = "1.89.0").
+  # rust-toolchain.toml at the repository root.
   - package-ecosystem: "rust-toolchain"
     directory: "/"
     schedule:
