@@ -293,7 +293,7 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalSqliteRepository {
 
         // 紐づけテーブルから削除（CASCADE制約があるが明示的に削除）
         let delete_tags_sql = "DELETE FROM subtask_tags WHERE subtask_id = ?".to_string();
-        txn.execute(Statement::from_sql_and_values(
+        txn.execute_raw(Statement::from_sql_and_values(
             sea_orm::DatabaseBackend::Sqlite,
             &delete_tags_sql,
             vec![id.to_string().into()],
