@@ -8,7 +8,7 @@ chrono = { version = "0.4", features = ["serde"] }
 serde = { version = "1", features = ["derive"] }
 specta = { version = "=2.0.0-rc.22", features = ["uuid"] }
 specta-typescript = "0.0.9"
-specta-jsdoc = "0.0.9"
+specta-jsdoc = "0.0.10"
 
 # Error handling
 thiserror = "2.0.16"

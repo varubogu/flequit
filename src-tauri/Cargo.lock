@@ -5062,14 +5062,9 @@ dependencies = [
 
 [[package]]
 name = "specta-jsdoc"
-version = "0.0.9"
+version = "0.0.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c80a3da00adc2aff522a6bbc2f766870ae2d3381a5c937b94c30e4fd9e82109"
-dependencies = [
- "specta",
- "specta-serde",
- "specta-typescript",
-]
+checksum = "aefb9c1cab61ec6f3bb8e36bf35facb60ab0816a13b09cb25208e9bbabab2776"
 
 [[package]]
 name = "specta-macros"

@@ -67,7 +67,7 @@ async-trait = "0.1"
 specta = { version = "=2.0.0-rc.22", features = ["uuid"] }
 tauri-specta = { version = "=2.0.0-rc.21", features = ["derive", "typescript"] }
 specta-typescript = "0.0.9"
-specta-jsdoc = "0.0.9"
+specta-jsdoc = "0.0.10"
 
 [dev-dependencies]
 tempfile = "3.21.0"
