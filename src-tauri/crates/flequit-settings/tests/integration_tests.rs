@@ -2,18 +2,19 @@
 
 use flequit_settings::{PartialSettings, Settings, SettingsManager};
 use flequit_testing::TestPathGenerator;
-use std::env;
 use tracing::info;
 
 #[test]
 fn test_config_manager_creation() {
-    // プロジェクトルール準拠のテストディレクトリを作成
+    // プロジェクトルール準拠のテストディレクトリを作成。
+    // HOME を std::env::set_var で差し替えると、並行テストスレッドの環境変数読み取りと競合する。
+    // テスト用パスを直接渡してプロセス環境は変更しない。
     let test_dir = TestPathGenerator::generate_test_dir(file!(), "test_config_manager_creation");
     std::fs::create_dir_all(&test_dir).unwrap();
-    env::set_var("HOME", test_dir);
+    let settings_path = test_dir.join("settings.yml");
 
-    let config_manager = SettingsManager::new();
-    assert!(config_manager.is_ok());
+    let config_manager = SettingsManager::new_with_path(settings_path.clone());
+    assert_eq!(config_manager.get_settings_path(), &settings_path);
 }
 
 #[test]
