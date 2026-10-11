@@ -28,8 +28,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("🔧 マイグレーション実行開始: {}", db_path);
     }
 
-    // 環境変数でデータベースパスを指定
-    env::set_var("FLEQUIT_DB_PATH", db_path);
+    // データベースパスは DatabaseManager::new_for_test に直接渡す。
+    // std::env::set_var は Rust 2024 で unsafe であり、#[tokio::main] の
+    // ワーカースレッドと環境変数の読み書きが競合しうるため使わない。
+    // FLEQUIT_DB_PATH は DatabaseManager::instance() の既定パス解決でのみ参照される。
 
     // 強制モードの場合は、既存のDBファイルを削除
     if force_mode && std::path::Path::new(db_path).exists() {

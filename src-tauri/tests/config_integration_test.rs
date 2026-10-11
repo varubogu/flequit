@@ -1,32 +1,23 @@
 //! 新しい設定管理API統合テスト
 
 use flequit_settings::{Settings, SettingsManager};
-use std::env;
-use std::sync::{Mutex, OnceLock};
 use tempfile::TempDir;
 
-fn env_var_lock() -> &'static Mutex<()> {
-    static LOCK: OnceLock<Mutex<()>> = OnceLock::new();
-    LOCK.get_or_init(|| Mutex::new(()))
-}
-
-/// テスト用の一時ディレクトリ設定
-fn setup_test_env() -> TempDir {
+/// 一時ディレクトリ上の設定ファイルで SettingsManager を作る。
+///
+/// `std::env::set_var` は Rust 2024 で unsafe であり、`#[tokio::test]` の
+/// マルチスレッドランタイム上で呼ぶと他スレッドの環境変数読み取りと競合する。
+/// パスを直接渡してプロセス環境は変更しない。
+fn setup_test_manager() -> (TempDir, SettingsManager) {
     let temp_dir = TempDir::new().unwrap();
-    // Linux (WSL含む) 環境ではdirectoriesクレートはXDG_CONFIG_HOMEを優先するため、
-    // HOMEと併せてXDG_CONFIG_HOMEも一時ディレクトリ配下に明示する
-    env::set_var("HOME", temp_dir.path());
-    env::set_var("XDG_CONFIG_HOME", temp_dir.path().join(".config"));
-    temp_dir
+    let settings_path = temp_dir.path().join("settings.yml");
+    let manager = SettingsManager::new_with_path(settings_path);
+    (temp_dir, manager)
 }
 
 #[tokio::test]
 async fn test_config_file_operations() {
-    let _env_guard = env_var_lock().lock().unwrap();
-    let _temp_dir = setup_test_env();
-
-    // 1. 設定マネージャーを作成
-    let config_manager = SettingsManager::new().unwrap();
+    let (_temp_dir, config_manager) = setup_test_manager();
 
     // 2. 初期状態では設定ファイルが存在しない
     let exists = config_manager.settings_exists();
@@ -51,11 +42,7 @@ async fn test_config_file_operations() {
 
 #[tokio::test]
 async fn test_settings_load_and_save() {
-    let _env_guard = env_var_lock().lock().unwrap();
-    let _temp_dir = setup_test_env();
-
-    // 1. 設定マネージャーを作成
-    let config_manager = SettingsManager::new().unwrap();
+    let (_temp_dir, config_manager) = setup_test_manager();
 
     // 2. デフォルト設定で初期化
     config_manager.initialize_with_defaults().await.unwrap();
@@ -99,11 +86,7 @@ async fn test_settings_load_and_save() {
 
 #[tokio::test]
 async fn test_invalid_settings_validation() {
-    let _env_guard = env_var_lock().lock().unwrap();
-    let _temp_dir = setup_test_env();
-
-    // 設定マネージャーを作成
-    let config_manager = SettingsManager::new().unwrap();
+    let (_temp_dir, config_manager) = setup_test_manager();
 
     // 無効な設定値でテスト
     let mut invalid_settings = Settings::default();

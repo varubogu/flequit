@@ -45,6 +45,7 @@
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@inlang/cli": "^3.3.9",
     "@inlang/paraglide-js": "2.26.0",
     "@internationalized/date": "^3.12.4",
