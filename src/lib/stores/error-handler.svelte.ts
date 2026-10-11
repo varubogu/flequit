@@ -67,13 +67,8 @@ export class ErrorHandler {
     originalError: unknown
   ): string {
     const message = `${operation}の同期に失敗しました`;
-    let details = '';
-
-    if (originalError instanceof Error) {
-      details = originalError.message;
-    } else {
-      details = String(originalError);
-    }
+    const details =
+      originalError instanceof Error ? originalError.message : String(originalError);
 
     return this.addError({
       type: 'sync',
@@ -100,12 +95,8 @@ export class ErrorHandler {
 
   // ネットワークエラー用のヘルパー
   addNetworkError(operation: string, originalError: unknown): string {
-    let details = '';
-    if (originalError instanceof Error) {
-      details = originalError.message;
-    } else {
-      details = String(originalError);
-    }
+    const details =
+      originalError instanceof Error ? originalError.message : String(originalError);
 
     return this.addError({
       type: 'network',

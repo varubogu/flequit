@@ -76,8 +76,8 @@ export function createTaskDatePickerHandlers(
     const task = getTask();
     const { dateTime, range, isRangeDate, recurrenceRule } = data;
 
-    // 更新データを準備
-    let updates: Partial<TaskWithSubTasks> = {};
+    // 更新データを準備。初期値はどの分岐でも上書きされるため付けない。
+    let updates: Partial<TaskWithSubTasks>;
 
     if (isRangeDate) {
       if (range) {
@@ -166,8 +166,8 @@ export function createTaskDatePickerHandlers(
     const subTaskIndex = task.subTasks.findIndex((st) => st.id === subTaskState.editingSubTaskId);
     if (subTaskIndex === -1) return;
 
-    // 更新データを準備
-    let updates: Partial<SubTask> = {};
+    // 更新データを準備。初期値はどの分岐でも上書きされるため付けない。
+    let updates: Partial<SubTask>;
 
     if (isRangeDate) {
       if (range) {
