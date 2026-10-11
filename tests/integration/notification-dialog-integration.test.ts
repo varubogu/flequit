@@ -150,8 +150,8 @@ const mockConfirmationStore = {
       return false;
     }
 
-    // アクションを実行
-    let result = false;
+    // アクションを実行。初期値は全分岐で上書きされるため付けない。
+    let result: boolean;
     switch (action.action) {
       case 'delete-task': {
         const data = action.data as { taskId: string };
