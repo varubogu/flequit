@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
 import { TaskItemContextMenu } from '$lib/components/task/core/task-item-context-menu.svelte';
 import type { SubTask } from '$lib/types/sub-task';
 import type { TaskStatus } from '$lib/types/task';
@@ -15,10 +15,10 @@ describe('TaskItemContextMenu', () => {
   let contextMenu: TaskItemContextMenu;
   let mockTranslationService: ITranslationService;
   let mockHandlers: {
-    handleEditTask: ReturnType<typeof vi.fn>;
-    handleDeleteTask: ReturnType<typeof vi.fn>;
-    handleEditSubTask: ReturnType<typeof vi.fn>;
-    handleDeleteSubTask: ReturnType<typeof vi.fn>;
+    handleEditTask: Mock;
+    handleDeleteTask: Mock;
+    handleEditSubTask: Mock;
+    handleDeleteSubTask: Mock;
   };
   let mockSubTask: SubTask;
 

@@ -239,7 +239,7 @@ describe('AutoFetchWebService', () => {
       }
 
       expect(consoleSpy).toHaveBeenCalledTimes(3);
-      consoleSpy.mock.calls.forEach((call) => {
+      consoleSpy.mock.calls.forEach((call: unknown[]) => {
         expect(call[0]).toBe('Web backends: notifyDataChange not fully implemented');
       });
     });

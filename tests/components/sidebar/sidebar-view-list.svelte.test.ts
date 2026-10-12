@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, test, expect, beforeEach, afterEach, vi, type Mock } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import { setTranslationService } from '$lib/stores/locale.svelte';
 import { createUnitTestTranslationService } from '../../unit-translation-mock';
@@ -68,7 +68,7 @@ const mockViewsVisibilityStore = new MockViewsVisibilityStore({
 });
 
 describe('SidebarViewList Component', () => {
-  let onViewChange: ReturnType<typeof vi.fn>;
+  let onViewChange: Mock;
 
   let cleanup: (() => void) | null = null;
 

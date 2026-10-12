@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach, vi, afterEach } from 'vitest';
+import { describe, test, expect, beforeEach, vi, afterEach, type Mock } from 'vitest';
 import { render } from '@testing-library/svelte';
 import ProjectDialog from '$lib/components/project/project-dialog.svelte';
 
@@ -11,8 +11,8 @@ vi.mock('$lib/components/ui/dialog/index.js', () => ({
 }));
 
 describe('ProjectDialog Component', () => {
-  let onsave: ReturnType<typeof vi.fn>;
-  let onclose: ReturnType<typeof vi.fn>;
+  let onsave: Mock;
+  let onclose: Mock;
 
   beforeEach(() => {
     onsave = vi.fn();

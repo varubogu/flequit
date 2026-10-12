@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
 import { TaskListMutations } from '$lib/stores/task-list/task-list-mutations.svelte';
 import { TaskListQueries } from '$lib/stores/task-list/task-list-queries.svelte';
 import type { IProjectStore, ISelectionStore } from '$lib/types/store-interfaces';
@@ -112,9 +112,9 @@ describe('TaskListMutations', () => {
   let selectionStore: ISelectionStore;
   let queries: TaskListQueries;
   let mutations: TaskListMutations;
-  let mockCreateTaskList: ReturnType<typeof vi.fn>;
-  let mockUpdateTaskList: ReturnType<typeof vi.fn>;
-  let mockDeleteTaskList: ReturnType<typeof vi.fn>;
+  let mockCreateTaskList: Mock;
+  let mockUpdateTaskList: Mock;
+  let mockDeleteTaskList: Mock;
 
   beforeEach(async () => {
     vi.clearAllMocks();

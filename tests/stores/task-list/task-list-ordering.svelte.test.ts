@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
 import { TaskListOrdering } from '$lib/stores/task-list/task-list-ordering.svelte';
 import type { IProjectStore } from '$lib/types/store-interfaces';
 import type { ProjectTree } from '$lib/types/project';
@@ -100,8 +100,8 @@ const createMockProjectStore = (): IProjectStore => {
 describe('TaskListOrdering', () => {
   let projectStore: IProjectStore;
   let ordering: TaskListOrdering;
-  let mockUpdateTaskList: ReturnType<typeof vi.fn>;
-  let mockAddSyncError: ReturnType<typeof vi.fn>;
+  let mockUpdateTaskList: Mock;
+  let mockAddSyncError: Mock;
 
   beforeEach(async () => {
     vi.clearAllMocks();

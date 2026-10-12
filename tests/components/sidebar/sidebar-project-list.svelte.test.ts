@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, test, expect, beforeEach, afterEach, vi, type Mock } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { setTranslationService } from '$lib/stores/locale.svelte';
@@ -75,7 +75,7 @@ const mockProjects: ProjectTree[] = [
 ];
 
 describe('SidebarProjectList Component', () => {
-  let onViewChange: ReturnType<typeof vi.fn>;
+  let onViewChange: Mock;
 
   beforeEach(() => {
     setTranslationService(createUnitTestTranslationService());

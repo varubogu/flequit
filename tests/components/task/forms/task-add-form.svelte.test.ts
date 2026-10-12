@@ -68,14 +68,15 @@ const createMockTranslationService = () => {
       currentLocale = locale;
     }
   });
-  const reactiveMessageMock = vi.fn(<T extends (...args: unknown[]) => string>(fn: T) => fn);
+  const reactiveMessage = <T extends (...args: unknown[]) => string>(messageFn: T): T => messageFn;
+  const reactiveMessageMock = vi.fn(reactiveMessage);
   const getMessageMock = vi.fn((key: string) => translations[key] || (() => key));
   const getAvailableLocalesMock = vi.fn(() => ['en', 'ja'] as const);
 
   const service: ITranslationService = {
     getCurrentLocale: getCurrentLocaleMock,
     setLocale: setLocaleMock,
-    reactiveMessage: reactiveMessageMock,
+    reactiveMessage: reactiveMessageMock as ITranslationService['reactiveMessage'],
     getMessage: getMessageMock,
     getAvailableLocales: getAvailableLocalesMock
   };
