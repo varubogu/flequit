@@ -42,11 +42,31 @@ export function getLastDayOfMonth(date: Date): number {
 }
 
 /**
- * 祝日判定（簡略化実装）
- * 実際の実装では祝日カレンダーAPIやライブラリを使用
+ * 祝日集合の要素になる暦日キー。
+ * ローカル年月日の `YYYY-MM-DD`。時刻やオフセットは含めない。
  */
-export function isHoliday(date: Date): boolean {
-  // 土日を祝日として扱う簡略化実装
+export type HolidayDateSet = ReadonlySet<string>;
+
+/**
+ * ローカル暦日を祝日集合のキーへ変換する。
+ */
+export function toCalendarDateKey(date: Date): string {
+  const year = String(date.getFullYear()).padStart(4, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * 祝日判定。
+ *
+ * 祝日カレンダーの保存先は未決定なので、平日の祝日は呼び出し側が渡す `holidays` だけを見る。
+ * 土日は従来どおり常に祝日として扱う。祝日集合が空でも「次の祝日」の探索は週末で止まる。
+ */
+export function isHoliday(date: Date, holidays?: HolidayDateSet): boolean {
   const dayOfWeek = date.getDay();
-  return dayOfWeek === 0 || dayOfWeek === 6;
+  if (dayOfWeek === 0 || dayOfWeek === 6) {
+    return true;
+  }
+  return holidays?.has(toCalendarDateKey(date)) ?? false;
 }

@@ -5,7 +5,7 @@ import {
 } from '$lib/services/domain/recurrence/adjustment/weekday-adjuster';
 import type { WeekdayCondition } from '$lib/types/datetime-calendar';
 
-// Note: isHoliday の実装は土日を祝日として扱う簡略実装
+// 祝日集合を渡さない場合、土日だけを祝日として扱う。平日祝日は集合の YYYY-MM-DD で渡す。
 
 describe('weekday-adjuster', () => {
   describe('checkWeekdayCondition', () => {
@@ -410,6 +410,321 @@ describe('weekday-adjuster', () => {
       const result = applyWeekdayAdjustment(leapDay, condition);
       expect(result.getDay()).toBe(1);
       expect(result.getMonth()).toBe(2); // March
+    });
+  });
+
+  describe('平日祝日', () => {
+    const holidays = new Set([
+      '2025-01-01', // Wednesday
+      '2025-02-11', // Tuesday
+      '2025-02-14', // Friday
+      '2025-05-05', // Monday
+      '2025-05-06', // Tuesday
+      '2026-01-01' // Thursday
+    ]);
+
+    function at(year: number, month: number, day: number, hours = 0, minutes = 0): Date {
+      return new Date(year, month - 1, day, hours, minutes, 0, 0);
+    }
+
+    function condition(
+      ifWeekday: WeekdayCondition['ifWeekday'],
+      thenTarget: WeekdayCondition['thenTarget'],
+      thenDirection: WeekdayCondition['thenDirection']
+    ): WeekdayCondition {
+      return {
+        id: 'weekday-holiday',
+        ifWeekday,
+        thenTarget,
+        thenDirection
+      };
+    }
+
+    function expectLocalDate(date: Date, year: number, month: number, day: number): void {
+      expect(date.getFullYear()).toBe(year);
+      expect(date.getMonth() + 1).toBe(month);
+      expect(date.getDate()).toBe(day);
+    }
+
+    describe('判定', () => {
+      it('集合にある火曜を祝日・土日祝日とみなし、平日非祝日とはみなさない', () => {
+        const foundationDay = at(2025, 2, 11);
+
+        expect(
+          checkWeekdayCondition(foundationDay, condition('holiday', 'weekday', 'next'), holidays)
+        ).toBe(true);
+        expect(
+          checkWeekdayCondition(
+            foundationDay,
+            condition('non_holiday', 'weekday', 'next'),
+            holidays
+          )
+        ).toBe(false);
+        expect(
+          checkWeekdayCondition(
+            foundationDay,
+            condition('weekend_holiday', 'weekday', 'next'),
+            holidays
+          )
+        ).toBe(true);
+        expect(
+          checkWeekdayCondition(
+            foundationDay,
+            condition('non_weekend_holiday', 'weekday', 'next'),
+            holidays
+          )
+        ).toBe(false);
+        expect(
+          checkWeekdayCondition(foundationDay, condition('weekday', 'weekday', 'next'), holidays)
+        ).toBe(true);
+        expect(
+          checkWeekdayCondition(foundationDay, condition('weekend', 'weekday', 'next'), holidays)
+        ).toBe(false);
+      });
+
+      it('集合に無い水曜は祝日でも土日祝日でもない', () => {
+        const wednesday = at(2025, 2, 12);
+
+        expect(
+          checkWeekdayCondition(wednesday, condition('holiday', 'weekday', 'next'), holidays)
+        ).toBe(false);
+        expect(
+          checkWeekdayCondition(wednesday, condition('non_holiday', 'weekday', 'next'), holidays)
+        ).toBe(true);
+        expect(
+          checkWeekdayCondition(
+            wednesday,
+            condition('weekend_holiday', 'weekday', 'next'),
+            holidays
+          )
+        ).toBe(false);
+        expect(
+          checkWeekdayCondition(
+            wednesday,
+            condition('non_weekend_holiday', 'weekday', 'next'),
+            holidays
+          )
+        ).toBe(true);
+      });
+
+      it('集合に無い土曜は従来どおり祝日であり、平日非祝日ではない', () => {
+        const saturday = at(2025, 2, 15);
+
+        expect(
+          checkWeekdayCondition(saturday, condition('holiday', 'weekday', 'next'), holidays)
+        ).toBe(true);
+        expect(
+          checkWeekdayCondition(
+            saturday,
+            condition('non_weekend_holiday', 'weekday', 'next'),
+            holidays
+          )
+        ).toBe(false);
+      });
+
+      it('祝日集合が空、または日時文字列だと平日は祝日にならない', () => {
+        const foundationDay = at(2025, 2, 11);
+
+        expect(
+          checkWeekdayCondition(foundationDay, condition('holiday', 'weekday', 'next'), new Set())
+        ).toBe(false);
+        expect(checkWeekdayCondition(foundationDay, condition('holiday', 'weekday', 'next'))).toBe(
+          false
+        );
+        expect(
+          checkWeekdayCondition(
+            foundationDay,
+            condition('holiday', 'weekday', 'next'),
+            new Set(['2025-02-11T00:00:00'])
+          )
+        ).toBe(false);
+      });
+    });
+
+    describe('移動', () => {
+      it('次の祝日は直後の土曜ではなく、集合にある火曜になる', () => {
+        const monday = at(2025, 2, 10, 15, 30);
+        const result = applyWeekdayAdjustment(
+          monday,
+          condition('monday', 'holiday', 'next'),
+          holidays
+        );
+
+        expectLocalDate(result, 2025, 2, 11);
+        expect(result.getHours()).toBe(15);
+        expect(result.getMinutes()).toBe(30);
+        expect(monday.getDate()).toBe(10);
+      });
+
+      it('祝日集合が無いと同じ月曜からは次の土曜へ移動する', () => {
+        const result = applyWeekdayAdjustment(
+          at(2025, 2, 10),
+          condition('monday', 'holiday', 'next')
+        );
+
+        expectLocalDate(result, 2025, 2, 15);
+      });
+
+      it('すでに平日祝日なら次方向でも前方向でもその日のまま', () => {
+        const foundationDay = at(2025, 2, 11);
+
+        expectLocalDate(
+          applyWeekdayAdjustment(foundationDay, condition('tuesday', 'holiday', 'next'), holidays),
+          2025,
+          2,
+          11
+        );
+        expectLocalDate(
+          applyWeekdayAdjustment(
+            foundationDay,
+            condition('tuesday', 'holiday', 'previous'),
+            holidays
+          ),
+          2025,
+          2,
+          11
+        );
+      });
+
+      it('前の土日祝日は、より近い平日祝日を週末より先に選ぶ', () => {
+        const result = applyWeekdayAdjustment(
+          at(2025, 2, 12),
+          condition('wednesday', 'weekend_holiday', 'previous'),
+          holidays
+        );
+
+        expectLocalDate(result, 2025, 2, 11);
+      });
+
+      it('土曜から前の平日非祝日へ戻るとき、直前の金曜祝日を飛ばす', () => {
+        const result = applyWeekdayAdjustment(
+          at(2025, 2, 15),
+          condition('saturday', 'non_weekend_holiday', 'previous'),
+          holidays
+        );
+
+        expectLocalDate(result, 2025, 2, 13);
+      });
+
+      it('前の祝日は、より近い平日祝日を週末より先に選ぶ', () => {
+        const result = applyWeekdayAdjustment(
+          at(2025, 2, 13),
+          condition('thursday', 'holiday', 'previous'),
+          holidays
+        );
+
+        expectLocalDate(result, 2025, 2, 11);
+      });
+
+      it('前の祝日は、週末の方が近ければ平日祝日まで戻らない', () => {
+        const result = applyWeekdayAdjustment(
+          at(2025, 2, 17),
+          condition('monday', 'holiday', 'previous'),
+          holidays
+        );
+
+        expectLocalDate(result, 2025, 2, 16);
+      });
+
+      it('平日祝日の次の非祝日はその翌日', () => {
+        const result = applyWeekdayAdjustment(
+          at(2025, 2, 11),
+          condition('tuesday', 'non_holiday', 'next'),
+          holidays
+        );
+
+        expectLocalDate(result, 2025, 2, 12);
+      });
+
+      it('平日祝日の前の非祝日はその前日', () => {
+        const result = applyWeekdayAdjustment(
+          at(2025, 2, 11),
+          condition('tuesday', 'non_holiday', 'previous'),
+          holidays
+        );
+
+        expectLocalDate(result, 2025, 2, 10);
+      });
+
+      it('金曜の祝日の次の平日非祝日は、土日を飛ばした月曜', () => {
+        const result = applyWeekdayAdjustment(
+          at(2025, 2, 14),
+          condition('friday', 'non_weekend_holiday', 'next'),
+          holidays
+        );
+
+        expectLocalDate(result, 2025, 2, 17);
+      });
+
+      it('連続する平日祝日を飛ばして次の平日非祝日へ移動する', () => {
+        const result = applyWeekdayAdjustment(
+          at(2025, 5, 4),
+          condition('sunday', 'non_weekend_holiday', 'next'),
+          holidays
+        );
+
+        expectLocalDate(result, 2025, 5, 7);
+      });
+
+      it('連続する平日祝日の前の非祝日は、直前の週末も飛ばす', () => {
+        const result = applyWeekdayAdjustment(
+          at(2025, 5, 6),
+          condition('tuesday', 'non_holiday', 'previous'),
+          holidays
+        );
+
+        expectLocalDate(result, 2025, 5, 2);
+      });
+
+      it('次の土日祝日は、同じ週の後半にある平日祝日より先の土曜を選ぶ', () => {
+        const result = applyWeekdayAdjustment(
+          at(2025, 5, 1),
+          condition('thursday', 'weekend_holiday', 'next'),
+          holidays
+        );
+
+        expectLocalDate(result, 2025, 5, 3);
+      });
+
+      it('平日祝日の方が次の土曜より近いときは、その平日を土日祝日の移動先にする', () => {
+        const result = applyWeekdayAdjustment(
+          at(2025, 2, 10),
+          condition('monday', 'weekend_holiday', 'next'),
+          holidays
+        );
+
+        expectLocalDate(result, 2025, 2, 11);
+      });
+
+      it('年をまたいで次の平日祝日へ移動する', () => {
+        const result = applyWeekdayAdjustment(
+          at(2025, 12, 31),
+          condition('wednesday', 'holiday', 'next'),
+          holidays
+        );
+
+        expectLocalDate(result, 2026, 1, 1);
+      });
+
+      it('年をまたいで前の非祝日へ移動する', () => {
+        const result = applyWeekdayAdjustment(
+          at(2025, 1, 1),
+          condition('wednesday', 'non_holiday', 'previous'),
+          holidays
+        );
+
+        expectLocalDate(result, 2024, 12, 31);
+      });
+
+      it('すでに平日非祝日ならその日のまま', () => {
+        const result = applyWeekdayAdjustment(
+          at(2025, 2, 12),
+          condition('wednesday', 'non_weekend_holiday', 'next'),
+          holidays
+        );
+
+        expectLocalDate(result, 2025, 2, 12);
+      });
     });
   });
 });
