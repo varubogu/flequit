@@ -1003,6 +1003,153 @@ describe('RecurrenceDateCalculator', () => {
       });
     });
 
+    describe('平日祝日を含む繰り返し補正', () => {
+      const holidayThenNextNonHoliday: WeekdayCondition = {
+        id: 'holiday-to-non-holiday',
+        ifWeekday: 'holiday',
+        thenDirection: 'next',
+        thenTarget: 'non_holiday'
+      };
+
+      it('翌日が平日祝日なら、その翌日の非祝日へ補正する', () => {
+        const rule: RecurrenceRule = {
+          unit: 'day',
+          interval: 1,
+          adjustment: {
+            weekdayConditions: [holidayThenNextNonHoliday]
+          }
+        };
+        const holidays = new Set(['2025-02-11']);
+
+        const nextDate = RecurrenceDateCalculator.calculateNextDate(
+          new Date(2025, 1, 10),
+          rule,
+          holidays
+        );
+
+        expect(nextDate?.getFullYear()).toBe(2025);
+        expect(nextDate?.getMonth()).toBe(1);
+        expect(nextDate?.getDate()).toBe(12);
+      });
+
+      it('祝日集合が無いと、同じ火曜は祝日として補正しない', () => {
+        const rule: RecurrenceRule = {
+          unit: 'day',
+          interval: 1,
+          adjustment: {
+            weekdayConditions: [holidayThenNextNonHoliday]
+          }
+        };
+
+        const nextDate = RecurrenceDateCalculator.calculateNextDate(new Date(2025, 1, 10), rule);
+
+        expect(nextDate?.getFullYear()).toBe(2025);
+        expect(nextDate?.getMonth()).toBe(1);
+        expect(nextDate?.getDate()).toBe(11);
+      });
+
+      it('連続する平日祝日と土日を飛ばし、2回目の発生日にも同じ集合を使う', () => {
+        const rule: RecurrenceRule = {
+          unit: 'day',
+          interval: 1,
+          adjustment: {
+            weekdayConditions: [holidayThenNextNonHoliday]
+          }
+        };
+        const holidays = new Set(['2025-02-11', '2025-02-13']);
+
+        const dates = RecurrenceDateCalculator.generateRecurrenceDates(
+          new Date(2025, 1, 10),
+          rule,
+          2,
+          holidays
+        );
+
+        expect(dates).toHaveLength(2);
+        expect(dates[0].getFullYear()).toBe(2025);
+        expect(dates[0].getMonth()).toBe(1);
+        expect(dates[0].getDate()).toBe(12);
+        expect(dates[1].getFullYear()).toBe(2025);
+        expect(dates[1].getMonth()).toBe(1);
+        expect(dates[1].getDate()).toBe(14);
+      });
+
+      it('金曜の祝日に当たった日を、土日の先の月曜へ補正する', () => {
+        const rule: RecurrenceRule = {
+          unit: 'day',
+          interval: 1,
+          adjustment: {
+            weekdayConditions: [holidayThenNextNonHoliday]
+          }
+        };
+
+        const nextDate = RecurrenceDateCalculator.calculateNextDate(
+          new Date(2025, 1, 13),
+          rule,
+          new Set(['2025-02-14'])
+        );
+
+        expect(nextDate?.getFullYear()).toBe(2025);
+        expect(nextDate?.getMonth()).toBe(1);
+        expect(nextDate?.getDate()).toBe(17);
+      });
+
+      it('土日祝日から次の平日非祝日へ移るとき、連続する平日祝日も飛ばす', () => {
+        const rule: RecurrenceRule = {
+          unit: 'day',
+          interval: 1,
+          adjustment: {
+            weekdayConditions: [
+              {
+                id: 'weekend-holiday-to-business-day',
+                ifWeekday: 'weekend_holiday',
+                thenDirection: 'next',
+                thenTarget: 'non_weekend_holiday'
+              }
+            ]
+          }
+        };
+        const holidays = new Set(['2025-05-05', '2025-05-06']);
+
+        const withHolidays = RecurrenceDateCalculator.calculateNextDate(
+          new Date(2025, 4, 2),
+          rule,
+          holidays
+        );
+        const withoutHolidays = RecurrenceDateCalculator.calculateNextDate(
+          new Date(2025, 4, 2),
+          rule
+        );
+
+        expect(withHolidays?.getFullYear()).toBe(2025);
+        expect(withHolidays?.getMonth()).toBe(4);
+        expect(withHolidays?.getDate()).toBe(7);
+        expect(withoutHolidays?.getFullYear()).toBe(2025);
+        expect(withoutHolidays?.getMonth()).toBe(4);
+        expect(withoutHolidays?.getDate()).toBe(5);
+      });
+
+      it('年をまたぐ平日祝日を非祝日へ補正する', () => {
+        const rule: RecurrenceRule = {
+          unit: 'day',
+          interval: 1,
+          adjustment: {
+            weekdayConditions: [holidayThenNextNonHoliday]
+          }
+        };
+
+        const nextDate = RecurrenceDateCalculator.calculateNextDate(
+          new Date(2025, 11, 31),
+          rule,
+          new Set(['2026-01-01'])
+        );
+
+        expect(nextDate?.getFullYear()).toBe(2026);
+        expect(nextDate?.getMonth()).toBe(0);
+        expect(nextDate?.getDate()).toBe(2);
+      });
+    });
+
     describe('将来の改善事項', () => {
       it('週の開始日設定を考慮した実装が必要', () => {
         // TODO: RecurrenceDateCalculatorで週の開始日設定を考慮する機能を実装

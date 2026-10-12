@@ -12,6 +12,7 @@ import {
 import { checkDateCondition, adjustDateForCondition } from './adjustment/date-adjuster';
 import { checkWeekdayCondition, applyWeekdayAdjustment } from './adjustment/weekday-adjuster';
 import { shouldEndRecurrence } from './validation';
+import type { HolidayDateSet } from './utils';
 
 /**
  * 繰り返しタスクの次回実行日を計算するサービス
@@ -20,9 +21,14 @@ import { shouldEndRecurrence } from './validation';
  */
 export class RecurrenceDateCalculator {
   /**
-   * 指定されたベース日付と繰り返しルールから次回実行日を計算
+   * 指定されたベース日付と繰り返しルールから次回実行日を計算。
+   * `holidays` は平日祝日の `YYYY-MM-DD`。未指定時は土日だけを祝日とみなす。
    */
-  static calculateNextDate(baseDate: Date, rule: RecurrenceRule): Date | null {
+  static calculateNextDate(
+    baseDate: Date,
+    rule: RecurrenceRule,
+    holidays?: HolidayDateSet
+  ): Date | null {
     if (!rule) return null;
 
     let nextDate = new Date(baseDate);
@@ -79,7 +85,7 @@ export class RecurrenceDateCalculator {
       ((rule.adjustment.dateConditions?.length ?? 0) > 0 ||
         (rule.adjustment.weekdayConditions?.length ?? 0) > 0)
     ) {
-      nextDate = this.applyDateAdjustment(nextDate, rule.adjustment);
+      nextDate = this.applyDateAdjustment(nextDate, rule.adjustment, holidays);
     }
 
     // 終了条件をチェック
@@ -95,7 +101,8 @@ export class RecurrenceDateCalculator {
    */
   private static applyDateAdjustment(
     date: Date,
-    adjustment: NonNullable<RecurrenceRule['adjustment']>
+    adjustment: NonNullable<RecurrenceRule['adjustment']>,
+    holidays?: HolidayDateSet
   ): Date {
     let adjustedDate = new Date(date);
 
@@ -112,8 +119,8 @@ export class RecurrenceDateCalculator {
     // 曜日条件をチェック
     if (adjustment.weekdayConditions) {
       for (const condition of adjustment.weekdayConditions) {
-        if (checkWeekdayCondition(adjustedDate, condition)) {
-          adjustedDate = applyWeekdayAdjustment(adjustedDate, condition);
+        if (checkWeekdayCondition(adjustedDate, condition, holidays)) {
+          adjustedDate = applyWeekdayAdjustment(adjustedDate, condition, holidays);
         }
       }
     }
@@ -127,7 +134,8 @@ export class RecurrenceDateCalculator {
   static generateRecurrenceDates(
     startDate: Date,
     rule: RecurrenceRule,
-    maxCount: number = 10
+    maxCount: number = 10,
+    holidays?: HolidayDateSet
   ): Date[] {
     const dates: Date[] = [];
     let currentDate = new Date(startDate);
@@ -138,11 +146,11 @@ export class RecurrenceDateCalculator {
       ((rule.adjustment.dateConditions?.length ?? 0) > 0 ||
         (rule.adjustment.weekdayConditions?.length ?? 0) > 0)
     ) {
-      currentDate = this.applyDateAdjustment(currentDate, rule.adjustment);
+      currentDate = this.applyDateAdjustment(currentDate, rule.adjustment, holidays);
     }
 
     for (let i = 0; i < maxCount; i++) {
-      const nextDate = this.calculateNextDate(currentDate, rule);
+      const nextDate = this.calculateNextDate(currentDate, rule, holidays);
       if (!nextDate) break;
 
       dates.push(new Date(nextDate));
