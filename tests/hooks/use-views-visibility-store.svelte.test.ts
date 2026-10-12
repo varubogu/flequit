@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi, type Mock } from 'vitest';
 import { useViewsVisibilityStore } from '$lib/hooks/use-views-visibility-store.svelte';
 import { setupViewsVisibilityStoreOverride } from '../utils/store-overrides';
 import { MockViewsVisibilityStore } from '../utils/mock-factories';
 
 let mockViewsVisibilityStore: MockViewsVisibilityStore;
-let onSetLists: ReturnType<typeof vi.fn>;
-let onReset: ReturnType<typeof vi.fn>;
+let onSetLists: Mock;
+let onReset: Mock;
 let cleanup: (() => void) | null = null;
 
 describe('useViewsVisibilityStore', () => {

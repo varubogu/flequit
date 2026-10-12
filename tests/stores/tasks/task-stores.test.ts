@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
 import { TaskEntitiesStore } from '$lib/stores/tasks/task-entities-store.svelte';
 import { TaskSelectionStore } from '$lib/stores/tasks/task-selection-store.svelte';
 import { TaskDraftStore } from '$lib/stores/tasks/task-draft-store.svelte';
@@ -109,12 +109,12 @@ function createProjectTree(): ProjectTree[] {
 describe('TaskEntitiesStore', () => {
   let projectStoreMock: {
     projects: ProjectTree[];
-    setProjects: ReturnType<typeof vi.fn>;
-    loadProjects: ReturnType<typeof vi.fn>;
+    setProjects: Mock;
+    loadProjects: Mock;
   };
   let taskCoreStoreMock: {
-    setProjects: ReturnType<typeof vi.fn>;
-    loadProjectsData: ReturnType<typeof vi.fn>;
+    setProjects: Mock;
+    loadProjectsData: Mock;
   };
   let entities: TaskEntitiesStore;
 
@@ -220,9 +220,9 @@ describe('TaskSelectionStore', () => {
   };
   let entitiesStub: {
     allTasks: TaskWithSubTasks[];
-    getTaskById: ReturnType<typeof vi.fn>;
-    getTaskProjectAndList: ReturnType<typeof vi.fn>;
-    getProjectIdByTaskId: ReturnType<typeof vi.fn>;
+    getTaskById: Mock;
+    getTaskProjectAndList: Mock;
+    getProjectIdByTaskId: Mock;
   };
   let subTaskStoreStub: { selectedSubTask: SubTask | null };
   let selection: TaskSelectionStore;
@@ -323,7 +323,7 @@ describe('TaskSelectionStore', () => {
 });
 
 describe('TaskDraftStore', () => {
-  let taskListStoreStub: { getProjectIdByListId: ReturnType<typeof vi.fn> };
+  let taskListStoreStub: { getProjectIdByListId: Mock };
   let selectionStub: { selectedProjectId: string | null };
   let draft: TaskDraftStore;
 

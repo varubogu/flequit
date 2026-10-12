@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { createTaskDetailActions } from '$lib/services/ui/task-detail/task-detail-actions';
 import type { TaskDetailDomainActions } from '$lib/stores/task-detail-view-store.svelte';
 import type { TaskDetailViewStore } from '$lib/stores/task-detail-view-store.svelte';
@@ -105,11 +105,11 @@ const createStoreStub = () => {
 describe('TaskDetailActionsService', () => {
   let store: TaskDetailViewStore;
   let domain: TaskDetailDomainActions;
-  let recurrence: { save: ReturnType<typeof vi.fn> };
+  let recurrence: { save: Mock };
   let interactions: {
-    cancelNewTaskMode: ReturnType<typeof vi.fn>;
-    saveNewTask: ReturnType<typeof vi.fn>;
-    updateNewTaskData: ReturnType<typeof vi.fn>;
+    cancelNewTaskMode: Mock;
+    saveNewTask: Mock;
+    updateNewTaskData: Mock;
   };
 
   beforeEach(() => {

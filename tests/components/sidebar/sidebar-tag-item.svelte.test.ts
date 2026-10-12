@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach, afterEach, afterAll, vi } from 'vitest';
+import { describe, test, expect, beforeEach, afterEach, afterAll, vi, type Mock } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import { setTranslationService, getTranslationService } from '$lib/stores/locale.svelte';
 import { tagStore } from '$lib/stores/tags.svelte';
@@ -46,10 +46,10 @@ describe('SidebarTagItem Component', () => {
     updatedBy: 'test-user-id'
   };
 
-  let onRemoveFromBookmarks: ReturnType<typeof vi.fn>;
-  let onEditTag: ReturnType<typeof vi.fn>;
-  let onDeleteTag: ReturnType<typeof vi.fn>;
-  let onTagClick: ReturnType<typeof vi.fn>;
+  let onRemoveFromBookmarks: Mock;
+  let onEditTag: Mock;
+  let onDeleteTag: Mock;
+  let onTagClick: Mock;
 
   beforeEach(() => {
     setTranslationService(createUnitTestTranslationService());

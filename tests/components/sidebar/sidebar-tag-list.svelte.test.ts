@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { describe, test, expect, beforeEach, vi, type Mock } from 'vitest';
 import { render } from '@testing-library/svelte';
 import SidebarTagList from '$lib/components/sidebar/sidebar-tag-list.svelte';
 import { setTranslationService } from '$lib/stores/locale.svelte';
@@ -79,7 +79,7 @@ vi.mock('./sidebar-tag-item.svelte', () => ({
 }));
 
 describe('SidebarTagList Component', () => {
-  let onViewChange: ReturnType<typeof vi.fn>;
+  let onViewChange: Mock;
 
   beforeEach(() => {
     setTranslationService(createUnitTestTranslationService());

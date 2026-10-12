@@ -2,22 +2,26 @@
   import { Drawer as DrawerPrimitive } from 'vaul-svelte';
   import DrawerOverlay from '$lib/components/ui/drawer/drawer-overlay.svelte';
   import { cn } from '$lib/utils.js';
+  import type { Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
 
   let {
-    ref = $bindable(null),
+    el = $bindable(undefined),
     class: className,
     portalProps,
     children,
     ...restProps
   }: DrawerPrimitive.ContentProps & {
-    portalProps?: DrawerPrimitive.PortalProps;
+    // Portal は Svelte 4 クラスで、Svelte 5 の ComponentProps 制約を満たさない。
+    portalProps?: HTMLAttributes<HTMLDivElement>;
+    children?: Snippet;
   } = $props();
 </script>
 
-<DrawerPrimitive.Portal {...portalProps}>
+<DrawerPrimitive.Portal {...portalProps ?? {}}>
   <DrawerOverlay />
   <DrawerPrimitive.Content
-    bind:ref
+    bind:el
     data-slot="drawer-content"
     class={cn(
       'group/drawer-content bg-background fixed z-50 flex h-auto flex-col',

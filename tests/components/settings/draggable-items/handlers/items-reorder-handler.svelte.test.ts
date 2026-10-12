@@ -11,6 +11,7 @@ const createDragState = (
   targetContainer: params.targetContainer ?? 'visible',
   targetElement: params.targetElement ?? null,
   draggedItem: params.draggedItem,
+  dropPosition: params.dropPosition ?? null,
   invalidDrop: params.invalidDrop
 });
 

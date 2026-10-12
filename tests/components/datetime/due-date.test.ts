@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { fireEvent, render } from '@testing-library/svelte';
 import DueDate from '$lib/components/datetime/date-inputs/due-date.svelte';
 import type { TaskBase } from '$lib/types/task';
@@ -10,7 +10,7 @@ const createTask = (overrides: Partial<TaskBase> = {}): TaskBase => ({
 });
 
 describe('DueDate', () => {
-  let handleDueDateClick: ReturnType<typeof vi.fn>;
+  let handleDueDateClick: Mock;
 
   beforeEach(() => {
     handleDueDateClick = vi.fn();

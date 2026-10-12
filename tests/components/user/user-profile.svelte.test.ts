@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { describe, test, expect, beforeEach, vi, type Mock } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import UserProfile from '$lib/components/user/user-profile.svelte';
 import { setTranslationService } from '$lib/stores/locale.svelte';
@@ -43,10 +43,10 @@ vi.mock('$lib/components/settings-dialog.svelte', () => ({
 }));
 
 describe('UserProfile Component', () => {
-  let onLogin: ReturnType<typeof vi.fn>;
-  let onLogout: ReturnType<typeof vi.fn>;
-  let onSettings: ReturnType<typeof vi.fn>;
-  let onSwitchAccount: ReturnType<typeof vi.fn>;
+  let onLogin: Mock;
+  let onLogout: Mock;
+  let onSettings: Mock;
+  let onSwitchAccount: Mock;
 
   beforeEach(() => {
     setTranslationService(createUnitTestTranslationService());

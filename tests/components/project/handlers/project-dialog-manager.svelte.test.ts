@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { createProjectDialogManager } from '$lib/components/project/handlers/project-dialog-manager.svelte';
 import type { ProjectTree } from '$lib/types/project';
 
@@ -65,8 +65,8 @@ const createMockProject = (overrides: Partial<ProjectTree> = {}): ProjectTree =>
 };
 
 describe('ProjectDialogManager', () => {
-  let onViewChange: ReturnType<typeof vi.fn>;
-  let onProjectExpand: ReturnType<typeof vi.fn>;
+  let onViewChange: Mock;
+  let onProjectExpand: Mock;
   let manager: ReturnType<typeof createProjectDialogManager>;
   let mockProject: ProjectTree;
 

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
 import { TaskItemHandlers } from '$lib/components/task/core/task-item-handlers.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import type { SubTask } from '$lib/types/sub-task';
@@ -51,7 +51,7 @@ describe('TaskItemHandlers', () => {
   let mockSubTask: SubTask;
   let mockTaskDetailUiStore: TaskDetailUiStore;
   let taskDetailHandlerMocks: TaskDetailStoreMock;
-  let mockDispatch: ReturnType<typeof vi.fn>;
+  let mockDispatch: Mock;
   let mockCallbacks: {
     onTaskClick?: (taskId: string) => void;
     onSubTaskClick?: (subTaskId: string) => void;

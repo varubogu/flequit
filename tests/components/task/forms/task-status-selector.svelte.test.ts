@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { fireEvent, render } from '@testing-library/svelte';
 import TaskStatusSelector from '$lib/components/task/forms/task-status-selector.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
@@ -25,7 +25,7 @@ const makeTask = (): TaskWithSubTasks => ({
 });
 
 describe('TaskStatusSelector', () => {
-  let onStatusChange: ReturnType<typeof vi.fn>;
+  let onStatusChange: Mock;
 
   beforeEach(() => {
     onStatusChange = vi.fn();

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
 import { TaskInteractionsService } from '$lib/services/ui/task/task-interactions';
 import { TaskEntitiesStore } from '$lib/stores/tasks/task-entities-store.svelte';
 import { TaskSelectionStore } from '$lib/stores/tasks/task-selection-store.svelte';
@@ -89,10 +89,10 @@ describe('TaskInteractionsService', () => {
   let entities: TaskEntitiesStore;
   let selectionState: SelectionStateMock;
   let selection: TaskSelectionStore;
-  let taskListStoreStub: { getProjectIdByListId: ReturnType<typeof vi.fn> };
+  let taskListStoreStub: { getProjectIdByListId: Mock };
   let draft: TaskDraftStore;
-  let taskOperationsStub: { addTask: ReturnType<typeof vi.fn> };
-  let tagStoreStub: { getOrCreateTagWithProject: ReturnType<typeof vi.fn> };
+  let taskOperationsStub: { addTask: Mock };
+  let tagStoreStub: { getOrCreateTagWithProject: Mock };
   let service: TaskInteractionsService;
 
   beforeEach(() => {

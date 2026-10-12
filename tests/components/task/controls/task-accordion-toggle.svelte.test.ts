@@ -1,9 +1,9 @@
-import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { describe, test, expect, beforeEach, vi, type Mock } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import TaskAccordionToggle from '$lib/components/task/controls/task-accordion-toggle.svelte';
 
 describe('TaskAccordionToggle Component', () => {
-  let onToggle: ReturnType<typeof vi.fn>;
+  let onToggle: Mock;
 
   beforeEach(() => {
     onToggle = vi.fn();

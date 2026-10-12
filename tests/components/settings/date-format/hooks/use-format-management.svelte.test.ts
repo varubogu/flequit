@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
 import { useFormatManagement } from '$lib/components/settings/date-format/hooks/use-format-management.svelte';
 import { DateFormatEditorController } from '$lib/components/settings/date-format/date-format-editor-controller.svelte';
 
@@ -38,11 +38,11 @@ vi.mock('svelte-sonner', () => ({
 }));
 
 describe('useFormatManagement', () => {
-  let mockAddCustomFormat: ReturnType<typeof vi.fn>;
-  let mockUpdateCustomFormat: ReturnType<typeof vi.fn>;
-  let mockRemoveCustomFormat: ReturnType<typeof vi.fn>;
-  let mockToastSuccess: ReturnType<typeof vi.fn>;
-  let mockToastError: ReturnType<typeof vi.fn>;
+  let mockAddCustomFormat: Mock;
+  let mockUpdateCustomFormat: Mock;
+  let mockRemoveCustomFormat: Mock;
+  let mockToastSuccess: Mock;
+  let mockToastError: Mock;
   let controller: DateFormatEditorController;
   let formatManagement: ReturnType<typeof useFormatManagement>;
 

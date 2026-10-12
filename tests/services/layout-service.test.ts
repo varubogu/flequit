@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi, type Mock } from 'vitest';
 import {
   createLayoutPreferencesStore,
   LayoutPreferencesStore
@@ -7,8 +7,8 @@ import {
 const STORAGE_KEY = 'flequit-layout-preferences';
 
 type MockStorage = {
-  getItem: ReturnType<typeof vi.fn>;
-  setItem: ReturnType<typeof vi.fn>;
+  getItem: Mock;
+  setItem: Mock;
 };
 
 const toPlain = (prefs: unknown) => {

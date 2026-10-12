@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { fireEvent, render } from '@testing-library/svelte';
 import TaskDueDateSelector from '$lib/components/task/forms/task-due-date-selector.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
@@ -34,7 +34,7 @@ describe('TaskDueDateSelector Component', () => {
     priority: 2
   };
 
-  let onDueDateClick: ReturnType<typeof vi.fn>;
+  let onDueDateClick: Mock;
 
   beforeEach(() => {
     onDueDateClick = vi.fn();

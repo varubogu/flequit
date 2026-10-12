@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { fireEvent, render } from '@testing-library/svelte';
 import TaskPrioritySelector from '$lib/components/task/forms/task-priority-selector.svelte';
 
@@ -12,8 +12,8 @@ describe('TaskPrioritySelector Component', () => {
     priority: 2
   };
 
-  let onPriorityChange: ReturnType<typeof vi.fn>;
-  let onFormChange: ReturnType<typeof vi.fn>;
+  let onPriorityChange: Mock;
+  let onFormChange: Mock;
 
   beforeEach(() => {
     onPriorityChange = vi.fn();
