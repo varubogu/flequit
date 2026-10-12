@@ -3,6 +3,17 @@ import { render, screen, fireEvent } from '@testing-library/svelte';
 import TaskListDisplay from '$lib/components/task/core/task-list-display.svelte';
 // import { createUnitTestTranslationService } from '../../unit-translation-mock';
 import type { ProjectTree } from '$lib/types/project';
+import { TaskOperations } from '$lib/services/domain/task';
+
+const { taskStoreState, droppedDragData } = vi.hoisted(() => ({
+  taskStoreState: {
+    projects: [] as unknown[],
+    selectedListId: null as string | null
+  },
+  droppedDragData: {
+    current: null as null | { type: string; id: string; projectId?: string }
+  }
+}));
 
 // 翻訳サービスのモック
 vi.mock('$lib/stores/locale.svelte', () => ({
@@ -11,9 +22,11 @@ vi.mock('$lib/stores/locale.svelte', () => ({
       const messages: Record<string, string> = {
         edit_task_list: 'Edit Task List',
         add_task: 'Add Task',
-        delete_task_list: 'Delete Task List'
+        delete_task_list: 'Delete Task List',
+        cancel: 'Cancel',
+        save: 'Save'
       };
-      return messages[key] || key;
+      return () => messages[key] || key;
     })
   })
 }));
@@ -21,8 +34,18 @@ vi.mock('$lib/stores/locale.svelte', () => ({
 // taskStoreのモック
 vi.mock('$lib/stores/tasks.svelte', () => ({
   taskStore: {
-    projects: [],
-    selectedListId: null
+    get projects() {
+      return taskStoreState.projects;
+    },
+    set projects(value: unknown[]) {
+      taskStoreState.projects = value;
+    },
+    get selectedListId() {
+      return taskStoreState.selectedListId;
+    },
+    set selectedListId(value: string | null) {
+      taskStoreState.selectedListId = value;
+    }
   }
 }));
 
@@ -62,7 +85,7 @@ vi.mock('$lib/utils/drag-drop', () => ({
   DragDropManager: {
     startDrag: vi.fn(),
     handleDragOver: vi.fn(),
-    handleDrop: vi.fn().mockReturnValue(null),
+    handleDrop: vi.fn(() => droppedDragData.current),
     handleDragEnd: vi.fn(),
     handleDragEnter: vi.fn(),
     handleDragLeave: vi.fn()
@@ -143,6 +166,8 @@ describe('TaskListDisplay', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    droppedDragData.current = null;
+    taskStoreState.selectedListId = null;
     // currentProject依存のためprojectsに対象プロジェクトを挿入
     import('$lib/stores/tasks.svelte').then(({ taskStore }) => {
       taskStore.projects = [
@@ -556,5 +581,59 @@ describe('TaskListDisplay', () => {
       // variant="ghost"が適用されることを確認（Buttonコンポーネントの実装に依存）
       expect(button).toBeInTheDocument();
     });
+  });
+
+  it('highlights only the selected list and routes task and task-list drops', async () => {
+    taskStoreState.selectedListId = 'list-1';
+    render(TaskListDisplay, { props: { ...defaultProps, isExpanded: true } });
+
+    expect(screen.getByTestId('tasklist-list-1').className).toContain('border-primary');
+    expect(screen.getByTestId('tasklist-list-2').className).not.toContain('border-primary');
+
+    const { taskListStore } = await import('$lib/stores/task-list-store.svelte');
+    const moveTask = vi.spyOn(TaskOperations.prototype, 'moveTaskToList').mockResolvedValue(undefined);
+
+    droppedDragData.current = { type: 'tasklist', id: 'list-1', projectId: 'project-1' };
+    await fireEvent.drop(screen.getByTestId('tasklist-list-2'));
+    expect(taskListStore.moveTaskListToPosition).toHaveBeenCalledWith('list-1', 'project-1', 1);
+
+    droppedDragData.current = { type: 'task', id: 'task-9' };
+    await fireEvent.drop(screen.getByTestId('tasklist-list-2'));
+    expect(moveTask).toHaveBeenCalledWith('task-9', 'list-2');
+
+    droppedDragData.current = null;
+    moveTask.mockClear();
+    vi.mocked(taskListStore.moveTaskListToPosition).mockClear();
+    await fireEvent.drop(screen.getByTestId('tasklist-list-2'));
+    expect(moveTask).not.toHaveBeenCalled();
+    expect(taskListStore.moveTaskListToPosition).not.toHaveBeenCalled();
+    moveTask.mockRestore();
+  });
+
+  it('edits a list from the context menu and adds or deletes through the same menu', async () => {
+    const { taskListStore } = await import('$lib/stores/task-list-store.svelte');
+    const { taskInteractions } = await import('$lib/services/ui/task');
+    render(TaskListDisplay, { props: { ...defaultProps, isExpanded: true } });
+
+    await fireEvent.contextMenu(screen.getByTestId('tasklist-list-1'));
+    await fireEvent.click(await screen.findByText('Add Task'));
+    expect(taskInteractions.startNewTaskMode).toHaveBeenCalledWith('list-1');
+
+    await fireEvent.contextMenu(screen.getByTestId('tasklist-list-1'));
+    await fireEvent.click(await screen.findByText('Delete Task List'));
+    expect(taskListStore.deleteTaskList).toHaveBeenCalledWith('list-1');
+
+    await fireEvent.contextMenu(screen.getByTestId('tasklist-list-1'));
+    await fireEvent.click(await screen.findByText('Edit Task List'));
+    const nameInput = await screen.findByPlaceholderText('Enter task list name');
+    await fireEvent.input(nameInput, { target: { value: 'Renamed list' } });
+    await fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    expect(taskListStore.updateTaskList).toHaveBeenCalledWith('list-1', { name: 'Renamed list' });
+
+    await fireEvent.dragEnter(screen.getByTestId('tasklist-list-1'));
+    await fireEvent.dragLeave(screen.getByTestId('tasklist-list-1'));
+    const { DragDropManager } = await import('$lib/utils/drag-drop');
+    expect(DragDropManager.handleDragEnter).toHaveBeenCalled();
+    expect(DragDropManager.handleDragLeave).toHaveBeenCalled();
   });
 });

@@ -4,15 +4,23 @@ import TagDisplay from '$lib/components/tag/display/tag-display.svelte';
 import type { Tag } from '$lib/types/tag';
 import { setTranslationService } from '$lib/stores/locale.svelte';
 import { createUnitTestTranslationService } from '../../unit-translation-mock';
+import { TagService } from '$lib/services/domain/tag';
+import { TagBookmarkService } from '$lib/services/domain/tag-bookmark';
+import { taskStore } from '$lib/stores/tasks.svelte';
 
-// モック設定
-vi.mock('$lib/stores/tags.svelte', () => ({
-  tagStore: {
-    bookmarkedTags: new Map(),
+const { tagStoreMock } = vi.hoisted(() => ({
+  tagStoreMock: {
+    bookmarkedTags: [] as string[],
+    getProjectIdByTagId: vi.fn(async () => null as string | null),
     toggleBookmark: vi.fn(),
     updateTag: vi.fn(),
     deleteTag: vi.fn()
   }
+}));
+
+// モック設定
+vi.mock('$lib/stores/tags.svelte', () => ({
+  tagStore: tagStoreMock
 }));
 
 vi.mock('$lib/stores/tasks.svelte', () => ({
@@ -38,6 +46,9 @@ describe('TagDisplay', () => {
 
   beforeEach(() => {
     setTranslationService(createUnitTestTranslationService());
+    tagStoreMock.bookmarkedTags = [];
+    tagStoreMock.getProjectIdByTagId.mockReset();
+    tagStoreMock.getProjectIdByTagId.mockResolvedValue(null);
     vi.clearAllMocks();
   });
 
@@ -209,5 +220,95 @@ describe('TagDisplay', () => {
     expect(container).toBeTruthy();
     expect(props.onRemove).toBeInstanceOf(Function);
     expect(props.onTagRemoveFromItem).toBeInstanceOf(Function);
+  });
+
+  it('does not bookmark, edit, or delete a tag when no project id can be resolved', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const toggleBookmark = vi.spyOn(TagBookmarkService, 'toggleBookmark');
+    const updateTag = vi.spyOn(TagService, 'updateTag');
+    const deleteTag = vi.spyOn(TagService, 'deleteTag');
+
+    render(TagDisplay, { props: defaultProps });
+    await fireEvent.contextMenu(screen.getByText('test-tag'));
+    await fireEvent.click(await screen.findByText('TEST_ADD_TAG_TO_SIDEBAR'));
+    await vi.waitFor(() => {
+      expect(errorSpy).toHaveBeenCalledWith('[TagDisplay] Project ID not found for tag:', '1');
+    });
+    expect(toggleBookmark).not.toHaveBeenCalled();
+
+    await fireEvent.contextMenu(screen.getByText('test-tag'));
+    await fireEvent.click(await screen.findByText('TEST_EDIT_TAG'));
+    await fireEvent.click(await screen.findByText('TEST_SAVE'));
+    await vi.waitFor(() => {
+      expect(errorSpy).toHaveBeenCalledWith('Project ID not found for tag:', '1');
+    });
+    expect(updateTag).not.toHaveBeenCalled();
+
+    await fireEvent.contextMenu(screen.getByText('test-tag'));
+    await fireEvent.click(await screen.findByText('TEST_DELETE_TAG'));
+    await fireEvent.click(await screen.findByText('TEST_DELETE'));
+    await vi.waitFor(() => {
+      expect(errorSpy).toHaveBeenCalledWith('Project ID not found for tag:', '1');
+    });
+    expect(deleteTag).not.toHaveBeenCalled();
+    errorSpy.mockRestore();
+  });
+
+  it('bookmarks with the given project, and edits or deletes through the resolved project', async () => {
+    tagStoreMock.bookmarkedTags = ['1'];
+    tagStoreMock.getProjectIdByTagId.mockResolvedValue('project-9');
+    const toggleBookmark = vi.spyOn(TagBookmarkService, 'toggleBookmark').mockResolvedValue();
+    const updateTag = vi.spyOn(TagService, 'updateTag').mockResolvedValue();
+    const deleteTag = vi
+      .spyOn(TagService, 'deleteTag')
+      .mockImplementation(async (_projectId, tagId, onDelete) => {
+        onDelete?.(tagId);
+      });
+
+    render(TagDisplay, { props: { ...defaultProps, projectId: 'project-1' } });
+
+    await fireEvent.contextMenu(screen.getByText('test-tag'));
+    await fireEvent.click(await screen.findByText('TEST_REMOVE_TAG_FROM_SIDEBAR'));
+    await vi.waitFor(() => {
+      expect(toggleBookmark).toHaveBeenCalledWith('project-1', '1');
+    });
+
+    await fireEvent.contextMenu(screen.getByText('test-tag'));
+    await fireEvent.click(await screen.findByText('TEST_EDIT_TAG'));
+    const nameInput = await screen.findByLabelText('タグ名');
+    await fireEvent.input(nameInput, { target: { value: 'renamed' } });
+    await fireEvent.click(screen.getByText('TEST_SAVE'));
+    await vi.waitFor(() => {
+      expect(updateTag).toHaveBeenCalledWith(
+        'project-9',
+        '1',
+        expect.objectContaining({ name: 'renamed', color: '#ff0000' })
+      );
+    });
+
+    await fireEvent.contextMenu(screen.getByText('test-tag'));
+    await fireEvent.click(await screen.findByText('TEST_DELETE_TAG'));
+    await fireEvent.click(await screen.findByText('TEST_DELETE'));
+    await vi.waitFor(() => {
+      expect(deleteTag).toHaveBeenCalledWith('project-9', '1', expect.any(Function));
+    });
+    expect(taskStore.removeTagFromAllTasks).toHaveBeenCalledWith('1');
+  });
+
+  it('logs a bookmark failure without reporting a missing project', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(TagBookmarkService, 'toggleBookmark').mockRejectedValue(new Error('offline'));
+
+    render(TagDisplay, { props: { ...defaultProps, projectId: 'project-1' } });
+    await fireEvent.contextMenu(screen.getByText('test-tag'));
+    await fireEvent.click(await screen.findByText('TEST_ADD_TAG_TO_SIDEBAR'));
+
+    await vi.waitFor(() => {
+      expect(errorSpy).toHaveBeenCalledWith(
+        '[TagDisplay] Failed to toggle bookmark:',
+        expect.any(Error)
+      );
+    });
+    errorSpy.mockRestore();
   });
 });

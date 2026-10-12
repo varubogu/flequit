@@ -112,7 +112,7 @@
           <ContextMenu.Separator />
         {:else}
           <ContextMenu.Item
-            onselect={item.action}
+            onSelect={item.action}
             disabled={item.disabled}
             class={item.destructive
               ? 'text-destructive focus:bg-destructive/10 focus:text-destructive'

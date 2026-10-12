@@ -116,6 +116,16 @@ describe('SettingsAppearance Component', () => {
     expect(appearanceStore.setFont).toHaveBeenCalledWith('arial');
   });
 
+  test('ignores a font size that is not a number', async () => {
+    const { appearanceStore } = await import('$lib/stores/appearance-store.svelte');
+    render(SettingsAppearance);
+
+    const fontSizeInput = screen.getByLabelText(unitTestTranslations.font_size);
+    await fireEvent.input(fontSizeInput, { target: { value: '' } });
+
+    expect(appearanceStore.setFontSize).not.toHaveBeenCalled();
+  });
+
   test('should call appearanceStore.setFontSize when font size changes', async () => {
     const { appearanceStore } = await import('$lib/stores/appearance-store.svelte');
     render(SettingsAppearance);
