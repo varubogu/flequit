@@ -200,6 +200,128 @@ describe('TaskDetailActionsService', () => {
     });
   });
 
+  it('routes status changes through draft, subtask, and task updates', () => {
+    const actions = createTaskDetailActions({ store, domain, recurrence, interactions });
+    const event = { target: { value: 'in_progress' } } as unknown as Event;
+
+    actions.handleStatusChange(event);
+    expect(domain.changeTaskStatus).not.toHaveBeenCalled();
+
+    store.currentItem = createSubTask();
+    actions.handleStatusChange(event);
+    expect(domain.changeSubTaskStatus).toHaveBeenCalledWith('subtask-1', 'in_progress');
+
+    store.currentItem = createTask();
+    actions.handleStatusChange(event);
+    expect(domain.changeTaskStatus).toHaveBeenCalledWith('task-1', 'in_progress');
+  });
+
+  it('updates form fields and date dialog state', async () => {
+    const actions = createTaskDetailActions({ store, domain, recurrence, interactions });
+
+    actions.handleFormChange();
+    actions.handleTitleChange('Title');
+    actions.handleDescriptionChange('Description');
+    actions.handlePriorityChange(2);
+    actions.handleDueDateClick();
+    actions.handleDateClear();
+    actions.handleDatePickerClose();
+    await actions.handleDateChange({
+      date: '2024-04-01',
+      dateTime: '2024-04-01T00:00:00Z',
+      isRangeDate: false
+    });
+
+    expect(store.form.queueSave).toHaveBeenCalled();
+    expect(store.form.handleTitleChange).toHaveBeenCalledWith('Title');
+    expect(store.form.handleDescriptionChange).toHaveBeenCalledWith('Description');
+    expect(store.form.handlePriorityChange).toHaveBeenCalledWith(2);
+    expect(store.dialogs.openDatePicker).toHaveBeenCalled();
+    expect(store.form.clearDates).toHaveBeenCalled();
+    expect(store.dialogs.closeDatePicker).toHaveBeenCalled();
+  });
+
+  it('ignores delete and save when there is nothing to persist', async () => {
+    const actions = createTaskDetailActions({ store, domain, recurrence, interactions });
+
+    actions.handleDelete();
+    await actions.handleSaveNewTask();
+    expect(store.dialogs.openDeleteDialog).not.toHaveBeenCalled();
+    expect(interactions.saveNewTask).not.toHaveBeenCalled();
+
+    store.currentItem = createTask();
+    actions.handleDelete();
+    expect(store.dialogs.openDeleteDialog).toHaveBeenCalledWith(false, 'task-1');
+
+    store.isNewTaskMode = true;
+    interactions.saveNewTask.mockResolvedValueOnce(null);
+    await actions.handleSaveNewTask();
+    expect(domain.selectTask).not.toHaveBeenCalled();
+
+    interactions.saveNewTask.mockResolvedValueOnce('task-999');
+    await actions.handleSaveNewTask();
+    expect(domain.selectTask).toHaveBeenCalledWith('task-999');
+  });
+
+  it('forwards subtask actions and parent navigation', async () => {
+    store.task = createTask();
+    store.currentItem = createSubTask();
+    const actions = createTaskDetailActions({ store, domain, recurrence, interactions });
+
+    actions.handleSubTaskToggle('subtask-1');
+    actions.handleSubTaskClick('subtask-1');
+    actions.handleAddSubTask();
+    await actions.handleSubTaskAdded('child');
+    actions.handleSubTaskAddCancel();
+    actions.handleGoToParentTask();
+
+    expect(domain.toggleSubTaskStatus).toHaveBeenCalled();
+    expect(domain.selectSubTask).toHaveBeenCalledWith('subtask-1');
+    expect(store.dialogs.toggleSubTaskAddForm).toHaveBeenCalled();
+    expect(domain.addSubTask).toHaveBeenCalled();
+    expect(store.dialogs.closeSubTaskAddForm).toHaveBeenCalled();
+    expect(domain.selectTask).toHaveBeenCalledWith('task-1');
+
+    store.currentItem = createTask();
+    actions.handleGoToParentTask();
+    expect(domain.selectTask).toHaveBeenCalledTimes(1);
+  });
+
+  it('moves a task between lists and closes the related dialogs', async () => {
+    const actions = createTaskDetailActions({ store, domain, recurrence, interactions });
+
+    await actions.handleProjectTaskListChange({ projectId: 'project-1', taskListId: 'list-2' });
+    expect(domain.moveTaskToList).not.toHaveBeenCalled();
+
+    store.currentItem = createTask();
+    store.isNewTaskMode = true;
+    await actions.handleProjectTaskListChange({ projectId: 'project-1', taskListId: 'list-2' });
+    expect(domain.moveTaskToList).not.toHaveBeenCalled();
+
+    store.isNewTaskMode = false;
+    await actions.handleProjectTaskListChange({ projectId: 'project-1', taskListId: 'list-2' });
+    expect(domain.moveTaskToList).toHaveBeenCalledWith('task-1', 'list-2');
+    expect(store.dialogs.closeProjectTaskListDialog).toHaveBeenCalled();
+
+    actions.handleProjectTaskListEdit();
+    actions.handleProjectTaskListDialogClose();
+    actions.handleConfirmDiscard();
+    actions.handleCancelDiscard();
+    actions.handleConfirmDelete();
+    actions.handleCancelDelete();
+    actions.handleRecurrenceDialogOpen();
+    actions.handleRecurrenceDialogClose(false);
+
+    expect(store.dialogs.openProjectTaskListDialog).toHaveBeenCalled();
+    expect(store.dialogs.closeProjectTaskListDialog).toHaveBeenCalledTimes(2);
+    expect(store.dialogs.confirmDiscard).toHaveBeenCalled();
+    expect(store.dialogs.cancelDiscard).toHaveBeenCalled();
+    expect(store.dialogs.confirmDelete).toHaveBeenCalled();
+    expect(store.dialogs.cancelDelete).toHaveBeenCalled();
+    expect(store.dialogs.openRecurrenceDialog).toHaveBeenCalled();
+    expect(store.dialogs.closeRecurrenceDialog).toHaveBeenCalled();
+  });
+
   it('cancels new task mode when delete invoked in draft mode', () => {
     store.currentItem = createTask();
     store.isNewTaskMode = true;

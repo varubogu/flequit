@@ -238,6 +238,113 @@ describe('TaskInteractionsService', () => {
     expect(draft.newTaskDraft?.tags).toHaveLength(0);
   });
 
+  it('ignores a new-task save when the draft, list, or title is missing', async () => {
+    await expect(service.saveNewTask()).resolves.toBeNull();
+
+    service.startNewTaskMode('list-1');
+    service.updateNewTaskData({ title: '   ' });
+    await expect(service.saveNewTask()).resolves.toBeNull();
+
+    service.updateNewTaskData({ title: 'Ready', listId: '' });
+    await expect(service.saveNewTask()).resolves.toBeNull();
+    expect(taskOperationsStub.addTask).not.toHaveBeenCalled();
+  });
+
+  it('returns null when creating the task fails', async () => {
+    service.startNewTaskMode('list-1');
+    service.updateNewTaskData({ title: 'Ready' });
+    taskOperationsStub.addTask.mockResolvedValueOnce(null);
+
+    await expect(service.saveNewTask()).resolves.toBeNull();
+    expect(draft.isNewTaskMode).toBe(true);
+  });
+
+  it('skips tag creation for empty input, a missing project, or a failed lookup', async () => {
+    await service.addTagToNewTask('New Tag');
+    expect(tagStoreStub.getOrCreateTagWithProject).not.toHaveBeenCalled();
+
+    service.startNewTaskMode('list-1');
+    await service.addTagToNewTask('   ');
+    expect(tagStoreStub.getOrCreateTagWithProject).not.toHaveBeenCalled();
+
+    service.updateNewTaskData({ projectId: undefined });
+    selectionState.selectedProjectId = null;
+    await service.addTagToNewTask('New Tag');
+    expect(tagStoreStub.getOrCreateTagWithProject).not.toHaveBeenCalled();
+
+    selectionState.selectedProjectId = 'project-1';
+    tagStoreStub.getOrCreateTagWithProject.mockResolvedValueOnce(null);
+    await service.addTagToNewTask('New Tag');
+    expect(draft.newTaskDraft?.tags).toHaveLength(0);
+  });
+
+  it('does not append a tag whose name already exists', async () => {
+    service.startNewTaskMode('list-1');
+    draft.updateDraft({ tags: [{ ...createTag(), name: 'new tag' }] });
+
+    await service.addTagToNewTask('New Tag');
+
+    expect(draft.newTaskDraft?.tags).toHaveLength(1);
+  });
+
+  it('removes a draft tag and ignores a missing draft or tag', () => {
+    service.removeTagFromNewTask('tag-1');
+
+    service.startNewTaskMode('list-1');
+    service.removeTagFromNewTask('missing');
+    expect(draft.newTaskDraft?.tags).toHaveLength(0);
+
+    draft.updateDraft({ tags: [createTag()] });
+    service.removeTagFromNewTask('tag-1');
+    expect(draft.newTaskDraft?.tags).toHaveLength(0);
+  });
+
+  it('attaches a tag once and detaches it from an existing task', () => {
+    const tag = createTag();
+    expect(service.attachTagToTask('missing', tag)).toBeUndefined();
+    expect(service.detachTagFromTask('missing', 'tag-1')).toBeNull();
+
+    service.attachTagToTask('task-1', tag);
+    expect(entities.getTaskById('task-1')?.tags).toHaveLength(1);
+
+    service.attachTagToTask('task-1', { ...tag, id: 'tag-2', name: 'URGENT' });
+    expect(entities.getTaskById('task-1')?.tags).toHaveLength(1);
+
+    expect(service.detachTagFromTask('task-1', 'missing')).toBeNull();
+    expect(service.detachTagFromTask('task-1', 'tag-1')?.id).toBe('tag-1');
+    expect(entities.getTaskById('task-1')?.tags).toHaveLength(0);
+  });
+
+  it('leaves draft tags unchanged when the removed or updated tag is absent', () => {
+    service.removeTagFromAllTasks('missing');
+    service.updateTagInAllTasks(createTag());
+
+    service.startNewTaskMode('list-1');
+    service.removeTagFromAllTasks('missing');
+    service.updateTagInAllTasks({ ...createTag(), id: 'other' });
+    expect(draft.newTaskDraft?.tags).toHaveLength(0);
+  });
+
+  it('applies tag updates from the window event and stops after dispose', () => {
+    const updated = { ...createTag(), name: 'From event' };
+    const spy = vi.spyOn(service, 'updateTagInAllTasks');
+
+    window.dispatchEvent(new CustomEvent('tag-updated'));
+    window.dispatchEvent(new CustomEvent('tag-updated', { detail: updated }));
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith(updated);
+
+    service.dispose();
+    window.dispatchEvent(new CustomEvent('tag-updated', { detail: updated }));
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it('clears pending selections', () => {
+    selection.pendingTaskSelection = 'pending';
+    service.clearPendingSelections();
+    expect(selection.pendingTaskSelection).toBeNull();
+  });
+
   it('updateTagInAllTasks updates both entities and draft tags', () => {
     service.startNewTaskMode('list-1');
     const tag = createTag();
