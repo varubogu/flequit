@@ -175,4 +175,79 @@ describe('ProjectStore', () => {
       expect(store.projects).toEqual([]);
     });
   });
+
+  describe('store mutations', () => {
+    test('fills missing project fields and keeps explicit ones', () => {
+      const createdAt = new Date('2020-01-01T00:00:00Z');
+      const updatedAt = new Date('2020-02-01T00:00:00Z');
+      const kept = store.addProjectToStore({
+        id: 'kept',
+        name: 'Kept',
+        orderIndex: 4,
+        createdAt,
+        updatedAt,
+        taskLists: [{ id: 'list-1' }],
+        allTags: [{ id: 'tag-1' }]
+      } as unknown as ProjectTree);
+      const filled = store.addProjectToStore({ id: 'filled', name: 'Filled' } as ProjectTree);
+
+      expect(kept.orderIndex).toBe(4);
+      expect(kept.createdAt).toBe(createdAt);
+      expect(kept.updatedAt).toBe(updatedAt);
+      expect(kept.taskLists).toHaveLength(1);
+      expect(kept.allTags).toHaveLength(1);
+      expect(filled.orderIndex).toBe(1);
+      expect(filled.taskLists).toEqual([]);
+      expect(filled.allTags).toEqual([]);
+      expect(filled.createdAt).toBeInstanceOf(Date);
+      expect(filled.updatedAt).toBeInstanceOf(Date);
+    });
+
+    test('updates an existing project and returns null when the id is missing', async () => {
+      expect(store.updateProjectInStore('missing', { name: 'Nope' })).toBeNull();
+      expect(await store.updateProject('missing', { name: 'Nope' })).toBeNull();
+
+      store.loadProjects([createMockProject('p1', 'Original')]);
+      const stamped = new Date('2021-03-03T00:00:00Z');
+      const moved = store.updateProjectInStore('p1', {
+        name: 'Moved',
+        orderIndex: 9,
+        updatedAt: stamped
+      });
+      expect(moved?.orderIndex).toBe(9);
+      expect(moved?.updatedAt).toBe(stamped);
+
+      const renamed = await store.updateProject('p1', { name: 'Renamed' });
+      expect(renamed?.name).toBe('Renamed');
+      expect(renamed?.orderIndex).toBe(9);
+      expect(renamed?.color).toBe('#FF0000');
+    });
+
+    test('removes a project and clears selection only when that project is selected', () => {
+      expect(store.removeProjectFromStore('missing')).toBe(false);
+
+      store.loadProjects([createMockProject('p1'), createMockProject('p2', 'Second')]);
+      selectionStore.selectProject('p2');
+      selectionStore.selectTask('task-2');
+      expect(store.removeProjectFromStore('p1')).toBe(true);
+      expect(selectionStore.selectedProjectId).toBe('p2');
+      expect(selectionStore.selectedTaskId).toBe('task-2');
+
+      expect(store.removeProjectFromStore('p2')).toBe(true);
+      expect(store.projects).toEqual([]);
+      expect(selectionStore.selectedProjectId).toBeNull();
+      expect(selectionStore.selectedTaskId).toBeNull();
+    });
+
+    test('rejects reorders and moves that do not change position', () => {
+      store.loadProjects([createMockProject('p1'), createMockProject('p2', 'Second')]);
+
+      expect(store.reorderProjectsInStore(-1, 0)).toEqual([]);
+      expect(store.reorderProjectsInStore(0, 9)).toEqual([]);
+      expect(store.reorderProjectsInStore(0, 0)).toEqual([]);
+      expect(store.moveProjectToPositionInStore('missing', 1)).toEqual([]);
+      expect(store.moveProjectToPositionInStore('p1', 0)).toEqual([]);
+      expect(store.projects.map((project) => project.id)).toEqual(['p1', 'p2']);
+    });
+  });
 });

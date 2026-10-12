@@ -193,4 +193,117 @@ describe('NumericIntervalInput', () => {
       expect(() => unmount()).not.toThrow();
     });
   });
+
+  describe('boundaries', () => {
+    it('blocks letters, allows editing keys and shortcuts, and sanitizes the committed value', async () => {
+      const onchange = vi.fn();
+      const timeout = vi.spyOn(globalThis, 'setTimeout').mockImplementation((handler) => {
+        if (typeof handler === 'function') {
+          handler();
+        }
+        return 0 as unknown as ReturnType<typeof setTimeout>;
+      });
+      try {
+        const { rerender } = render(NumericIntervalInput, {
+          props: { value: 4, onchange }
+        });
+        const input = document.querySelector(
+          '[data-testid="numeric-interval-input"]'
+        ) as HTMLInputElement;
+
+        const key = (init: KeyboardEventInit) => {
+          const event = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, ...init });
+          input.dispatchEvent(event);
+          return event.defaultPrevented;
+        };
+
+        expect(key({ key: 'a' })).toBe(true);
+        expect(key({ key: 'Escape' })).toBe(false);
+        expect(key({ key: 'Enter' })).toBe(false);
+        expect(key({ key: 'ArrowUp' })).toBe(false);
+        expect(key({ key: 'ArrowDown' })).toBe(false);
+        expect(key({ key: 'c', metaKey: true })).toBe(false);
+        expect(key({ key: 'A', ctrlKey: true })).toBe(false);
+        expect(key({ key: 'b', ctrlKey: true })).toBe(true);
+        expect(key({ key: '5' })).toBe(false);
+
+        let typed = '12a';
+        let acceptWrite = false;
+        timeout.mockImplementation((handler) => {
+          if (typeof handler === 'function') {
+            acceptWrite = true;
+            handler();
+            acceptWrite = false;
+          }
+          return 0 as unknown as ReturnType<typeof setTimeout>;
+        });
+        Object.defineProperty(input, 'value', {
+          configurable: true,
+          get: () => typed,
+          set: (next: string) => {
+            if (acceptWrite) {
+              typed = String(next);
+            }
+          }
+        });
+
+        await fireEvent.input(input);
+        expect(typed).toBe('12');
+        expect(onchange).toHaveBeenCalledWith(12);
+
+        typed = '0';
+        await fireEvent.input(input);
+        expect(onchange).toHaveBeenCalledWith(1);
+
+        typed = '';
+        await fireEvent.input(input);
+        expect(onchange).toHaveBeenLastCalledWith(1);
+
+        timeout.mockRestore();
+        delete (input as unknown as { value?: string }).value;
+        await rerender({ value: 9, onchange });
+        expect(input.value).toBe('9');
+      } finally {
+        timeout.mockRestore();
+      }
+    });
+
+    it('sanitizes input when onchange is omitted', async () => {
+      const timeout = vi.spyOn(globalThis, 'setTimeout').mockImplementation((handler) => {
+        if (typeof handler === 'function') {
+          handler();
+        }
+        return 0 as unknown as ReturnType<typeof setTimeout>;
+      });
+      try {
+        render(NumericIntervalInput, { props: { value: 2 } });
+        const input = document.querySelector(
+          '[data-testid="numeric-interval-input"]'
+        ) as HTMLInputElement;
+        let typed = '8x';
+        let acceptWrite = false;
+        timeout.mockImplementation((handler) => {
+          if (typeof handler === 'function') {
+            acceptWrite = true;
+            handler();
+            acceptWrite = false;
+          }
+          return 0 as unknown as ReturnType<typeof setTimeout>;
+        });
+        Object.defineProperty(input, 'value', {
+          configurable: true,
+          get: () => typed,
+          set: (next: string) => {
+            if (acceptWrite) {
+              typed = String(next);
+            }
+          }
+        });
+        await fireEvent.input(input);
+        expect(typed).toBe('8');
+      } finally {
+        timeout.mockRestore();
+      }
+    });
+  });
 });

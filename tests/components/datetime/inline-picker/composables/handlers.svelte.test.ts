@@ -211,6 +211,117 @@ describe('Inline Date Picker Handlers', () => {
     });
   });
 
+  describe('boundary values', () => {
+    function create(statePatch: Partial<ReturnType<typeof createInlineDatePickerState>> = {}) {
+      const onChange = vi.fn();
+      const options: UseInlineDatePickerOptions = { show: false, onChange };
+      const state = createInlineDatePickerState(options);
+      Object.assign(state, statePatch);
+      return { onChange, state, handlers: createEventHandlers(state, options) };
+    }
+
+    it('does not emit a single-date change when the end date is missing', () => {
+      const { onChange, handlers } = create({ endDate: '' });
+      handlers.handleDateTimeInputChange({ endTime: '09:00:00' });
+      expect(onChange).not.toHaveBeenCalled();
+    });
+
+    it('emits a partial range without a range object and ignores undefined fields', () => {
+      const { onChange, state, handlers } = create({
+        useRangeMode: true,
+        startDate: '2024-04-01',
+        startTime: '08:00:00',
+        endDate: '',
+        endTime: '18:00:00'
+      });
+
+      handlers.handleDateTimeInputChange({});
+      expect(state.startDate).toBe('2024-04-01');
+      expect(onChange).toHaveBeenCalledWith({
+        date: '2024-04-01',
+        dateTime: '2024-04-01T08:00:00',
+        range: undefined,
+        isRangeDate: true,
+        recurrenceRule: null
+      });
+
+      onChange.mockClear();
+      handlers.handleDateTimeInputChange({ endDate: '2024-04-03' });
+      expect(onChange).toHaveBeenCalledWith(
+        expect.objectContaining({
+          date: '2024-04-01',
+          range: { start: '2024-04-01T08:00:00', end: '2024-04-03T18:00:00' }
+        })
+      );
+    });
+
+    it('uses the end date when a range has no start, and does nothing when both dates are empty', () => {
+      const onlyEnd = create({
+        useRangeMode: true,
+        startDate: '',
+        endDate: '2024-05-02',
+        startTime: '07:00:00',
+        endTime: '19:00:00'
+      });
+      onlyEnd.handlers.handleDateTimeInputChange({});
+      expect(onlyEnd.onChange).toHaveBeenCalledWith(
+        expect.objectContaining({
+          date: '2024-05-02',
+          dateTime: '2024-05-02T07:00:00',
+          range: undefined
+        })
+      );
+
+      const neither = create({ useRangeMode: true, startDate: '', endDate: '' });
+      neither.handlers.handleDateTimeInputChange({});
+      expect(neither.onChange).not.toHaveBeenCalled();
+    });
+
+    it('emits an empty date when range mode changes without an end date', () => {
+      const { onChange, handlers } = create({ endDate: '', endTime: '00:00:00' });
+      handlers.handleRangeModeChange(true);
+      expect(onChange).toHaveBeenCalledWith({
+        date: '',
+        dateTime: 'T00:00:00',
+        isRangeDate: true,
+        recurrenceRule: null
+      });
+    });
+
+    it('saves recurrence through the range path and skips a single-date save without an end date', () => {
+      const ranged = create({
+        useRangeMode: true,
+        startDate: '2024-06-01',
+        endDate: '2024-06-02',
+        startTime: '09:00:00',
+        endTime: '10:00:00'
+      });
+      ranged.handlers.handleRecurrenceSave({ unit: 'week', interval: 1 });
+      expect(ranged.onChange).toHaveBeenCalledWith(
+        expect.objectContaining({
+          isRangeDate: true,
+          recurrenceRule: { unit: 'week', interval: 1 }
+        })
+      );
+
+      const missingEnd = create({ endDate: '' });
+      missingEnd.handlers.handleRecurrenceSave({ unit: 'day', interval: 3 });
+      expect(missingEnd.state.currentRecurrenceRule).toEqual({ unit: 'day', interval: 3 });
+      expect(missingEnd.onChange).not.toHaveBeenCalled();
+    });
+
+    it('does not throw when no onChange callback is registered', () => {
+      const options: UseInlineDatePickerOptions = { show: false };
+      const state = createInlineDatePickerState(options);
+      state.endDate = '2024-07-01';
+      state.endTime = '12:00:00';
+      const handlers = createEventHandlers(state, options);
+
+      expect(() => handlers.handleCalendarChange(new CalendarDate(2024, 7, 4))).not.toThrow();
+      expect(state.endDate).toBe('2024-07-04');
+    });
+  });
+
   describe('handleRecurrenceDialogClose', () => {
     it('繰り返しダイアログを閉じる', () => {
       const options: UseInlineDatePickerOptions = { show: false };
