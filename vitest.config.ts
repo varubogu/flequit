@@ -46,15 +46,10 @@ export default defineConfig({
         'src/lib/**/*.d.ts'
       ],
       thresholds: {
-        // Lines/statements/functions stay at the 2026-02-27 baseline.
-        // Branch coverage is measured at 70.08% (2690/3838) on 2026-10-12
-        // after adding tests for previously unexecuted services and UI.
-        // The old 87% gate does not match v8 branch accounting: reaching it
-        // would need about 650 additional covered branches, mostly optional
-        // UI chains, and excluding every 0% file still left branches near 68%.
+        // 2026-02-27 baseline. The global branch gate stays at 87 on the way to 100%.
         lines: 80,
         functions: 72,
-        branches: 69,
+        branches: 87,
         statements: 80,
         // Services coverage will be raised toward 90% after Issue 01 completion
         'src/lib/services/**/*.{ts,svelte}': {

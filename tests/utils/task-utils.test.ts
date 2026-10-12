@@ -58,6 +58,24 @@ test('getPriorityColorClass: returns correct color classes for priority levels',
   expect(getPriorityColorClass(5)).toBe('bg-gray-100 text-gray-800');
 });
 
+test('getStatusLabel: uses English labels when no translator is provided', () => {
+  expect(getStatusLabel('not_started')).toBe('Not Started');
+  expect(getStatusLabel('in_progress')).toBe('In Progress');
+  expect(getStatusLabel('waiting')).toBe('Waiting');
+  expect(getStatusLabel('completed')).toBe('Completed');
+  expect(getStatusLabel('cancelled')).toBe('Cancelled');
+  expect(getStatusLabel('archived' as 'not_started')).toBe('archived');
+  expect(getStatusLabel('archived' as 'not_started', translate)).toBe('archived');
+});
+
+test('getPriorityLabel: uses English labels when no translator is provided', () => {
+  expect(getPriorityLabel(0)).toBe('High');
+  expect(getPriorityLabel(1)).toBe('High');
+  expect(getPriorityLabel(2)).toBe('Medium');
+  expect(getPriorityLabel(3)).toBe('Low');
+  expect(getPriorityLabel(4)).toBe('Lowest');
+});
+
 test('calculateSubTaskProgress: calculates progress correctly', () => {
   expect(calculateSubTaskProgress(0, 0)).toBe(0);
   expect(calculateSubTaskProgress(0, 5)).toBe(0);

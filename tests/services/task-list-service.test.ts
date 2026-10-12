@@ -226,6 +226,88 @@ describe('TaskListService', () => {
     expect(TaskListService.resolveTargetListId()).toBe(list.id);
   });
 
+  test('createTaskList defaults order index and keeps an explicit one', async () => {
+    const created = await TaskListService.createTaskList('project-1', { name: 'Inbox' });
+    expect(created.orderIndex).toBe(0);
+    expect(created.name).toBe('Inbox');
+    expect(backendTaskLists.get(created.id)?.name).toBe('Inbox');
+
+    const explicit = await TaskListService.createTaskList('project-1', {
+      name: 'Later',
+      order_index: 3
+    });
+    expect(explicit.orderIndex).toBe(3);
+  });
+
+  test('updateTaskList returns the stored list only when the patch succeeds', async () => {
+    const created = await TaskListService.createTaskList('project-1', { name: 'Inbox' });
+
+    const updated = await TaskListService.updateTaskList('project-1', created.id, { name: 'Renamed' });
+    expect(updated?.name).toBe('Renamed');
+
+    await expect(
+      TaskListService.updateTaskList('project-1', 'missing-list', { name: 'Nope' })
+    ).resolves.toBeNull();
+  });
+
+  test('create and update record a sync error and rethrow when the backend fails', async () => {
+    const failing = {
+      tasklist: {
+        create: vi.fn().mockRejectedValue(new Error('create down')),
+        update: vi.fn().mockRejectedValue(new Error('update down')),
+        delete: vi.fn().mockRejectedValue(new Error('delete down')),
+        restore: vi.fn().mockRejectedValue(new Error('restore down')),
+        get: vi.fn()
+      }
+    };
+    const { resolveBackend } = await import('$lib/infrastructure/backend-client');
+    vi.mocked(resolveBackend).mockResolvedValueOnce(failing as never);
+
+    await expect(TaskListService.createTaskList('project-1', { name: 'Inbox' })).rejects.toThrow(
+      'create down'
+    );
+    expect(errorHandlerMock.addSyncError).toHaveBeenCalledWith(
+      'タスクリスト作成',
+      'tasklist',
+      expect.any(String),
+      expect.any(Error)
+    );
+
+    vi.mocked(resolveBackend).mockResolvedValueOnce(failing as never);
+    await expect(TaskListService.updateTaskList('project-1', 'list-1', { name: 'X' })).rejects.toThrow(
+      'update down'
+    );
+    vi.mocked(resolveBackend).mockResolvedValueOnce(failing as never);
+    await expect(TaskListService.deleteTaskList('project-1', 'list-1')).rejects.toThrow('delete down');
+    vi.mocked(resolveBackend).mockResolvedValueOnce(failing as never);
+    await expect(TaskListService.restoreTaskList('project-1', 'list-1')).rejects.toThrow(
+      'restore down'
+    );
+  });
+
+  test('addNewTask returns null when task creation yields nothing', async () => {
+    const list = buildTaskList();
+    const project = buildProject([toTaskListWithTasks(list)]);
+    registerProject(project);
+    selectionState.selectedListId = list.id;
+    addTaskMock.mockResolvedValueOnce(null);
+
+    await expect(TaskListService.addNewTask('Orphan')).resolves.toBeNull();
+  });
+
+  test('resolveTargetListId uses the first project that actually has a list', () => {
+    const empty = buildProject([], { id: 'empty-project' });
+    const list = buildTaskList({ id: 'later-list', projectId: 'later-project' });
+    const later = buildProject([toTaskListWithTasks(list)], { id: 'later-project' });
+    projectStoreMock.projects = [empty, later];
+    selectionState.selectedProjectId = 'empty-project';
+    projectStoreMock.getProjectById.mockImplementation((id: string) =>
+      id === 'empty-project' ? empty : null
+    );
+
+    expect(TaskListService.resolveTargetListId()).toBe('later-list');
+  });
+
   test('getTaskCountText returns pluralized strings', () => {
     expect(TaskListService.getTaskCountText(0)).toBe('0 tasks');
     expect(TaskListService.getTaskCountText(1)).toBe('1 task');

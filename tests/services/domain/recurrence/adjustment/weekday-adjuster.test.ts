@@ -170,6 +170,38 @@ describe('weekday-adjuster', () => {
         expect(checkWeekdayCondition(wednesday, condition)).toBe(true);
       });
 
+      it('平日を weekend_only とみなさず、土日はみなす', () => {
+        const wednesday = new Date('2025-01-15T00:00:00Z');
+        const saturday = new Date('2025-01-18T00:00:00Z');
+        const condition: WeekdayCondition = {
+          id: 'weekend-only-check',
+          ifWeekday: 'weekend_only',
+          thenTarget: 'specific_weekday',
+          thenDirection: 'next'
+        };
+        expect(checkWeekdayCondition(wednesday, condition)).toBe(false);
+        expect(checkWeekdayCondition(saturday, condition)).toBe(true);
+      });
+
+      it('平日を non_weekend とみなし、未知の条件は false', () => {
+        const wednesday = new Date('2025-01-15T00:00:00Z');
+        const saturday = new Date('2025-01-18T00:00:00Z');
+        const weekday: WeekdayCondition = {
+          id: 'non-weekend-check',
+          ifWeekday: 'non_weekend',
+          thenTarget: 'specific_weekday',
+          thenDirection: 'next'
+        };
+        expect(checkWeekdayCondition(wednesday, weekday)).toBe(true);
+        expect(checkWeekdayCondition(saturday, weekday)).toBe(false);
+        expect(
+          checkWeekdayCondition(wednesday, {
+            ...weekday,
+            ifWeekday: 'not-a-condition' as WeekdayCondition['ifWeekday']
+          })
+        ).toBe(false);
+      });
+
       it('土曜日をnon_weekend_holidayとしてチェックするとfalse', () => {
         const saturday = new Date('2025-01-18T00:00:00');
         const condition: WeekdayCondition = {
@@ -372,7 +404,99 @@ describe('weekday-adjuster', () => {
     });
   });
 
-  describe('エッジケース', () => {
+    describe('未分類の補正先', () => {
+      it('weekend_only は土日へ移動し、すでに土日ならその日のまま', () => {
+        const monday = new Date('2025-01-13T00:00:00Z');
+        const saturday = new Date('2025-01-18T00:00:00Z');
+        const toWeekend: WeekdayCondition = {
+          id: 'weekend-only',
+          ifWeekday: 'monday',
+          thenTarget: 'weekend_only',
+          thenDirection: 'next'
+        };
+        const stay: WeekdayCondition = {
+          ...toWeekend,
+          ifWeekday: 'saturday'
+        };
+
+        expect(applyWeekdayAdjustment(monday, toWeekend).toISOString().slice(0, 10)).toBe(
+          '2025-01-18'
+        );
+        expect(applyWeekdayAdjustment(saturday, stay).toISOString().slice(0, 10)).toBe(
+          '2025-01-18'
+        );
+      });
+
+      it('non_weekend は平日へ移動する', () => {
+        const saturday = new Date('2025-01-18T00:00:00Z');
+        const condition: WeekdayCondition = {
+          id: 'non-weekend',
+          ifWeekday: 'saturday',
+          thenTarget: 'non_weekend',
+          thenDirection: 'next'
+        };
+        expect(applyWeekdayAdjustment(saturday, condition).toISOString().slice(0, 10)).toBe(
+          '2025-01-20'
+        );
+      });
+
+      it('同じ曜日への previous は7日前になる', () => {
+        const monday = new Date('2025-01-13T00:00:00Z');
+        const condition: WeekdayCondition = {
+          id: 'same-previous',
+          ifWeekday: 'monday',
+          thenTarget: 'specific_weekday',
+          thenWeekday: 'monday',
+          thenDirection: 'previous'
+        };
+        expect(applyWeekdayAdjustment(monday, condition).toISOString().slice(0, 10)).toBe(
+          '2025-01-06'
+        );
+      });
+
+      it('曜日が指定されていない specific_weekday は thenDays 分だけ動かす', () => {
+        const monday = new Date('2025-01-13T00:00:00Z');
+        const shifted = applyWeekdayAdjustment(monday, {
+          id: 'days-only',
+          ifWeekday: 'monday',
+          thenTarget: 'specific_weekday',
+          thenDirection: 'previous',
+          thenDays: 2
+        });
+        expect(shifted.toISOString().slice(0, 10)).toBe('2025-01-11');
+
+        const unchanged = applyWeekdayAdjustment(monday, {
+          id: 'no-days',
+          ifWeekday: 'monday',
+          thenTarget: 'specific_weekday',
+          thenDirection: 'next'
+        });
+        expect(unchanged.toISOString().slice(0, 10)).toBe('2025-01-13');
+      });
+
+      it('祝日補正は平日から次の土日へ進み、すでに祝日なら留まらないで次を探す前に一致する', () => {
+        const wednesday = new Date('2025-01-15T00:00:00Z');
+        const saturday = new Date('2025-01-18T00:00:00Z');
+        const nextHoliday: WeekdayCondition = {
+          id: 'next-holiday',
+          ifWeekday: 'wednesday',
+          thenTarget: 'holiday',
+          thenDirection: 'next'
+        };
+        const alreadyHoliday: WeekdayCondition = {
+          ...nextHoliday,
+          ifWeekday: 'saturday'
+        };
+        expect(applyWeekdayAdjustment(wednesday, nextHoliday).toISOString().slice(0, 10)).toBe(
+          '2025-01-18'
+        );
+        expect(applyWeekdayAdjustment(saturday, alreadyHoliday).toISOString().slice(0, 10)).toBe(
+          '2025-01-18'
+        );
+      });
+    });
+
+    describe('エッジケース', () => {
     it('月をまたぐ調整（1月末から2月）', () => {
       const lastDayOfJan = new Date('2025-01-31T00:00:00'); // Friday
       const condition: WeekdayCondition = {

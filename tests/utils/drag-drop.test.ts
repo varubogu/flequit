@@ -446,6 +446,123 @@ describe('DragDropManager', () => {
       expect(mockElement.classList.contains('drag-over')).toBe(false);
     });
 
+    it('要素以外のターゲットでは見た目を変えず、ドラッグデータがないオーバーは拒否する', () => {
+      const textTarget = document.createTextNode('drag');
+      const startEvent = {
+        dataTransfer: { effectAllowed: '', setData: vi.fn() },
+        target: textTarget
+      } as unknown as DragEvent;
+      DragDropManager.startDrag(startEvent, { type: 'project', id: 'project-1' });
+      expect(DragDropManager.getDragData()?.id).toBe('project-1');
+
+      DragDropManager.handleDragEnd({ target: textTarget } as unknown as DragEvent);
+      expect(DragDropManager.getDragData()).toBeNull();
+
+      const over = {
+        preventDefault: vi.fn(),
+        dataTransfer: { dropEffect: 'move' },
+        currentTarget: document.createElement('div')
+      } as unknown as DragEvent;
+      expect(DragDropManager.handleDragOver(over, { type: 'project', id: 'project-2' })).toBe(
+        false
+      );
+      expect(over.dataTransfer!.dropEffect).toBe('move');
+    });
+
+    it('ドロップ可能な要素にはホバーを付け、不可の要素からは外す', () => {
+      const source = document.createElement('div');
+      DragDropManager.startDrag(
+        {
+          dataTransfer: { effectAllowed: '', setData: vi.fn() },
+          target: source
+        } as unknown as DragEvent,
+        { type: 'tag', id: 'tag-1' }
+      );
+
+      const allowed = document.createElement('div');
+      const allowEvent = {
+        preventDefault: vi.fn(),
+        dataTransfer: { dropEffect: '' },
+        currentTarget: allowed
+      } as unknown as DragEvent;
+      expect(DragDropManager.handleDragOver(allowEvent, { type: 'task', id: 'task-1' })).toBe(
+        true
+      );
+      expect(allowed.classList.contains('drop-target-hover')).toBe(true);
+
+      const blocked = document.createElement('div');
+      blocked.classList.add('drop-target-hover');
+      const blockEvent = {
+        preventDefault: vi.fn(),
+        dataTransfer: { dropEffect: '' },
+        currentTarget: blocked
+      } as unknown as DragEvent;
+      expect(DragDropManager.handleDragOver(blockEvent, { type: 'project', id: 'project-1' })).toBe(
+        false
+      );
+      expect(blocked.classList.contains('drop-target-hover')).toBe(false);
+      expect(blockEvent.dataTransfer!.dropEffect).toBe('none');
+    });
+
+    it('ドラッグデータがないドロップは null で、ホバーは消える', () => {
+      DragDropManager.handleDragEnd({ target: null } as unknown as DragEvent);
+      const zone = document.createElement('div');
+      zone.classList.add('drop-target-hover');
+      const result = DragDropManager.handleDrop(
+        {
+          preventDefault: vi.fn(),
+          currentTarget: zone
+        } as unknown as DragEvent,
+        { type: 'task', id: 'task-1' }
+      );
+      expect(result).toBeNull();
+      expect(zone.classList.contains('drop-target-hover')).toBe(false);
+    });
+
+    it('サブタスクはビューとタグにだけ置け、別タスクリスト同士は並べ替えできる', () => {
+      expect(
+        DragDropManager.canDrop(
+          { type: 'subtask', id: 'sub-1', taskId: 'task-1' },
+          { type: 'view', id: 'today' }
+        )
+      ).toBe(true);
+      expect(
+        DragDropManager.canDrop({ type: 'subtask', id: 'sub-1' }, { type: 'tag', id: 'tag-1' })
+      ).toBe(true);
+      expect(
+        DragDropManager.canDrop({ type: 'subtask', id: 'sub-1' }, { type: 'task', id: 'task-2' })
+      ).toBe(false);
+      expect(
+        DragDropManager.canDrop(
+          { type: 'tasklist', id: 'list-1', projectId: 'project-1' },
+          { type: 'tasklist', id: 'list-2', projectId: 'project-1' }
+        )
+      ).toBe(true);
+      expect(
+        DragDropManager.canDrop(
+          { type: 'tasklist', id: 'list-1', projectId: 'project-1' },
+          { type: 'tag', id: 'tag-1' }
+        )
+      ).toBe(false);
+      expect(
+        DragDropManager.canDrop({ type: 'project', id: 'project-1' }, { type: 'tag', id: 'tag-1' })
+      ).toBe(false);
+      expect(
+        DragDropManager.canDrop(
+          { type: 'unknown' as DragData['type'], id: 'x' },
+          { type: 'subtask', id: 'sub-1' }
+        )
+      ).toBe(false);
+    });
+
+    it('入ったドロップゾーンから出ると追跡を外す', () => {
+      const zone = document.createElement('div');
+      zone.classList.add('drag-over');
+      DragDropManager.handleDragEnter({ preventDefault: vi.fn() } as unknown as DragEvent, zone);
+      DragDropManager.handleDragLeave({ relatedTarget: null } as unknown as DragEvent, zone);
+      expect(zone.classList.contains('drag-over')).toBe(false);
+    });
+
     it('子要素に移った場合はドラッグリーブを無視する', () => {
       const mockElement = document.createElement('div');
       const childElement = document.createElement('span');
