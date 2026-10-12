@@ -125,6 +125,14 @@ describe('TaskCrudMutations', () => {
 
       expect(deps.taskCoreStore.applyTaskUpdate).not.toHaveBeenCalled();
     });
+
+    test('does not sync when the local update is rejected', async () => {
+      deps.taskCoreStore.applyTaskUpdate.mockReturnValueOnce(false);
+
+      await service.updateTask('task-1', { title: 'Rejected' });
+
+      expect(deps.taskService.updateTaskWithSubTasks).not.toHaveBeenCalled();
+    });
   });
 
   describe('updateTaskFromForm', () => {
@@ -149,6 +157,25 @@ describe('TaskCrudMutations', () => {
           description: 'New Description',
           priority: 5,
           isRangeDate: true
+        })
+      );
+    });
+
+    test('clears a blank description and treats a missing range flag as false', async () => {
+      await service.updateTaskFromForm('task-1', {
+        title: 'Title only',
+        description: '',
+        priority: 1
+      });
+
+      expect(deps.taskService.updateTaskWithSubTasks).toHaveBeenCalledWith(
+        'project-1',
+        'task-1',
+        expect.objectContaining({
+          description: undefined,
+          isRangeDate: false,
+          planStartDate: undefined,
+          planEndDate: undefined
         })
       );
     });
@@ -190,6 +217,14 @@ describe('TaskCrudMutations', () => {
       await service.deleteTask('task-1');
 
       expect(deps.taskStore.selectedTaskId).toBeNull();
+    });
+
+    test('does not call the backend when the task is already gone', async () => {
+      deps.taskCoreStore.removeTask.mockReturnValueOnce(null);
+
+      await service.deleteTask('missing');
+
+      expect(deps.taskService.deleteTaskWithSubTasks).not.toHaveBeenCalled();
     });
   });
 
@@ -234,6 +269,26 @@ describe('TaskCrudMutations', () => {
         })
       );
     });
+
+    test('keeps provided subtasks and tags and uses an empty title when none is given', async () => {
+      const subTasks = [{ id: 'sub-1', title: 'Child' }];
+      const tags = [{ id: 'tag-1', name: 'Work' }];
+
+      const result = await service.addTask('list-1', { subTasks, tags });
+
+      expect(result?.title).toBe('');
+      expect(result?.subTasks).toEqual(subTasks);
+      expect(result?.tags).toEqual(tags);
+    });
+
+    test('returns null when the task cannot be inserted locally', async () => {
+      deps.taskCoreStore.insertTask.mockReturnValueOnce(null);
+
+      const result = await service.addTask('list-1', { title: 'Unstored' });
+
+      expect(result).toBeNull();
+      expect(deps.taskService.createTaskWithSubTasks).not.toHaveBeenCalled();
+    });
   });
 
   describe('updateTaskDueDateForView', () => {
@@ -273,6 +328,14 @@ describe('TaskCrudMutations', () => {
 
     test('does nothing for unknown view', async () => {
       await service.updateTaskDueDateForView('task-1', 'unknown-view');
+
+      expect(deps.taskService.updateTaskWithSubTasks).not.toHaveBeenCalled();
+    });
+
+    test('does nothing when the task has no project', async () => {
+      deps.taskStore.getTaskProjectAndList.mockReturnValueOnce(null);
+
+      await service.updateTaskDueDateForView('missing', 'today');
 
       expect(deps.taskService.updateTaskWithSubTasks).not.toHaveBeenCalled();
     });

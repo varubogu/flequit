@@ -82,6 +82,34 @@ describe('FormatStorage', () => {
       expect(loaded).toBe('default-format');
     });
 
+    it('保存したフォーマットを読み戻し、使えないストレージでは既定値になる', () => {
+      const entries = new Map<string, string>();
+      const usable = {
+        getItem: (key: string) => entries.get(key) ?? null,
+        setItem: (key: string, value: string) => {
+          entries.set(key, String(value));
+        }
+      };
+      const original = globalThis.localStorage;
+      Object.defineProperty(globalThis, 'localStorage', { configurable: true, value: usable });
+
+      try {
+        const usableStorage = new FormatStorage();
+        usableStorage.saveCurrentFormat('yyyy-MM-dd');
+        expect(usableStorage.loadCurrentFormat('default')).toBe('yyyy-MM-dd');
+
+        Object.defineProperty(globalThis, 'localStorage', {
+          configurable: true,
+          value: { getItem: 'nope', setItem: () => undefined }
+        });
+        const brokenStorage = new FormatStorage();
+        brokenStorage.saveCurrentFormat('ignored');
+        expect(brokenStorage.loadCurrentFormat('fallback')).toBe('fallback');
+      } finally {
+        Object.defineProperty(globalThis, 'localStorage', { configurable: true, value: original });
+      }
+    });
+
     it('currentFormatフィールドがない場合はデフォルト値を返す', () => {
       localStorage.setItem('flequit-datetime-format', JSON.stringify({ other: 'value' }));
 

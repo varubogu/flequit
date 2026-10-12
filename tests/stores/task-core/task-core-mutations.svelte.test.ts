@@ -207,6 +207,13 @@ describe('TaskCoreMutations', () => {
 
       expect(newTask).toBeNull();
     });
+
+    it('タイトルが無いタスクは空文字になる', () => {
+      const newTask = mutations.addTask('list-1', { projectId: 'project-1' });
+
+      expect(newTask?.title).toBe('');
+      expect(newTask?.status).toBe('not_started');
+    });
   });
 
   describe('createRecurringTask', () => {
@@ -245,6 +252,14 @@ describe('TaskCoreMutations', () => {
         listId: 'non-existent',
         title: 'Recurring Task'
       });
+    });
+
+    it('プロジェクトIDとタイトルが無いときはリストのプロジェクトと空タイトルを使う', () => {
+      mutations.createRecurringTask({ listId: 'list-1' });
+
+      const recurringTask = projects[0].taskLists[0].tasks.at(-1);
+      expect(recurringTask?.projectId).toBe('project-1');
+      expect(recurringTask?.title).toBe('');
     });
   });
 
@@ -316,6 +331,61 @@ describe('TaskCoreMutations', () => {
       mutations.insertTask('list-1', taskToInsert, { index: 1 });
 
       expect(projects[0].taskLists[0].tasks[1].id).toBe('new-task');
+    });
+
+    it('日付も配列も無いタスクには現在時刻と空配列を補う', () => {
+      const result = mutations.insertTask('list-1', {
+        id: 'bare-task',
+        projectId: 'project-1',
+        listId: 'list-1',
+        title: 'Bare',
+        description: '',
+        status: 'not_started',
+        priority: 0,
+        orderIndex: 0,
+        isArchived: false,
+        assignedUserIds: [],
+        tagIds: []
+      } as TaskWithSubTasks);
+
+      expect(result?.createdAt).toBeInstanceOf(Date);
+      expect(result?.updatedAt).toBeInstanceOf(Date);
+      expect(result?.subTasks).toEqual([]);
+      expect(result?.tags).toEqual([]);
+    });
+
+    it('所属プロジェクトが見つからないリストには挿入しない', () => {
+      projects[0].taskLists.push({
+        id: 'orphan-list',
+        projectId: 'missing-project',
+        name: 'Orphan',
+        description: '',
+        orderIndex: 1,
+        isArchived: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        tasks: []
+      });
+
+      const result = mutations.insertTask('orphan-list', {
+        id: 'orphan-task',
+        projectId: 'missing-project',
+        listId: 'orphan-list',
+        title: 'Orphan',
+        description: '',
+        status: 'not_started',
+        priority: 0,
+        orderIndex: 0,
+        isArchived: false,
+        assignedUserIds: [],
+        tagIds: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        subTasks: [],
+        tags: []
+      });
+
+      expect(result).toBeNull();
     });
 
     it('存在しないリストへの挿入はnullを返す', () => {

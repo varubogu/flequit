@@ -151,4 +151,22 @@ describe('SidebarButton interactions', () => {
     await fireEvent.click(deleteItem);
     expect(remove).toHaveBeenCalledOnce();
   });
+
+  it('shows only the icon, without the active background, when a collapsed menu has no drop target', () => {
+    render(SidebarButton, {
+      props: {
+        ...baseProps,
+        isCollapsed: true,
+        isActive: false,
+        contextMenuItems: [{ label: 'Edit', action: vi.fn() }]
+      }
+    });
+
+    const button = screen.getByTestId('inbox-button');
+    expect(screen.queryByText('Inbox')).not.toBeInTheDocument();
+    expect(screen.getByText('📋')).toBeInTheDocument();
+    expect(button).toHaveClass('justify-center');
+    expect(button).not.toHaveClass('bg-muted');
+    expect(button.closest('[role="region"]')).not.toHaveAttribute('ondrop');
+  });
 });

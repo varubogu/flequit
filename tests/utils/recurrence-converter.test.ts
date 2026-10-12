@@ -401,6 +401,63 @@ describe('recurrence-converter', () => {
       ).toBe(true);
     });
 
+    it('終了日が過去ならエラーになり、未来なら通る', () => {
+      const past = validateRecurrenceRule({
+        unit: 'day',
+        interval: 1,
+        endDate: new Date('2000-01-01T00:00:00Z')
+      });
+      expect(past.some((error) => error.includes('終了日'))).toBe(true);
+
+      const future = new Date();
+      future.setFullYear(future.getFullYear() + 1);
+      const accepted = validateRecurrenceRule({
+        unit: 'day',
+        interval: 1,
+        endDate: future
+      });
+      expect(accepted).toHaveLength(0);
+    });
+
+    it('四半期と半期は日付指定があれば通り、空ならエラーになる', () => {
+      const filled = validateRecurrenceRule({
+        unit: 'month',
+        interval: 1,
+        pattern: {
+          extended: {
+            quarterly: { daysOfMonth: [1], weeksOfQuarter: [2] },
+            halfyear: { daysOfMonth: [3], weeksOfHalfyear: [1] }
+          }
+        }
+      });
+      expect(filled).toHaveLength(0);
+
+      const daysOnly = validateRecurrenceRule({
+        unit: 'month',
+        interval: 1,
+        pattern: {
+          extended: {
+            quarterly: { weeksOfQuarter: [1] },
+            halfyear: { daysOfMonth: [15] }
+          }
+        }
+      });
+      expect(daysOnly).toHaveLength(0);
+
+      const empty = validateRecurrenceRule({
+        unit: 'month',
+        interval: 1,
+        pattern: {
+          extended: {
+            quarterly: { daysOfMonth: [], weeksOfQuarter: [] },
+            halfyear: {}
+          }
+        }
+      });
+      expect(empty.some((error) => error.includes('四半期'))).toBe(true);
+      expect(empty.some((error) => error.includes('半期'))).toBe(true);
+    });
+
     it('拡張年次パターンで months が空ならエラー', () => {
       const rule: RecurrenceRule = {
         unit: 'year',

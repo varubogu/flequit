@@ -237,6 +237,43 @@ describe('SubtaskTauriService', () => {
       });
       expect(result).toBe(true);
     });
+
+    it('converts Date, ISO string, empty, and non-date values from snake_case fields', async () => {
+      mockInvoke.mockResolvedValue(true);
+      const planStart = new Date('2024-04-01T00:00:00.000Z');
+      const createdAt = new Date('2024-04-03T00:00:00.000Z');
+
+      const result = await service.update(
+        'test-project-id',
+        'subtask-123',
+        {
+          plan_start_date: planStart,
+          plan_end_date: '2024-04-02T00:00:00.000Z',
+          do_start_date: null,
+          do_end_date: 5,
+          created_at: createdAt,
+          updated_at: '2024-04-04T00:00:00.000Z',
+          tag_ids: ['tag-a']
+        } as Partial<SubTask>,
+        'test-user-id'
+      );
+
+      expect(result).toBe(true);
+      expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', {
+        projectId: 'test-project-id',
+        id: 'subtask-123',
+        userId: 'test-user-id',
+        patch: expect.objectContaining({
+          planStartDate: planStart.toISOString(),
+          planEndDate: '2024-04-02T00:00:00.000Z',
+          doStartDate: undefined,
+          doEndDate: undefined,
+          createdAt: createdAt.toISOString(),
+          updatedAt: '2024-04-04T00:00:00.000Z',
+          tagIds: ['tag-a']
+        })
+      });
+    });
   });
 
   describe('delete', () => {
