@@ -104,4 +104,57 @@ describe('CalendarPicker date boundaries', () => {
       expect(onRangeChange.mock.calls[0][1]).toBeInstanceOf(CalendarDate);
     }
   });
+
+  it('ignores blank range dates and emits a range only after both days are chosen', async () => {
+    const onRangeChange = vi.fn();
+    const view = render(CalendarPicker, {
+      props: { isRangeMode: true, startDate: '', endDate: '', onRangeChange }
+    });
+    flushSync();
+
+    const days = [
+      ...view.container.querySelectorAll<HTMLElement>(
+        '[data-bits-day]:not([data-disabled]):not([data-outside-month])'
+      )
+    ];
+    expect(days.length).toBeGreaterThan(2);
+
+    await fireEvent.click(days[0]);
+    expect(onRangeChange).not.toHaveBeenCalled();
+
+    await fireEvent.click(days[4]);
+    expect(onRangeChange).toHaveBeenCalledTimes(1);
+    expect(onRangeChange.mock.calls[0][0]).toBeInstanceOf(CalendarDate);
+    expect(onRangeChange.mock.calls[0][0].toString()).toBe(days[0].getAttribute('data-value'));
+    expect(onRangeChange.mock.calls[0][1].toString()).toBe(days[4].getAttribute('data-value'));
+  });
+
+  it('ignores an unparsable start date on the first range render', () => {
+    const view = render(CalendarPicker, {
+      props: { isRangeMode: true, startDate: 'not-a-date', endDate: '', onRangeChange: vi.fn() }
+    });
+    flushSync();
+    expect(view.container.querySelector('[role="grid"]')).toBeInTheDocument();
+  });
+
+  it('reports the calendar date of a newly selected day', async () => {
+    const onCalendarChange = vi.fn();
+    const view = render(CalendarPicker, {
+      props: { isRangeMode: false, endDate: '2024-04-10', onCalendarChange }
+    });
+    flushSync();
+
+    const days = [
+      ...view.container.querySelectorAll<HTMLElement>('[data-bits-day]:not([data-disabled])')
+    ];
+    const other = days.find(
+      (day) => day.getAttribute('data-value') !== '2024-04-10' && !day.hasAttribute('data-outside-month')
+    );
+    expect(other).toBeTruthy();
+
+    await fireEvent.click(other!);
+    expect(onCalendarChange).toHaveBeenCalledTimes(1);
+    expect(onCalendarChange.mock.calls[0][0]).toBeInstanceOf(CalendarDate);
+    expect(onCalendarChange.mock.calls[0][0].toString()).toBe(other!.getAttribute('data-value'));
+  });
 });

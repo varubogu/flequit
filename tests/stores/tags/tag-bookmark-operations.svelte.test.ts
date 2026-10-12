@@ -187,10 +187,51 @@ describe('TagBookmarkOperations', () => {
 
   describe('reorderBookmarkedTags', () => {
     it('ブックマーク済みタグを並び替えられる', async () => {
+      const { TagBookmarkService } = await import('$lib/services/domain/tag-bookmark');
+
       await bookmarkOps.reorderBookmarkedTags(0, 1);
 
-      // 並び替え操作が実行されることを確認（エラーなく完了）
-      expect(true).toBe(true);
+      expect(TagBookmarkService.reorder).toHaveBeenCalledWith('project-1', 0, 1);
+    });
+
+    it('最初のブックマークが無いときは並び替えない', async () => {
+      const { TagBookmarkService } = await import('$lib/services/domain/tag-bookmark');
+      bookmarkStore.clear();
+
+      await bookmarkOps.reorderBookmarkedTags(0, 1);
+
+      expect(TagBookmarkService.reorder).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('project and position guards', () => {
+    it('プロジェクトが解決できないタグはトグルも追加もしない', async () => {
+      const { TagService } = await import('$lib/services/domain/tag');
+      const { TagBookmarkService } = await import('$lib/services/domain/tag-bookmark');
+      vi.mocked(TagService.getProjectIdByTagId).mockResolvedValueOnce(null);
+
+      await bookmarkOps.toggleBookmark('tag-x');
+
+      expect(TagBookmarkService.toggleBookmark).not.toHaveBeenCalled();
+      expect(bookmarkOps.isBookmarked('tag-1')).toBe(true);
+
+      vi.mocked(TagService.getProjectIdByTagId).mockResolvedValueOnce(null);
+      await bookmarkOps.addBookmark('tag-x');
+
+      expect(TagBookmarkService.create).not.toHaveBeenCalled();
+    });
+
+    it('位置が変わらない、または一覧に無いタグは移動しない', async () => {
+      const { TagBookmarkService } = await import('$lib/services/domain/tag-bookmark');
+
+      await bookmarkOps.moveBookmarkedTagToPosition('missing', 0);
+      await bookmarkOps.moveBookmarkedTagToPosition('tag-1', 0);
+
+      expect(TagBookmarkService.reorder).not.toHaveBeenCalled();
+
+      await bookmarkOps.moveBookmarkedTagToPosition('tag-1', 1);
+
+      expect(TagBookmarkService.reorder).toHaveBeenCalledWith('project-1', 0, 1);
     });
   });
 });

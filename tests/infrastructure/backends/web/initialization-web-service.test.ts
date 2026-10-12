@@ -133,6 +133,92 @@ describe('InitializationWebService (web)', () => {
     expect(loadedProject?.updatedAt).toEqual(new Date('2024-01-04T00:00:00Z'));
   });
 
+  it('loadProjectData: converts present and absent task dates', async () => {
+    const stored = [
+      {
+        id: 'stored-project',
+        name: 'Stored Project',
+        color: '#123456',
+        orderIndex: 0,
+        isArchived: false,
+        createdAt: '2024-01-03T00:00:00Z',
+        updatedAt: '2024-01-04T00:00:00Z',
+        taskLists: [
+          {
+            id: 'list-1',
+            projectId: 'stored-project',
+            name: 'List',
+            orderIndex: 0,
+            isArchived: false,
+            createdAt: '2024-01-03T00:00:00Z',
+            updatedAt: '2024-01-04T00:00:00Z',
+            tasks: [
+              {
+                id: 'task-dated',
+                title: 'Dated',
+                createdAt: '2024-01-03T00:00:00Z',
+                updatedAt: '2024-01-04T00:00:00Z',
+                planStartDate: '2024-02-01T00:00:00Z',
+                planEndDate: '2024-02-02T00:00:00Z',
+                subTasks: [
+                  {
+                    id: 'sub-plain',
+                    title: 'Plain',
+                    createdAt: '2024-01-03T00:00:00Z',
+                    updatedAt: '2024-01-04T00:00:00Z'
+                  }
+                ],
+                tags: [
+                  {
+                    id: 'tag-1',
+                    name: 'Work',
+                    createdAt: '2024-01-03T00:00:00Z',
+                    updatedAt: '2024-01-04T00:00:00Z'
+                  }
+                ]
+              },
+              {
+                id: 'task-plain',
+                title: 'Plain',
+                createdAt: '2024-01-03T00:00:00Z',
+                updatedAt: '2024-01-04T00:00:00Z',
+                subTasks: [
+                  {
+                    id: 'sub-dated',
+                    title: 'Dated sub',
+                    createdAt: '2024-01-03T00:00:00Z',
+                    updatedAt: '2024-01-04T00:00:00Z',
+                    planStartDate: '2024-03-01T00:00:00Z',
+                    planEndDate: '2024-03-02T00:00:00Z'
+                  }
+                ],
+                tags: []
+              }
+            ]
+          }
+        ]
+      }
+    ];
+    storage.getItem.mockImplementation((key: string) =>
+      key === 'flequit_projects' ? JSON.stringify(stored) : null
+    );
+
+    const projects = await service.loadProjectData();
+    const tasks = projects[0]?.taskLists[0]?.tasks ?? [];
+    const dated = tasks.find((task) => task.id === 'task-dated');
+    const plain = tasks.find((task) => task.id === 'task-plain');
+
+    expect(dated?.planStartDate).toEqual(new Date('2024-02-01T00:00:00Z'));
+    expect(dated?.planEndDate).toEqual(new Date('2024-02-02T00:00:00Z'));
+    expect(dated?.subTasks[0]?.planStartDate).toBeUndefined();
+    expect(dated?.subTasks[0]?.planEndDate).toBeUndefined();
+    expect(dated?.tags[0]?.createdAt).toEqual(new Date('2024-01-03T00:00:00Z'));
+    expect(plain?.planStartDate).toBeUndefined();
+    expect(plain?.planEndDate).toBeUndefined();
+    expect(plain?.subTasks[0]?.planStartDate).toEqual(new Date('2024-03-01T00:00:00Z'));
+    expect(plain?.subTasks[0]?.planEndDate).toEqual(new Date('2024-03-02T00:00:00Z'));
+  });
+
   it('initializeAll: combines results from each step', async () => {
     const result = await service.initializeAll();
 

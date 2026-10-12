@@ -132,4 +132,74 @@ describe('views visibility store', () => {
       order: first.order
     });
   });
+
+  it('labels an unknown view with its id and fills a missing order from the fallback', async () => {
+    gateway.getSettingByKey.mockReturnValue(
+      setting(
+        JSON.stringify({
+          viewItems: [{ id: 'custom-lane', label: 'ignored', icon: 'x', visible: true, order: 0 }]
+        })
+      )
+    );
+    const store = new ViewsVisibilityStore(gateway);
+    await store.init();
+
+    expect(store.visibleViews.find((item) => item.id === 'custom-lane')?.label).toBe('custom-lane');
+
+    localStorage.setItem(
+      'views-configuration',
+      JSON.stringify({
+        viewItems: [{ id: 'today', label: 'Today', icon: 'sun', visible: false }]
+      })
+    );
+    gateway.getAllSettings.mockRejectedValueOnce(new Error('down'));
+    await store.init();
+    expect(store.configuration.viewItems.find((item) => item.id === 'today')?.order).toBe(0);
+    expect(store.hiddenViews.find((item) => item.id === 'today')?.label).toBeTruthy();
+
+    localStorage.setItem('views-configuration', JSON.stringify({}));
+    gateway.getAllSettings.mockRejectedValueOnce('down');
+    await store.init();
+    expect(store.configuration.viewItems.map((item) => item.id)).toContain('allTasks');
+  });
+
+  it('records an Error from a failed save and warns when localStorage cannot be written', async () => {
+    const store = new ViewsVisibilityStore(gateway);
+    const storage = {
+      getItem: () => null,
+      setItem: () => {
+        throw new Error('quota');
+      },
+      removeItem: () => {},
+      clear: () => {}
+    };
+    vi.stubGlobal('localStorage', storage);
+
+    store.setLists(store.visibleViews, store.hiddenViews);
+    expect(console.warn).toHaveBeenCalledWith(
+      'Failed to save views configuration to localStorage:',
+      expect.any(Error)
+    );
+
+    vi.stubGlobal('localStorage', memoryStorage());
+    await store.init();
+    gateway.updateSetting.mockRejectedValueOnce(new Error('disk'));
+    store.resetToDefaults();
+    await vi.waitFor(() => {
+      expect(errorHandler.errors.at(-1)).toMatchObject({
+        message: 'ビュー表示設定の保存に失敗しました',
+        details: 'disk'
+      });
+    });
+
+    vi.stubGlobal('localStorage', storage);
+    gateway.updateSetting.mockRejectedValueOnce(new Error('disk'));
+    store.resetToDefaults();
+    await vi.waitFor(() => {
+      expect(console.warn).toHaveBeenCalledWith(
+        'Failed to save views configuration to localStorage:',
+        expect.any(Error)
+      );
+    });
+  });
 });

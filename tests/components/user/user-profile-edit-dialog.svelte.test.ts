@@ -184,4 +184,84 @@ describe('UserProfileEditDialog', () => {
 
     expect(onClose).toHaveBeenCalledTimes(2);
   });
+
+  it('空の任意項目は空欄で表示し、空白のまま保存すると元の値を残す', async () => {
+    const sparseUser = {
+      ...baseUser,
+      handleId: '',
+      displayName: '',
+      email: undefined,
+      bio: undefined,
+      timezone: undefined
+    } as User;
+    const { unmount } = render(UserProfileEditDialog, {
+      props: { user: sparseUser, isOpen: true, onClose: vi.fn() }
+    });
+
+    expect(screen.getByLabelText('Username')).toHaveValue('');
+    expect(screen.getByLabelText('Display Name')).toHaveValue('');
+    expect(screen.getByLabelText('Email')).toHaveValue('');
+    expect(screen.getByLabelText('Bio')).toHaveValue('');
+    expect(screen.getByLabelText('Timezone')).toHaveValue('');
+    unmount();
+
+    render(UserProfileEditDialog, {
+      props: { user: baseUser, isOpen: true, onClose: vi.fn() }
+    });
+    await fireEvent.input(screen.getByLabelText('Username'), { target: { value: '   ' } });
+    await fireEvent.input(screen.getByLabelText('Email'), { target: { value: '   ' } });
+    await fireEvent.input(screen.getByLabelText('Bio'), { target: { value: '   ' } });
+    await fireEvent.input(screen.getByLabelText('Timezone'), { target: { value: '   ' } });
+    await fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => {
+      expect(mockUpdateUser).toHaveBeenCalled();
+    });
+    expect(mockUpdateUser.mock.calls.at(-1)?.[0]).toMatchObject({
+      handleId: baseUser.handleId,
+      email: baseUser.email,
+      bio: baseUser.bio,
+      timezone: baseUser.timezone
+    });
+  });
+
+  it('保存中は再保存と閉じる操作を無視し、Escape以外のキーでは閉じない', async () => {
+    let resolveUpdate: (success: boolean) => void = () => {};
+    mockUpdateUser.mockImplementation(
+      () =>
+        new Promise<boolean>((resolve) => {
+          resolveUpdate = resolve;
+        })
+    );
+    const onClose = vi.fn();
+    render(UserProfileEditDialog, {
+      props: { user: baseUser, isOpen: true, onClose }
+    });
+
+    await fireEvent.keyDown(window, { key: 'a' });
+    expect(onClose).not.toHaveBeenCalled();
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    expect(screen.getByRole('button', { name: '保存中...' })).toBeDisabled();
+
+    await fireEvent.click(screen.getByRole('button', { name: '保存中...' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    await fireEvent.keyDown(window, { key: 'Escape' });
+    expect(mockUpdateUser).toHaveBeenCalledTimes(1);
+    expect(onClose).not.toHaveBeenCalled();
+
+    resolveUpdate(true);
+    await waitFor(() => {
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('ユーザーが無いときは編集フォームを出さない', () => {
+    render(UserProfileEditDialog, {
+      props: { user: null, isOpen: true, onClose: vi.fn() }
+    });
+
+    expect(screen.getByText('Edit Profile')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Username')).not.toBeInTheDocument();
+  });
 });

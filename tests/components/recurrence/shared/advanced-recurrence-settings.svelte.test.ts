@@ -195,4 +195,74 @@ describe('AdvancedRecurrenceSettings', () => {
       expect(() => unmount()).not.toThrow();
     });
   });
+
+  describe('empty and selected monthly values', () => {
+    it('clears the day of the month when the number input is emptied', () => {
+      const ondetailschange = vi.fn();
+      render(AdvancedRecurrenceSettings, {
+        props: { details: { monthly: { dayOfMonth: 15 } }, ondetailschange }
+      });
+
+      const input = document.querySelector('#specific-date-input') as HTMLInputElement;
+      fireEvent.input(input, { target: { value: '' } });
+
+      expect(ondetailschange).toHaveBeenCalledWith(
+        expect.objectContaining({ monthly: expect.objectContaining({ dayOfMonth: undefined }) })
+      );
+    });
+
+    it('clears the week and reports the last week', () => {
+      const ondetailschange = vi.fn();
+      render(AdvancedRecurrenceSettings, {
+        props: { details: { monthly: { weekOfMonth: 2 } }, ondetailschange }
+      });
+
+      const select = document.querySelector('#week-of-period-select') as HTMLSelectElement;
+      expect(select.value).toBe('second');
+      fireEvent.change(select, { target: { value: '' } });
+      expect(ondetailschange).toHaveBeenCalledWith(
+        expect.objectContaining({ monthly: expect.objectContaining({ weekOfMonth: undefined }) })
+      );
+
+      fireEvent.change(select, { target: { value: 'last' } });
+      expect(ondetailschange).toHaveBeenLastCalledWith(
+        expect.objectContaining({ monthly: expect.objectContaining({ weekOfMonth: 5 }) })
+      );
+    });
+
+    it('shows the selected weekday and clears it', () => {
+      const ondetailschange = vi.fn();
+      render(AdvancedRecurrenceSettings, {
+        props: {
+          details: { monthly: { weekOfMonth: 1, dayOfWeek: 'tuesday' } },
+          ondetailschange
+        }
+      });
+
+      const select = document.querySelector('#weekday-of-week-select') as HTMLSelectElement;
+      expect(select).toBeInTheDocument();
+      expect(select.value).toBe('tuesday');
+      expect(screen.getByRole('option', { name: 'Tuesday' })).toBeInTheDocument();
+
+      fireEvent.change(select, { target: { value: 'monday' } });
+      expect(ondetailschange).toHaveBeenCalledWith(
+        expect.objectContaining({
+          monthly: expect.objectContaining({ weekOfMonth: 1, dayOfWeek: 'monday' })
+        })
+      );
+
+      fireEvent.change(select, { target: { value: '' } });
+      expect(ondetailschange).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          monthly: expect.objectContaining({ dayOfWeek: undefined })
+        })
+      );
+    });
+
+    it('does not throw when the details callback is absent', () => {
+      render(AdvancedRecurrenceSettings, { props: { details: undefined } });
+      const input = document.querySelector('#specific-date-input') as HTMLInputElement;
+      expect(() => fireEvent.input(input, { target: { value: '8' } })).not.toThrow();
+    });
+  });
 });
