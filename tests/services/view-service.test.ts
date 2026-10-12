@@ -277,6 +277,29 @@ describe('view helpers', () => {
       expect(getViewTitle('search', 'My Query', deps)).toBe('Search: "My Query"');
       expect(getViewTitle('search', '', deps)).toBe('All Tasks');
     });
+
+    test('falls back when the selected list or project cannot be resolved', () => {
+      taskStore.selectedListId = 'missing-list';
+      taskStore.projects = [];
+      expect(getViewTitle('tasklist', '', deps)).toBe('Task List');
+
+      taskStore.selectedListId = null;
+      taskStore.selectedProjectId = 'missing-project';
+      expect(getViewTitle('project', '', deps)).toBe('Project');
+
+      taskStore.selectedProjectId = null;
+      expect(getViewTitle('project', '', deps)).toBe('Project');
+    });
+
+    test('returns titles for the remaining views and unknown views', () => {
+      expect(getViewTitle('completed', '', deps)).toBe('Completed');
+      expect(getViewTitle('tomorrow', '', deps)).toBe('Tomorrow');
+      expect(getViewTitle('next3days', '', deps)).toBe('Next 3 Days');
+      expect(getViewTitle('nextweek', '', deps)).toBe('Next Week');
+      expect(getViewTitle('thismonth', '', deps)).toBe('This Month');
+      expect(getViewTitle('all', '', deps)).toBe('All Tasks');
+      expect(getViewTitle('custom', '', deps)).toBe('All Tasks');
+    });
   });
 
   describe('shouldShowAddButton', () => {

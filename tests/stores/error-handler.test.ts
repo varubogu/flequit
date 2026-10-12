@@ -193,6 +193,97 @@ describe('ErrorHandler', () => {
       expect(retryFunction).not.toHaveBeenCalled();
     });
 
+    test('removeError ignores an unknown id', () => {
+      errorHandler.addError({ type: 'general', message: 'stays', retryable: true });
+      errorHandler.removeError('missing');
+      expect(errorHandler.errors).toHaveLength(1);
+    });
+
+    test('addNetworkError stringifies a non-Error cause', () => {
+      errorHandler.addNetworkError('同期', 'offline');
+      expect(errorHandler.errors[0].details).toBe('offline');
+      expect(errorHandler.errors[0].message).toBe('ネットワークエラー: 同期');
+    });
+
+    test('retry failure without context does not record another sync error', async () => {
+      const errorId = errorHandler.addError({
+        type: 'network',
+        message: 'network',
+        retryable: true
+      });
+
+      const ok = await errorHandler.retryOperation(errorId, async () => {
+        throw new Error('still down');
+      });
+
+      expect(ok).toBe(false);
+      expect(errorHandler.errors).toHaveLength(1);
+      expect(errorHandler.errors[0].id).toBe(errorId);
+    });
+
+    test('retry failure fills missing context with fallbacks', async () => {
+      const errorId = errorHandler.addError({
+        type: 'sync',
+        message: 'sync',
+        retryable: true,
+        context: {}
+      });
+
+      const ok = await errorHandler.retryOperation(errorId, async () => {
+        throw 'offline';
+      });
+
+      expect(ok).toBe(false);
+      const recorded = errorHandler.errors.find((error) => error.details === 'offline');
+      expect(recorded?.message).toBe('リトライ操作の同期に失敗しました');
+      expect(recorded?.context).toMatchObject({
+        operation: 'リトライ操作',
+        resourceType: 'unknown',
+        resourceId: 'unknown'
+      });
+    });
+
+    test('retryAllErrors skips retryable errors that have no function', async () => {
+      errorHandler.addError({ type: 'sync', message: 'orphan', retryable: true });
+      const successCount = await errorHandler.retryAllErrors(new Map());
+      expect(successCount).toBe(0);
+      expect(errorHandler.errors).toHaveLength(1);
+    });
+
+    test('window events record unexpected failures on the shared handler', async () => {
+      vi.useFakeTimers();
+      const { errorHandler: shared } = await import('../../src/lib/stores/error-handler.svelte');
+      shared.clearAllErrors();
+
+      window.dispatchEvent(
+        new PromiseRejectionEvent('unhandledrejection', {
+          promise: Promise.resolve(),
+          reason: new Error('rejected')
+        })
+      );
+      window.dispatchEvent(
+        new PromiseRejectionEvent('unhandledrejection', {
+          promise: Promise.resolve(),
+          reason: 'text-reason'
+        })
+      );
+      window.dispatchEvent(new ErrorEvent('error', { error: new Error('thrown'), message: 'unused' }));
+      window.dispatchEvent(new ErrorEvent('error', { message: 'window message' }));
+
+      expect(shared.errors.map((error) => error.details)).toEqual([
+        'rejected',
+        'text-reason',
+        'thrown',
+        'window message'
+      ]);
+      expect(shared.errors.every((error) => error.type === 'general' && error.retryable === false)).toBe(
+        true
+      );
+      shared.clearAllErrors();
+      await vi.runAllTimersAsync();
+      vi.useRealTimers();
+    });
+
     test('retryAllErrors should retry all retryable errors', async () => {
       const retryFunction1 = vi.fn().mockResolvedValue(undefined);
       const retryFunction2 = vi.fn().mockResolvedValue(undefined);

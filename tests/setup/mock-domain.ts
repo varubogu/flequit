@@ -1158,7 +1158,8 @@ vi.mock('$lib/stores/tags.svelte', async () => {
       dataServiceImpl.createTag(projectId, tagData)
     ),
     get bookmarkedTags() {
-      return new Set(mockBookmarkedTags);
+      // 本番の bookmarkedTagIds は配列で、tag-display は includes を使う。
+      return [...mockBookmarkedTags];
     },
     set bookmarkedTags(value: Iterable<string>) {
       mockBookmarkedTags.clear();
