@@ -61,13 +61,13 @@ describe('task detail date handlers', () => {
   it('stores a date range and a recurrence rule', async () => {
     const store = createStore();
     const onRecurrenceChange = vi.fn().mockResolvedValue(undefined);
-    const start = new Date('2024-04-01T00:00:00Z');
-    const end = new Date('2024-04-03T00:00:00Z');
+    const start = '2024-04-01T00:00:00Z';
+    const end = '2024-04-03T00:00:00Z';
     const rule = { unit: 'day', interval: 1 } as never;
 
     await handleDateChangeImpl(
       store,
-      { dateTime: end, range: { start, end }, isRangeDate: true, recurrenceRule: rule },
+      { date: end, dateTime: end, range: { start, end }, isRangeDate: true, recurrenceRule: rule },
       onRecurrenceChange
     );
 
@@ -79,11 +79,11 @@ describe('task detail date handlers', () => {
   it('stores a single date and clears recurrence when the rule is null', async () => {
     const store = createStore();
     const onRecurrenceChange = vi.fn().mockResolvedValue(undefined);
-    const dateTime = new Date('2024-04-02T00:00:00Z');
+    const dateTime = '2024-04-02T00:00:00Z';
 
     await handleDateChangeImpl(
       store,
-      { dateTime, isRangeDate: false, recurrenceRule: null },
+      { date: dateTime, dateTime, isRangeDate: false, recurrenceRule: null },
       onRecurrenceChange
     );
 
@@ -95,11 +95,11 @@ describe('task detail date handlers', () => {
   it('leaves recurrence untouched when the payload omits it', async () => {
     const store = createStore();
     const onRecurrenceChange = vi.fn();
-    const dateTime = new Date('2024-04-02T00:00:00Z');
+    const dateTime = '2024-04-02T00:00:00Z';
 
     await handleDateChangeImpl(
       store,
-      { dateTime, isRangeDate: true },
+      { date: dateTime, dateTime, isRangeDate: true },
       onRecurrenceChange
     );
 

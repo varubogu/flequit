@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { updateTask, saveRecurrence, updateSubTask, updateCoreTask } = vi.hoisted(() => ({
-  updateTask: vi.fn(async () => undefined),
+  updateTask: vi.fn(async (_taskId: string, _updates: Record<string, unknown>) => undefined),
   saveRecurrence: vi.fn(async () => undefined),
   updateSubTask: vi.fn(),
   updateCoreTask: vi.fn()
@@ -129,7 +129,10 @@ describe('task date picker handlers', () => {
       dateTime: '2024-02-05T00:00:00Z',
       isRangeDate: true
     });
-    const reused = updateTask.mock.calls.at(-1)?.[1] as { planStartDate: Date; planEndDate: Date };
+    const reused = updateTask.mock.calls.at(-1)?.[1] as unknown as {
+      planStartDate: Date;
+      planEndDate: Date;
+    };
     expect(reused.planStartDate.getTime()).toBe(reused.planEndDate.getTime());
   });
 

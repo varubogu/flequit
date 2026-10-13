@@ -1,5 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Project } from '$lib/types/project';
 import type { TaskWithSubTasks } from '$lib/types/task';
+import type { TaskList } from '$lib/types/task-list';
+import type {
+  TaskMoveContext,
+  TaskRemovalContext
+} from '$lib/stores/task-core/task-core-operations.svelte';
 
 const backend = vi.hoisted(() => ({
   createTaskWithSubTasks: vi.fn(),
@@ -43,27 +49,34 @@ function createHarness() {
   const stored = task();
   const taskStore = {
     selectedTaskId: null as string | null,
-    getTaskById: vi.fn(() => stored),
-    getTaskProjectAndList: vi.fn(() => ({
+    getTaskById: vi.fn((): TaskWithSubTasks | null => stored),
+    getTaskProjectAndList: vi.fn((): { project: Project; taskList: TaskList } | null => ({
       project: { id: 'project-1' },
       taskList: { id: 'list-1' }
-    }))
+    }) as { project: Project; taskList: TaskList }),
+    attachTagToTask: vi.fn(),
+    detachTagFromTask: vi.fn(() => null)
   };
   const taskCoreStore = {
-    insertTask: vi.fn((_listId: string, created: TaskWithSubTasks) => created),
-    removeTask: vi.fn(() => ({
-      project: { id: 'project-1' },
-      taskList: { id: 'list-1', tasks: [] },
-      task: stored,
-      index: 0
-    })),
+    insertTask: vi.fn(
+      (_listId: string, created: TaskWithSubTasks): TaskWithSubTasks | null => created
+    ),
+    removeTask: vi.fn(
+      (): TaskRemovalContext | null =>
+        ({
+          project: { id: 'project-1' },
+          taskList: { id: 'list-1', tasks: [] },
+          task: stored,
+          index: 0
+        }) as unknown as TaskRemovalContext
+    ),
     restoreTask: vi.fn(),
     applyTaskUpdate: vi.fn((_taskId: string, updater: (item: TaskWithSubTasks) => void) => {
       updater(stored);
       return true;
     }),
-    updateTask: vi.fn(),
-    moveTaskBetweenLists: vi.fn(),
+    updateTask: vi.fn(() => false),
+    moveTaskBetweenLists: vi.fn((): TaskMoveContext | null => null),
     restoreTaskMove: vi.fn()
   };
   const taskListStore = {

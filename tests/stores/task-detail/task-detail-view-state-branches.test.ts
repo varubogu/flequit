@@ -1,5 +1,5 @@
 import { flushSync } from 'svelte';
-import { effect_root } from 'svelte/internal/client';
+import { runEffectRoot } from '../../helpers/effect-root.svelte';
 import { afterEach, describe, expect, it } from 'vitest';
 import { TaskDetailViewState } from '$lib/stores/task-detail/task-detail-view-state.svelte';
 import { taskStore } from '$lib/stores/tasks.svelte';
@@ -75,7 +75,7 @@ describe('TaskDetailViewState project context', () => {
   it('uses the task, the parent task of a subtask, or nothing while drafting', () => {
     taskStore.setProjects(projects);
     let view!: TaskDetailViewState;
-    const stop = effect_root(() => {
+    const stop = runEffectRoot(() => {
       view = new TaskDetailViewState();
     });
     flushSync();

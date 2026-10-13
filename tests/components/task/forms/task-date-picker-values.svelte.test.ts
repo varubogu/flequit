@@ -63,7 +63,7 @@ describe('TaskDatePicker values', () => {
     const { component } = render(TaskDatePicker, { props: { task: task() } });
     expect(component.getShowDatePicker()).toBe(false);
 
-    component.handleSubTaskDueDateClick(clickOn(button), 'sub-1');
+    component.handleSubTaskDueDateClick(clickOn(button), subtask());
     flushSync();
 
     expect(component.getShowDatePicker()).toBe(false);
@@ -82,7 +82,7 @@ describe('TaskDatePicker values', () => {
     });
     const { component } = render(TaskDatePicker, { props: { task: undated } });
 
-    component.handleSubTaskDueDateClick(clickOn(button), 'sub-plain');
+    component.handleSubTaskDueDateClick(clickOn(button), subtask({ id: 'sub-plain' }));
     flushSync();
 
     expect(component.getShowDatePicker()).toBe(false);

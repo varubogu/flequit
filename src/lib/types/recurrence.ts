@@ -347,4 +347,9 @@ export interface RecurrenceRuleSearchCondition {
  *
  * 部分更新時に使用。すべてのフィールドがオプショナル。
  */
-export type RecurrenceRulePatch = Partial<RecurrenceRule>;
+export type RecurrenceRulePatch = Omit<Partial<RecurrenceRule>, 'pattern' | 'adjustment'> & {
+  /** null は既存パターンのクリア */
+  pattern?: RecurrencePattern | null;
+  /** null は既存補正のクリア */
+  adjustment?: RecurrenceAdjustment | null;
+};

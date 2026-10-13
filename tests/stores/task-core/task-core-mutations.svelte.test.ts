@@ -346,7 +346,7 @@ describe('TaskCoreMutations', () => {
         isArchived: false,
         assignedUserIds: [],
         tagIds: []
-      } as TaskWithSubTasks);
+      } as unknown as TaskWithSubTasks);
 
       expect(result?.createdAt).toBeInstanceOf(Date);
       expect(result?.updatedAt).toBeInstanceOf(Date);

@@ -4,6 +4,7 @@ import WeekdayConditionEditor from '$lib/components/datetime/conditions/weekday-
 import type { WeekdayCondition } from '$lib/types/datetime-calendar';
 
 const baseCondition: WeekdayCondition = {
+  id: 'weekday-1',
   ifWeekday: 'monday',
   thenDirection: 'previous',
   thenTarget: 'weekday'

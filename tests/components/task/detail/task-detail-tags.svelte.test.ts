@@ -30,7 +30,7 @@ const subTask = {
   taskId: 'task-1',
   title: 'Child',
   tags: []
-} as SubTask;
+} as unknown as SubTask;
 
 function projectTree(): ProjectTree {
   return {
