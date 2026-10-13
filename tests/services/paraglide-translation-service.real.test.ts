@@ -124,7 +124,10 @@ describe('ParaglideTranslationService', () => {
 
   it('returns a translated message, the key when missing, and the key when translation throws', () => {
     service.messageMap = {
-      hello: ({ name }: { name?: string } = {}) => `Hello ${name}`,
+      hello: (...args: unknown[]) => {
+        const name = (args[0] as { name?: string } | undefined)?.name;
+        return `Hello ${name}`;
+      },
       boom: () => {
         throw new Error('bad message');
       }

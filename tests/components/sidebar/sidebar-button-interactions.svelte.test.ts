@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { Pencil } from 'lucide-svelte';
+import type { Component } from 'svelte';
 import SidebarButton from '$lib/components/sidebar/sidebar-button.svelte';
 import { DragDropManager, type DragData } from '$lib/utils/drag-drop';
 
@@ -122,7 +123,7 @@ describe('SidebarButton interactions', () => {
         dropTarget: viewTarget,
         onDrop: vi.fn(),
         contextMenuItems: [
-          { label: 'Edit', action: edit, icon: Pencil },
+          { label: 'Edit', action: edit, icon: Pencil as unknown as Component },
           { label: '', action: vi.fn(), separator: true },
           { label: 'Delete', action: remove, destructive: true },
           { label: 'Locked', action: vi.fn(), disabled: true }

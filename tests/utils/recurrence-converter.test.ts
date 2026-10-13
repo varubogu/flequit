@@ -425,8 +425,8 @@ describe('recurrence-converter', () => {
         interval: 1,
         pattern: {
           extended: {
-            quarterly: { daysOfMonth: [1], weeksOfQuarter: [2] },
-            halfyear: { daysOfMonth: [3], weeksOfHalfyear: [1] }
+            quarterly: { daysOfMonth: [1], weeksOfQuarter: [{ week: 2, dayOfWeek: 'monday' }] },
+            halfyear: { daysOfMonth: [3], weeksOfHalfyear: [{ week: 1, dayOfWeek: 'friday' }] }
           }
         }
       });
@@ -437,7 +437,7 @@ describe('recurrence-converter', () => {
         interval: 1,
         pattern: {
           extended: {
-            quarterly: { weeksOfQuarter: [1] },
+            quarterly: { weeksOfQuarter: [{ week: 1, dayOfWeek: 'monday' }] },
             halfyear: { daysOfMonth: [15] }
           }
         }

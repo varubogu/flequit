@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { flushSync } from 'svelte';
-import { effect_root } from 'svelte/internal/client';
+import { runEffectRoot } from '../../helpers/effect-root.svelte';
 import type { TaskDetailViewState } from '$lib/stores/task-detail/task-detail-view-state.svelte';
 import type { TaskEditActionsGateway } from '$lib/dependencies/task-detail';
 import { createEditableView } from './editable-view.svelte';
@@ -18,7 +18,7 @@ function mountStore(
   gateway: TaskEditActionsGateway
 ) {
   let store!: TaskEditFormStore;
-  const stop = effect_root(() => {
+  const stop = runEffectRoot(() => {
     store = new TaskEditFormStore(view as unknown as TaskDetailViewState, gateway);
   });
   flushSync();

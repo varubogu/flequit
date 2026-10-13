@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import SettingsDraggableItems from '$lib/components/settings/draggable-items/settings-draggable-items.svelte';
 import { setTranslationService } from '$lib/stores/locale.svelte';

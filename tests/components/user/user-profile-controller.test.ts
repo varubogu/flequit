@@ -1,5 +1,5 @@
 import { flushSync } from 'svelte';
-import { effect_root } from 'svelte/internal/client';
+import { runEffectRoot } from '../../helpers/effect-root.svelte';
 import { describe, expect, it, vi } from 'vitest';
 import { UserProfileController } from '$lib/components/user/user-profile-controller.svelte';
 import type { User as FullUser } from '$lib/types/user';
@@ -55,18 +55,18 @@ describe('UserProfileController', () => {
     document.body.append(outside, inside);
 
     controller.showMenu = true;
-    controller.handleClickOutside({ target: outside } as MouseEvent);
+    controller.handleClickOutside({ target: outside } as unknown as MouseEvent);
     expect(controller.showMenu).toBe(false);
 
     controller.showMenu = true;
-    controller.handleClickOutside({ target: child } as MouseEvent);
+    controller.handleClickOutside({ target: child } as unknown as MouseEvent);
     expect(controller.showMenu).toBe(true);
 
     controller.handleClickOutside({ target: null } as unknown as MouseEvent);
     expect(controller.showMenu).toBe(true);
 
     controller.showMenu = false;
-    controller.handleClickOutside({ target: outside } as MouseEvent);
+    controller.handleClickOutside({ target: outside } as unknown as MouseEvent);
     expect(controller.showMenu).toBe(false);
 
     outside.remove();
@@ -76,7 +76,7 @@ describe('UserProfileController', () => {
   it('registers the outside-click handler only while the menu is open', () => {
     const controller = new UserProfileController({ user: null, fullUser: null });
     const callback = vi.fn();
-    const stop = effect_root(() => {
+    const stop = runEffectRoot(() => {
       controller.setupClickOutsideEffect(callback);
     });
     flushSync();

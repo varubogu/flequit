@@ -1,5 +1,5 @@
 import { flushSync } from 'svelte';
-import { effect_root } from 'svelte/internal/client';
+import { runEffectRoot } from '../../helpers/effect-root.svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { TaskDetailDialogsStore } from '$lib/stores/task-detail/task-detail-dialogs-store.svelte';
 import { TaskDetailViewState } from '$lib/stores/task-detail/task-detail-view-state.svelte';
@@ -25,7 +25,7 @@ function actions() {
 
 function mount(dialogActions = actions()) {
   let store!: TaskDetailDialogsStore;
-  const stop = effect_root(() => {
+  const stop = runEffectRoot(() => {
     store = new TaskDetailDialogsStore(new TaskDetailViewState(), dialogActions);
   });
   flushSync();

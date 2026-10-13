@@ -8,7 +8,7 @@ import type { SubTask } from '$lib/types/sub-task';
 import type { TaskWithSubTasks } from '$lib/types/task';
 
 describe('task detail guards', () => {
-  const task = { id: 'task-1', listId: 'list-1', subTasks: [] } as TaskWithSubTasks;
+  const task = { id: 'task-1', listId: 'list-1', subTasks: [] } as unknown as TaskWithSubTasks;
   const subTask = { id: 'sub-1', taskId: 'task-1' } as SubTask;
 
   it('identifies tasks and subtasks', () => {

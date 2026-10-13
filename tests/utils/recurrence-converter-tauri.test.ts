@@ -129,7 +129,7 @@ describe('recurrence converter for Tauri', () => {
         daysOfWeek: ['friday'],
         endDate: now,
         maxOccurrences: 4,
-        pattern: { yearly: {} },
+        pattern: { yearly: { month: 3 } },
         adjustment: { dateConditions: [{ id: 'd1', relation: 'before' }], weekdayConditions: [] }
       },
       'user-1',
@@ -144,7 +144,7 @@ describe('recurrence converter for Tauri', () => {
       endDate: now,
       maxOccurrences: 4
     });
-    expect(JSON.parse(patch.details as string)).toEqual({ yearly: {} });
+    expect(JSON.parse(patch.details as string)).toEqual({ yearly: { month: 3 } });
     expect(JSON.parse(patch.adjustment as string).recurrence_rule_id).toBe('rule-1');
 
     const cleared = toTauriRecurrenceRulePatchCommandModel(

@@ -1,15 +1,15 @@
 import { flushSync } from 'svelte';
-import { effect_root } from 'svelte/internal/client';
 import { describe, expect, it } from 'vitest';
 import { setupSyncEffects } from '$lib/components/datetime/inline-picker/composables/effects.svelte';
 import { createInlineDatePickerState } from '$lib/components/datetime/inline-picker/composables/state.svelte';
+import { runEffectRoot } from '../../../../helpers/effect-root.svelte';
 import { createSyncSources } from './effects-sync-fixture.svelte';
 
 describe('inline date picker sync effects', () => {
   it('follows getter values and skips a date update while the picker is hidden or blank', () => {
     const sources = createSyncSources();
     let endDate = '';
-    const stop = effect_root(() => {
+    const stop = runEffectRoot(() => {
       const state = createInlineDatePickerState({ isRangeDate: true });
       setupSyncEffects(state, {
         getShow: () => sources.show,
@@ -18,13 +18,13 @@ describe('inline date picker sync effects', () => {
         getIsRangeDate: () => sources.isRangeDate
       });
       endDate = state.endDate;
-      sources.show = sources.show;
       Object.assign(globalThis, { __pickerState: state });
     });
     flushSync();
 
-    const state = (globalThis as { __pickerState: ReturnType<typeof createInlineDatePickerState> })
-      .__pickerState;
+    const state = (
+      globalThis as unknown as { __pickerState: ReturnType<typeof createInlineDatePickerState> }
+    ).__pickerState;
     expect(state.useRangeMode).toBe(true);
     expect(state.lastSyncedRangeMode).toBe(true);
     expect(state.endDate).not.toBe('');
@@ -58,7 +58,7 @@ describe('inline date picker sync effects', () => {
   });
 
   it('falls back to plain option fields when getters are absent', () => {
-    const stop = effect_root(() => {
+    const stop = runEffectRoot(() => {
       const state = createInlineDatePickerState({});
       setupSyncEffects(state, {
         show: true,
@@ -66,11 +66,12 @@ describe('inline date picker sync effects', () => {
         currentStartDate: '2024-07-01T00:00:00.000Z',
         isRangeDate: false
       });
-      (globalThis as { __plainState?: typeof state }).__plainState = state;
+      (globalThis as unknown as { __plainState?: typeof state }).__plainState = state;
     });
     flushSync();
-    const state = (globalThis as { __plainState: ReturnType<typeof createInlineDatePickerState> })
-      .__plainState;
+    const state = (
+      globalThis as unknown as { __plainState: ReturnType<typeof createInlineDatePickerState> }
+    ).__plainState;
     expect(state.useRangeMode).toBe(false);
     expect(state.endDate).not.toBe('');
     expect(state.startDate).not.toBe('');
