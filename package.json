@@ -47,7 +47,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@inlang/cli": "^3.6.0",
-    "@inlang/paraglide-js": "2.29.0",
+    "@inlang/paraglide-js": "3.2.2",
     "@internationalized/date": "^3.12.4",
     "@lucide/svelte": "^1.72.0",
     "@playwright/test": "^1.65.0",
